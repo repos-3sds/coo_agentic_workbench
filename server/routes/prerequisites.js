@@ -55,7 +55,7 @@ router.get('/npas/:id/summary', async (req, res) => {
                 SUM(CASE WHEN r.status = 'FAIL' THEN 1 ELSE 0 END) as failed,
                 SUM(CASE WHEN r.status = 'PENDING' THEN 1 ELSE 0 END) as pending,
                 SUM(CASE WHEN r.status = 'WAIVED' THEN 1 ELSE 0 END) as waived,
-                SUM(CASE WHEN r.status = 'NOT_APPLICABLE' THEN 1 ELSE 0 END) as not_applicable
+                SUM(CASE WHEN r.status = 'N/A' THEN 1 ELSE 0 END) as not_applicable
             FROM npa_prerequisite_results r
             WHERE r.project_id = ?
         `, [req.params.id]);

@@ -152,28 +152,28 @@ export class GovernanceStatusComponent {
 
     getStatusBadgeClass(status: string): string {
         switch (status) {
-            case 'approved': return 'bg-green-100 text-green-700';
-            case 'rejected': return 'bg-red-100 text-red-700';
-            case 'looped_back': return 'bg-amber-100 text-amber-700';
-            case 'pending':
+            case 'APPROVED': return 'bg-green-100 text-green-700';
+            case 'REJECTED': return 'bg-red-100 text-red-700';
+            case 'REWORK': return 'bg-amber-100 text-amber-700';
+            case 'PENDING':
             default: return 'bg-slate-100 text-slate-600';
         }
     }
 
     getStatusIcon(status: string): string {
         switch (status) {
-            case 'approved': return 'check-circle-2';
-            case 'rejected': return 'x-circle';
-            case 'looped_back': return 'rotate-ccw';
-            case 'pending':
+            case 'APPROVED': return 'check-circle-2';
+            case 'REJECTED': return 'x-circle';
+            case 'REWORK': return 'rotate-ccw';
+            case 'PENDING':
             default: return 'clock';
         }
     }
 
     formatStatus(status: string): string {
         switch (status) {
-            case 'looped_back': return 'Looped Back';
-            default: return status.charAt(0).toUpperCase() + status.slice(1);
+            case 'REWORK': return 'Rework';
+            default: return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
         }
     }
 

@@ -23,7 +23,7 @@ export const AGENT_REGISTRY: AgentDefinition[] = [
     { id: 'NPA_ORCHESTRATOR', name: 'NPA Domain Orchestrator', tier: 2, icon: 'target', color: 'bg-orange-50 text-orange-600', difyType: 'chat', description: 'Decomposes NPA tasks into ordered sub-agent calls' },
 
     // Tier 3 — Specialist Workers
-    { id: 'IDEATION', name: 'Ideation Agent', tier: 3, icon: 'lightbulb', color: 'bg-indigo-50 text-indigo-600', difyType: 'workflow', description: 'Product concept development and NPA creation' },
+    { id: 'IDEATION', name: 'Ideation Agent', tier: 3, icon: 'lightbulb', color: 'bg-indigo-50 text-indigo-600', difyType: 'chat', description: 'Product concept development and NPA creation' },
     { id: 'CLASSIFIER', name: 'Classification Agent', tier: 3, icon: 'git-branch', color: 'bg-purple-50 text-purple-600', difyType: 'workflow', description: 'NTG/Variation/Existing classification and approval track assignment' },
     { id: 'AUTOFILL', name: 'Template AutoFill Agent', tier: 3, icon: 'file-edit', color: 'bg-blue-50 text-blue-600', difyType: 'workflow', description: '47-field NPA template auto-fill with RAG' },
     { id: 'ML_PREDICT', name: 'ML Prediction Agent', tier: 3, icon: 'trending-up', color: 'bg-amber-50 text-amber-600', difyType: 'workflow', description: 'Approval likelihood, timeline, and bottleneck prediction' },
@@ -65,7 +65,9 @@ export type AgentAction =
     | 'ROUTE_WORK_ITEM'
     | 'ROUTE_DOMAIN'
     | 'STOP_PROCESS'
-    | 'FINALIZE_DRAFT';
+    | 'FINALIZE_DRAFT'
+    | 'SHOW_RAW_RESPONSE'
+    | 'SHOW_ERROR';
 
 // ─── Classification Agent (#4) ──────────────────────────────────
 
@@ -78,7 +80,7 @@ export interface ClassificationScore {
 
 export interface ClassificationResult {
     type: 'NTG' | 'Variation' | 'Existing';
-    track: 'Full NPA' | 'NPA Lite' | 'Evergreen' | 'Prohibited';
+    track: 'Full NPA' | 'NPA Lite' | 'Bundling' | 'Evergreen' | 'Prohibited';
     scores: ClassificationScore[];
     overallConfidence: number;
     prohibitedMatch?: {
@@ -127,7 +129,7 @@ export interface MLPrediction {
 
 export interface SignoffItem {
     department: string;
-    status: 'pending' | 'approved' | 'rejected' | 'looped_back';
+    status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REWORK';
     assignee?: string;
     slaDeadline?: string;
     slaBreached?: boolean;

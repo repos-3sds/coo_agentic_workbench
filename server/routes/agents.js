@@ -136,7 +136,7 @@ router.get('/npas/:id/documents/requirements', async (req, res) => {
 router.get('/notifications', async (req, res) => {
     try {
         const [rows] = await db.query(`
-            SELECT 'BREACH' as type, id, project_id, breach_type as title, severity, triggered_at as created_at, status
+            SELECT 'BREACH' as type, id, project_id, title, severity, triggered_at as created_at, status
             FROM npa_breach_alerts WHERE status != 'RESOLVED'
             UNION ALL
             SELECT 'SLA_WARNING' as type, id, project_id, CONCAT(party, ' SLA Breach') as title, 'WARNING' as severity, created_at, 'OPEN' as status

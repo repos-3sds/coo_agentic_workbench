@@ -32,8 +32,6 @@ export interface NpaSection {
 
 // --- WORKFLOW & GOVERNANCE INTERFACES ---
 
-// --- WORKFLOW & GOVERNANCE INTERFACES ---
-
 export type NpaStage =
    | 'DRAFT'
    | 'PENDING_CHECKER'
@@ -59,7 +57,7 @@ export type SignOffParty =
    | 'T&O-Ops'
    | 'T&O-Tech';
 
-export type SignOffDecision = 'PENDING' | 'APPROVED' | 'APPROVED_CONDITIONAL' | 'REWORK_REQUIRED' | 'REJECTED';
+export type SignOffDecision = 'PENDING' | 'APPROVED' | 'APPROVED_CONDITIONAL' | 'REJECTED' | 'REWORK';
 
 export interface SignOffStatus {
    party: SignOffParty;

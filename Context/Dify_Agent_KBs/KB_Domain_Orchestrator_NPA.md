@@ -21,7 +21,14 @@ This knowledge base is the **NPA domain brain**. It contains everything an agent
 
 ---
 
-## 2. NPA Lifecycle — 6 Stages with Gate Conditions
+## 2. NPA Lifecycle — 6 Logical Orchestration Stages with Gate Conditions
+
+> **Important**: These are **logical orchestration stages** used by the Dify agent routing layer. They describe the conceptual workflow the orchestrator follows when guiding an NPA through specialist agents. They are NOT the same as:
+> - **`npa_projects.current_stage`** (DB column) — stores the project's current stage as free text, e.g. `"IDEATION"`, `"CLASSIFICATION"`
+> - **`npa_workflow_states.stage_id`** (DB column) — tracks stage progression with timestamps
+> - **Angular `NpaStage` type** — defines the maker/checker/signoff workflow states: `DRAFT → PENDING_CHECKER → RETURNED_TO_MAKER → PENDING_SIGN_OFFS → PENDING_FINAL_APPROVAL → APPROVED/REJECTED`
+>
+> The Angular stages model the internal governance workflow (maker submits, checker reviews, approvers sign off). The orchestration stages below model the agent-assisted lifecycle (ideation, classify, risk, autofill, governance, monitoring).
 
 ### 2.1 Stage Flow
 
@@ -82,7 +89,9 @@ EXISTING
 └── 1-6 weeks depending on sub-type
 ```
 
-### 3.2 The 20 NTG Indicators (Full Scoring Reference)
+### 3.2 NTG Indicators (Full Scoring Reference)
+
+> **Note on Indicator Count**: This section describes 20 conceptual NTG indicators grouped into 4 categories. The database table `ref_classification_criteria` contains **28 criteria rows** because some indicators have been decomposed into sub-criteria for granular scoring. The conceptual framework below remains valid — the database criteria map to these 20 indicators. Scoring: **0** (not applicable), **1** (partially applicable), **2** (fully applicable). Max total per the 20 indicators: 40.
 
 Each indicator is scored: **0** (not applicable), **1** (partially applicable), **2** (fully applicable). Max total: 40.
 
@@ -1028,65 +1037,103 @@ Some NPAs are approved with post-launch conditions (see Section 4.7). These are 
 
 ## 12. Database Schema — Key Tables
 
-42 Railway MySQL tables support the NPA lifecycle. Grouped by domain:
+42 Railway MySQL tables support the NPA lifecycle. Grouped by domain.
+
+> **Canonical Status Values** (use these exact values in all tool outputs and agent responses):
+> - **`npa_projects.status`**: `ACTIVE` (default), `On Track`, `At Risk`, `Delayed`, `Blocked`, `Completed`
+> - **`npa_projects.risk_level`**: `LOW`, `MEDIUM`, `HIGH`
+> - **`npa_projects.approval_track`**: `FULL_NPA`, `NPA_LITE`, `BUNDLING`, `EVERGREEN`, `PROHIBITED`
+> - **`npa_signoffs.status`**: `PENDING`, `APPROVED`, `REJECTED`, `REWORK`
+> - **`npa_form_data.lineage`**: `AUTO`, `ADAPTED`, `MANUAL`
+> - **`npa_prerequisite_results.status`**: `PENDING`, `PASS`, `FAIL`, `WAIVED`, `N/A`
+> - **`npa_breach_alerts.severity`**: `CRITICAL`, `WARNING`, `INFO`
+> - **`npa_breach_alerts.status`**: `OPEN`, `ACKNOWLEDGED`, `RESOLVED`, `ESCALATED`
 
 ### 12.1 Core NPA Tables
 | Table | Used By | Purpose |
 |-------|---------|---------|
-| `npa_projects` | All agents | Master project record (id, title, type, risk_level, stage, status, track) |
-| `npa_workflow_states` | Governance, orchestrator | Stage progression tracking (stage, status, timestamps) |
-| `npa_form_data` | Autofill | Template field values with lineage (fieldName, value, lineage, source, confidence) |
-| `npa_classification_results` | Classification | Scores, track assignment, confidence (20 indicator scores + overall) |
-| `npa_risk_assessments` | Risk | 4-layer results, overall score, hard stop flag, prerequisites |
-| `npa_signoffs` | Governance | Sign-off decisions per party (department, status, assignee, SLA, decided_at) |
+| `npa_projects` | All agents | Master project record (id, title, npa_type, risk_level, current_stage, status, approval_track) |
+| `npa_workflow_states` | Governance, orchestrator | Stage progression tracking (stage_id, status, started_at, completed_at) |
+| `npa_form_data` | Autofill | Template field values with lineage (`field_key`, `field_value`, `lineage`, `confidence_score`, `metadata`) |
+| `npa_classification_assessments` | Classification | Per-criteria scores with evidence (project_id, criteria_id, score 0/1/2, evidence, confidence) |
+| `npa_classification_scorecards` | Classification | Aggregate scores and tier determination (total_score, calculated_tier, breakdown JSON) |
+| `npa_risk_checks` | Risk | 4-layer results per check_layer (result: PASS/FAIL/WARNING, matched_items JSON) |
+| `npa_intake_assessments` | Risk | Domain-level readiness (domain, status: PASS/FAIL/WARN, score, findings JSON) |
+| `npa_signoffs` | Governance | Sign-off decisions per party (`party`, `department`, `status`, `approver_user_id`, `sla_deadline`, `decision_date`) |
 
 ### 12.2 Reference Tables
 | Table | Used By | Purpose |
 |-------|---------|---------|
-| `ref_npa_templates` | Ideation, Autofill | 47 field definitions with auto-fill rules |
-| `ref_classification_criteria` | Classification | 20 NTG indicators with scoring rubrics |
-| `ref_signoff_routing_rules` | Governance | Sign-off party routing by track type |
-| `ref_prohibited_items` | Risk, Ideation | Prohibited product list (maintained by compliance) |
+| `ref_npa_templates` | Ideation, Autofill | Template definitions (id, name, version, is_active) |
+| `ref_npa_sections` | Autofill | Template sections (template_id, title, description, order_index) |
+| `ref_npa_fields` | Autofill | 47 field definitions (section_id, field_key, label, field_type, is_required) |
+| `ref_field_options` | Autofill | Dropdown options for select fields (field_id, value, label) |
+| `ref_classification_criteria` | Classification | 28 classification criteria with scoring rubrics (category, criterion_code, indicator_type, weight) |
+| `ref_signoff_routing_rules` | Governance | Sign-off party routing by approval_track (party_group, sla_hours, can_parallel) |
+| `ref_prohibited_items` | Risk, Ideation | Prohibited product list (layer, severity, jurisdictions, effective dates) |
 | `ref_prerequisite_categories` | Risk | 9-category readiness framework with weights |
+| `ref_prerequisite_checks` | Risk | Individual prerequisite checks per category (mandatory_for, is_critical) |
+| `ref_document_requirements` | Document lifecycle | Document requirement definitions (doc_code, criticality, required_for, required_by_stage) |
+| `ref_document_rules` | Document lifecycle | Conditional document rules (condition_logic, criticality) |
+| `ref_escalation_rules` | Governance | Escalation ladder (escalation_level, trigger_type, trigger_threshold, auto_escalate) |
 
 ### 12.3 Audit & Session Tables
 | Table | Used By | Purpose |
 |-------|---------|---------|
-| `agent_sessions` | Orchestrator `session_create` | Tracing sessions |
-| `agent_session_messages` | Orchestrator `session_log_message` | Agent reasoning logs |
-| `routing_decisions` | Orchestrator `log_routing_decision` | Routing audit trail |
-| `audit_trail` | All `audit_log_action` | All write actions logged with timestamp, agent, action |
+| `agent_sessions` | Orchestrator `session_create` | Tracing sessions (agent_identity, current_stage, handoff_from) |
+| `agent_messages` | Orchestrator `session_log_message` | Agent reasoning logs (role, content, agent_confidence, reasoning_chain) |
+| `npa_agent_routing_decisions` | Orchestrator `log_routing_decision` | Routing audit trail (source_agent, target_agent, routing_reason, confidence) |
+| `npa_audit_log` | All `audit_log_action` | All write actions (action_type, actor_name, is_agent_action, agent_name, reasoning, source_citations) |
 
 ### 12.4 Supporting Tables
 | Table | Used By | Purpose |
 |-------|---------|---------|
-| `users` | `get_user_profile` | User identity, role (MAKER/CHECKER/APPROVER/COO), department |
-| `npa_documents` | Document lifecycle tools | Document metadata, validation status, expiry tracking |
-| `npa_comments` | Governance `add_comment` | Approval comments per sign-off |
-| `npa_escalations` | Governance `create_escalation` | Escalation records with level, reason, resolution |
-| `notifications` | Notification tools | Alert records with type, severity, recipients |
-| `prospects` | Ideation `get_prospects` | Prospect pipeline for conversion to NPA |
+| `users` | `get_user_profile` | User identity, role (MAKER/CHECKER/APPROVER/COO/ADMIN), department, location |
+| `npa_documents` | Document lifecycle tools | Document metadata, validation_status, version, criticality, required_by_stage |
+| `npa_comments` | Governance `add_comment` | Approval comments per sign-off (comment_type, generated_by_ai, ai_confidence) |
+| `npa_escalations` | Governance `create_escalation` | Escalation records (escalation_level, trigger_type, status: ACTIVE/RESOLVED/OVERRIDDEN) |
+| `npa_approvals` | Governance | Higher-level approvals: CHECKER, GFM_COO, PAC (decision: APPROVE/REJECT/CONDITIONAL_APPROVE) |
+| `npa_breach_alerts` | Monitoring | Breach alert records (title, severity, threshold_value, actual_value, sla_hours, status) |
+| `npa_prospects` | Ideation `get_prospects` | Prospect pipeline for conversion to NPA (name, theme, probability, estimated_value) |
+| `npa_loop_backs` | Governance | Rework tracking (loop_back_type, initiated_by_party, routed_to, resolution_type) |
+| `npa_post_launch_conditions` | Monitoring | Post-approval conditions (condition_text, owner_party, due_date, status) |
+| `npa_prerequisite_results` | Risk | Per-check results (check_id, status: PENDING/PASS/FAIL/WAIVED/N/A, evidence) |
+
+### 12.5 Monitoring & Analytics Tables
+| Table | Used By | Purpose |
+|-------|---------|---------|
+| `npa_monitoring_thresholds` | Monitoring | Per-project metric thresholds (metric_name, warning_value, critical_value) |
+| `npa_performance_metrics` | Monitoring | Performance snapshots (total_volume, realized_pnl, var_utilization, health_status) |
+| `npa_kpi_snapshots` | Dashboard | Portfolio KPI snapshots (pipeline_value, active_npas, avg_cycle_days, approval_rate) |
+| `npa_market_clusters` | Dashboard | Market cluster analytics (cluster_name, npa_count, growth_percent) |
+| `npa_market_risk_factors` | Risk | Market risk factor tracking (risk_factor, is_applicable, sensitivity_report, var_capture) |
+| `npa_external_parties` | Risk | External party tracking (party_name, vendor_tier, grc_id) |
+| `npa_jurisdictions` | All agents | Multi-jurisdiction tracking (project_id, jurisdiction_code) |
+| `kb_documents` | KB Search | KB document registry (doc_id, filename, doc_type, embedding_id, last_synced) |
 
 ---
 
 ## 13. Angular Frontend — Card Rendering Reference
 
-| agent_action | Card Type | Visual Style | Key Data Points |
-|-------------|-----------|-------------|-----------------|
-| `ROUTE_DOMAIN` | Domain routing | Violet border, agent icon | Agent name, description, greeting |
-| `ASK_CLARIFICATION` | Chat + buttons | Standard chat, clickable options | Question, 2-4 options, context |
-| `SHOW_CLASSIFICATION` | Classification scorecard | Purple, expandable criteria | Type, track, 20 scores, confidence %, sign-offs |
-| `SHOW_RISK` | Risk assessment panel | Red/amber/green by layer | 4 layers PASS/FAIL/WARNING, prerequisites, hard stop |
-| `SHOW_PREDICTION` | Prediction metrics | Amber, 3-column | Approval %, timeline days, bottleneck dept, features |
-| `SHOW_AUTOFILL` | Autofill summary | Blue, field counts | Coverage %, fields by lineage, time saved |
-| `SHOW_GOVERNANCE` | Governance status | Slate, signoff matrix | Party status, SLA indicators, loop-back count |
-| `SHOW_DOC_STATUS` | Doc completeness | Teal, missing/expiring lists | Completeness %, blocking docs, stage gate |
-| `SHOW_MONITORING` | Monitoring alerts | Emerald/red by severity | Health, breaches, trends, PIR status |
-| `SHOW_KB_RESULTS` | KB results + citations | Cyan, expandable sources | Answer, source snippets, related questions |
-| `HARD_STOP` | Hard-stop card | Red border, warning icon | Prohibition reason, blocked item, risk layer |
-| `FINALIZE_DRAFT` | Draft finalization | Green, action buttons | Project ID, summary, next steps, "Review" button |
-| `SHOW_RAW_RESPONSE` | Plain text bubble | Standard chat | Raw answer text |
-| `SHOW_ERROR` | Error card | Red, retry button | Error type, message, retry option |
+> **Implementation Status**: Actions marked with checkmark are wired in the Command Center (`command-center.component.ts`). Actions marked with a dash have Angular components built but are only rendered in the NPA Workspace page — they are NOT yet handled in the Command Center's action switch/case.
+
+| agent_action | Card Type | Visual Style | Key Data Points | Command Center |
+|-------------|-----------|-------------|-----------------|:-:|
+| `ROUTE_DOMAIN` | Domain routing | Violet border, agent icon | domainId, name, icon, color, greeting | Wired |
+| `ASK_CLARIFICATION` | Chat + buttons | Standard chat, clickable options | Question, 2-4 options, context | — |
+| `SHOW_CLASSIFICATION` | Classification scorecard | Purple, expandable criteria | Type, track, scores, confidence %, sign-offs | Wired |
+| `SHOW_RISK` | Risk assessment panel | Red/amber/green by layer | 4 layers PASS/FAIL/WARNING, prerequisites, hard stop | — |
+| `SHOW_PREDICTION` | Prediction metrics | Amber, 3-column | Approval %, timeline days, bottleneck dept, features | Wired |
+| `SHOW_AUTOFILL` | Autofill summary | Blue, field counts | Coverage %, fields by lineage, time saved | — |
+| `SHOW_GOVERNANCE` | Governance status | Slate, signoff matrix | Party status (PENDING/APPROVED/REJECTED/REWORK), SLA, loop-back count | — |
+| `SHOW_DOC_STATUS` | Doc completeness | Teal, missing/expiring lists | Completeness %, blocking docs, stage gate | — |
+| `SHOW_MONITORING` | Monitoring alerts | Emerald/red by severity | Health, breaches, trends, PIR status | — |
+| `SHOW_KB_RESULTS` | KB results + citations | Cyan, expandable sources | Answer, source snippets, related questions | — |
+| `HARD_STOP` / `STOP_PROCESS` | Hard-stop card | Red border, warning icon | Prohibition reason, blocked item, risk layer | Wired |
+| `FINALIZE_DRAFT` | Draft finalization | Green, action buttons | Project ID, summary, next steps, "Review" button | Wired |
+| `SHOW_RAW_RESPONSE` | Plain text bubble | Standard chat | Raw answer text | Fallback |
+| `SHOW_ERROR` | Error card | Red, retry button | Error type, message, retry option | — |
+| `ROUTE_WORK_ITEM` | Work item routing | — | Work item type, ID, target agent | — |
 
 ---
 

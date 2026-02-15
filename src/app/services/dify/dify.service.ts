@@ -409,9 +409,9 @@ export class DifyService {
             },
             GOVERNANCE: {
                 signoffs: [
-                    { department: 'Finance', status: 'pending' },
-                    { department: 'Credit', status: 'pending' },
-                    { department: 'Operations', status: 'pending' }
+                    { department: 'Finance', status: 'PENDING' },
+                    { department: 'Credit', status: 'PENDING' },
+                    { department: 'Operations', status: 'PENDING' }
                 ],
                 slaStatus: 'on_track', loopBackCount: 0, circuitBreaker: false
             }

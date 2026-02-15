@@ -37,7 +37,7 @@ const DIFY_AGENTS = {
     // Tier 3 — Specialist Workers
     IDEATION: {
         key: process.env.DIFY_KEY_IDEATION || '',
-        type: 'workflow',
+        type: 'chat',
         name: 'Ideation Agent',
         tier: 3,
         icon: 'lightbulb',

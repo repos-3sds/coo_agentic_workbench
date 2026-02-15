@@ -340,6 +340,8 @@ You have access to exactly 8 tools from the Railway MCP Tools Server. These are 
 
 ## 4. Conversation Variables
 
+> **Implementation Note**: These variables persist natively within the Dify Chatflow across turns. The Express proxy layer (`dify-proxy.js`) is a pass-through and does NOT manage or bridge these variables — they are internal to Dify's conversation state via `conversation_id`. Angular passes the `conversation_id` back on each request to maintain continuity.
+
 These variables persist across turns in the Dify Chatflow:
 
 | Variable | Type | Default | Purpose | When Updated |
@@ -361,6 +363,12 @@ These variables persist across turns in the Dify Chatflow:
 ---
 
 ## 5. Intent Classification (Deterministic Rules)
+
+> **Two Levels of Routing**: The system has two routing layers:
+> 1. **Inter-domain routing** (Angular `detectDomain()`): Determines which COO domain the user is asking about — NPA, Risk, KB, Operations, or Desk Support. This happens in the Angular frontend mock service and will be handled by the Master COO in production.
+> 2. **Intra-NPA routing** (this section): Once in the NPA domain, determines which specialist agent to call — Ideation, Classification, Risk, Autofill, Governance, or Query.
+>
+> This section covers **intra-NPA routing** — the intent classification that happens AFTER the user has been routed to the NPA domain.
 
 Every user message must be classified into exactly ONE of these intents. When ambiguous, ask ONE clarification question (using `ASK_CLARIFICATION` action).
 
@@ -420,11 +428,22 @@ The final line of every response must be:
 
 The JSON must be valid and on a single line after `@@NPA_META@@`.
 
+> **Express → Angular Mapping**: Express (`dify-proxy.js`) parses this envelope and normalizes it into the `DifyChatResponse.metadata` field that Angular consumes:
+> ```typescript
+> // What Angular receives (DifyChatResponse.metadata):
+> {
+>   agent_action: AgentAction,   // From envelope.agent_action
+>   payload: any,                // From envelope.payload.data (the action-specific data)
+>   agent_id: string             // From envelope.agent_id
+> }
+> ```
+> Angular reads `res.metadata.payload` directly — this maps to `payload.data` in the envelope. Structure your `data` field to match the TypeScript interfaces in `agent-interfaces.ts` (ClassificationResult, RiskAssessment, etc.).
+
 ### 6.3 AgentAction Values
 
 | agent_action | When You Use It | payload.data shape |
 |-------------|-----------------|-------------------|
-| `ROUTE_DOMAIN` | After routing to a specialist (ideation, query) | `{ "domain": "NPA", "domainAgent": "IDEATION", "greeting": "..." }` |
+| `ROUTE_DOMAIN` | After routing to a specialist (ideation, query) | `{ "domainId": "NPA", "name": "NPA Domain Orchestrator", "icon": "target", "color": "bg-orange-50 text-orange-600", "greeting": "..." }` |
 | `ASK_CLARIFICATION` | When intent is ambiguous or project_id missing | `{ "question": "...", "options": ["...", "..."], "context": "..." }` |
 | `SHOW_CLASSIFICATION` | Returning classification results from WF_NPA_Classify_Predict | ClassificationResult object |
 | `SHOW_RISK` | Returning risk results from WF_NPA_Risk | RiskAssessment object |
@@ -438,6 +457,8 @@ The JSON must be valid and on a single line after `@@NPA_META@@`.
 | `FINALIZE_DRAFT` | When NPA project is created and ready for next step | `{ "projectId": "...", "summary": "...", "nextSteps": ["..."] }` |
 | `SHOW_RAW_RESPONSE` | Fallback when no structured action applies | `{ "raw_answer": "..." }` |
 | `SHOW_ERROR` | When a tool or workflow fails | `{ "error_type": "...", "message": "...", "retry_allowed": true }` |
+| `STOP_PROCESS` | Alias for HARD_STOP — when NPA process must be halted | Same as HARD_STOP |
+| `ROUTE_WORK_ITEM` | Route a specific work item (signoff, document) to a specialist | `{ "work_item_type": "...", "work_item_id": "...", "target_agent": "..." }` |
 
 ### 6.4 Payload Data Type Definitions
 
@@ -568,7 +589,7 @@ The JSON must be valid and on a single line after `@@NPA_META@@`.
 ```
 I'll help you create a new product. Let me connect you with the Ideation Agent who will guide you through the product discovery process.
 
-@@NPA_META@@{"agent_action":"ROUTE_DOMAIN","agent_id":"MASTER_COO","payload":{"projectId":"","intent":"create_npa","target_agent":"IDEATION","uiRoute":"/agents/npa","data":{"domain":"NPA","domainAgent":"IDEATION","greeting":"Starting product ideation..."}},"trace":{"session_id":"abc-123"}}
+@@NPA_META@@{"agent_action":"ROUTE_DOMAIN","agent_id":"MASTER_COO","payload":{"projectId":"","intent":"create_npa","target_agent":"IDEATION","uiRoute":"/agents/npa","data":{"domainId":"NPA","name":"NPA Domain Orchestrator","icon":"target","color":"bg-orange-50 text-orange-600","greeting":"Starting product ideation..."}},"trace":{"session_id":"abc-123"}}
 ```
 
 **Asking for Clarification:**
@@ -724,11 +745,13 @@ Body:
 
 This section provides enough NPA domain context for you to make accurate routing decisions. You do NOT use this to answer user questions directly — that is CF_NPA_Query_Assistant's job.
 
-### 10.1 NPA Lifecycle Stages
+### 10.1 NPA Lifecycle Stages (Logical Orchestration Stages)
+
+> These are logical orchestration stages for agent routing. They map to `npa_projects.current_stage` and `npa_workflow_states.stage_id` in the database. They are distinct from the Angular `NpaStage` type which models the maker/checker/signoff governance workflow (`DRAFT → PENDING_CHECKER → RETURNED_TO_MAKER → PENDING_SIGN_OFFS → PENDING_FINAL_APPROVAL → APPROVED/REJECTED`).
 
 | Stage | Description | Primary Specialist |
 |-------|-------------|-------------------|
-| IDEATION | Product concept development, similar product search, NPA creation | CF_NPA_Ideation |
+| IDEATION | Product concept development, similar product search, NPA creation | CF_NPA_Ideation (Chatflow) |
 | CLASSIFICATION | NTG/Variation/Existing determination, approval track assignment | WF_NPA_Classify_Predict |
 | RISK_ASSESSMENT | 4-layer risk cascade (Internal Policy, Regulatory, Sanctions, Dynamic), prerequisite validation | WF_NPA_Risk |
 | AUTOFILL | 47-field template population with lineage tracking (AUTO/ADAPTED/MANUAL) | WF_NPA_Autofill |
@@ -753,7 +776,7 @@ The Classification Agent uses 20 indicators across 4 categories:
 - **Risk & Regulatory** (6): New risk categories, new regulatory framework, new capital treatment, new compliance monitoring, new legal agreements, new operational processes
 - **Financial & Operational** (5): New settlement mechanism, new currency exposure, new counterparty types, new pricing model, new data requirements
 
-**NTG Threshold**: Score >= 10 out of 20 with balanced distribution across categories.
+**NTG Threshold**: Score >= 20 out of 40 (each of 20 indicators scored 0/1/2) with balanced distribution across all 4 categories. See KB_Domain_Orchestrator_NPA Section 3.3 for full decision logic.
 
 ### 10.4 Sign-Off Parties
 
@@ -851,24 +874,27 @@ If `current_project_id` is empty and user requests a project-specific action:
 
 ## 12. Angular Frontend Contract
 
-The Angular frontend renders responses based on the `agent_action` in the `@@NPA_META@@` envelope:
+The Angular frontend renders responses based on the `agent_action` in the `@@NPA_META@@` envelope.
 
-| agent_action | Angular Component | Description |
-|-------------|------------------|-------------|
-| `ROUTE_DOMAIN` | Domain routing card | Violet border, agent icon, description |
-| `ASK_CLARIFICATION` | Chat bubble + buttons | Optional choice buttons |
-| `SHOW_CLASSIFICATION` | Classification scorecard | 7-criteria breakdown, progress bars |
-| `SHOW_RISK` | Risk assessment panel | 4-layer cascade with PASS/FAIL/WARNING |
-| `SHOW_PREDICTION` | Prediction metrics card | 3-column: approval %, timeline, bottleneck |
-| `SHOW_AUTOFILL` | Autofill summary panel | Field count, coverage %, time saved |
-| `SHOW_GOVERNANCE` | Governance status panel | Signoff matrix with SLA indicators |
-| `SHOW_DOC_STATUS` | Document completeness panel | Missing/expiring docs, stage gate status |
-| `SHOW_MONITORING` | Monitoring alerts panel | Breach thresholds, trend arrows |
-| `SHOW_KB_RESULTS` | KB results with citations | Answer + expandable source snippets |
-| `HARD_STOP` | Red hard-stop card | Prohibition reason, blocked item |
-| `FINALIZE_DRAFT` | Draft finalization card | Project ID, summary, next steps, "Review" button |
-| `SHOW_RAW_RESPONSE` | Plain text chat bubble | Fallback rendering |
-| `SHOW_ERROR` | Error card | Error message + optional retry button |
+> **Note**: The Command Center currently handles 5 actions directly: `ROUTE_DOMAIN`, `SHOW_CLASSIFICATION`, `HARD_STOP`/`STOP_PROCESS`, `SHOW_PREDICTION`, and `FINALIZE_DRAFT`. The remaining actions have Angular components built in the NPA Workspace but are not yet wired into the Command Center's action handler. All actions are valid — unwired ones will display as plain text chat bubbles until the Command Center switch/case is extended.
+
+| agent_action | Angular Component | Description | Wired in Command Center |
+|-------------|------------------|-------------|:-:|
+| `ROUTE_DOMAIN` | Domain routing card | Violet border, agent icon, description | Yes |
+| `ASK_CLARIFICATION` | Chat bubble + buttons | Optional choice buttons | No |
+| `SHOW_CLASSIFICATION` | Classification scorecard | Criteria breakdown, progress bars | Yes |
+| `SHOW_RISK` | Risk assessment panel | 4-layer cascade with PASS/FAIL/WARNING | No |
+| `SHOW_PREDICTION` | Prediction metrics card | 3-column: approval %, timeline, bottleneck | Yes |
+| `SHOW_AUTOFILL` | Autofill summary panel | Field count, coverage %, time saved | No |
+| `SHOW_GOVERNANCE` | Governance status panel | Signoff matrix (PENDING/APPROVED/REJECTED/REWORK), SLA | No |
+| `SHOW_DOC_STATUS` | Document completeness panel | Missing/expiring docs, stage gate status | No |
+| `SHOW_MONITORING` | Monitoring alerts panel | Breach thresholds, trend arrows | No |
+| `SHOW_KB_RESULTS` | KB results with citations | Answer + expandable source snippets | No |
+| `HARD_STOP` / `STOP_PROCESS` | Red hard-stop card | Prohibition reason, blocked item | Yes |
+| `FINALIZE_DRAFT` | Draft finalization card | Project ID, summary, next steps, "Review" button | Yes |
+| `SHOW_RAW_RESPONSE` | Plain text chat bubble | Fallback rendering | Fallback |
+| `SHOW_ERROR` | Error card | Error message + optional retry button | No |
+| `ROUTE_WORK_ITEM` | Work item routing | Routes specific work items to specialists | No |
 
 ### 12.1 Express Middleware Contract
 
@@ -892,11 +918,12 @@ The orchestrator does NOT query the database directly. The 8 MCP tools handle al
 | `npa_workflow_states` | get_workflow_state | Stage progression tracking |
 | `npa_signoffs` | (via get_npa_by_id signoff_summary) | Sign-off status per project |
 | `agent_sessions` | session_create | Audit trail sessions |
-| `agent_session_messages` | session_log_message | Individual message logs |
-| `routing_decisions` | log_routing_decision | Routing audit trail |
+| `agent_messages` | session_log_message | Individual message logs |
+| `npa_agent_routing_decisions` | log_routing_decision | Routing audit trail |
+| `npa_audit_log` | audit_log_action | All write actions logged with timestamp, agent, action |
 | `users` | get_user_profile | User identity and role lookup |
 | `ref_npa_templates` | (via ideation tools) | Template definitions |
-| `ref_classification_criteria` | (via classification tools) | Classification scoring rules |
+| `ref_classification_criteria` | (via classification tools) | Classification scoring rules (28 criteria) |
 | `ref_signoff_routing_rules` | (via governance tools) | Sign-off routing rules |
 | `ref_prohibited_items` | (via risk tools) | Prohibited product list |
 
