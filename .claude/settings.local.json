@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__claude_ai_PDF_Viewer__read_pdf_bytes",
+      "mcp__claude_ai_PDF_Viewer__display_pdf",
+      "Bash(pdftotext:*)",
+      "mcp__claude_ai_Mermaid_Chart__validate_and_render_mermaid_diagram",
+      "Bash(python3:*)",
+      "Bash(python -c:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
