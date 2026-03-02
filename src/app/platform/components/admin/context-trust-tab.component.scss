@@ -1,0 +1,21 @@
+.context-trust-container {
+    .card {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
+
+    .scope-item {
+        padding: 0.75rem 0;
+        border-bottom: 1px dashed rgba(0, 0, 0, 0.12);
+
+        &:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+    }
+
+    code {
+        font-size: 0.82rem;
+        color: #0b4f9c;
+    }
+}

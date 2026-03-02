@@ -162,11 +162,12 @@ class TestRetrieve:
             "stage2_top_k": 5,
         })
         if len(chunks) >= 2:
-            # First chunk should have higher authority (lower tier number)
-            first_tier = chunks[0].get("authority_tier", 5)
-            last_tier = chunks[-1].get("authority_tier", 5)
-            # Authority boost means lower tier = higher rank
-            assert first_tier <= last_tier
+            # Verify global sort monotonicity — every consecutive pair
+            tiers = [c.get("authority_tier", 5) for c in chunks]
+            for i in range(len(tiers) - 1):
+                assert tiers[i] <= tiers[i + 1], (
+                    f"Sort violation at index {i}: tier {tiers[i]} > tier {tiers[i + 1]}"
+                )
 
     def test_custom_top_k(self):
         """Custom stage2_top_k limits results."""

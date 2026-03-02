@@ -249,6 +249,54 @@ class TestDemoDomainRegression:
         assert len(result["_metadata"]["stages"]) == 7
 
 
+# ── 3b. ORM Domain Pipeline ──────────────────────────────────────────────────
+
+
+class TestORMDomainRegression:
+    """ORM domain: full pipeline pass."""
+
+    def test_orm_worker_pipeline(self):
+        """ORM worker assembles 7 stages."""
+        result = assemble_context(
+            request={
+                "agent_id": "ORM_INCIDENT", "entity_ids": ["INC-500"],
+                "query": "Analyze root cause of operational risk event",
+                "system_prompt": "You are an ORM analyst.",
+                "conversation_history": [], "few_shot_examples": [],
+                "tool_schemas": [], "sources": [],
+            },
+            archetype="worker", domain="ORM",
+        )
+        stages = [s["stage"] for s in result["_metadata"]["stages"]]
+        assert stages == ["CLASSIFY", "SCOPE", "RETRIEVE", "RANK", "BUDGET", "ASSEMBLE", "TAG"]
+
+    def test_orm_orchestrator_pipeline(self):
+        """ORM orchestrator gets lightweight budget."""
+        result = assemble_context(
+            request={
+                "agent_id": "ORM_ORCH", "entity_ids": [],
+                "query": "Route incident analysis", "system_prompt": "",
+                "conversation_history": [], "few_shot_examples": [],
+                "tool_schemas": [], "sources": [],
+            },
+            archetype="orchestrator", domain="ORM",
+        )
+        assert result["_metadata"]["budget_report"]["profile"] == "lightweight"
+
+    def test_orm_reviewer_pipeline(self):
+        """ORM reviewer gets compact budget."""
+        result = assemble_context(
+            request={
+                "agent_id": "ORM_REVIEWER", "entity_ids": [],
+                "query": "Review incident analysis", "system_prompt": "",
+                "conversation_history": [], "few_shot_examples": [],
+                "tool_schemas": [], "sources": [],
+            },
+            archetype="reviewer", domain="ORM",
+        )
+        assert result["_metadata"]["budget_report"]["profile"] == "compact"
+
+
 # ── 4. Cross-Domain Delegation ──────────────────────────────────────────────
 
 
@@ -384,9 +432,9 @@ class TestBudgetOverflow:
     def test_trim_to_budget_removes_low_priority(self):
         """trim_to_budget removes low-priority slots first."""
         context = {
-            "system_prompt": {"content": "prompt", "tokens": 100, "priority": "FIXED"},
+            "system_prompt_context": {"content": "prompt", "tokens": 100, "priority": "FIXED"},
             "entity_data": {"content": "data", "tokens": 100, "priority": "HIGH"},
-            "conversation_hist": {"content": "long history " * 500, "tokens": 50000, "priority": "LOW"},
+            "conversation_history": {"content": "long history " * 500, "tokens": 50000, "priority": "LOW"},
         }
         contract = load_contract("worker")
         trimmed = trim_to_budget(context, contract)
@@ -413,7 +461,7 @@ class TestTrustEdgeCases:
     def test_deny_by_default_for_unclassified(self):
         """Unclassified data defaults to RESTRICTED (deny-by-default)."""
         level = classify_data_level(None)
-        assert level in ("INTERNAL", "RESTRICTED")
+        assert level in ("INTERNAL", "RESTRICTED"), f"Deny-by-default should be INTERNAL or RESTRICTED, got {level}"
 
     def test_coo_accesses_restricted(self):
         """COO role can access RESTRICTED data."""
@@ -513,7 +561,7 @@ class TestMemoryDelegationRegression:
         })
         trace = finalize_trace(trace)
         assert trace["finalized"] is True
-        assert len(trace["stages"]) == 2
+        assert len(trace["pipeline_stages"]) == 2
 
 
 # ── 11. Grounding + RAG Regression ──────────────────────────────────────────

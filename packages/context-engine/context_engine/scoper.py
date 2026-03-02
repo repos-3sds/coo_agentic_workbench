@@ -13,10 +13,16 @@ Status: IMPLEMENTED
 
 from __future__ import annotations
 
+import json
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 from context_engine.trust import can_user_access
+
+# ── Domain config loading ─────────────────────────────────────────────────
+_DOMAINS_DIR = Path(__file__).resolve().parent.parent / "domains"
+_domain_cache: dict[str, dict] = {}
 
 
 def scope_by_domain(data: list[dict], domain_id: str) -> list[dict]:
@@ -87,7 +93,8 @@ def scope_by_classification(data: list[dict], max_level: str) -> list[dict]:
         if not classification and "provenance" in item:
             classification = item["provenance"].get("data_classification")
             
-        item_ordinal = ordinals.get(classification, 0) if classification else 0
+        # Deny-by-default: unknown classifications treated as RESTRICTED (banking compliance)
+        item_ordinal = ordinals.get(classification, 3) if classification else 0
         if item_ordinal <= max_ordinal:
             filtered.append(item)
             
@@ -185,14 +192,23 @@ def apply_all_scopes(data: list[dict], scoping_config: dict) -> list[dict]:
 def scope_context(context_package: dict, domain: str, entity_id: str | None = None) -> dict:
     """
     Apply domain-specific scoping rules to a context package.
-    (Stub function interface wrapper for tests)
+
+    Args:
+        context_package: Dict of ``{slot_name: list[dict] | Any}``.
+        domain: Domain identifier (e.g. ``"NPA"``).
+        entity_id: Optional entity ID to scope by.
+
+    Returns:
+        A new dict with the same slots, where list-of-dict slots have been
+        scoped by domain (and optionally entity).
     """
-    # Assume context_package contains lists of data at slots
-    result = {}
-    config = {"domain": domain}
+    rules = get_scoping_rules(domain)
+    config: dict[str, Any] = {"domain": domain}
     if entity_id:
         config["entity_id"] = entity_id
-        
+        config["entity_type"] = rules.get("entity_type", "project")
+
+    result = {}
     for slot, data in context_package.items():
         if isinstance(data, list) and all(isinstance(i, dict) for i in data):
             result[slot] = apply_all_scopes(data, config)
@@ -202,13 +218,49 @@ def scope_context(context_package: dict, domain: str, entity_id: str | None = No
 
 
 def get_scoping_rules(domain: str) -> dict:
-    """Load scoping rules for a domain. (Stub wrapper)"""
-    # Just returning a dummy rule config for testing purposes
-    return {"domain": domain, "entity_type": "project"}
+    """
+    Load scoping rules for a domain from its config file.
+
+    Args:
+        domain: Domain identifier (e.g. ``"NPA"``).
+
+    Returns:
+        Dict with keys: domain, entity_type, scoping_fields.
+        Returns a minimal default if no config file exists.
+    """
+    if domain in _domain_cache:
+        cfg = _domain_cache[domain]
+    else:
+        domain_path = _DOMAINS_DIR / f"{domain.lower()}.json"
+        if domain_path.exists():
+            try:
+                cfg = json.loads(domain_path.read_text(encoding="utf-8"))
+                _domain_cache[domain] = cfg
+            except (json.JSONDecodeError, KeyError):
+                cfg = {}
+        else:
+            cfg = {}
+
+    return {
+        "domain": domain,
+        "entity_type": cfg.get("primary_entity", "project"),
+        "scoping_fields": cfg.get("scoping_fields", []),
+    }
 
 
 def filter_by_entitlements(context_package: dict, user_role: str, domain: str) -> dict:
-    """Filter context based on user role entitlements. (Stub wrapper)"""
+    """
+    Filter context based on user role entitlements.
+
+    Args:
+        context_package: Dict of ``{slot_name: list[dict] | Any}``.
+        user_role: The user's role (e.g. ``"analyst"``, ``"coo"``).
+        domain: Domain identifier.
+
+    Returns:
+        A new dict with the same slots, where list-of-dict slots have been
+        filtered to only include items the user is entitled to see.
+    """
     result = {}
     for slot, data in context_package.items():
         if isinstance(data, list) and all(isinstance(i, dict) for i in data):
@@ -216,3 +268,8 @@ def filter_by_entitlements(context_package: dict, user_role: str, domain: str) -
         else:
             result[slot] = data
     return result
+
+
+def reset_domain_cache() -> None:
+    """Clear the cached domain configs (for testing)."""
+    _domain_cache.clear()

@@ -161,7 +161,8 @@ def assemble_context(
     get_entity_data_fn = adapters.get("get_entity_data")
     if get_entity_data_fn and entity_ids:
         try:
-            entity_data = get_entity_data_fn(entity_ids, domain)
+            result = get_entity_data_fn(entity_ids, domain)
+            entity_data = result if result is not None else []
         except Exception:
             entity_data = []
 
@@ -169,7 +170,8 @@ def assemble_context(
     query = request.get("query", "")
     if get_kb_chunks_fn and query:
         try:
-            kb_chunks = get_kb_chunks_fn(domain, query)
+            result = get_kb_chunks_fn(domain, query)
+            kb_chunks = result if result is not None else []
         except Exception:
             kb_chunks = []
 
@@ -177,11 +179,12 @@ def assemble_context(
     extra_retrieved: list[dict] = []
     if retrieve_fn:
         try:
-            extra_retrieved = retrieve_fn({
+            result = retrieve_fn({
                 "domain": domain,
                 "query": query,
                 "entity_ids": entity_ids,
             })
+            extra_retrieved = result if result is not None else []
         except Exception:
             extra_retrieved = []
 
@@ -195,17 +198,35 @@ def assemble_context(
     t0 = time.monotonic()
     all_sources = scoped_sources + entity_data + kb_chunks + extra_retrieved
 
-    # Build provenance-aware source list for ranking
+    # Tag each item with its category so ranking can be applied per-slot
+    n_scoped = len(scoped_sources)
+    n_entity = len(entity_data)
+    n_kb = len(kb_chunks)
+
     rankable = []
-    for item in all_sources:
+    for idx, item in enumerate(all_sources):
         prov = item.get("provenance", {})
+        if idx < n_scoped:
+            category = "_scoped"
+        elif idx < n_scoped + n_entity:
+            category = "entity_data"
+        elif idx < n_scoped + n_entity + n_kb:
+            category = "knowledge_chunks"
+        else:
+            category = "cross_agent_context"
         rankable.append({
             "data": item,
             "authority_tier": prov.get("authority_tier", 5),
             "source_type": prov.get("source_type", item.get("source_type", "general_web")),
+            "_category": category,
         })
 
     ranked = rank_sources(rankable)
+
+    # Extract ranked items back into their respective slots
+    ranked_entity_data = [r["data"] for r in ranked if r["_category"] == "entity_data"]
+    ranked_kb_chunks = [r["data"] for r in ranked if r["_category"] == "knowledge_chunks"]
+    ranked_cross_agent = [r["data"] for r in ranked if r["_category"] == "cross_agent_context"]
 
     stages.append(_stage_event("RANK", t0, {
         "total_sources": len(all_sources),
@@ -215,12 +236,12 @@ def assemble_context(
     # ── Stage 5: BUDGET ───────────────────────────────────────────────
     t0 = time.monotonic()
 
-    # Build a draft context package (pre-budget)
+    # Build a draft context package from RANKED data (not pre-ranked)
     draft_context: dict[str, Any] = {
         "system_prompt_context": request.get("system_prompt", ""),
-        "entity_data": entity_data,
-        "knowledge_chunks": kb_chunks,
-        "cross_agent_context": extra_retrieved,
+        "entity_data": ranked_entity_data,
+        "knowledge_chunks": ranked_kb_chunks,
+        "cross_agent_context": ranked_cross_agent,
         "few_shot_examples": request.get("few_shot_examples", []),
         "conversation_history": request.get("conversation_history", []),
         "tool_schemas": request.get("tool_schemas", []),

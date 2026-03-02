@@ -4,7 +4,7 @@ Circuit Breaker for Tool / Data Source Failures (Sprint 4)
 Provides circuit breaker pattern for MCP tool calls and external data sources.
 Prevents cascading failures in the context assembly pipeline.
 
-Blueprint Section 13 — Resilience.
+Blueprint Section 12 — Failure Modes.
 
 Status: IMPLEMENTED
 """
@@ -64,6 +64,7 @@ def create_circuit_breaker(options: dict) -> dict:
     def reset() -> None:
         state_machine["state"] = "CLOSED"
         state_machine["failures"] = 0
+        state_machine["successes"] = 0
 
     def call(fn: Callable, *args: Any, **kwargs: Any) -> Any:
         st = _get_current_state()

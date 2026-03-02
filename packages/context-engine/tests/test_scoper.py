@@ -6,12 +6,15 @@ from copy import deepcopy
 
 from context_engine.scoper import (
     apply_all_scopes,
+    filter_by_entitlements,
+    reset_domain_cache,
     scope_by_classification,
     scope_by_domain,
     scope_by_entity,
     scope_by_jurisdiction,
     scope_by_role,
     scope_by_temporal,
+    scope_context,
 )
 
 
@@ -233,3 +236,206 @@ class TestApplyAllScopes:
     def test_empty_input_returns_empty(self) -> None:
         result = apply_all_scopes([], {"domain": "NPA", "entity_id": "PRJ-001"})
         assert result == []
+
+
+# ── M-010 fix: deny-by-default for unknown classification ──────────────
+
+
+class TestScopeByClassificationDenyByDefault:
+    """M-010: Unknown classification strings must be treated as RESTRICTED."""
+
+    def test_unknown_classification_blocked_at_public_max(self) -> None:
+        data = [{"id": "u1", "data_classification": "SUPER_SECRET"}]
+        result = scope_by_classification(data, "PUBLIC")
+        assert result == []
+
+    def test_unknown_classification_blocked_at_internal_max(self) -> None:
+        data = [{"id": "u1", "data_classification": "CUSTOM_LEVEL"}]
+        result = scope_by_classification(data, "INTERNAL")
+        assert result == []
+
+    def test_unknown_classification_blocked_at_confidential_max(self) -> None:
+        data = [{"id": "u1", "data_classification": "UNKNOWN_LEVEL"}]
+        result = scope_by_classification(data, "CONFIDENTIAL")
+        assert result == []
+
+    def test_unknown_classification_passes_at_restricted_max(self) -> None:
+        data = [{"id": "u1", "data_classification": "CUSTOM_LEVEL"}]
+        result = scope_by_classification(data, "RESTRICTED")
+        assert len(result) == 1
+
+    def test_none_classification_treated_as_public(self) -> None:
+        """Items with no classification at all default to ordinal 0 (pass through)."""
+        data = [{"id": "u1"}]
+        result = scope_by_classification(data, "PUBLIC")
+        assert len(result) == 1
+
+    def test_unknown_classification_in_provenance_blocked(self) -> None:
+        data = [{"id": "u1", "provenance": {"data_classification": "BIZARRE"}}]
+        result = scope_by_classification(data, "INTERNAL")
+        assert result == []
+
+
+# ── M-011 fix: scope_context and filter_by_entitlements tests ──────────
+
+
+class TestScopeContext:
+    """Tests for scope_context() — the high-level domain scoping entry point."""
+
+    def setup_method(self) -> None:
+        reset_domain_cache()
+
+    def test_scope_context_filters_by_domain(self) -> None:
+        pkg = {
+            "entity_data": [
+                {"id": "n1", "domain": "NPA"},
+                {"id": "o1", "domain": "ORM"},
+                {"id": "p1", "domain": "platform"},
+            ],
+            "system_prompt_context": "You are the NPA worker.",
+        }
+        result = scope_context(pkg, domain="NPA")
+        ids = {item["id"] for item in result["entity_data"]}
+        assert "n1" in ids
+        assert "p1" in ids
+        assert "o1" not in ids
+        # Scalar slot passes through unchanged
+        assert result["system_prompt_context"] == "You are the NPA worker."
+
+    def test_scope_context_filters_by_domain_and_entity(self) -> None:
+        # NPA config has primary_entity="project_id", so entity_type must match
+        pkg = {
+            "entity_data": [
+                {"id": "n1", "domain": "NPA", "entity_id": "PRJ-001", "entity_type": "project_id"},
+                {"id": "n2", "domain": "NPA", "entity_id": "PRJ-002", "entity_type": "project_id"},
+                {"id": "g1", "domain": "NPA"},  # globally scoped within NPA (no entity_id)
+            ],
+        }
+        result = scope_context(pkg, domain="NPA", entity_id="PRJ-001")
+        ids = {item["id"] for item in result["entity_data"]}
+        assert "n1" in ids
+        assert "g1" in ids  # no entity_id → globally scoped
+        assert "n2" not in ids
+
+    def test_scope_context_scalar_slots_pass_through(self) -> None:
+        pkg = {
+            "system_prompt_context": "immutable prompt",
+            "metadata": 42,
+            "flag": True,
+        }
+        result = scope_context(pkg, domain="NPA")
+        assert result["system_prompt_context"] == "immutable prompt"
+        assert result["metadata"] == 42
+        assert result["flag"] is True
+
+    def test_scope_context_empty_list_slots_stay_empty(self) -> None:
+        pkg = {"entity_data": []}
+        result = scope_context(pkg, domain="NPA")
+        assert result["entity_data"] == []
+
+    def test_scope_context_uses_domain_config_entity_type(self) -> None:
+        """NPA domain config has primary_entity='project_id', which maps to entity_type."""
+        pkg = {
+            "entity_data": [
+                {"id": "n1", "domain": "NPA", "entity_id": "PRJ-001", "entity_type": "project_id"},
+                {"id": "n2", "domain": "NPA", "entity_id": "PRJ-001", "entity_type": "incident_id"},
+            ],
+        }
+        result = scope_context(pkg, domain="NPA", entity_id="PRJ-001")
+        ids = {item["id"] for item in result["entity_data"]}
+        # n1 matches the NPA primary_entity type; n2 does not
+        assert "n1" in ids
+        assert "n2" not in ids
+
+    def test_scope_context_unknown_domain_still_works(self) -> None:
+        pkg = {
+            "entity_data": [
+                {"id": "n1", "domain": "UNKNOWN_DOMAIN"},
+                {"id": "p1", "domain": "platform"},
+            ],
+        }
+        result = scope_context(pkg, domain="UNKNOWN_DOMAIN")
+        ids = {item["id"] for item in result["entity_data"]}
+        assert "n1" in ids
+        assert "p1" in ids
+
+
+class TestFilterByEntitlements:
+    """Tests for filter_by_entitlements() — role-based context filtering."""
+
+    def test_employee_sees_only_internal_and_public(self) -> None:
+        pkg = {
+            "knowledge_chunks": [
+                {"id": "p1", "data_classification": "PUBLIC"},
+                {"id": "i1", "data_classification": "INTERNAL"},
+                {"id": "c1", "data_classification": "CONFIDENTIAL"},
+                {"id": "r1", "data_classification": "RESTRICTED"},
+            ],
+        }
+        result = filter_by_entitlements(pkg, user_role="employee", domain="NPA")
+        ids = {item["id"] for item in result["knowledge_chunks"]}
+        assert ids == {"p1", "i1"}
+
+    def test_analyst_sees_up_to_confidential(self) -> None:
+        pkg = {
+            "knowledge_chunks": [
+                {"id": "p1", "data_classification": "PUBLIC"},
+                {"id": "c1", "data_classification": "CONFIDENTIAL"},
+                {"id": "r1", "data_classification": "RESTRICTED"},
+            ],
+        }
+        result = filter_by_entitlements(pkg, user_role="analyst", domain="NPA")
+        ids = {item["id"] for item in result["knowledge_chunks"]}
+        assert ids == {"p1", "c1"}
+
+    def test_coo_sees_everything(self) -> None:
+        pkg = {
+            "knowledge_chunks": [
+                {"id": "p1", "data_classification": "PUBLIC"},
+                {"id": "r1", "data_classification": "RESTRICTED"},
+            ],
+        }
+        result = filter_by_entitlements(pkg, user_role="coo", domain="NPA")
+        ids = {item["id"] for item in result["knowledge_chunks"]}
+        assert ids == {"p1", "r1"}
+
+    def test_scalar_slots_pass_through(self) -> None:
+        pkg = {
+            "system_prompt_context": "immutable",
+            "knowledge_chunks": [
+                {"id": "p1", "data_classification": "PUBLIC"},
+            ],
+        }
+        result = filter_by_entitlements(pkg, user_role="employee", domain="NPA")
+        assert result["system_prompt_context"] == "immutable"
+
+    def test_missing_classification_denied_for_employee(self) -> None:
+        """Items missing data_classification default to RESTRICTED (deny-by-default)."""
+        pkg = {
+            "entity_data": [
+                {"id": "no_class"},
+            ],
+        }
+        result = filter_by_entitlements(pkg, user_role="employee", domain="NPA")
+        assert result["entity_data"] == []
+
+    def test_empty_package_returns_empty(self) -> None:
+        result = filter_by_entitlements({}, user_role="analyst", domain="NPA")
+        assert result == {}
+
+    def test_multiple_slots_filtered_independently(self) -> None:
+        pkg = {
+            "knowledge_chunks": [
+                {"id": "k1", "data_classification": "PUBLIC"},
+                {"id": "k2", "data_classification": "RESTRICTED"},
+            ],
+            "entity_data": [
+                {"id": "e1", "data_classification": "INTERNAL"},
+                {"id": "e2", "data_classification": "CONFIDENTIAL"},
+            ],
+        }
+        result = filter_by_entitlements(pkg, user_role="employee", domain="NPA")
+        k_ids = {item["id"] for item in result["knowledge_chunks"]}
+        e_ids = {item["id"] for item in result["entity_data"]}
+        assert k_ids == {"k1"}
+        assert e_ids == {"e1"}

@@ -13,7 +13,7 @@
  *
  * Feature flag: CONTEXT_ENGINE_ENABLED=true (default: false)
  *
- * Blueprint Section 16.2 — Integration Bridge.
+ * Blueprint Section 12 — Integration Bridge.
  */
 
 const { execFile } = require('child_process');
@@ -198,6 +198,9 @@ function mapAgentToDomain(agentId) {
     if (id.includes('ORM')) return 'ORM';
     if (id.includes('DCE')) return 'DCE';
     if (id.includes('DESK')) return 'DESK';
+    if (!id.includes('NPA')) {
+        console.warn(`[context-bridge] Unknown agent ID "${agentId}" — falling back to NPA domain`);
+    }
     return 'NPA';
 }
 

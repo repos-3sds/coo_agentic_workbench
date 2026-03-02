@@ -7,7 +7,7 @@
     "max": 20000
   },
   "allocations": {
-    "system_prompt": {
+    "system_prompt_context": {
       "min": 3000,
       "max": 5000,
       "priority": "FIXED"
@@ -22,7 +22,7 @@
       "max": 20000,
       "priority": "HIGH"
     },
-    "cross_agent": {
+    "cross_agent_context": {
       "min": 2000,
       "max": 15000,
       "priority": "MEDIUM"
@@ -32,7 +32,7 @@
       "max": 5000,
       "priority": "MEDIUM"
     },
-    "conversation_hist": {
+    "conversation_history": {
       "min": 1000,
       "max": 15000,
       "priority": "LOW"
@@ -52,8 +52,8 @@
         "entity_data": { "max": 10000 },
         "knowledge_chunks": { "max": 8000 },
         "few_shot_examples": { "max": 2000 },
-        "conversation_hist": { "max": 5000 },
-        "cross_agent": { "max": 8000 }
+        "conversation_history": { "max": 5000 },
+        "cross_agent_context": { "max": 8000 }
       },
       "used_by": ["orchestrator"]
     },
@@ -72,8 +72,8 @@
         "entity_data": { "max": 8000 },
         "knowledge_chunks": { "max": 10000 },
         "few_shot_examples": { "max": 3000 },
-        "conversation_hist": { "max": 3000 },
-        "cross_agent": { "max": 10000 }
+        "conversation_history": { "max": 3000 },
+        "cross_agent_context": { "max": 10000 }
       },
       "used_by": ["reviewer"]
     }
@@ -85,7 +85,7 @@
     "trim_cross_agent_reasoning"
   ],
   "never_compress": [
-    "system_prompt",
+    "system_prompt_context",
     "entity_data",
     "regulatory_refs",
     "response_headroom"

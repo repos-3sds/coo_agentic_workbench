@@ -1,0 +1,119 @@
+<div class="context-contracts-container p-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4>Agent Context Contracts</h4>
+        <button class="btn btn-sm btn-outline-secondary" (click)="ngOnInit()">
+            <i class="bi bi-arrow-clockwise h6 mb-0"></i> Refresh
+        </button>
+    </div>
+
+    <div *ngIf="loading" class="text-center my-4">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <div *ngIf="error" class="alert alert-danger">
+        {{ error }}
+    </div>
+
+    <div *ngIf="!loading && contracts.length === 0 && !error" class="alert alert-info">
+        No context contracts loaded.
+    </div>
+
+    <div *ngIf="!loading && contracts.length > 0">
+        <div class="row g-4">
+            <div class="col-lg-6" *ngFor="let contract of contracts">
+                <div class="card shadow-sm h-100 contract-card border">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold font-monospace d-flex align-items-center">
+                            <i class="bi me-2 fs-5" [ngClass]="getArchetypeIcon(contract.archetype)"></i>
+                            {{ contract.contract_id }}
+                        </h5>
+                        <span class="badge bg-secondary">v{{ contract.version }}</span>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="mb-3 text-muted small">
+                            {{ contract.description }}
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <div class="p-2 bg-light border rounded h-100">
+                                    <h6 class="text-success small fw-bold text-uppercase mb-2">
+                                        <i class="bi bi-shield-check"></i> Required
+                                    </h6>
+                                    <ul class="list-unstyled mb-0 small font-monospace">
+                                        <li *ngFor="let req of contract.required_context" class="mb-1 text-truncate"
+                                            title="{{ req }}">
+                                            <i class="bi bi-check2 text-success me-1"></i>{{ req }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <div class="p-2 bg-light border rounded h-100">
+                                    <h6 class="text-danger small fw-bold text-uppercase mb-2">
+                                        <i class="bi bi-shield-slash"></i> Excluded
+                                    </h6>
+                                    <ul class="list-unstyled mb-0 small font-monospace">
+                                        <li *ngFor="let exc of contract.excluded_context"
+                                            class="mb-1 text-truncate text-muted text-decoration-line-through"
+                                            title="{{ exc }}">
+                                            <i class="bi bi-x text-danger me-1"></i>{{ exc }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded border">
+                            <span class="small fw-bold text-muted text-uppercase">Budget Profile</span>
+                            <span class="badge"
+                                [ngClass]="{'bg-primary': contract.budget_profile === 'standard', 'bg-info text-dark': contract.budget_profile === 'lightweight', 'bg-dark': contract.budget_profile === 'compact'}">
+                                <i class="bi bi-cpu"></i> {{ contract.budget_profile | titlecase }}
+                            </span>
+                        </div>
+
+                        <!-- Optional Context (Collapsible summary or small list) -->
+                        <div class="mt-3">
+                            <h6 class="small fw-bold text-uppercase text-muted mb-1">Optional</h6>
+                            <div class="d-flex flex-wrap gap-1">
+                                <span class="badge bg-light text-dark border fw-normal"
+                                    *ngFor="let opt of (contract.optional_context || [])">
+                                    {{ opt }}
+                                </span>
+                                <span *ngIf="!contract.optional_context?.length"
+                                    class="text-muted small italic">None</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Validation History Footer -->
+                    <div class="card-footer bg-white border-top py-3">
+                        <h6 class="small text-muted fw-bold text-uppercase mb-2">Recent Validations</h6>
+                        <div class="validation-history" *ngIf="contract.recent_validations?.length; else noValidations">
+                            <div class="d-flex justify-content-between align-items-center mb-1 small"
+                                *ngFor="let val of contract.recent_validations.slice(0, 3)">
+                                <span class="font-monospace text-truncate" style="max-width: 150px;"
+                                    title="{{ val.agent_id }}">{{ val.agent_id }}</span>
+                                <div>
+                                    <span class="text-muted me-2" style="font-size: 0.75rem;">{{ val.timestamp |
+                                        date:'shortTime' }}</span>
+                                    <span class="badge" [ngClass]="getValidationBadge(val.passed)">
+                                        {{ val.passed ? 'PASS' : 'FAIL' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <ng-template #noValidations>
+                            <div class="small text-muted text-center italic py-1">No recent validations recorded.</div>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

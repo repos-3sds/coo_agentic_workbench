@@ -55,8 +55,11 @@ from context_engine.provenance import (
 # Sprint 2 modules
 from context_engine.token_counter import (
     count_tokens,
+    count_tokens_batch,
     count_tokens_for_object,
     estimate_tokens,
+    estimate_context_tokens,
+    get_model_limit,
     truncate_to_tokens,
 )
 
@@ -66,7 +69,11 @@ from context_engine.scoper import (
     scope_by_jurisdiction,
     scope_by_classification,
     scope_by_role,
+    scope_by_temporal,
     apply_all_scopes,
+    scope_context,
+    get_scoping_rules,
+    filter_by_entitlements,
 )
 
 from context_engine.budget import (
@@ -74,6 +81,9 @@ from context_engine.budget import (
     check_budget,
     trim_to_budget,
     get_budget_limits,
+    get_overflow_report,
+    get_budget_for_profile,
+    handle_overflow,
 )
 
 from context_engine.assembler import (
@@ -191,13 +201,17 @@ __all__ = [
     "get_authority_tier", "strip_provenance", "create_provenance_tag",
     "merge_provenance", "get_required_fields", "compute_chunk_hash",
     # Token Counter
-    "count_tokens", "count_tokens_for_object", "estimate_tokens",
+    "count_tokens", "count_tokens_batch", "count_tokens_for_object",
+    "estimate_tokens", "estimate_context_tokens", "get_model_limit",
     "truncate_to_tokens",
     # Scoper
     "scope_by_domain", "scope_by_entity", "scope_by_jurisdiction",
-    "scope_by_classification", "scope_by_role", "apply_all_scopes",
+    "scope_by_classification", "scope_by_role", "scope_by_temporal",
+    "apply_all_scopes", "scope_context", "get_scoping_rules",
+    "filter_by_entitlements",
     # Budget
     "allocate_budget", "check_budget", "trim_to_budget", "get_budget_limits",
+    "get_overflow_report", "get_budget_for_profile", "handle_overflow",
     # Assembler
     "assemble_context", "validate_assembled_context", "create_assembler",
     # Memory (Sprint 3)

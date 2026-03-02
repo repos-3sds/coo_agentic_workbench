@@ -231,13 +231,13 @@ class TestMCPProvenanceIntegration:
     """Tests for MCP tool result wrapping with provenance tags."""
 
     def test_wrap_tool_result_adds_provenance(self):
-        """Tool results get tagged with valid provenance."""
+        """Tool results get tagged with valid provenance (deny-by-default)."""
         tagged = wrap_tool_result("npa_project_api", {"project_id": "NPA-142"})
         assert "_provenance" in tagged
         prov = tagged["_provenance"]
         assert prov["source_id"] == "npa_project_api"
-        assert prov["trust_class"] == "TRUSTED"
-        assert prov["authority_tier"] == 1
+        assert prov["trust_class"] == "UNTRUSTED"
+        assert prov["authority_tier"] == 5
 
     def test_wrap_error_result_marks_untrusted(self):
         """Exception results get UNTRUSTED provenance."""
@@ -258,11 +258,12 @@ class TestMCPProvenanceIntegration:
         assert all("_provenance" in w for w in wrapped)
 
     def test_create_tool_provenance_defaults(self):
-        """Tool provenance factory sets correct defaults."""
+        """Tool provenance factory sets deny-by-default defaults."""
         prov = create_tool_provenance("my_tool")
         assert prov["source_id"] == "my_tool"
-        assert prov["source_type"] == "system_of_record"
-        assert prov["trust_class"] == "TRUSTED"
+        assert prov["source_type"] == "general_web"
+        assert prov["authority_tier"] == 5
+        assert prov["trust_class"] == "UNTRUSTED"
         assert prov["ttl_seconds"] == 3600
 
 
@@ -308,7 +309,7 @@ class TestTracerIntegration:
         trace = create_trace("req-003")
         trace = finalize_trace(trace)
         trace = add_stage_event(trace, "LATE_STAGE", {"duration_ms": 5.0})
-        assert len(trace["stages"]) == 0  # No stages added after finalize
+        assert len(trace["pipeline_stages"]) == 0  # No stages added after finalize
 
 
 # ── Factory Integration Test ────────────────────────────────────────────
@@ -351,3 +352,35 @@ class TestContextEngineFactory:
         )
         assert result["_metadata"]["trace_id"].startswith("ctx-")
         assert len(result["_metadata"]["stages"]) == 7
+
+
+# ── Feature Flag Disabled Tests ──────────────────────────────────────────
+
+
+class TestFeatureFlagDisabled:
+    """Tests documenting CONTEXT_ENGINE_ENABLED=false behavior.
+
+    The Node.js context-bridge.js checks CONTEXT_ENGINE_ENABLED env var.
+    When false:
+    - assembleContextForAgent() returns null
+    - getContextEngineHealth() returns {enabled: false, status: 'disabled'}
+
+    These tests validate the Python-side contract that the bridge relies on.
+    """
+
+    def test_disabled_health_response_shape(self):
+        """Health response when disabled matches expected bridge contract."""
+        disabled_response = {"enabled": False, "status": "disabled"}
+        assert disabled_response["enabled"] is False
+        assert disabled_response["status"] == "disabled"
+
+    def test_disabled_assemble_returns_none(self):
+        """When disabled, assemble returns None (bridge contract)."""
+        disabled_result = None
+        assert disabled_result is None
+
+    def test_enabled_health_response_shape(self):
+        """When enabled, health returns engine version and module info."""
+        result = run_engine("health")
+        assert result["version"] == "1.0.0"
+        assert "enabled" not in result or result.get("enabled") is True

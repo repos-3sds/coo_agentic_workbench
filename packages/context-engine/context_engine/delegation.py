@@ -143,8 +143,8 @@ def build_reviewer_context(
     """
     Build context for a reviewer agent from worker output.
 
-    Reviewers get: worker output + provenance tags only.
-    They do NOT get the original entity data or KB chunks directly.
+    Reviewers get: worker output + provenance tags + system_prompt_context
+    + user_context if present. They do NOT get entity data or KB chunks directly.
 
     Args:
         worker_output: The output from the worker agent.
@@ -159,11 +159,18 @@ def build_reviewer_context(
     # Extract the worker's result
     worker_result = extract_delegation_result(worker_output)
 
-    # Build reviewer context
+    # Build reviewer context (aligned with _build_reviewer_context — §8.3)
     reviewer_ctx: dict[str, Any] = {
         "worker_output": worker_result.get("result") or worker_result.get("context"),
         "provenance_tags": provenance_tags or worker_result.get("provenance_tags", []),
     }
+
+    # Include system_prompt_context and user_context if available
+    # (matches _build_reviewer_context behavior for consistent reviewer judgment)
+    if "system_prompt_context" in worker_output:
+        reviewer_ctx["system_prompt_context"] = worker_output["system_prompt_context"]
+    if "user_context" in worker_output:
+        reviewer_ctx["user_context"] = worker_output["user_context"]
 
     # Validate provenance tags
     valid_tags = []

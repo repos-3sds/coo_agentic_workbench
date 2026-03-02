@@ -44,6 +44,8 @@ from context_engine import (
     rerank,
 )
 
+pytestmark = pytest.mark.slow
+
 
 # ── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -330,10 +332,10 @@ class TestBudgetAllocationBenchmarks:
     def test_trim_to_budget_latency(self):
         """trim_to_budget with large context."""
         context = {
-            "system_prompt": {"content": "You are an analyst." * 50, "tokens": 500, "priority": "FIXED"},
+            "system_prompt_context": {"content": "You are an analyst." * 50, "tokens": 500, "priority": "FIXED"},
             "entity_data": {"content": "Entity record data. " * 200, "tokens": 2000, "priority": "HIGH"},
-            "kb_chunks": {"content": "Knowledge base chunk. " * 500, "tokens": 5000, "priority": "MEDIUM"},
-            "conversation_hist": {"content": "Previous turns. " * 1000, "tokens": 10000, "priority": "LOW"},
+            "knowledge_chunks": {"content": "Knowledge base chunk. " * 500, "tokens": 5000, "priority": "MEDIUM"},
+            "conversation_history": {"content": "Previous turns. " * 1000, "tokens": 10000, "priority": "LOW"},
         }
         contract = load_contract("worker")
         latencies: list[float] = []

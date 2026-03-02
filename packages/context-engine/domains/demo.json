@@ -1,33 +1,35 @@
 {
   "domain_id": "DEMO",
-  "_comment_domain_id": "Stable identifier for a minimal example domain.",
+  "display_name": "Demo / Sandbox",
   "primary_entity": "demo_id",
-  "_comment_primary_entity": "Single entity key used to scope records.",
   "context_sources": [
     {
       "source_id": "demo_source",
       "source_type": "system_of_record",
       "authority_tier": 1,
-      "_comment": "Minimal single source for testing loader and assembler wiring."
+      "description": "Minimal single source for testing loader and assembler wiring."
     }
   ],
-  "_comment_context_sources": "Keep this list intentionally small for smoke tests.",
   "scoping_fields": [
     "demo_id"
   ],
-  "_comment_scoping_fields": "One scoping field is enough for the demo profile.",
   "untrusted_content": [
     "user_free_text"
   ],
   "agents": [
     {
       "agent_id": "DEMO_ORCHESTRATOR",
-      "archetype": "orchestrator"
+      "archetype": "orchestrator",
+      "responsibility": "Route demo requests."
     }
   ],
   "grounding_overrides": {
     "required_claim_types": [
       "classification_decision"
+    ],
+    "min_authority_tier_overrides": {},
+    "citation_required_fields": [
+      "source_id"
     ]
   }
 }

@@ -111,7 +111,7 @@ class TestFailureScenarios:
         assert result["context"]["knowledge_chunks"] == []
         assert result["context"]["cross_agent_context"] == []
 
-    def test_adapter_returns_none_currently_raises_type_error(
+    def test_adapter_returns_none_degrades_gracefully(
         self,
         edge_request: dict,
         user_context: dict,
@@ -119,12 +119,14 @@ class TestFailureScenarios:
     ) -> None:
         adapters = {
             "get_entity_data": lambda entity_ids, domain: None,
-            "get_kb_chunks": lambda domain, query: [],
-            "retrieve": lambda payload: [],
+            "get_kb_chunks": lambda domain, query: None,
+            "retrieve": lambda payload: None,
         }
 
-        with pytest.raises(TypeError):
-            assemble_context(edge_request, "worker", "NPA", user_context, adapters)
+        result = assemble_context(edge_request, "worker", "NPA", user_context, adapters)
+        assert result["context"]["entity_data"] == []
+        assert result["context"]["knowledge_chunks"] == []
+        assert result["context"]["cross_agent_context"] == []
 
 
 class TestEdgeCases:

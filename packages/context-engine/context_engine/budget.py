@@ -56,10 +56,10 @@ _PRIORITY_ORDER = {
 
 # Maps overflow strategy names to the slot they trim
 _OVERFLOW_SLOT_MAP = {
-    "compress_conversation_history": "conversation_hist",
+    "compress_conversation_history": "conversation_history",
     "reduce_few_shot_examples": "few_shot_examples",
     "prune_lowest_kb_chunks": "knowledge_chunks",
-    "trim_cross_agent_reasoning": "cross_agent",
+    "trim_cross_agent_reasoning": "cross_agent_context",
 }
 
 
@@ -282,3 +282,62 @@ def trim_to_budget(
         "removed_slots": removed,
         "final_tokens": budget_check["total"],
     }
+
+
+def get_overflow_report(
+    context_package: dict,
+    contract: dict,
+    model: str = "cl100k_base",
+) -> dict:
+    """
+    Generate a report on overflow status for a context package.
+
+    Returns per-slot overflow details and recommended trim order.
+
+    Args:
+        context_package: Dict of {slot_name: content}.
+        contract: A loaded contract dict (must contain "budget_profile").
+        model: The tiktoken encoding for counting.
+
+    Returns:
+        Dict with keys: over_budget, overflow_slots, total_over,
+        recommended_trim_order, budget_report.
+    """
+    budget_report = allocate_budget(context_package, contract, model)
+    overflow_slots = []
+    total_over = 0
+
+    for slot, info in budget_report["allocations"].items():
+        if info["over"] > 0:
+            overflow_slots.append({
+                "slot": slot,
+                "tokens": info["tokens"],
+                "max": info["max"],
+                "over_by": info["over"],
+                "priority": info["priority"],
+            })
+            total_over += info["over"]
+
+    # Recommend trim order: lowest-priority first
+    overflow_slots.sort(
+        key=lambda s: _PRIORITY_ORDER.get(s["priority"], 2),
+        reverse=True,
+    )
+
+    profile_name = contract.get("budget_profile", "standard")
+    limits = get_budget_limits(profile_name)
+
+    return {
+        "over_budget": not budget_report["within_budget"],
+        "overflow_slots": overflow_slots,
+        "total_over": total_over,
+        "recommended_trim_order": [s["slot"] for s in overflow_slots],
+        "budget_report": budget_report,
+        "overflow_strategy": limits["overflow_strategy"],
+    }
+
+
+# ── Aliases for story spec compliance (S2-004) ────────────────────────────
+# Story spec used camelCase JS names; Python API uses snake_case equivalents.
+get_budget_for_profile = get_budget_limits
+handle_overflow = trim_to_budget

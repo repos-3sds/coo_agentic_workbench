@@ -1,0 +1,23 @@
+.citation-panel {
+  border-top: 1px dashed #dee2e6;
+  padding-top: 0.5rem;
+
+  .citation-header {
+    transition: opacity 0.2s ease-in-out;
+    &:hover {
+      opacity: 1 !important;
+    }
+  }
+
+  .citation-content {
+    .card {
+      border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 4px;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}

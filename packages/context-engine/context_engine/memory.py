@@ -315,11 +315,12 @@ def compress_history(
         kept_turns.insert(0, turn)
         kept_tokens += turn_tokens
 
-    # Summarize dropped turns
+    # Summarize dropped turns — preserve provenance tags (Blueprint §11)
     dropped_count = len(turns) - len(kept_turns)
     if dropped_count > 0:
         dropped_turns = turns[:dropped_count]
         summary_parts = []
+        preserved_provenance: list[dict] = []
         for t in dropped_turns:
             role = t.get("role", "unknown")
             content = t.get("content", "")
@@ -327,12 +328,19 @@ def compress_history(
             if len(content) > 100:
                 content = content[:100] + "..."
             summary_parts.append(f"[{role}]: {content}")
+            # Preserve provenance tags from dropped turns
+            prov = t.get("provenance_tags") or t.get("_provenance") or []
+            if isinstance(prov, list):
+                preserved_provenance.extend(prov)
+            elif isinstance(prov, dict):
+                preserved_provenance.append(prov)
 
         session["compressed_history"] = {
             "type": "compressed",
             "dropped_turns": dropped_count,
             "summary": "; ".join(summary_parts),
             "kept_turns": len(kept_turns),
+            "preserved_provenance": preserved_provenance,
             "compressed_at": datetime.now(timezone.utc).isoformat(),
         }
     else:

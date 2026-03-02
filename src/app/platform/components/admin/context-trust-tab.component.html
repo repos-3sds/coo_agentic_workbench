@@ -1,0 +1,113 @@
+<div class="context-trust-container p-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Trust & Scoping</h4>
+        <button type="button" class="btn btn-outline-primary btn-sm" (click)="refresh()" [disabled]="loading">
+            Refresh
+        </button>
+    </div>
+
+    <div *ngIf="loading" class="text-center my-4">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <div *ngIf="error" class="alert alert-danger">
+        {{ error }}
+    </div>
+
+    <div *ngIf="!loading && !error" class="row g-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                    <span>Trust Classification Rules</span>
+                    <span class="badge bg-secondary">{{ data.rules.length }} Rules</span>
+                </div>
+                <div class="card-body p-0" *ngIf="data.rules.length === 0">
+                    <div class="p-3 text-muted">No trust classification rules available.</div>
+                </div>
+                <div class="table-responsive" *ngIf="data.rules.length > 0">
+                    <table class="table mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th>Source Pattern</th>
+                                <th>Class</th>
+                                <th>Rationale</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let rule of data.rules; trackBy: trackByRule">
+                                <td><code>{{ rule.source_pattern }}</code></td>
+                                <td>
+                                    <span class="badge" [ngClass]="getTrustBadgeClass(rule.trust_class)">
+                                        {{ rule.trust_class }}
+                                    </span>
+                                </td>
+                                <td>{{ rule.rationale }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                    <span>Recent Classification Decisions</span>
+                    <span class="badge bg-secondary">{{ data.recent_decisions.length }}</span>
+                </div>
+                <div class="card-body p-0" *ngIf="data.recent_decisions.length === 0">
+                    <div class="p-3 text-muted">No recent trust decisions available.</div>
+                </div>
+                <div class="table-responsive" *ngIf="data.recent_decisions.length > 0">
+                    <table class="table mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th>Source</th>
+                                <th>Domain</th>
+                                <th>Class</th>
+                                <th>Decision Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of data.recent_decisions; trackBy: trackByDecision">
+                                <td>{{ item.source_id }}</td>
+                                <td>{{ item.domain }}</td>
+                                <td>
+                                    <span class="badge" [ngClass]="getTrustBadgeClass(item.trust_class)">
+                                        {{ item.trust_class }}
+                                    </span>
+                                </td>
+                                <td class="small text-muted">{{ item.decided_at || 'N/A' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                    <span>Active Domain Scoping</span>
+                    <span class="badge bg-secondary">{{ data.active_domain_scoping.length }}</span>
+                </div>
+                <div class="card-body" *ngIf="data.active_domain_scoping.length === 0">
+                    <div class="text-muted">No active scoping data available.</div>
+                </div>
+                <div class="card-body" *ngIf="data.active_domain_scoping.length > 0">
+                    <div class="scope-item" *ngFor="let scope of data.active_domain_scoping; trackBy: trackByScope">
+                        <div class="fw-semibold">{{ scope.domain }}</div>
+                        <div class="mt-1" *ngIf="scope.fields.length > 0">
+                            <span *ngFor="let field of scope.fields" class="badge bg-light text-dark border me-1 mb-1">
+                                {{ field }}
+                            </span>
+                        </div>
+                        <div *ngIf="scope.fields.length === 0" class="small text-muted">No explicit fields defined.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

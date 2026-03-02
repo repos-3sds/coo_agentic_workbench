@@ -1,5 +1,5 @@
 """
-MCP Tool Provenance Wrapper (Sprint 4)
+MCP Tool Provenance Wrapper (Sprint 4 — S4-006)
 
 Provides utilities to wrap Model Context Protocol (MCP) tool results
 with compliant provenance tags before they enter the context pipeline.
@@ -25,9 +25,9 @@ def create_tool_provenance(tool_name: str) -> dict:
     """
     return {
         "source_id": tool_name,
-        "source_type": "system_of_record",
-        "authority_tier": 1,
-        "trust_class": "TRUSTED",
+        "source_type": "general_web",
+        "authority_tier": 5,
+        "trust_class": "UNTRUSTED",
         "fetched_at": datetime.now(timezone.utc).isoformat(),
         "ttl_seconds": 3600,
         "data_classification": "INTERNAL"  # Default if not specified

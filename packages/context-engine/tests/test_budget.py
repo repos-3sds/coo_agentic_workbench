@@ -63,7 +63,7 @@ class TestGetBudgetLimits:
 
     def test_compact_overrides_conversation_history_cap(self) -> None:
         limits = get_budget_limits("compact")
-        assert limits["allocations"]["conversation_hist"]["max"] == 3000
+        assert limits["allocations"]["conversation_history"]["max"] == 3000
 
 
 class TestAllocateBudget:
@@ -84,10 +84,10 @@ class TestAllocateBudget:
 
     def test_normal_allocation_within_limits(self) -> None:
         context_package = {
-            "system_prompt": "You are the NPA worker.",
+            "system_prompt_context": "You are the NPA worker.",
             "entity_data": {"project_id": "PRJ-001", "status": "IN_REVIEW"},
             "knowledge_chunks": ["Policy A", "Policy B"],
-            "conversation_hist": "User asks for risk summary.",
+            "conversation_history": "User asks for risk summary.",
         }
         contract = _make_contract("standard")
 
@@ -101,12 +101,12 @@ class TestAllocateBudget:
     def test_overflow_sets_within_budget_false(self) -> None:
         huge_text = "risk_context " * 20000
         context_package = {
-            "system_prompt": "You are the NPA worker.",
+            "system_prompt_context": "You are the NPA worker.",
             "entity_data": "project data " * 4000,
             "knowledge_chunks": huge_text,
-            "conversation_hist": huge_text,
+            "conversation_history": huge_text,
             "few_shot_examples": huge_text,
-            "cross_agent": huge_text,
+            "cross_agent_context": huge_text,
         }
         contract = _make_contract("compact")
 
@@ -117,17 +117,17 @@ class TestAllocateBudget:
 
     def test_never_compress_slots_are_present_in_allocation(self) -> None:
         context_package = {
-            "system_prompt": "system " * 100,
+            "system_prompt_context": "system " * 100,
             "entity_data": "entity " * 400,
-            "conversation_hist": "history " * 50,
+            "conversation_history": "history " * 50,
         }
         contract = _make_contract("standard")
 
         result = allocate_budget(context_package, contract)
 
-        assert "system_prompt" in result["allocations"]
+        assert "system_prompt_context" in result["allocations"]
         assert "entity_data" in result["allocations"]
-        assert result["allocations"]["system_prompt"]["tokens"] > 0
+        assert result["allocations"]["system_prompt_context"]["tokens"] > 0
         assert result["allocations"]["entity_data"]["tokens"] > 0
 
     def test_empty_context_package_returns_minimal_allocation(self) -> None:
@@ -168,7 +168,7 @@ class TestCheckBudget:
 
     def test_within_budget_returns_true(self) -> None:
         context_package = {
-            "system_prompt": "Short prompt",
+            "system_prompt_context": "Short prompt",
             "entity_data": "Small payload",
         }
         contract = _make_contract("standard")
@@ -182,9 +182,9 @@ class TestCheckBudget:
     def test_over_budget_returns_false_with_overflow_slots(self) -> None:
         huge_text = "banking_context " * 25000
         context_package = {
-            "system_prompt": "short",
+            "system_prompt_context": "short",
             "entity_data": "short",
-            "conversation_hist": huge_text,
+            "conversation_history": huge_text,
             "few_shot_examples": huge_text,
         }
         contract = _make_contract("lightweight")
@@ -218,29 +218,29 @@ class TestTrimToBudget:
         huge_kb = "kbchunk " * 22000
 
         context_package = {
-            "system_prompt": "immutable system prompt " * 500,
+            "system_prompt_context": "immutable system prompt " * 500,
             "entity_data": "important entity data " * 3000,
             "knowledge_chunks": huge_kb,
             "few_shot_examples": huge_examples,
-            "conversation_hist": huge_hist,
-            "cross_agent": "cross " * 18000,
+            "conversation_history": huge_hist,
+            "cross_agent_context": "cross " * 18000,
         }
         contract = _make_contract("lightweight")
 
         result = trim_to_budget(context_package, contract)
 
-        assert "conversation_hist" in result["removed_slots"]
+        assert "conversation_history" in result["removed_slots"]
         assert "entity_data" not in result["removed_slots"]
 
     def test_stops_trimming_once_within_budget(self) -> None:
         # Sized so first two strategy trims are enough for lightweight profile.
         context_package = {
-            "system_prompt": "sys " * 200,
+            "system_prompt_context": "sys " * 200,
             "entity_data": "entity " * 900,
-            "conversation_hist": "history " * 19000,
+            "conversation_history": "history " * 19000,
             "few_shot_examples": "shot " * 14000,
             "knowledge_chunks": "kb " * 1000,
-            "cross_agent": "cross " * 1000,
+            "cross_agent_context": "cross " * 1000,
         }
         contract = _make_contract("lightweight")
 
@@ -252,27 +252,27 @@ class TestTrimToBudget:
 
     def test_never_compress_slots_not_trimmed(self) -> None:
         context_package = {
-            "system_prompt": "system_prompt_text " * 800,
+            "system_prompt_context": "system_prompt_text " * 800,
             "entity_data": "entity_data_text " * 2200,
-            "conversation_hist": "history_text " * 26000,
+            "conversation_history": "history_text " * 26000,
             "few_shot_examples": "examples_text " * 18000,
             "knowledge_chunks": "kb_text " * 18000,
-            "cross_agent": "cross_text " * 18000,
+            "cross_agent_context": "cross_text " * 18000,
         }
         contract = _make_contract("compact")
 
         result = trim_to_budget(context_package, contract)
 
-        assert "system_prompt" not in result["removed_slots"]
+        assert "system_prompt_context" not in result["removed_slots"]
         assert "entity_data" not in result["removed_slots"]
-        assert result["trimmed_context"]["system_prompt"] == context_package["system_prompt"]
+        assert result["trimmed_context"]["system_prompt_context"] == context_package["system_prompt_context"]
         assert result["trimmed_context"]["entity_data"] == context_package["entity_data"]
 
     def test_returns_original_when_already_within_budget(self) -> None:
         context_package = {
-            "system_prompt": "short",
+            "system_prompt_context": "short",
             "entity_data": "short",
-            "conversation_hist": "short",
+            "conversation_history": "short",
         }
         contract = _make_contract("standard")
 
@@ -283,16 +283,16 @@ class TestTrimToBudget:
 
     def test_trimmed_slots_become_empty_or_none(self) -> None:
         context_package = {
-            "system_prompt": "short",
+            "system_prompt_context": "short",
             "entity_data": "short",
-            "conversation_hist": "history " * 30000,
+            "conversation_history": "history " * 30000,
         }
         contract = _make_contract("lightweight")
 
         result = trim_to_budget(context_package, contract)
 
-        if "conversation_hist" in result["removed_slots"]:
-            assert result["trimmed_context"]["conversation_hist"] == ""
+        if "conversation_history" in result["removed_slots"]:
+            assert result["trimmed_context"]["conversation_history"] == ""
 
 
 class TestTokenCounterIntegration:

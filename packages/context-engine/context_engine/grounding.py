@@ -211,7 +211,10 @@ def _check_source_current(citation: dict | None) -> dict:
         if isinstance(fetched_at, str):
             clean = fetched_at.rstrip("Z")
             ts = datetime.datetime.fromisoformat(clean)
-            age_seconds = (datetime.datetime.now() - ts).total_seconds()
+            # Ensure ts is UTC-aware for correct comparison against UTC now()
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=datetime.timezone.utc)
+            age_seconds = (datetime.datetime.now(datetime.timezone.utc) - ts).total_seconds()
             expired = age_seconds > ttl
             return {
                 "step": "source_current",

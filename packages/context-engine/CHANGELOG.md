@@ -6,7 +6,7 @@ First production release of the standalone Context Engine package.
 
 ### Architecture
 - 7-stage pipeline: Classify → Scope → Retrieve → Rank → Budget → Assemble → Tag
-- 14 Python modules, zero external imports (fully standalone)
+- 14 Python modules, 1 external dependency (tiktoken for tokenization)
 - Adapter pattern for Knowledge Base and Entity Data integration
 - Domain-agnostic: NPA, ORM, DCE, Desk Support ready
 

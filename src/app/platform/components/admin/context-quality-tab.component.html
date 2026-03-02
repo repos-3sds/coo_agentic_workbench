@@ -1,0 +1,96 @@
+<div class="context-quality-container p-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Grounding Quality</h4>
+        <button type="button" class="btn btn-outline-primary btn-sm" (click)="refresh()" [disabled]="loading">
+            Refresh
+        </button>
+    </div>
+
+    <div *ngIf="loading" class="text-center my-4">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <div *ngIf="error" class="alert alert-danger">
+        {{ error }}
+    </div>
+
+    <div *ngIf="quality && !loading && !error">
+        <div class="row g-3 mb-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card metric-card h-100">
+                    <div class="card-body">
+                        <h6 class="text-muted text-uppercase fw-bold mb-2">Grounding Score</h6>
+                        <h2 class="mb-2">{{ quality.grounding_score | number:'1.2-2' }}</h2>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar"
+                                [style.width.%]="(quality.grounding_score * 100)"
+                                [attr.aria-valuenow]="quality.grounding_score * 100"
+                                aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card metric-card h-100">
+                    <div class="card-body">
+                        <h6 class="text-muted text-uppercase fw-bold mb-2">Claims Coverage</h6>
+                        <h2 class="mb-2">{{ groundedPercent }}%</h2>
+                        <div class="small text-muted">
+                            {{ quality.grounded_claims }} grounded / {{ quality.claims_checked }} checked
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-12">
+                <div class="card metric-card h-100">
+                    <div class="card-body">
+                        <h6 class="text-muted text-uppercase fw-bold mb-2">Claim Counts</h6>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            <span class="badge bg-primary claim-chip">Checked: {{ quality.claims_checked }}</span>
+                            <span class="badge bg-success claim-chip">Grounded: {{ quality.grounded_claims }}</span>
+                            <span class="badge bg-danger claim-chip">Ungrounded: {{ quality.ungrounded_claims }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                <span>Per-Agent Grounding Scores</span>
+                <span class="badge bg-secondary">{{ quality.per_agent_scores.length }} Agents</span>
+            </div>
+
+            <div class="card-body" *ngIf="quality.per_agent_scores.length === 0">
+                <div class="text-muted">No per-agent score data available.</div>
+            </div>
+
+            <div class="table-responsive" *ngIf="quality.per_agent_scores.length > 0">
+                <table class="table mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>Agent</th>
+                            <th class="text-end">Grounding Score</th>
+                            <th class="text-end">Claims Checked</th>
+                            <th class="text-end">Grounded</th>
+                            <th class="text-end">Ungrounded</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of quality.per_agent_scores; trackBy: trackByAgent">
+                            <td>{{ row.agent }}</td>
+                            <td class="text-end fw-semibold">{{ row.grounding_score | number:'1.2-2' }}</td>
+                            <td class="text-end">{{ row.claims_checked }}</td>
+                            <td class="text-end text-success">{{ row.grounded_claims }}</td>
+                            <td class="text-end text-danger">{{ row.ungrounded_claims }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

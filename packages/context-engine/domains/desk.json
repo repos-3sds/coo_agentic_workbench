@@ -59,6 +59,7 @@
       "sla_deadline",
       "signoff_requirement"
     ],
+    "min_authority_tier_overrides": {},
     "citation_required_fields": [
       "source_id",
       "version",
