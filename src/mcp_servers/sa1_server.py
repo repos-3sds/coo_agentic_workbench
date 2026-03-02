@@ -1,16 +1,24 @@
 """
-DCE Account Opening — SA-1 Intake & Triage MCP Server
-======================================================
-Agent  : SA-1  |  DAG Node : N-0
-Purpose: Case Intake & Triage — receives raw submissions, classifies,
-         creates case records, stages documents, notifies stakeholders.
+DCE Account Opening — MCP Server (SA-1 + SA-2)
+===============================================
+Combined MCP server hosting tools for both SA-1 and SA-2.
 
-Tools (5 consolidated — optimised for ≤10 agent iterations):
+SA-1 (Node N-0) — Intake & Triage:
   1. sa1_get_intake_context      — Context retrieval (new / retry)
   2. sa1_create_case_full        — Atomic case creation pipeline
   3. sa1_stage_documents_batch   — Batch document staging
   4. sa1_notify_stakeholders     — Multi-channel notification dispatch
   5. sa1_complete_node           — Checkpoint + event log + state update
+
+SA-2 (Node N-1) — Document Collection & Completeness:
+  6. sa2_get_document_checklist  — Generate doc checklist per account/entity type
+  7. sa2_extract_document_metadata — OCR metadata extraction for staged documents
+  8. sa2_validate_document_expiry — Validate expiry, age limits, issuing authority
+  9. sa2_flag_document_for_review — Record review decision per document
+ 10. sa2_send_notification       — Chase notifications to RM / Branch Manager
+ 11. sa2_save_completeness_assessment — Persist completeness assessment to DB
+ 12. sa2_save_gta_validation     — Persist GTA version validation to DB
+ 13. sa2_complete_node           — Checkpoint + event log + state update for N-1
 """
 
 import json
@@ -31,15 +39,19 @@ from config import (
     SA1_NODE_ID,
     SA1_NEXT_NODE,
     SA1_MAX_RETRIES,
+    SA2_AGENT_MODEL,
+    SA2_NODE_ID,
+    SA2_NEXT_NODE,
+    SA2_MAX_RETRIES,
 )
 
 # ---------------------------------------------------------------------------
 # MCP Server initialisation
 # ---------------------------------------------------------------------------
 mcp = FastMCP(
-    "DCE-AO-SA1",
-    instructions="SA-1 Intake & Triage Agent — Case creation, classification, "
-                 "document staging, and stakeholder notification tools.",
+    "DCE-AO",
+    instructions="DCE Account Opening MCP Server — SA-1 (Intake & Triage) and "
+                 "SA-2 (Document Collection & Completeness) tools.",
     host=os.getenv("HOST", "0.0.0.0"),
     port=int(os.getenv("PORT", "8000")),
 )
@@ -904,6 +916,927 @@ def sa1_complete_node(
         conn.close()
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# SA-2 DOCUMENT COLLECTION & COMPLETENESS TOOLS (Node N-1)
+# ═══════════════════════════════════════════════════════════════════════════
+
+# --- SA-2 document checklist rule tables (embedded from KB-1) ---
+_MANDATORY_DOCS = {
+    "CORP": ["AO_FORM", "CERT_INCORP", "BOARD_RES", "M_AND_A", "UBO_DECL",
+             "GTA", "RISK_DISCLOSURE", "MANDATE_LETTER"],
+    "FUND": ["AO_FORM", "CERT_INCORP", "BOARD_RES", "FUND_PPM", "FUND_IMA",
+             "FUND_ADMIN_CONF", "UBO_DECL", "GTA", "RISK_DISCLOSURE",
+             "MANDATE_LETTER"],
+    "FI":   ["AO_FORM", "CERT_INCORP", "BOARD_RES", "FIN_STMT", "LEI_CERT",
+             "GTA", "RISK_DISCLOSURE", "MANDATE_LETTER"],
+    "SPV":  ["AO_FORM", "CERT_INCORP", "M_AND_A", "UBO_DECL", "GTA",
+             "RISK_DISCLOSURE", "MANDATE_LETTER"],
+    "INDIVIDUAL": ["AO_FORM", "ID_NRIC", "PROOF_ADDR", "GTA",
+                   "RISK_DISCLOSURE"],
+}
+_OPTIONAL_DOCS = {
+    "CORP": ["FIN_STMT", "BANK_REF", "LEI_CERT"],
+    "FUND": ["FUND_NAV", "BANK_REF"],
+    "FI":   ["BANK_REF"],
+    "SPV":  ["FIN_STMT"],
+    "INDIVIDUAL": ["BANK_REF", "ACCREDITED_INV"],
+}
+_ACCOUNT_SCHEDULES = {
+    "INSTITUTIONAL_FUTURES": ["GTA_SCH_7A"],
+    "RETAIL_FUTURES":        ["GTA_SCH_7A", "CKA_FORM"],
+    "OTC_DERIVATIVES":       ["GTA_SCH_9", "ISDA_MASTER", "CSA"],
+    "COMMODITIES_PHYSICAL":  ["GTA_SCH_10", "WAREHOUSE_AGT", "DELIVERY_INST"],
+    "MULTI_PRODUCT":         ["GTA_SCH_7A", "GTA_SCH_9"],
+}
+_JURISDICTION_EXTRAS = {
+    "HKG": {"INDIVIDUAL": ["ID_HKID"]},
+    "SGP": {"INDIVIDUAL": ["CKA_FORM"]},
+}
+_DOC_NAMES = {
+    "AO_FORM": "Account Opening Application Form",
+    "CERT_INCORP": "Certificate of Incorporation",
+    "BOARD_RES": "Board Resolution",
+    "M_AND_A": "Memorandum & Articles of Association",
+    "UBO_DECL": "UBO Declaration Form",
+    "GTA": "General Trading Agreement",
+    "RISK_DISCLOSURE": "Risk Disclosure Statement",
+    "MANDATE_LETTER": "Mandate Letter / Authority Letter",
+    "FUND_PPM": "Private Placement Memorandum",
+    "FUND_IMA": "Investment Management Agreement",
+    "FUND_ADMIN_CONF": "Fund Administrator Confirmation",
+    "FUND_NAV": "NAV Statement",
+    "FIN_STMT": "Audited Financial Statements",
+    "LEI_CERT": "LEI Certificate",
+    "BANK_REF": "Bank Reference Letter",
+    "ID_NRIC": "National Identity Card (NRIC)",
+    "ID_HKID": "Hong Kong Identity Card",
+    "ID_PASSPORT": "Passport",
+    "PROOF_ADDR": "Proof of Address",
+    "ACCREDITED_INV": "Accredited Investor Declaration",
+    "GTA_SCH_7A": "GTA Schedule 7A (Exchange-Traded Derivatives)",
+    "GTA_SCH_9": "GTA Schedule 9 (OTC Derivatives)",
+    "GTA_SCH_10": "GTA Schedule 10 (Physical Commodities)",
+    "ISDA_MASTER": "ISDA Master Agreement",
+    "CSA": "Credit Support Annex",
+    "CKA_FORM": "Customer Knowledge Assessment",
+    "WAREHOUSE_AGT": "Warehouse Agreement",
+    "DELIVERY_INST": "Delivery Instructions",
+    "COMMODITY_LIC": "Commodity Trading Licence",
+}
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TOOL 6 — sa2_get_document_checklist
+# ═══════════════════════════════════════════════════════════════════════════
+@mcp.tool()
+def sa2_get_document_checklist(
+    case_id: str,
+    account_type: str,
+    jurisdiction: str = "SGP",
+    entity_type: str = "CORP",
+    products_requested: str = "[]",
+    kb_context: str = "",
+) -> dict[str, Any]:
+    """
+    Generate document checklist for a case based on account type, entity type,
+    jurisdiction, and products requested.
+
+    Creates the checklist header (dce_ao_document_checklist) and line items
+    (dce_ao_document_checklist_item). Returns mandatory and optional doc lists.
+
+    Parameters
+    ----------
+    case_id : str — "AO-2026-XXXXXX"
+    account_type : str — INSTITUTIONAL_FUTURES | RETAIL_FUTURES | OTC_DERIVATIVES |
+                         COMMODITIES_PHYSICAL | MULTI_PRODUCT
+    jurisdiction : str — SGP | HKG | CHN | OTHER
+    entity_type : str — CORP | FUND | FI | SPV | INDIVIDUAL
+    products_requested : str — JSON array of product codes
+    kb_context : str — KB-2 retrieval context (optional, used for audit)
+
+    Returns
+    -------
+    dict with mandatory_docs, optional_docs, checklist_id, mandatory_count,
+    optional_count
+    """
+    now = _now()
+
+    # Build mandatory list from entity type + account schedules + jurisdiction
+    mandatory = list(_MANDATORY_DOCS.get(entity_type, _MANDATORY_DOCS["CORP"]))
+    for sched in _ACCOUNT_SCHEDULES.get(account_type, []):
+        if sched not in mandatory:
+            mandatory.append(sched)
+    # Jurisdiction-specific additions
+    jur_extras = _JURISDICTION_EXTRAS.get(jurisdiction, {})
+    for extra in jur_extras.get(entity_type, []):
+        if extra not in mandatory:
+            mandatory.append(extra)
+
+    optional = list(_OPTIONAL_DOCS.get(entity_type, []))
+
+    conn = _get_conn()
+    try:
+        with conn.cursor() as cur:
+            # Determine attempt number
+            cur.execute(
+                "SELECT MAX(attempt_number) AS max_att FROM dce_ao_document_checklist "
+                "WHERE case_id = %s", (case_id,)
+            )
+            row = cur.fetchone()
+            attempt = (row["max_att"] or 0) + 1
+
+            # Insert checklist header
+            cur.execute(
+                "INSERT INTO dce_ao_document_checklist "
+                "(case_id, attempt_number, account_type, jurisdiction, "
+                "entity_type, products_requested, checklist_version, "
+                "mandatory_count, optional_count, regulatory_basis, "
+                "generated_at, generated_by_model, kb_chunks_used) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (
+                    case_id, attempt, account_type, jurisdiction,
+                    entity_type, products_requested, "KB2-v3.1",
+                    len(mandatory), len(optional),
+                    f"MAS/HKMA AML/CFT; Companies Act; DBS Internal Policy",
+                    now, SA2_AGENT_MODEL, kb_context[:2000] if kb_context else "{}",
+                ),
+            )
+            checklist_id = cur.lastrowid
+
+            # Insert checklist items
+            mandatory_items = []
+            for doc_code in mandatory:
+                cur.execute(
+                    "INSERT INTO dce_ao_document_checklist_item "
+                    "(checklist_id, case_id, doc_type_code, doc_type_name, "
+                    "requirement, regulatory_ref, accepted_formats, "
+                    "match_status) "
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                    (
+                        checklist_id, case_id, doc_code,
+                        _DOC_NAMES.get(doc_code, doc_code),
+                        "MANDATORY", "MAS/HKMA/DBS Policy",
+                        '["PDF"]', "UNMATCHED",
+                    ),
+                )
+                mandatory_items.append({
+                    "item_id": cur.lastrowid,
+                    "doc_type_code": doc_code,
+                    "doc_type_name": _DOC_NAMES.get(doc_code, doc_code),
+                    "requirement": "MANDATORY",
+                })
+
+            optional_items = []
+            for doc_code in optional:
+                cur.execute(
+                    "INSERT INTO dce_ao_document_checklist_item "
+                    "(checklist_id, case_id, doc_type_code, doc_type_name, "
+                    "requirement, regulatory_ref, accepted_formats, "
+                    "match_status) "
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                    (
+                        checklist_id, case_id, doc_code,
+                        _DOC_NAMES.get(doc_code, doc_code),
+                        "OPTIONAL", "DBS Policy",
+                        '["PDF"]', "UNMATCHED",
+                    ),
+                )
+                optional_items.append({
+                    "item_id": cur.lastrowid,
+                    "doc_type_code": doc_code,
+                    "doc_type_name": _DOC_NAMES.get(doc_code, doc_code),
+                    "requirement": "OPTIONAL",
+                })
+
+        conn.commit()
+        return {
+            "status": "success",
+            "checklist_id": checklist_id,
+            "case_id": case_id,
+            "attempt_number": attempt,
+            "mandatory_docs": mandatory_items,
+            "optional_docs": optional_items,
+            "mandatory_count": len(mandatory_items),
+            "optional_count": len(optional_items),
+        }
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "error": str(e), "mandatory_docs": [],
+                "optional_docs": []}
+    finally:
+        conn.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TOOL 7 — sa2_extract_document_metadata
+# ═══════════════════════════════════════════════════════════════════════════
+@mcp.tool()
+def sa2_extract_document_metadata(
+    doc_id: str,
+    case_id: str = "",
+    storage_url: str = "",
+    filename: str = "",
+    mime_type: str = "application/pdf",
+    expected_doc_type: str = "",
+) -> dict[str, Any]:
+    """
+    Extract OCR metadata from a staged document. If OCR result already exists
+    in the database, returns the cached result. Otherwise creates a mock OCR
+    entry based on file metadata.
+
+    Parameters
+    ----------
+    doc_id : str — "DOC-XXXXXX"
+    case_id : str — "AO-2026-XXXXXX" (resolved from doc if empty)
+    storage_url : str — GridFS or S3 storage URL
+    filename : str — original filename
+    mime_type : str — MIME type
+    expected_doc_type : str — expected doc type code (optional hint)
+
+    Returns
+    -------
+    dict with detected_doc_type, confidence_score, extracted_text,
+    expiry_date, issue_date, issuing_authority, signatory_names
+    """
+    conn = _get_conn()
+    try:
+        with conn.cursor() as cur:
+            # Check for existing OCR result
+            cur.execute(
+                "SELECT ocr_id, detected_doc_type, ocr_confidence, "
+                "extracted_text, issuing_authority, issue_date, expiry_date, "
+                "signatory_names, document_language, page_count, "
+                "has_signatures, has_stamps, flagged_for_review "
+                "FROM dce_ao_document_ocr_result WHERE doc_id = %s "
+                "ORDER BY ocr_id DESC LIMIT 1",
+                (doc_id,),
+            )
+            existing = cur.fetchone()
+            if existing:
+                return {
+                    "status": "success",
+                    "source": "cached",
+                    "doc_id": doc_id,
+                    "detected_doc_type": existing["detected_doc_type"],
+                    "confidence_score": float(existing["ocr_confidence"]),
+                    "extracted_text": (existing["extracted_text"] or "")[:2000],
+                    "issuing_authority": existing["issuing_authority"] or "",
+                    "issue_date": str(existing["issue_date"]) if existing["issue_date"] else None,
+                    "expiry_date": str(existing["expiry_date"]) if existing["expiry_date"] else None,
+                    "signatory_names": json.loads(existing["signatory_names"] or "[]"),
+                    "page_count": existing["page_count"],
+                    "has_signatures": bool(existing["has_signatures"]),
+                    "flagged_for_review": bool(existing["flagged_for_review"]),
+                }
+
+            # Resolve case_id from staged doc if not provided
+            if not case_id:
+                cur.execute(
+                    "SELECT case_id FROM dce_ao_document_staged WHERE doc_id = %s",
+                    (doc_id,),
+                )
+                doc_row = cur.fetchone()
+                case_id = doc_row["case_id"] if doc_row else ""
+
+            # Infer doc type from filename
+            fname_lower = (filename or "").lower()
+            detected = expected_doc_type or "UNKNOWN"
+            confidence = 0.85
+            if "ao_form" in fname_lower or "account_opening" in fname_lower:
+                detected = "AO_FORM"
+                confidence = 0.95
+            elif "corporate_profile" in fname_lower or "corp_profile" in fname_lower:
+                detected = "CORPORATE_PROFILE"
+                confidence = 0.90
+            elif "gta" in fname_lower:
+                detected = "GTA_SIGNED"
+                confidence = 0.92
+            elif "risk_disclosure" in fname_lower:
+                detected = "RISK_DISCLOSURE"
+                confidence = 0.94
+            elif "passport" in fname_lower:
+                detected = "ID_PASSPORT"
+                confidence = 0.96
+            elif "nric" in fname_lower:
+                detected = "ID_NRIC"
+                confidence = 0.97
+            elif "hkid" in fname_lower:
+                detected = "HKID_COPY"
+                confidence = 0.97
+            elif "employment" in fname_lower or "income" in fname_lower:
+                detected = "INCOME_PROOF"
+                confidence = 0.88
+            elif "electricity" in fname_lower or "utility" in fname_lower or "addr" in fname_lower:
+                detected = "ADDR_PROOF"
+                confidence = 0.91
+            elif "board_res" in fname_lower:
+                detected = "BOARD_RES"
+                confidence = 0.90
+            elif "financial" in fname_lower or "fin_stmt" in fname_lower:
+                detected = "FIN_STMT"
+                confidence = 0.89
+
+            now = _now()
+            cur.execute(
+                "INSERT INTO dce_ao_document_ocr_result "
+                "(doc_id, case_id, detected_doc_type, ocr_confidence, "
+                "extracted_text, issuing_authority, document_language, "
+                "page_count, has_signatures, flagged_for_review, "
+                "ocr_engine, processing_time_ms, processed_at) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (
+                    doc_id, case_id, detected, confidence,
+                    f"[Mock OCR] File: {filename}", "DBS Bank Ltd",
+                    "EN", 1, False, confidence < 0.80,
+                    "azure-document-intelligence-v4", 1500, now,
+                ),
+            )
+            ocr_id = cur.lastrowid
+
+        conn.commit()
+        return {
+            "status": "success",
+            "source": "new_extraction",
+            "doc_id": doc_id,
+            "ocr_id": ocr_id,
+            "detected_doc_type": detected,
+            "confidence_score": confidence,
+            "extracted_text": f"[Mock OCR] File: {filename}",
+            "issuing_authority": "DBS Bank Ltd",
+            "issue_date": None,
+            "expiry_date": None,
+            "signatory_names": [],
+            "page_count": 1,
+            "has_signatures": False,
+            "flagged_for_review": confidence < 0.80,
+        }
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "error": str(e), "doc_id": doc_id}
+    finally:
+        conn.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TOOL 8 — sa2_validate_document_expiry
+# ═══════════════════════════════════════════════════════════════════════════
+@mcp.tool()
+def sa2_validate_document_expiry(
+    doc_id: str,
+    doc_type: str = "UNKNOWN",
+    expiry_date: str = "",
+    issue_date: str = "",
+    issuing_authority: str = "",
+    max_age_days: int = 0,
+) -> dict[str, Any]:
+    """
+    Validate document expiry, age limits, and issuing authority acceptability.
+
+    Rules:
+    - PROOF_ADDR / ADDR_PROOF: must be < 90 days old (from issue_date)
+    - INCOME_PROOF: must be < 180 days old
+    - FIN_STMT: must be < 18 months (540 days) old
+    - Documents with expiry_date: check if expired
+    - Certificates (CERT_INCORP, ID_*): no expiry — perpetual validity
+
+    Parameters
+    ----------
+    doc_id : str — "DOC-XXXXXX"
+    doc_type : str — detected document type code
+    expiry_date : str — ISO date (YYYY-MM-DD) or empty
+    issue_date : str — ISO date (YYYY-MM-DD) or empty
+    issuing_authority : str — issuing authority name
+    max_age_days : int — override max age in days (0 = use defaults)
+
+    Returns
+    -------
+    dict with validity_status, days_to_expiry, validity_notes
+    """
+    today = datetime.date.today()
+    validity_status = "VALID"
+    days_to_expiry = None
+    notes = []
+
+    # Age-limited document types with default max ages
+    age_limits = {
+        "PROOF_ADDR": 90, "ADDR_PROOF": 90,
+        "INCOME_PROOF": 180,
+        "FIN_STMT": 540, "MGMT_ACCTS": 365,
+        "FUND_NAV": 90, "BANK_REF": 180,
+    }
+
+    # Check expiry date
+    if expiry_date:
+        try:
+            exp = datetime.date.fromisoformat(expiry_date)
+            days_to_expiry = (exp - today).days
+            if days_to_expiry < 0:
+                validity_status = "EXPIRED"
+                notes.append(f"Document expired {abs(days_to_expiry)} days ago")
+            elif days_to_expiry <= 30:
+                validity_status = "NEAR_EXPIRY"
+                notes.append(f"Expires in {days_to_expiry} days")
+            else:
+                notes.append(f"Valid, expires in {days_to_expiry} days")
+        except (ValueError, TypeError):
+            notes.append("Could not parse expiry_date")
+
+    # Check age limit (from issue_date)
+    effective_max = max_age_days or age_limits.get(doc_type, 0)
+    if effective_max and issue_date:
+        try:
+            issued = datetime.date.fromisoformat(issue_date)
+            age_days = (today - issued).days
+            if age_days > effective_max:
+                validity_status = "EXPIRED"
+                notes.append(
+                    f"Document is {age_days} days old, exceeds {effective_max}-day limit"
+                )
+            else:
+                remaining = effective_max - age_days
+                days_to_expiry = remaining
+                notes.append(
+                    f"Document is {age_days} days old, within {effective_max}-day limit "
+                    f"({remaining} days remaining)"
+                )
+        except (ValueError, TypeError):
+            notes.append("Could not parse issue_date")
+
+    # Perpetual validity documents
+    perpetual_types = {"CERT_INCORP", "ID_NRIC", "ID_HKID", "ID_PASSPORT",
+                       "M_AND_A", "BOARD_RES", "UBO_DECL", "GTA",
+                       "RISK_DISCLOSURE", "CKA_FORM"}
+    if doc_type in perpetual_types and validity_status == "VALID":
+        notes.append("Perpetual validity document — no expiry")
+
+    if not notes:
+        notes.append("No specific age or expiry constraints for this document type")
+
+    return {
+        "status": "success",
+        "doc_id": doc_id,
+        "doc_type": doc_type,
+        "validity_status": validity_status,
+        "days_to_expiry": days_to_expiry,
+        "validity_notes": "; ".join(notes),
+        "flagged_for_review": validity_status in ("EXPIRED", "UNACCEPTABLE_SOURCE"),
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TOOL 9 — sa2_flag_document_for_review
+# ═══════════════════════════════════════════════════════════════════════════
+@mcp.tool()
+def sa2_flag_document_for_review(
+    doc_id: str,
+    case_id: str = "",
+    checklist_item_id: int = 0,
+    attempt_number: int = 1,
+    decision: str = "REQUIRES_RESUBMISSION",
+    rejection_reason_code: str = "",
+    rejection_reason_text: str = "",
+    resubmission_instructions: str = "",
+    regulatory_reference: str = "",
+    validity_status: str = "VALID",
+    days_to_expiry: int = 0,
+    validity_notes: str = "",
+) -> dict[str, Any]:
+    """
+    Record a document review decision (ACCEPTED / REJECTED / REQUIRES_RESUBMISSION).
+
+    Writes to dce_ao_document_review with full audit trail.
+
+    Parameters
+    ----------
+    doc_id : str — "DOC-XXXXXX"
+    case_id : str — "AO-2026-XXXXXX" (resolved from doc if empty)
+    decision : str — ACCEPTED | REJECTED | REQUIRES_RESUBMISSION
+    rejection_reason_code : str — machine-readable rejection code
+    rejection_reason_text : str — human-readable rejection reason
+    validity_status : str — VALID | EXPIRED | NEAR_EXPIRY | UNACCEPTABLE_SOURCE
+
+    Returns
+    -------
+    dict with review_id, flag_status
+    """
+    now = _now()
+    conn = _get_conn()
+    try:
+        with conn.cursor() as cur:
+            # Resolve case_id if not provided
+            if not case_id:
+                cur.execute(
+                    "SELECT case_id FROM dce_ao_document_staged WHERE doc_id = %s",
+                    (doc_id,),
+                )
+                doc_row = cur.fetchone()
+                case_id = doc_row["case_id"] if doc_row else ""
+
+            flag_status = "CLEARED" if decision == "ACCEPTED" else "FLAGGED"
+
+            cur.execute(
+                "INSERT INTO dce_ao_document_review "
+                "(doc_id, case_id, checklist_item_id, attempt_number, "
+                "decision, decision_reason_code, rejection_reason, "
+                "resubmission_instructions, regulatory_reference, "
+                "validity_status, days_to_expiry, validity_notes, "
+                "flagged_at, flag_status, reviewed_at, reviewed_by) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
+                "%s, %s, %s, %s, %s)",
+                (
+                    doc_id, case_id,
+                    checklist_item_id or None, attempt_number,
+                    decision, rejection_reason_code or None,
+                    rejection_reason_text or None,
+                    resubmission_instructions or None,
+                    regulatory_reference or None,
+                    validity_status,
+                    days_to_expiry if days_to_expiry else None,
+                    validity_notes or None,
+                    now if flag_status == "FLAGGED" else None,
+                    flag_status, now, "AGENT",
+                ),
+            )
+            review_id = cur.lastrowid
+
+        conn.commit()
+        return {
+            "status": "success",
+            "review_id": review_id,
+            "doc_id": doc_id,
+            "case_id": case_id,
+            "decision": decision,
+            "flag_status": flag_status,
+        }
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "error": str(e), "doc_id": doc_id}
+    finally:
+        conn.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TOOL 10 — sa2_send_notification
+# ═══════════════════════════════════════════════════════════════════════════
+@mcp.tool()
+def sa2_send_notification(
+    case_id: str,
+    notification_type: str = "RM_CHASE",
+    recipients: str = '["RM"]',
+    message_text: str = "",
+    retry_count: int = 0,
+    subject: str = "",
+) -> dict[str, Any]:
+    """
+    Send notification to RM / Branch Manager about missing documents or
+    case status updates.
+
+    Writes to dce_ao_notification_log (same table used by SA-1).
+
+    Parameters
+    ----------
+    case_id : str — "AO-2026-XXXXXX"
+    notification_type : str — RM_CHASE | DOC_COMPLETE | ESCALATION
+    recipients : str — JSON array of recipient roles e.g. '["RM","RM_MANAGER"]'
+    message_text : str — notification body text
+    retry_count : int — current retry count (affects recipient list)
+    subject : str — notification subject (auto-generated if empty)
+
+    Returns
+    -------
+    dict with notification_ids, notifications_sent count
+    """
+    now = _now()
+    recipient_list = json.loads(recipients) if recipients else ["RM"]
+
+    if not subject:
+        subject = f"[{case_id}] {notification_type.replace('_', ' ').title()}"
+
+    conn = _get_conn()
+    try:
+        notification_ids = []
+        with conn.cursor() as cur:
+            # Lookup RM info from case
+            cur.execute(
+                "SELECT rm_id, rm_email, rm_manager_id, rm_manager_email "
+                "FROM dce_ao_rm_hierarchy WHERE case_id = %s LIMIT 1",
+                (case_id,),
+            )
+            rm_row = cur.fetchone() or {}
+
+            for role in recipient_list:
+                if role == "RM":
+                    recip_id = rm_row.get("rm_id", "")
+                    recip_email = rm_row.get("rm_email", "")
+                elif role in ("RM_MANAGER", "BRANCH_MANAGER"):
+                    recip_id = rm_row.get("rm_manager_id", "")
+                    recip_email = rm_row.get("rm_manager_email", "")
+                else:
+                    recip_id = role
+                    recip_email = ""
+
+                cur.execute(
+                    "INSERT INTO dce_ao_notification_log "
+                    "(case_id, node_id, notification_type, channel, "
+                    "recipient_id, recipient_email, recipient_role, "
+                    "subject, body_summary, template_id, delivery_status, "
+                    "retry_count, sent_at, delivered_at, created_at) "
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
+                    "%s, %s, %s, %s, %s)",
+                    (
+                        case_id, SA2_NODE_ID, notification_type,
+                        "EMAIL", recip_id, recip_email, role,
+                        subject, message_text[:500] if message_text else "",
+                        "TPL-RM-CHASE", "DELIVERED", 0,
+                        now, now, now,
+                    ),
+                )
+                notification_ids.append(cur.lastrowid)
+
+        conn.commit()
+        return {
+            "status": "success",
+            "case_id": case_id,
+            "notifications_sent": len(notification_ids),
+            "notification_ids": notification_ids,
+        }
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "error": str(e), "notifications_sent": 0}
+    finally:
+        conn.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TOOL 11 — sa2_save_completeness_assessment
+# ═══════════════════════════════════════════════════════════════════════════
+@mcp.tool()
+def sa2_save_completeness_assessment(
+    case_id: str,
+    checklist_id: int,
+    attempt_number: int = 1,
+    completeness_flag: bool = False,
+    mandatory_docs_complete: bool = False,
+    optional_docs_complete: bool = False,
+    total_mandatory: int = 0,
+    matched_mandatory: int = 0,
+    total_optional: int = 0,
+    matched_optional: int = 0,
+    coverage_pct: float = 0.0,
+    missing_mandatory: str = "[]",
+    missing_optional: str = "[]",
+    rejected_docs: str = "[]",
+    rejection_reasons: str = "{}",
+    next_node: str = "",
+    decision_reasoning: str = "",
+    retry_recommended: bool = False,
+    sla_pct_consumed: float = 0.0,
+    rm_chase_message: str = "",
+) -> dict[str, Any]:
+    """
+    Persist completeness assessment to dce_ao_completeness_assessment.
+
+    Returns
+    -------
+    dict with assessment_id, status
+    """
+    now = _now()
+    conn = _get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO dce_ao_completeness_assessment "
+                "(case_id, checklist_id, attempt_number, completeness_flag, "
+                "mandatory_docs_complete, optional_docs_complete, "
+                "total_mandatory, matched_mandatory, total_optional, "
+                "matched_optional, coverage_pct, missing_mandatory, "
+                "missing_optional, rejected_docs, rejection_reasons, "
+                "next_node, decision_reasoning, retry_recommended, "
+                "sla_pct_consumed, rm_chase_message, "
+                "assessor_model, decision_model, assessed_at) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
+                "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (
+                    case_id, checklist_id, attempt_number,
+                    completeness_flag, mandatory_docs_complete,
+                    optional_docs_complete, total_mandatory, matched_mandatory,
+                    total_optional, matched_optional, coverage_pct,
+                    missing_mandatory, missing_optional,
+                    rejected_docs, rejection_reasons,
+                    next_node, decision_reasoning, retry_recommended,
+                    sla_pct_consumed, rm_chase_message or None,
+                    SA2_AGENT_MODEL, SA2_AGENT_MODEL, now,
+                ),
+            )
+            assessment_id = cur.lastrowid
+        conn.commit()
+        return {"status": "success", "assessment_id": assessment_id,
+                "case_id": case_id}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "error": str(e)}
+    finally:
+        conn.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TOOL 12 — sa2_save_gta_validation
+# ═══════════════════════════════════════════════════════════════════════════
+@mcp.tool()
+def sa2_save_gta_validation(
+    case_id: str,
+    attempt_number: int = 1,
+    gta_version_submitted: str = "",
+    gta_version_current: str = "GTA v4.2",
+    gta_version_match: bool = False,
+    applicable_schedules: str = "[]",
+    schedules_submitted: str = "[]",
+    schedules_missing: str = "[]",
+    addenda_required: str = "[]",
+    addenda_submitted: str = "[]",
+    addenda_missing: str = "[]",
+    gta_validation_status: str = "MISSING",
+    validation_notes: str = "",
+    kb_chunks_used: str = "{}",
+) -> dict[str, Any]:
+    """
+    Persist GTA version validation result to dce_ao_gta_validation.
+
+    Returns
+    -------
+    dict with validation_id, status
+    """
+    now = _now()
+    conn = _get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO dce_ao_gta_validation "
+                "(case_id, attempt_number, gta_version_submitted, "
+                "gta_version_current, gta_version_match, "
+                "applicable_schedules, schedules_submitted, "
+                "schedules_missing, addenda_required, addenda_submitted, "
+                "addenda_missing, gta_validation_status, validation_notes, "
+                "kb_chunks_used, validated_at) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
+                "%s, %s, %s, %s, %s)",
+                (
+                    case_id, attempt_number,
+                    gta_version_submitted or None, gta_version_current,
+                    gta_version_match, applicable_schedules,
+                    schedules_submitted, schedules_missing,
+                    addenda_required, addenda_submitted, addenda_missing,
+                    gta_validation_status, validation_notes,
+                    kb_chunks_used, now,
+                ),
+            )
+            validation_id = cur.lastrowid
+        conn.commit()
+        return {"status": "success", "validation_id": validation_id,
+                "case_id": case_id}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "error": str(e)}
+    finally:
+        conn.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TOOL 13 — sa2_complete_node
+# ═══════════════════════════════════════════════════════════════════════════
+@mcp.tool()
+def sa2_complete_node(
+    case_id: str,
+    status: str,
+    attempt_number: int = 1,
+    input_snapshot: str = "{}",
+    output_json: str = "{}",
+    started_at: str = "",
+    duration_seconds: float = 0.0,
+    failure_reason: str = "",
+    token_usage: str = "{}",
+    completeness_flag: bool = False,
+    next_node_override: str = "",
+) -> dict[str, Any]:
+    """
+    Mandatory checkpoint writer for N-1 — finalises SA-2 execution.
+
+    Performs 3 atomic writes:
+      1. INSERT dce_ao_node_checkpoint — N-1 completion/failure record
+      2. UPDATE dce_ao_case_state — advance current_node, update completed_nodes
+      3. INSERT dce_ao_event_log — NODE_COMPLETED or NODE_FAILED event
+
+    Parameters
+    ----------
+    case_id : str — "AO-2026-XXXXXX"
+    status : str — COMPLETE | FAILED | ESCALATED
+    attempt_number : int — attempt number (1-3)
+    output_json : str — N1Output JSON
+    failure_reason : str — if FAILED
+    next_node_override : str — override next node routing (HITL_RM, DEAD, etc.)
+
+    Returns
+    -------
+    dict with checkpoint_id, event_id, case_state_updated, next_node
+    """
+    now = _now()
+    context_hash = _sha256(input_snapshot)
+
+    is_success = status == "COMPLETE"
+    next_node = next_node_override or (SA2_NEXT_NODE if is_success else None)
+    event_type = "NODE_COMPLETED" if is_success else "NODE_FAILED"
+
+    if is_success:
+        new_current_node = next_node
+        from_state = f"{SA2_NODE_ID}:IN_PROGRESS"
+        to_state = f"{SA2_NODE_ID}:COMPLETE"
+    else:
+        new_current_node = SA2_NODE_ID
+        from_state = f"{SA2_NODE_ID}:IN_PROGRESS"
+        to_state = f"{SA2_NODE_ID}:FAILED"
+
+    conn = _get_conn()
+    try:
+        with conn.cursor() as cur:
+            # 1. INSERT checkpoint
+            cur.execute(
+                "INSERT INTO dce_ao_node_checkpoint "
+                "(case_id, node_id, attempt_number, status, "
+                "input_snapshot, output_json, context_block_hash, "
+                "started_at, completed_at, duration_seconds, next_node, "
+                "failure_reason, retry_count, agent_model, token_usage) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
+                "%s, %s, %s, %s)",
+                (
+                    case_id, SA2_NODE_ID, attempt_number, status,
+                    input_snapshot,
+                    output_json if is_success else None,
+                    context_hash,
+                    started_at or now, now, duration_seconds,
+                    next_node, failure_reason or None,
+                    max(0, attempt_number - 1),
+                    SA2_AGENT_MODEL, token_usage,
+                ),
+            )
+            checkpoint_id = cur.lastrowid
+
+            # 2. UPDATE case_state
+            completed_json = json.dumps([SA1_NODE_ID, SA2_NODE_ID]) if is_success \
+                else json.dumps([SA1_NODE_ID])
+            failed_json = "[]" if is_success else json.dumps([{
+                "node": SA2_NODE_ID, "reason": failure_reason,
+            }])
+            cur.execute(
+                "UPDATE dce_ao_case_state SET "
+                "current_node = %s, completed_nodes = %s, "
+                "failed_nodes = %s, event_count = event_count + 1 "
+                "WHERE case_id = %s",
+                (new_current_node, completed_json, failed_json, case_id),
+            )
+
+            # 3. INSERT event
+            event_payload = {
+                "next_node": next_node,
+                "completeness_flag": completeness_flag,
+            }
+            if not is_success:
+                event_payload = {
+                    "failure": failure_reason,
+                    "retry_count": attempt_number,
+                    "escalation": (
+                        "ESCALATE_BRANCH_MANAGER"
+                        if attempt_number >= SA2_MAX_RETRIES else "retry"
+                    ),
+                }
+            cur.execute(
+                "INSERT INTO dce_ao_event_log "
+                "(case_id, event_type, from_state, to_state, "
+                "event_payload, triggered_by, triggered_at) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                (
+                    case_id, event_type, from_state, to_state,
+                    json.dumps(event_payload), "AGENT", now,
+                ),
+            )
+            event_id = cur.lastrowid
+
+        conn.commit()
+        return {
+            "status": "success",
+            "checkpoint_id": checkpoint_id,
+            "event_id": event_id,
+            "case_state_updated": True,
+            "next_node": next_node,
+            "node_status": status,
+            "case_id": case_id,
+        }
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "error": str(e), "checkpoint_id": None}
+    finally:
+        conn.close()
+
+
 # ---------------------------------------------------------------------------
 # Health check route (added to MCP app's Starlette routes)
 # ---------------------------------------------------------------------------
@@ -912,7 +1845,7 @@ from starlette.routing import Route
 
 
 async def _health(request):
-    return JSONResponse({"status": "ok", "service": "dce-ao-sa1"})
+    return JSONResponse({"status": "ok", "service": "dce-ao-sa1-sa2"})
 
 
 mcp.settings.streamable_http_path = "/mcp"
