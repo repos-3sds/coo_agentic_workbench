@@ -313,9 +313,9 @@ class TestBudgetAllocationBenchmarks:
         """Budget allocation should be sub-millisecond."""
         contract = load_contract("worker")
         context = {
-            "system_prompt": {"content": "You are an analyst.", "tokens": 50},
+            "system_prompt_context": {"content": "You are an analyst.", "tokens": 50},
             "entity_data": {"content": "Entity data here.", "tokens": 200},
-            "kb_chunks": {"content": "KB content.", "tokens": 300},
+            "knowledge_chunks": {"content": "KB content.", "tokens": 300},
         }
         latencies: list[float] = []
 

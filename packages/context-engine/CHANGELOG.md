@@ -48,7 +48,7 @@ First production release of the standalone Context Engine package.
 - RAG pipeline: `config/rag-pipeline.json`
 
 ### Testing
-- 397 tests total (unit + integration + regression + benchmarks)
+- 551 tests total (unit + integration + regression + benchmarks)
 - 33 regression tests across 11 categories (3 domains, delegation, failure modes, budget, trust, provenance, contracts, memory, grounding+RAG)
 - 15 performance benchmarks with SLO validation
 

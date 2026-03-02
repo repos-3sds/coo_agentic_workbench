@@ -187,7 +187,7 @@ The archetype determines which token budget profile is applied at pipeline stage
 
 1. **Non-canonical `source_type` values** -- If you use a value not in the 5 canonical types (e.g. `"internal_api"` instead of `"system_of_record"`), `classify_trust()` will silently return `UNTRUSTED`. There is no build-time validation for this.
 
-2. **Missing `display_name` field** -- While the existing test suite checks for `domain_id`, `primary_entity`, `context_sources`, `scoping_fields`, and `agents`, it does not currently enforce `display_name`. Add it anyway; downstream consumers rely on it.
+2. **Missing `display_name` field** -- The test suite now enforces `display_name` presence across all domain configs (`test_all_domain_configs_have_display_name`). Always include a non-empty `display_name` string; downstream consumers rely on it.
 
 3. **Empty `min_authority_tier_overrides`** -- Always include `grounding_overrides.min_authority_tier_overrides` even if empty (`{}`). Omitting the key entirely may cause grounding scorer lookups to fail with a `KeyError`.
 
