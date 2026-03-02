@@ -1,8 +1,8 @@
 # Gemini — Builder Agent Prompt
 
-> **Last updated:** 2026-03-02 (Post-Sprint-6 edition — remaining work only)
-> **Instruction:** Read this file top-to-bottom, then proceed with the NEXT PENDING task.
-> **Mode:** Execute ALL pending tasks in sequence. Do NOT stop between tasks.
+> **Last updated:** 2026-03-02 (Post-Sprint-6 — ALL WORK COMPLETE ✅)
+> **Status:** All 8 Gemini stories delivered. 551/551 tests passing. Guardian verified.
+> **This prompt is retained as historical reference for the v1.0.0 build.**
 
 ---
 
@@ -22,9 +22,10 @@ You are **Gemini**, a Builder agent on a 4-agent scrum team building a Context E
 - **Branch:** `feature/context-engine`
 - **Package:** `packages/context-engine/` (standalone Python 3.11+ package, zero external imports)
 - **Version:** `1.0.0`
-- **Tests passing:** 397/397 in ~1.3s
-- **All 14 Python modules are FULLY IMPLEMENTED.** Do NOT modify module source code.
-- **All configs, contracts, and 3 domain configs exist.** Do NOT recreate them.
+- **Tests passing:** 551/551 in ~1.6s ✅
+- **All 14 Python modules are FULLY IMPLEMENTED.**
+- **All configs, contracts, and 4 domain configs exist.** (npa.json, desk.json, demo.json, orm.json)
+- **All Gemini stories COMPLETE. Guardian audit PASSED.**
 
 ### What already exists (DO NOT recreate):
 
@@ -34,7 +35,7 @@ You are **Gemini**, a Builder agent on a 4-agent scrum team building a Context E
 
 **Contracts:** contracts/orchestrator.json, contracts/worker.json, contracts/reviewer.json
 
-**Domains (3 exist):** domains/npa.json, domains/desk.json, domains/demo.json — **domains/orm.json does NOT exist yet (your task)**
+**Domains (4 exist):** domains/npa.json, domains/desk.json, domains/demo.json, domains/orm.json — ✅ ALL COMPLETE
 
 **Existing Tests:** test_trust.py, test_contracts.py, test_provenance.py, test_budget.py, test_scoper.py, test_assembler_happy.py, test_assembler_edge.py, test_grounding.py, test_rag.py, integration/test_pipeline_npa.py, integration/test_server_bridge.py, regression/test_full_regression.py, bench/test_pipeline_bench.py
 
@@ -50,12 +51,12 @@ You are **Gemini**, a Builder agent on a 4-agent scrum team building a Context E
 
 ---
 
-## 4. YOUR REMAINING STORIES (8 items)
+## 4. DELIVERED STORIES (8 items — ALL COMPLETE ✅)
 
 ### TASK 1: S3-003 — Session + Delegation Tests
 **Files:** `tests/test_memory.py` + `tests/test_delegation.py`
 **Minimum:** 18 tests total
-**Status:** ❌ NOT STARTED
+**Status:** ✅ COMPLETE
 
 #### memory.py API signatures:
 ```python
@@ -137,7 +138,7 @@ from context_engine.delegation import (
 ### TASK 2: S3-007 — NPA Domain Config Tests
 **File:** `tests/test_npa_config.py`
 **Minimum:** 10 tests
-**Status:** ❌ NOT STARTED
+**Status:** ✅ COMPLETE
 
 ```python
 import json, os
@@ -184,7 +185,7 @@ with open(NPA_CONFIG_PATH) as f:
 
 ### TASK 3: S6-002 — ORM Domain Config
 **File:** `domains/orm.json`
-**Status:** ❌ NOT STARTED
+**Status:** ✅ COMPLETE
 
 Create domain config for Operational Risk Management. Use `domains/npa.json` and `domains/desk.json` as templates.
 
@@ -226,7 +227,7 @@ Must be valid JSON and follow the same schema as npa.json/desk.json.
 
 ### TASK 4: S6-004 — Domain Onboarding Playbook
 **File:** `docs/DOMAIN-ONBOARDING-PLAYBOOK.md`
-**Status:** ❌ NOT STARTED
+**Status:** ✅ COMPLETE
 
 Step-by-step guide for adding a new domain to the context engine:
 1. Prerequisites checklist
@@ -316,7 +317,7 @@ src/app/platform/components/admin/context-contracts-tab.component.scss
 - **Python 3.11+** — use `from __future__ import annotations` at top of every file
 - **NEVER modify existing module source files** — only create new test/config files
 - **NEVER modify existing test files** — your tests must coexist
-- All tests must pass alongside the existing 397 tests
+- All tests must pass alongside the existing 551 tests
 - Use `pytest` fixtures and classes, not unittest
 - Test file naming: `test_<module_name>.py`
 - For Angular: create the `admin/` directory if it doesn't exist

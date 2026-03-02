@@ -1,8 +1,8 @@
 # Codex — Builder Agent Prompt
 
-> **Last updated:** 2026-03-02 (Post-Sprint-6 edition — remaining work only)
-> **Instruction:** Read this file top-to-bottom, then proceed with the NEXT PENDING task.
-> **Mode:** Execute ALL pending tasks in sequence. Do NOT stop between tasks.
+> **Last updated:** 2026-03-02 (Post-Sprint-6 — ALL WORK COMPLETE ✅)
+> **Status:** All 8 Codex stories delivered. 551/551 tests passing. Guardian verified.
+> **This prompt is retained as historical reference for the v1.0.0 build.**
 
 ---
 
@@ -22,9 +22,10 @@ You are **Codex**, a Builder agent on a 4-agent scrum team building a Context En
 - **Branch:** `feature/context-engine`
 - **Package:** `packages/context-engine/` (standalone Python 3.11+ package, zero external imports)
 - **Version:** `1.0.0`
-- **Tests passing:** 397/397 in ~1.3s
-- **All 14 Python modules are FULLY IMPLEMENTED.** Do NOT modify module source code.
-- **All configs, contracts, and 4 domain configs exist.** Do NOT recreate them.
+- **Tests passing:** 551/551 in ~1.6s ✅
+- **All 14 Python modules are FULLY IMPLEMENTED.**
+- **All configs, contracts, and 4 domain configs exist.**
+- **All Codex stories COMPLETE. Guardian audit PASSED.**
 
 ### What already exists (DO NOT recreate):
 
@@ -50,12 +51,12 @@ You are **Codex**, a Builder agent on a 4-agent scrum team building a Context En
 
 ---
 
-## 4. YOUR REMAINING STORIES (8 items)
+## 4. DELIVERED STORIES (8 items — ALL COMPLETE ✅)
 
 ### TASK 1: S3-005 — Tracer Tests
 **File:** `tests/test_tracer.py`
 **Minimum:** 12 tests
-**Status:** ❌ NOT STARTED
+**Status:** ✅ COMPLETE
 
 Module: `context_engine/tracer.py` — already implemented.
 
@@ -88,7 +89,7 @@ from context_engine.tracer import (
 ### TASK 2: S4-004 — Circuit Breaker Tests
 **File:** `tests/test_circuit_breaker.py`
 **Minimum:** 15 tests
-**Status:** ❌ NOT STARTED
+**Status:** ✅ COMPLETE
 
 ```python
 from context_engine.circuit_breaker import create_circuit_breaker
@@ -122,7 +123,7 @@ breaker["reset"]()                           # Back to CLOSED
 ### TASK 3: S4-007 — MCP Provenance Wrapper Tests
 **File:** `tests/test_mcp_provenance.py`
 **Minimum:** 10 tests
-**Status:** ❌ NOT STARTED
+**Status:** ✅ COMPLETE
 
 ```python
 from context_engine.mcp_provenance import (
@@ -153,7 +154,7 @@ from context_engine.mcp_provenance import (
 ### TASK 4: S4-005 — Failure Mode Tests (All 8 Modes)
 **File:** `tests/test_failure_modes.py`
 **Minimum:** 24 tests (3 per mode)
-**Status:** ❌ NOT STARTED
+**Status:** ✅ COMPLETE
 
 ```python
 from context_engine import (
@@ -180,7 +181,7 @@ from context_engine import (
 ### TASK 5: S6-003 — Domain Config Validation Tests
 **File:** `tests/test_domain_configs.py`
 **Minimum:** 15 tests
-**Status:** ❌ NOT STARTED
+**Status:** ✅ COMPLETE
 
 ```python
 import json, os
@@ -254,7 +255,7 @@ src/app/platform/components/admin/context-trust-tab.component.scss
 - **Python 3.11+** — use `from __future__ import annotations` at top of every file
 - **NEVER modify existing module source files** — only create new test files
 - **NEVER modify existing test files** — your tests must coexist
-- All tests must pass alongside the existing 397 tests
+- All tests must pass alongside the existing 551 tests
 - Use `pytest` fixtures and classes, not unittest
 - Test file naming: `test_<module_name>.py`
 - For Angular: create the `admin/` directory if it doesn't exist under `src/app/platform/components/`
