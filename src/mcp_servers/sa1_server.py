@@ -16,6 +16,7 @@ Tools (5 consolidated — optimised for ≤10 agent iterations):
 import json
 import hashlib
 import datetime
+import os
 from typing import Any
 
 import pymysql
@@ -39,6 +40,8 @@ mcp = FastMCP(
     "DCE-AO-SA1",
     instructions="SA-1 Intake & Triage Agent — Case creation, classification, "
                  "document staging, and stakeholder notification tools.",
+    host=os.getenv("HOST", "0.0.0.0"),
+    port=int(os.getenv("PORT", "8000")),
 )
 
 
@@ -905,10 +908,5 @@ def sa1_complete_node(
 # Server entry point
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    import os
-
-    port = int(os.getenv("PORT", "8000"))
-    host = os.getenv("HOST", "0.0.0.0")
     transport = os.getenv("MCP_TRANSPORT", "streamable-http")
-
-    mcp.run(transport=transport, host=host, port=port)
+    mcp.run(transport=transport)
