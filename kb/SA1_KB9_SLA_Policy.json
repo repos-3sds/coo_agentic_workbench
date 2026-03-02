@@ -1,0 +1,223 @@
+[
+  {
+    "priority": "URGENT",
+    "account_type": "INSTITUTIONAL_FUTURES",
+    "client_tier": "PLATINUM",
+    "sla_hours": 2,
+    "rule_text": "Urgent institutional futures case with platinum/high-value relationship receives 2-hour SLA from submission receipt.",
+    "indicators": ["rm_urgency_flag=true", "time_sensitive_market_window", "regulatory_deadline_near"],
+    "escalation_timeline": {
+      "warning_at_pct": 50,
+      "escalate_at_pct": 80,
+      "hard_breach_at_pct": 100
+    },
+    "notification_policy": "Notify RM and RM manager immediately after case creation"
+  },
+  {
+    "priority": "STANDARD",
+    "account_type": "INSTITUTIONAL_FUTURES",
+    "client_tier": "ALL",
+    "sla_hours": 24,
+    "rule_text": "Default SLA for non-urgent institutional futures intake.",
+    "indicators": ["no_urgent_flag", "complete_submission"],
+    "escalation_timeline": {
+      "warning_at_pct": 70,
+      "escalate_at_pct": 90,
+      "hard_breach_at_pct": 100
+    }
+  },
+  {
+    "priority": "DEFERRED",
+    "account_type": "INSTITUTIONAL_FUTURES",
+    "client_tier": "ALL",
+    "sla_hours": 72,
+    "rule_text": "Deferred queue for non-time-critical institutional onboarding with no immediate trading intent.",
+    "indicators": ["future_dated_activation", "client_requested_delay"],
+    "escalation_timeline": {
+      "warning_at_pct": 80,
+      "escalate_at_pct": 95,
+      "hard_breach_at_pct": 100
+    }
+  },
+  {
+    "priority": "URGENT",
+    "account_type": "OTC_DERIVATIVES",
+    "client_tier": "PLATINUM_OR_FI",
+    "sla_hours": 2,
+    "rule_text": "Urgent OTC derivative onboarding requires immediate triage due to potential trading and legal coordination deadlines.",
+    "indicators": ["otc_trade_date_imminent", "rm_urgency_flag=true", "counterparty_deadline"],
+    "escalation_timeline": {
+      "warning_at_pct": 40,
+      "escalate_at_pct": 70,
+      "hard_breach_at_pct": 100
+    }
+  },
+  {
+    "priority": "STANDARD",
+    "account_type": "OTC_DERIVATIVES",
+    "client_tier": "ALL",
+    "sla_hours": 16,
+    "rule_text": "Default SLA for OTC derivatives intake because legal package complexity is higher than listed-only flows.",
+    "indicators": ["no_immediate_trade_flag", "standard_queue"],
+    "escalation_timeline": {
+      "warning_at_pct": 60,
+      "escalate_at_pct": 85,
+      "hard_breach_at_pct": 100
+    }
+  },
+  {
+    "priority": "DEFERRED",
+    "account_type": "OTC_DERIVATIVES",
+    "client_tier": "ALL",
+    "sla_hours": 48,
+    "rule_text": "Deferred OTC intake for exploratory onboarding with no committed near-term trade requirement.",
+    "indicators": ["exploratory_request", "no_execution_timeline"],
+    "escalation_timeline": {
+      "warning_at_pct": 75,
+      "escalate_at_pct": 92,
+      "hard_breach_at_pct": 100
+    }
+  },
+  {
+    "priority": "URGENT",
+    "account_type": "COMMODITIES_PHYSICAL",
+    "client_tier": "ALL",
+    "sla_hours": 4,
+    "rule_text": "Urgent physical commodities onboarding with delivery dependencies uses 4-hour SA-1 SLA to prevent operational misses.",
+    "indicators": ["shipment_or_delivery_deadline", "warehouse_slot_dependency"],
+    "escalation_timeline": {
+      "warning_at_pct": 50,
+      "escalate_at_pct": 75,
+      "hard_breach_at_pct": 100
+    }
+  },
+  {
+    "priority": "STANDARD",
+    "account_type": "COMMODITIES_PHYSICAL",
+    "client_tier": "ALL",
+    "sla_hours": 20,
+    "rule_text": "Standard SLA for physical commodities intake due to additional document complexity.",
+    "indicators": ["normal_operational_timeline"],
+    "escalation_timeline": {
+      "warning_at_pct": 65,
+      "escalate_at_pct": 88,
+      "hard_breach_at_pct": 100
+    }
+  },
+  {
+    "priority": "DEFERRED",
+    "account_type": "COMMODITIES_PHYSICAL",
+    "client_tier": "ALL",
+    "sla_hours": 72,
+    "rule_text": "Deferred physical commodities case where activation is planned and no immediate delivery window exists.",
+    "indicators": ["planned_activation", "no_near_term_delivery"],
+    "escalation_timeline": {
+      "warning_at_pct": 80,
+      "escalate_at_pct": 95,
+      "hard_breach_at_pct": 100
+    }
+  },
+  {
+    "priority": "URGENT",
+    "account_type": "MULTI_PRODUCT",
+    "client_tier": "PLATINUM_OR_STRATEGIC",
+    "sla_hours": 2,
+    "rule_text": "Urgent multi-product onboarding for strategic clients uses shortest SLA due to high business impact and multi-team coordination.",
+    "indicators": ["strategic_client_flag", "multiple_product_enablement_deadline"],
+    "escalation_timeline": {
+      "warning_at_pct": 40,
+      "escalate_at_pct": 70,
+      "hard_breach_at_pct": 100
+    }
+  },
+  {
+    "priority": "STANDARD",
+    "account_type": "MULTI_PRODUCT",
+    "client_tier": "ALL",
+    "sla_hours": 18,
+    "rule_text": "Default SLA for multi-product cases balancing complexity and throughput.",
+    "indicators": ["mixed_product_scope", "no_immediate_market_deadline"],
+    "escalation_timeline": {
+      "warning_at_pct": 60,
+      "escalate_at_pct": 85,
+      "hard_breach_at_pct": 100
+    }
+  },
+  {
+    "priority": "DEFERRED",
+    "account_type": "MULTI_PRODUCT",
+    "client_tier": "ALL",
+    "sla_hours": 72,
+    "rule_text": "Deferred multi-product intake where requested go-live date is beyond near-term cycle.",
+    "indicators": ["long_horizon_activation"],
+    "escalation_timeline": {
+      "warning_at_pct": 82,
+      "escalate_at_pct": 96,
+      "hard_breach_at_pct": 100
+    }
+  },
+  {
+    "priority": "URGENT",
+    "account_type": "RETAIL_FUTURES",
+    "client_tier": "ALL",
+    "sla_hours": 8,
+    "rule_text": "Urgent retail futures onboarding for imminent trading requests.",
+    "indicators": ["client_requested_same_day_activation", "rm_urgency_flag=true"],
+    "escalation_timeline": {
+      "warning_at_pct": 55,
+      "escalate_at_pct": 80,
+      "hard_breach_at_pct": 100
+    }
+  },
+  {
+    "priority": "STANDARD",
+    "account_type": "RETAIL_FUTURES",
+    "client_tier": "ALL",
+    "sla_hours": 24,
+    "rule_text": "Default SLA for retail futures intake.",
+    "indicators": ["standard_retail_onboarding"],
+    "escalation_timeline": {
+      "warning_at_pct": 70,
+      "escalate_at_pct": 90,
+      "hard_breach_at_pct": 100
+    }
+  },
+  {
+    "priority": "DEFERRED",
+    "account_type": "RETAIL_FUTURES",
+    "client_tier": "ALL",
+    "sla_hours": 72,
+    "rule_text": "Deferred retail intake where client target activation is not immediate.",
+    "indicators": ["future_activation_window"],
+    "escalation_timeline": {
+      "warning_at_pct": 82,
+      "escalate_at_pct": 96,
+      "hard_breach_at_pct": 100
+    }
+  },
+  {
+    "policy_rule": "priority_override_urgency",
+    "rule_text": "Set priority to URGENT if any hard urgency signal exists: explicit RM urgency, regulatory deadline within 24 hours, market cut-off dependency, or strategic client go-live commitment.",
+    "effect": "Overrides base priority mapping"
+  },
+  {
+    "policy_rule": "priority_default_behavior",
+    "rule_text": "If signals are ambiguous or insufficient, default priority to STANDARD and include uncertainty note in priority_reason.",
+    "effect": "Prevents under/over-prioritization from sparse inputs"
+  },
+  {
+    "policy_rule": "sla_deadline_calculation",
+    "rule_text": "sla_deadline = received_at + sla_hours using timezone-aware case locale; if timezone missing, default Asia/Singapore for SA-1.",
+    "effect": "Deterministic deadline computation"
+  },
+  {
+    "policy_rule": "breach_escalation",
+    "rule_text": "At warning threshold notify RM; at escalation threshold notify RM manager; at hard breach trigger operations escalation event.",
+    "effect": "Standardized escalation handling"
+  },
+  {
+    "policy_rule": "priority_reason_format",
+    "rule_text": "priority_reason must include selected signals, excluded alternatives, and SLA basis in one concise explanation.",
+    "effect": "Improves audit quality for SA-1 decisions"
+  }
+]

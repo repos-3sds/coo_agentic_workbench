@@ -1,0 +1,75 @@
+[
+  {
+    "failure_type": "MISSING_MANDATORY_DOCUMENT",
+    "severity": "HIGH",
+    "rule_text": "If a mandatory checklist item is UNMATCHED after assessment, set completeness_flag=false and retry_recommended=true. Generate precise chase instructions naming required doc codes and accepted alternatives. Do not proceed to N-2.",
+    "response_sla": "Send RM chase within 15 minutes of decision",
+    "escalation_policy": "If repeated in attempt 2, include RM manager"
+  },
+  {
+    "failure_type": "EXPIRED_DOCUMENT",
+    "severity": "HIGH",
+    "rule_text": "If document exceeds max_age_days or explicit expiry date has passed, decision=REJECTED. Include calculated staleness in rejection reason. Require resubmission of current document.",
+    "response_template": "Document is expired/out of age policy; please submit an updated copy issued within allowed validity window."
+  },
+  {
+    "failure_type": "POOR_IMAGE_QUALITY",
+    "severity": "MEDIUM",
+    "rule_text": "If OCR confidence < 0.80 and key fields cannot be extracted, decision=REQUIRES_RESUBMISSION (not hard rejection). For confidence < 0.60, mandatory flag_document_for_review and request high-resolution source PDF.",
+    "response_template": "Submitted scan is not legible for control checks. Please upload a clear PDF or high-resolution scan without occlusion."
+  },
+  {
+    "failure_type": "SIGNATURE_MISMATCH",
+    "severity": "HIGH",
+    "rule_text": "If signed legal document signatory is not present in authorised signatory list/board mandate, reject and request corrected execution pages or updated authority evidence.",
+    "escalation_policy": "Escalate to RM manager immediately on second occurrence"
+  },
+  {
+    "failure_type": "LEGAL_NAME_MISMATCH",
+    "severity": "HIGH",
+    "rule_text": "If legal entity name differs across AO form, incorporation documents, and GTA without approved explanation, block progression and request rectification. Partial name variance that changes legal identity is a hard stop.",
+    "response_template": "Legal entity name mismatch detected across mandatory legal documents. Please submit corrected and consistent legal names."
+  },
+  {
+    "failure_type": "UBO_CHAIN_INCOMPLETE",
+    "severity": "CRITICAL",
+    "rule_text": "If UBO chain cannot be traced to natural persons per policy threshold, do not auto-complete. Mark as manual review required and escalate to compliance queue.",
+    "escalation_policy": "Immediate escalation; do not wait for retry 2"
+  },
+  {
+    "failure_type": "GTA_VERSION_OUTDATED",
+    "severity": "HIGH",
+    "rule_text": "If submitted GTA version is older than approved current version, status=OUTDATED and resubmission required with current package. Document any approved legal exception if present.",
+    "response_template": "Submitted GTA version is outdated. Please execute current approved GTA package."
+  },
+  {
+    "failure_type": "MISSING_PRODUCT_SCHEDULE",
+    "severity": "HIGH",
+    "rule_text": "If elected product class is present but corresponding GTA schedule is absent (e.g., OTC without Schedule 9), mark gta_validation_status=MISSING and block N-2 routing.",
+    "escalation_policy": "Escalate on attempt 2 if still missing"
+  },
+  {
+    "failure_type": "UNACCEPTABLE_ISSUING_AUTHORITY",
+    "severity": "MEDIUM",
+    "rule_text": "If identity/address document issuer is not in accepted authority/provider list, decision=REJECTED unless manual exception approved. Capture issuer name in rejection reason.",
+    "response_template": "Document source is not an accepted issuing authority. Please provide an accepted government/bank/utility source document."
+  },
+  {
+    "failure_type": "TRANSLATION_NOT_CERTIFIED",
+    "severity": "HIGH",
+    "rule_text": "Where non-English source documents are used for legal/compliance checks, certified translation is mandatory. Missing certification triggers resubmission.",
+    "response_template": "Certified translation is required for non-English source documents used in control review."
+  },
+  {
+    "failure_type": "RETRY_LIMIT_APPROACHING",
+    "severity": "HIGH",
+    "rule_text": "At attempt 2 with unresolved mandatory gaps, chase message must include escalation warning and copy RM manager/branch manager according to policy.",
+    "escalation_policy": "Attempt 2 unresolved -> ESCALATE_BRANCH_MANAGER recommendation"
+  },
+  {
+    "failure_type": "SYSTEMIC_SERVICE_FAILURE",
+    "severity": "CRITICAL",
+    "rule_text": "If OCR/validation service outage affects multiple documents, do not fail case as client defect. Mark operational exception, checkpoint with failure_reason, and requeue once service recovers.",
+    "escalation_policy": "Alert technology operations and maintain auditable incident reference"
+  }
+]

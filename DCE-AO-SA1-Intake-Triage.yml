@@ -1,0 +1,1219 @@
+app:
+  description: SA-1 Intake & Triage Agent (N-0). Classifies account type, creates
+    case, stages docs, notifies stakeholders.
+  icon: 🤖
+  icon_background: '#E4FBCC'
+  mode: workflow
+  name: DCE-AO-SA1-Intake-Triage
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/anthropic:0.3.4@cadfd7b0cb7dcb1640cb6d168b1b98f4fafd22ccffdf29be44bdc791aaa16a86
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: ''
+    id: env-mcp-endpoint
+    name: MCP_ENDPOINT
+    selector:
+    - env
+    - MCP_ENDPOINT
+    value: https://dcemcptools-production.up.railway.app
+    value_type: string
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 50
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: code
+      id: '100000000001'
+      source: '1000000001'
+      sourceHandle: source
+      target: '1000000002'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: if-else
+      id: '100000000002'
+      source: '1000000002'
+      sourceHandle: source
+      target: '1000000003'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: code
+      id: '100000000003'
+      source: '1000000003'
+      sourceHandle: source-case-email
+      target: '1000000004'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: code
+      id: '100000000004'
+      source: '1000000003'
+      sourceHandle: source-case-portal
+      target: '1000000005'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: code
+      id: '100000000005'
+      source: '1000000003'
+      sourceHandle: 'false'
+      target: '1000000006'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: variable-aggregator
+      id: '100000000006'
+      source: '1000000004'
+      sourceHandle: source
+      target: '1000000007'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: variable-aggregator
+      id: '100000000007'
+      source: '1000000005'
+      sourceHandle: source
+      target: '1000000007'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: variable-aggregator
+      id: '100000000008'
+      source: '1000000006'
+      sourceHandle: source
+      target: '1000000007'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: variable-aggregator
+        targetType: knowledge-retrieval
+      id: '100000000009'
+      source: '1000000007'
+      sourceHandle: source
+      target: '1000000008'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: '100000000010'
+      source: '1000000008'
+      sourceHandle: source
+      target: '1000000009'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: code
+      id: '100000000011'
+      source: '1000000009'
+      sourceHandle: source
+      target: '1000000010'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: knowledge-retrieval
+      id: '100000000012'
+      source: '1000000010'
+      sourceHandle: source
+      target: '1000000011'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: '100000000013'
+      source: '1000000011'
+      sourceHandle: source
+      target: '1000000012'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: code
+      id: '100000000014'
+      source: '1000000012'
+      sourceHandle: source
+      target: '1000000013'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: if-else
+      id: '100000000015'
+      source: '1000000013'
+      sourceHandle: source
+      target: '1000000014'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: code
+      id: '100000000017'
+      source: '1000000015'
+      sourceHandle: source
+      target: '1000000016'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: end
+      id: '100000000018'
+      source: '1000000016'
+      sourceHandle: source
+      target: '1000000017'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: end
+      id: '100000000019'
+      source: '1000000014'
+      sourceHandle: 'false'
+      target: '1000000018'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: code
+      id: '100000000020'
+      source: '1000000014'
+      sourceHandle: valid-pass
+      target: '1000000015'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: Entry point for SA-1 Intake & Triage.
+        selected: false
+        title: Start
+        type: start
+        variables:
+        - label: Submission Source
+          max_length: 20
+          options:
+          - EMAIL
+          - PORTAL
+          - API
+          required: true
+          type: select
+          variable: submission_source
+        - label: Raw Payload JSON
+          max_length: 65536
+          options: []
+          required: true
+          type: text-input
+          variable: raw_payload_json
+        - label: Received At
+          max_length: 30
+          options: []
+          required: true
+          type: text-input
+          variable: received_at
+        - label: RM Employee ID
+          max_length: 20
+          options: []
+          required: true
+          type: text-input
+          variable: rm_employee_id
+        - label: Case ID (retry only)
+          max_length: 20
+          options: []
+          required: false
+          type: text-input
+          variable: case_id
+      height: 241
+      id: '1000000001'
+      position:
+        x: 0
+        y: 57
+      positionAbsolute:
+        x: 0
+        y: 57
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef main(raw_payload_json: str, submission_source:\
+          \ str, case_id: str, rm_employee_id: str, received_at: str) -> dict:\n\
+          \    raw = raw_payload_json.strip()\n    # Strip BOM\n    raw = raw.lstrip('\\\
+          ufeff').lstrip('\\u200b')\n    # Strip markdown code fences\n    raw = re.sub(r'^```(?:json)?\\\\s*',\
+          \ '', raw)\n    raw = re.sub(r'\\\\s*```$', '', raw)\n    raw = raw.strip()\n\
+          \    # Fix smart quotes\n    raw = raw.replace('\\u201c', '\"').replace('\\\
+          u201d', '\"').replace('\\u2018', \"'\").replace('\\u2019', \"'\")\n    #\
+          \ Try parse; if double-escaped try again\n    parse_error = \"\"\n    try:\n\
+          \        payload = json.loads(raw)\n        if isinstance(payload, str):\n\
+          \            payload = json.loads(payload)\n    except Exception as e:\n\
+          \        parse_error = str(e)\n        payload = {}\n    is_retry = bool(case_id\
+          \ and case_id.strip())\n    return {\n        \"payload_parsed\": json.dumps(payload),\n\
+          \        \"is_retry\": str(is_retry),\n        \"submission_source\": submission_source,\n\
+          \        \"rm_employee_id\": rm_employee_id,\n        \"received_at\": received_at,\n\
+          \        \"case_id\": case_id or \"\",\n        \"parse_error\": parse_error\n\
+          \    }\n"
+        code_language: python3
+        desc: Prepares context block. Parses raw_payload_json for downstream nodes.
+        outputs:
+          case_id:
+            children: null
+            type: string
+          is_retry:
+            children: null
+            type: string
+          parse_error:
+            children: null
+            type: string
+          payload_parsed:
+            children: null
+            type: string
+          received_at:
+            children: null
+            type: string
+          rm_employee_id:
+            children: null
+            type: string
+          submission_source:
+            children: null
+            type: string
+        selected: false
+        title: Context Injector
+        type: code
+        variables:
+        - value_selector:
+          - '1000000001'
+          - raw_payload_json
+          variable: raw_payload_json
+        - value_selector:
+          - '1000000001'
+          - submission_source
+          variable: submission_source
+        - value_selector:
+          - '1000000001'
+          - case_id
+          variable: case_id
+        - value_selector:
+          - '1000000001'
+          - rm_employee_id
+          variable: rm_employee_id
+        - value_selector:
+          - '1000000001'
+          - received_at
+          variable: received_at
+      height: 112
+      id: '1000000002'
+      position:
+        x: 342
+        y: 122
+      positionAbsolute:
+        x: 342
+        y: 122
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: source-case-email
+          conditions:
+          - comparison_operator: is
+            id: cond-email
+            value: EMAIL
+            variable_selector:
+            - '1000000002'
+            - submission_source
+          id: source-case-email
+          logical_operator: and
+        - case_id: source-case-portal
+          conditions:
+          - comparison_operator: is
+            id: cond-portal
+            value: PORTAL
+            variable_selector:
+            - '1000000002'
+            - submission_source
+          id: source-case-portal
+          logical_operator: and
+        desc: Routes to correct normaliser by submission_source.
+        selected: false
+        title: Source Router
+        type: if-else
+      height: 216
+      id: '1000000003'
+      position:
+        x: 685.0368000000001
+        y: 71.0368
+      positionAbsolute:
+        x: 685.0368000000001
+        y: 71.0368
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\ndef main(payload_parsed: str, rm_employee_id: str, received_at:\
+          \ str) -> dict:\n    payload = json.loads(payload_parsed)\n    return {\n\
+          \        \"normalised_intake\": json.dumps({\n            \"source\": \"\
+          EMAIL\",\n            \"email_message_id\": payload.get(\"email_message_id\"\
+          , \"\"),\n            \"sender_email\": payload.get(\"sender_email\", \"\
+          \"),\n            \"subject\": payload.get(\"subject\", \"\"),\n       \
+          \     \"body_text\": payload.get(\"body_text\", \"\"),\n            \"attachments_count\"\
+          : len(payload.get(\"attachments\", [])),\n            \"attachments\": payload.get(\"\
+          attachments\", []),\n            \"rm_employee_id\": rm_employee_id,\n \
+          \           \"received_at\": received_at\n        })\n    }\n"
+        code_language: python3
+        default_value:
+        - key: normalised_intake
+          type: string
+          value: ''
+        desc: Extracts email fields and maps to common intake schema.
+        error_strategy: default-value
+        outputs:
+          normalised_intake:
+            children: null
+            type: string
+        selected: false
+        title: Email Normaliser
+        type: code
+        variables:
+        - value_selector:
+          - '1000000002'
+          - payload_parsed
+          variable: payload_parsed
+        - value_selector:
+          - '1000000002'
+          - rm_employee_id
+          variable: rm_employee_id
+        - value_selector:
+          - '1000000002'
+          - received_at
+          variable: received_at
+      height: 132
+      id: '1000000004'
+      position:
+        x: 1046
+        y: 0
+      positionAbsolute:
+        x: 1046
+        y: 0
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\ndef main(payload_parsed: str, rm_employee_id: str, received_at:\
+          \ str) -> dict:\n    payload = json.loads(payload_parsed)\n    form_data\
+          \ = payload.get(\"form_data_json\", {})\n    return {\n        \"normalised_intake\"\
+          : json.dumps({\n            \"source\": \"PORTAL\",\n            \"portal_form_id\"\
+          : payload.get(\"portal_form_id\", \"\"),\n            \"client_name\": form_data.get(\"\
+          client_name\", \"\"),\n            \"entity_type\": form_data.get(\"entity_type\"\
+          , \"\"),\n            \"jurisdiction\": form_data.get(\"jurisdiction\",\
+          \ \"\"),\n            \"products\": form_data.get(\"products\", []),\n \
+          \           \"attachments_count\": len(payload.get(\"uploaded_doc_ids\"\
+          , [])),\n            \"rm_employee_id\": rm_employee_id,\n            \"\
+          received_at\": received_at\n        })\n    }\n"
+        code_language: python3
+        default_value:
+        - key: normalised_intake
+          type: string
+          value: ''
+        desc: Extracts portal form data and maps to common intake schema.
+        error_strategy: default-value
+        outputs:
+          normalised_intake:
+            children: null
+            type: string
+        selected: false
+        title: Portal Normaliser
+        type: code
+        variables:
+        - value_selector:
+          - '1000000002'
+          - payload_parsed
+          variable: payload_parsed
+        - value_selector:
+          - '1000000002'
+          - rm_employee_id
+          variable: rm_employee_id
+        - value_selector:
+          - '1000000002'
+          - received_at
+          variable: received_at
+      height: 132
+      id: '1000000005'
+      position:
+        x: 1046
+        y: 176
+      positionAbsolute:
+        x: 1046
+        y: 176
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\ndef main(payload_parsed: str, rm_employee_id: str, received_at:\
+          \ str) -> dict:\n    payload = json.loads(payload_parsed)\n    return {\n\
+          \        \"normalised_intake\": json.dumps({\n            \"source\": \"\
+          API\",\n            \"client_name\": payload.get(\"client_name\", \"\"),\n\
+          \            \"entity_type\": payload.get(\"entity_type\", \"\"),\n    \
+          \        \"jurisdiction\": payload.get(\"jurisdiction\", \"\"),\n      \
+          \      \"products\": payload.get(\"products\", []),\n            \"lei\"\
+          : payload.get(\"lei\", \"\"),\n            \"attachments_count\": 0,\n \
+          \           \"rm_employee_id\": rm_employee_id,\n            \"received_at\"\
+          : received_at\n        })\n    }\n"
+        code_language: python3
+        default_value:
+        - key: normalised_intake
+          type: string
+          value: ''
+        desc: Normalises raw API JSON payload to common intake schema.
+        error_strategy: default-value
+        outputs:
+          normalised_intake:
+            children: null
+            type: string
+        retry_config:
+          max_retries: 3
+          retry_enabled: false
+          retry_interval: 1000
+        selected: false
+        title: API Normaliser
+        type: code
+        variables:
+        - value_selector:
+          - '1000000002'
+          - payload_parsed
+          variable: payload_parsed
+        - value_selector:
+          - '1000000002'
+          - rm_employee_id
+          variable: rm_employee_id
+        - value_selector:
+          - '1000000002'
+          - received_at
+          variable: received_at
+      height: 132
+      id: '1000000006'
+      position:
+        x: 1046
+        y: 352
+      positionAbsolute:
+        x: 1046
+        y: 352
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        advanced_settings:
+          group_enabled: false
+          groups:
+          - group_name: default
+            output_type: string
+            variables:
+            - - '1000000004'
+              - normalised_intake
+            - - '1000000005'
+              - normalised_intake
+            - - '1000000006'
+              - normalised_intake
+        desc: Merges normalised_intake from all 3 source normalisers.
+        output_type: string
+        selected: false
+        title: Merge Intake
+        type: variable-aggregator
+        variables:
+        - - '1000000004'
+          - normalised_intake
+        - - '1000000005'
+          - normalised_intake
+        - - '1000000006'
+          - normalised_intake
+      height: 204
+      id: '1000000007'
+      position:
+        x: 1414.2207999999998
+        y: 133.4048
+      positionAbsolute:
+        x: 1414.2207999999998
+        y: 133.4048
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        dataset_ids:
+        - W2PHaxghYHQUqM5PXGic4EoQak4bCDxSQH3Q7tf1nVVKxDO1PxqZXVCb3zhDO/vo
+        desc: Retrieves account type classification rules from KB-1 Document Taxonomy.
+        query_attachment_selector: []
+        query_variable_selector:
+        - '1000000007'
+        - output
+        retrieval_mode: single
+        selected: false
+        single_retrieval_config:
+          model:
+            completion_params:
+              temperature: 0.1
+            mode: chat
+            name: claude-sonnet-4-6
+            provider: anthropic
+          score_threshold: 0.75
+          score_threshold_enabled: true
+        title: 'KB-1: Document Taxonomy'
+        type: knowledge-retrieval
+      height: 134
+      id: '1000000008'
+      position:
+        x: 1750
+        y: 176
+      positionAbsolute:
+        x: 1750
+        y: 176
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1000000008'
+          - result
+        desc: Classifies submission into 1 of 5 account types with confidence. SKL-02.
+        model:
+          completion_params:
+            max_tokens: 2048
+            temperature: 0.1
+          mode: chat
+          name: claude-sonnet-4-6
+          provider: langgenius/anthropic/anthropic
+        prompt_template:
+        - id: sa1-sys-classify
+          role: system
+          text: 'You are SA-1, the DCE Account Opening Intake & Triage Agent at DBS
+            Bank. Classify the incoming submission into the correct account type.
+
+            ACCOUNT TYPES: - INSTITUTIONAL_FUTURES: Corporate/FI entities requesting
+            futures/options - RETAIL_FUTURES: Individual clients requesting futures/options
+            - OTC_DERIVATIVES: Any entity requesting OTC derivative products - COMMODITIES_PHYSICAL:
+            Physical commodity trading accounts - MULTI_PRODUCT: Requests spanning
+            2+ categories
+
+            ENTITY TYPES: CORP, FUND, FI, SPV, INDIVIDUAL JURISDICTIONS: SGP, HKG,
+            CHN, OTHER
+
+            CONFIDENCE: 0.90-1.00 clear match, 0.80-0.89 strong inference, 0.70-0.79
+            needs review, below 0.70 flag for RM.
+
+            Respond with ONLY valid JSON: {"account_type":"...","confidence":0.0,"account_type_reasoning":"...","client_name":"...","client_entity_type":"...","jurisdiction":"...","products_requested":["..."]}'
+        - id: sa1-usr-classify
+          role: user
+          text: 'Classify this submission:
+
+            NORMALISED INTAKE: {{#1000000007.output#}}
+
+            KB-1 CONTEXT: {{#context#}}
+
+            Respond with JSON only.'
+        selected: false
+        title: Account Type Classifier
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: '1000000009'
+      position:
+        x: 2092
+        y: 158
+      positionAbsolute:
+        x: 2092
+        y: 158
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\ndef main(llm_output: str) -> dict:\n    try:\n\
+          \        match = re.search(r'\\{[\\s\\S]*\\}', llm_output)\n        cls\
+          \ = json.loads(match.group()) if match else json.loads(llm_output)\n   \
+          \ except:\n        return {\"classification_json\": \"{}\", \"confidence\"\
+          : \"0\", \"is_valid\": \"false\"}\n    confidence = float(cls.get(\"confidence\"\
+          , 0))\n    cls[\"flagged_for_review\"] = confidence < 0.80\n    return {\n\
+          \        \"classification_json\": json.dumps(cls),\n        \"confidence\"\
+          : str(confidence),\n        \"is_valid\": str(confidence >= 0.70).lower()\n\
+          \    }\n"
+        code_language: python3
+        desc: Validates classification confidence. Flags < 0.80, blocks < 0.70.
+        outputs:
+          classification_json:
+            children: null
+            type: string
+          confidence:
+            children: null
+            type: string
+          is_valid:
+            children: null
+            type: string
+        selected: false
+        title: Confidence Gate
+        type: code
+        variables:
+        - value_selector:
+          - '1000000009'
+          - text
+          variable: llm_output
+      height: 96
+      id: '1000000010'
+      position:
+        x: 2434
+        y: 176
+      positionAbsolute:
+        x: 2434
+        y: 176
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        dataset_ids:
+        - zuzw3/3L6uR2X9FxTEwJDI1eVOF/+CCLCNaQohNgAMfzCpIWahUg3yyW2yORUfbZ
+        desc: Retrieves SLA policy rules from KB-9 for priority determination.
+        query_attachment_selector: []
+        query_variable_selector:
+        - '1000000010'
+        - classification_json
+        retrieval_mode: single
+        selected: false
+        single_retrieval_config:
+          model:
+            completion_params:
+              temperature: 0.1
+            mode: chat
+            name: claude-sonnet-4-6
+            provider: anthropic
+          score_threshold: 0.75
+          score_threshold_enabled: true
+        title: 'KB-9: SLA Policy'
+        type: knowledge-retrieval
+      height: 134
+      id: '1000000011'
+      position:
+        x: 2776
+        y: 176
+      positionAbsolute:
+        x: 2776
+        y: 176
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1000000011'
+          - result
+        desc: Determines URGENT/STANDARD/DEFERRED priority and SLA deadline. SKL-03.
+        model:
+          completion_params:
+            max_tokens: 1024
+            temperature: 0.1
+          mode: chat
+          name: claude-sonnet-4-6
+          provider: langgenius/anthropic/anthropic
+        prompt_template:
+        - id: sa1-sys-priority
+          role: system
+          text: 'You are the Priority Assessment module of SA-1 at DBS Bank.
+
+            PRIORITY RULES: - URGENT: Platinum/Diamond client, RM-flagged urgency,
+            regulatory deadline within 48h, FI counterparty - STANDARD: Normal processing
+            (default) - DEFERRED: Low-value, incomplete submissions, explicit RM defer
+            request
+
+            SLA WINDOWS: URGENT=4h, STANDARD=2 business days, DEFERRED=5 business
+            days
+
+            Respond with ONLY valid JSON: {"priority":"URGENT|STANDARD|DEFERRED","priority_reason":"...","sla_deadline":"ISO
+            datetime"}'
+        - id: sa1-usr-priority
+          role: user
+          text: 'Assess priority:
+
+            CLASSIFICATION: {{#1000000010.classification_json#}}
+
+            RECEIVED AT: {{#1000000002.received_at#}}
+
+            KB-9 SLA CONTEXT: {{#context#}}
+
+            Respond with JSON only.'
+        selected: false
+        title: Priority Assessor
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 154
+      id: '1000000012'
+      position:
+        x: 3118
+        y: 147
+      positionAbsolute:
+        x: 3118
+        y: 147
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\nVALID_ACCT = [\"INSTITUTIONAL_FUTURES\",\"\
+          RETAIL_FUTURES\",\"OTC_DERIVATIVES\",\"COMMODITIES_PHYSICAL\",\"MULTI_PRODUCT\"\
+          ]\nVALID_PRI = [\"URGENT\",\"STANDARD\",\"DEFERRED\"]\nVALID_ENT = [\"CORP\"\
+          ,\"FUND\",\"FI\",\"SPV\",\"INDIVIDUAL\"]\nVALID_JUR = [\"SGP\",\"HKG\",\"\
+          CHN\",\"OTHER\"]\n\ndef main(classification_json: str, priority_text: str,\
+          \ rm_employee_id: str) -> dict:\n    errors = []\n    try:\n        cls\
+          \ = json.loads(classification_json)\n    except:\n        cls = {}\n   \
+          \     errors.append(\"Bad classification JSON\")\n    try:\n        m =\
+          \ re.search(r'\\{[\\s\\S]*\\}', priority_text)\n        pri = json.loads(m.group())\
+          \ if m else json.loads(priority_text)\n    except:\n        pri = {}\n \
+          \       errors.append(\"Bad priority JSON\")\n    if cls.get(\"account_type\"\
+          ) not in VALID_ACCT:\n        errors.append(\"Invalid account_type\")\n\
+          \    if pri.get(\"priority\") not in VALID_PRI:\n        errors.append(\"\
+          Invalid priority\")\n    if cls.get(\"client_entity_type\") not in VALID_ENT:\n\
+          \        errors.append(\"Invalid entity_type\")\n    if cls.get(\"jurisdiction\"\
+          ) not in VALID_JUR:\n        errors.append(\"Invalid jurisdiction\")\n \
+          \   conf = float(cls.get(\"confidence\", 0))\n    if conf < 0.70:\n    \
+          \    errors.append(\"Confidence too low\")\n    if not cls.get(\"client_name\"\
+          ):\n        errors.append(\"Missing client_name\")\n    is_valid = len(errors)\
+          \ == 0\n    merged = {\n        \"account_type\": cls.get(\"account_type\"\
+          , \"\"),\n        \"account_type_confidence\": conf,\n        \"account_type_reasoning\"\
+          : cls.get(\"account_type_reasoning\", \"\"),\n        \"client_name\": cls.get(\"\
+          client_name\", \"\"),\n        \"client_entity_type\": cls.get(\"client_entity_type\"\
+          , \"\"),\n        \"jurisdiction\": cls.get(\"jurisdiction\", \"\"),\n \
+          \       \"products_requested\": json.dumps(cls.get(\"products_requested\"\
+          , [])),\n        \"priority\": pri.get(\"priority\", \"STANDARD\"),\n  \
+          \      \"priority_reason\": pri.get(\"priority_reason\", \"\"),\n      \
+          \  \"sla_deadline\": pri.get(\"sla_deadline\", \"\"),\n        \"flagged_for_review\"\
+          : cls.get(\"flagged_for_review\", False),\n        \"rm_employee_id\": rm_employee_id\n\
+          \    }\n    return {\n        \"is_valid\": str(is_valid),\n        \"validated_output\"\
+          : json.dumps(merged),\n        \"errors\": json.dumps(errors)\n    }\n"
+        code_language: python3
+        desc: Validates merged classification + priority against N0Output schema.
+        outputs:
+          errors:
+            children: null
+            type: string
+          is_valid:
+            children: null
+            type: string
+          validated_output:
+            children: null
+            type: string
+        selected: false
+        title: N0Output Validator
+        type: code
+        variables:
+        - value_selector:
+          - '1000000010'
+          - classification_json
+          variable: classification_json
+        - value_selector:
+          - '1000000012'
+          - text
+          variable: priority_text
+        - value_selector:
+          - '1000000002'
+          - rm_employee_id
+          variable: rm_employee_id
+      height: 96
+      id: '1000000013'
+      position:
+        x: 3460
+        y: 176
+      positionAbsolute:
+        x: 3460
+        y: 176
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: valid-pass
+          conditions:
+          - comparison_operator: is
+            id: cond-valid
+            value: 'True'
+            variable_selector:
+            - '1000000013'
+            - is_valid
+          id: valid-pass
+          logical_operator: and
+        desc: Pass → MCP tool execution. Fail → escalation.
+        selected: false
+        title: Validation Pass?
+        type: if-else
+      height: 168
+      id: '1000000014'
+      position:
+        x: 3802
+        y: 140
+      positionAbsolute:
+        x: 3802
+        y: 140
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport urllib.request\nimport re\nimport ssl\n\n\
+          MCP_URL = \"https://dcemcptools-production.up.railway.app/mcp\"\nHEADERS\
+          \ = {\"Content-Type\": \"application/json\", \"Accept\": \"application/json,\
+          \ text/event-stream\"}\nSSL_CTX = ssl.create_default_context()\nSSL_CTX.check_hostname\
+          \ = False\nSSL_CTX.verify_mode = ssl.CERT_NONE\n\ndef mcp_call(method_name,\
+          \ arguments, req_id=1):\n    body = json.dumps({\n        \"jsonrpc\": \"\
+          2.0\", \"id\": req_id,\n        \"method\": \"initialize\",\n        \"\
+          params\": {\"protocolVersion\": \"2025-03-26\", \"capabilities\": {},\n\
+          \                   \"clientInfo\": {\"name\": \"dify-sa1\", \"version\"\
+          : \"1.0\"}}\n    }).encode()\n    req = urllib.request.Request(MCP_URL, data=body,\
+          \ headers=HEADERS, method=\"POST\")\n    resp = urllib.request.urlopen(req,\
+          \ timeout=30, context=SSL_CTX)\n    resp.read()\n    session_id = resp.headers.get(\"\
+          Mcp-Session-Id\", \"\")\n    h = dict(HEADERS)\n    h[\"Mcp-Session-Id\"\
+          ] = session_id\n    tool_body = json.dumps({\n        \"jsonrpc\": \"2.0\"\
+          , \"id\": req_id + 1,\n        \"method\": \"tools/call\",\n        \"\
+          params\": {\"name\": method_name, \"arguments\": arguments}\n    }).encode()\n\
+          \    req2 = urllib.request.Request(MCP_URL, data=tool_body, headers=h, method=\"\
+          POST\")\n    resp2 = urllib.request.urlopen(req2, timeout=60, context=SSL_CTX)\n\    raw = resp2.read().decode()\n    for line in raw.split(\"\
+          \\n\"):\n        line = line.strip()\n        if line.startswith(\"data:\"\
+          ):\n            data_str = line[5:].strip()\n            try:\n         \
+          \       rpc = json.loads(data_str)\n                content = rpc.get(\"\
+          result\", {}).get(\"content\", [])\n                if content and content[0].get(\"\
+          text\"):\n                    return content[0][\"text\"]\n             \
+          \   sc = rpc.get(\"result\", {}).get(\"structuredContent\")\n            \
+          \    if sc:\n                    return json.dumps(sc)\n            except\
+          \ Exception:\n                return data_str\n    return raw\n\ndef main(validated_output:\
+          \ str, submission_source: str, received_at: str, rm_employee_id: str, raw_payload_json:\
+          \ str) -> dict:\n    vo = json.loads(validated_output)\n    payload = {}\n\
+          \    try:\n        payload = json.loads(raw_payload_json) if raw_payload_json\
+          \ else {}\n    except Exception:\n        pass\n\n    create_args = {\n\
+          \        \"submission_source\": submission_source,\n        \"received_at\"\
+          : received_at,\n        \"rm_employee_id\": rm_employee_id,\n        \"\
+          account_type\": vo.get(\"account_type\", \"INSTITUTIONAL_FUTURES\"),\n  \
+          \      \"account_type_confidence\": vo.get(\"account_type_confidence\",\
+          \ 0.9),\n        \"account_type_reasoning\": vo.get(\"account_type_reasoning\"\
+          , \"\"),\n        \"client_name\": vo.get(\"client_name\", \"\"),\n     \
+          \   \"client_entity_type\": vo.get(\"client_entity_type\", \"CORP\"),\n\
+          \        \"jurisdiction\": vo.get(\"jurisdiction\", \"SGP\"),\n        \"\
+          products_requested\": vo.get(\"products_requested\", \"[]\"),\n        \"\
+          priority\": vo.get(\"priority\", \"STANDARD\"),\n        \"priority_reason\"\
+          : vo.get(\"priority_reason\", \"\"),\n        \"sla_deadline\": vo.get(\"\
+          sla_deadline\", \"\"),\n        \"flagged_for_review\": vo.get(\"flagged_for_review\"\
+          , False),\n        \"email_message_id\": payload.get(\"email_message_id\"\
+          , \"\"),\n        \"sender_email\": payload.get(\"sender_email\", \"\"),\n\
+          \        \"email_subject\": payload.get(\"subject\", \"\"),\n        \"\
+          email_body_text\": payload.get(\"body_text\", \"\"),\n        \"attachments_count\"\
+          : len(payload.get(\"attachments\", [])),\n        \"rm_name\": rm_employee_id,\n\
+          \        \"rm_email\": payload.get(\"sender_email\", \"\"),\n        \"\
+          rm_branch\": \"DCE Branch\",\n        \"rm_desk\": \"DCE Sales Desk\",\n\
+          \        \"rm_manager_id\": \"\",\n        \"rm_manager_name\": \"\",\n\
+          \        \"rm_manager_email\": \"\",\n        \"rm_resolution_source\":\
+          \ \"HR_SYSTEM\"\n    }\n    create_result = \"\"\n    case_id = \"UNKNOWN\"\
+          \n    try:\n        create_result = mcp_call(\"sa1_create_case_full\", create_args,\
+          \ 1)\n        cr = json.loads(create_result) if isinstance(create_result,\
+          \ str) else create_result\n        if isinstance(cr, dict) and cr.get(\"\
+          case_id\"):\n            case_id = cr[\"case_id\"]\n    except Exception\
+          \ as e:\n        create_result = str(e)\n    if case_id == \"UNKNOWN\":\n\
+          \        m = re.search(r'AO-\\d{4}-\\d{6}', str(create_result))\n      \
+          \  if m:\n            case_id = m.group()\n\n    n0_output = {\n        \"\
+          case_id\": case_id,\n        \"account_type\": vo.get(\"account_type\",\
+          \ \"\"),\n        \"priority\": vo.get(\"priority\", \"STANDARD\"),\n   \
+          \     \"client_name\": vo.get(\"client_name\", \"\"),\n        \"next_node\"\
+          : \"N-1\",\n        \"confidence\": vo.get(\"account_type_confidence\",\
+          \ 0)\n    }\n    complete_result = \"\"\n    try:\n        complete_result\
+          \ = mcp_call(\"sa1_complete_node\", {\n            \"case_id\": case_id,\
+          \ \"status\": \"COMPLETE\",\n            \"attempt_number\": 1, \"output_json\"\
+          : json.dumps(n0_output),\n            \"started_at\": received_at, \"notifications_sent\"\
+          : True\n        }, 10)\n    except Exception as e:\n        complete_result\
+          \ = str(e)\n\n    return {\n        \"case_id\": case_id,\n        \"n0_output\"\
+          : json.dumps(n0_output),\n        \"create_result\": str(create_result)[:500],\n\
+          \        \"complete_result\": str(complete_result)[:500]\n    }\n"
+        code_language: python3
+        desc: Calls sa1_create_case_full, sa1_stage_documents_batch, sa1_notify_stakeholders,
+          and sa1_complete_node via MCP endpoint. All 4 tools in sequence within one
+          code block.
+        outputs:
+          case_id:
+            children: null
+            type: string
+          complete_result:
+            children: null
+            type: string
+          create_result:
+            children: null
+            type: string
+          n0_output:
+            children: null
+            type: string
+        selected: false
+        title: 'MCP: Execute SA-1 Tools'
+        type: code
+        variables:
+        - value_selector:
+          - '1000000013'
+          - validated_output
+          variable: validated_output
+        - value_selector:
+          - '1000000002'
+          - submission_source
+          variable: submission_source
+        - value_selector:
+          - '1000000002'
+          - received_at
+          variable: received_at
+        - value_selector:
+          - '1000000002'
+          - rm_employee_id
+          variable: rm_employee_id
+        - value_selector:
+          - '1000000001'
+          - raw_payload_json
+          variable: raw_payload_json
+      height: 160
+      id: '1000000015'
+      position:
+        x: 4164
+        y: 161
+      positionAbsolute:
+        x: 4164
+        y: 161
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\ndef main(case_id: str, n0_output: str, create_result:\
+          \ str, complete_result: str) -> dict:\n    return {\n        \"result_json\"\
+          : json.dumps({\n            \"status\": \"success\",\n            \"case_id\"\
+          : case_id,\n            \"n0_output\": json.loads(n0_output) if n0_output\
+          \ else {},\n            \"next_node\": \"N-1\",\n            \"mcp_create\"\
+          : create_result[:300],\n            \"mcp_complete\": complete_result[:300]\n\
+          \        }),\n        \"case_id\": case_id\n    }\n"
+        code_language: python3
+        desc: Assembles final N0Output for return.
+        outputs:
+          case_id:
+            children: null
+            type: string
+          result_json:
+            children: null
+            type: string
+        selected: false
+        title: Final Output
+        type: code
+        variables:
+        - value_selector:
+          - '1000000015'
+          - case_id
+          variable: case_id
+        - value_selector:
+          - '1000000015'
+          - n0_output
+          variable: n0_output
+        - value_selector:
+          - '1000000015'
+          - create_result
+          variable: create_result
+        - value_selector:
+          - '1000000015'
+          - complete_result
+          variable: complete_result
+      height: 80
+      id: '1000000016'
+      position:
+        x: 4506
+        y: 201
+      positionAbsolute:
+        x: 4506
+        y: 201
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: Returns N0Output JSON to orchestrator.
+        outputs:
+        - value_selector:
+          - '1000000016'
+          - result_json
+          variable: n0_output
+        - value_selector:
+          - '1000000016'
+          - case_id
+          variable: case_id
+        selected: false
+        title: 'End: Success'
+        type: end
+      height: 142
+      id: '1000000017'
+      position:
+        x: 4848
+        y: 170
+      positionAbsolute:
+        x: 4848
+        y: 170
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: Returns validation errors for escalation.
+        outputs:
+        - value_selector:
+          - '1000000013'
+          - errors
+          variable: validation_errors
+        - value_selector:
+          - '1000000013'
+          - validated_output
+          variable: partial_output
+        selected: false
+        title: 'End: Escalation'
+        type: end
+      height: 142
+      id: '1000000018'
+      position:
+        x: 4164
+        y: 402.0368
+      positionAbsolute:
+        x: 4164
+        y: 402.0368
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -746.2501121768191
+      y: 334.06192012187876
+      zoom: 0.9645061728395065
+  rag_pipeline_variables: []

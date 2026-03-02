@@ -200,6 +200,17 @@ workflow:
       zIndex: 0
     - data:
         isInIteration: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 2000000024-2000000010
+      source: '2000000024'
+      sourceHandle: source
+      target: '2000000010'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
         sourceType: code
         targetType: code
       id: '200000000011'
@@ -606,35 +617,38 @@ workflow:
       type: custom
       width: 242
     - data:
-        code: "import json\nimport urllib.request\nimport re\n\nHEADERS = {\"Content-Type\"\
+        code: "import json\nimport ssl\nimport urllib.request\n\nHEADERS = {\"Content-Type\"\
           : \"application/json\", \"Accept\": \"application/json, text/event-stream\"\
-          }\n\n\ndef mcp_call(mcp_url, method_name, arguments, req_id=1):\n    body\
-          \ = json.dumps({\n        \"jsonrpc\": \"2.0\", \"id\": req_id,\n      \
-          \  \"method\": \"initialize\",\n        \"params\": {\"protocolVersion\"\
+          }\nCTX = ssl.create_default_context()\nCTX.check_hostname = False\nCTX.verify_mode\
+          \ = ssl.CERT_NONE\n\n\ndef mcp_call(mcp_url, method_name, arguments, req_id=1):\n\
+          \    body = json.dumps({\n        \"jsonrpc\": \"2.0\", \"id\": req_id,\n\
+          \        \"method\": \"initialize\",\n        \"params\": {\"protocolVersion\"\
           : \"2025-03-26\", \"capabilities\": {},\n                   \"clientInfo\"\
           : {\"name\": \"dify-sa2\", \"version\": \"1.0\"}}\n    }).encode()\n   \
           \ req = urllib.request.Request(mcp_url, data=body, headers=HEADERS, method=\"\
-          POST\")\n    resp = urllib.request.urlopen(req, timeout=30)\n    resp.read()\n\
-          \    session_id = resp.headers.get(\"Mcp-Session-Id\", \"\")\n    h = dict(HEADERS)\n\
-          \    h[\"Mcp-Session-Id\"] = session_id\n    tool_body = json.dumps({\n\
-          \        \"jsonrpc\": \"2.0\", \"id\": req_id + 1,\n        \"method\":\
-          \ \"tools/call\",\n        \"params\": {\"name\": method_name, \"arguments\"\
-          : arguments}\n    }).encode()\n    req2 = urllib.request.Request(mcp_url,\
+          POST\")\n    resp = urllib.request.urlopen(req, timeout=30, context=CTX)\n\
+          \    resp.read()\n    session_id = resp.headers.get(\"Mcp-Session-Id\", \"\"\
+          )\n    h = dict(HEADERS)\n    h[\"Mcp-Session-Id\"] = session_id\n    tool_body\
+          \ = json.dumps({\n        \"jsonrpc\": \"2.0\", \"id\": req_id + 1,\n  \
+          \      \"method\": \"tools/call\",\n        \"params\": {\"name\": method_name,\
+          \ \"arguments\": arguments}\n    }).encode()\n    req2 = urllib.request.Request(mcp_url,\
           \ data=tool_body, headers=h, method=\"POST\")\n    resp2 = urllib.request.urlopen(req2,\
-          \ timeout=60)\n    raw = resp2.read().decode()\n    match = re.search(r'\"\
-          result\"\\s*:\\s*(\\{[\\s\\S]*?\\}|\\[[\\s\\S]*?\\])', raw)\n    if match:\n\
-          \        return match.group(1)\n    for line in raw.split(\"\\n\"):\n  \
-          \      if line.startswith(\"data:\"):\n            return line[5:].strip()\n\
-          \    return raw\n\n\ndef main(case_id: str, account_type: str, jurisdiction:\
-          \ str,\n         kb_chunks: str, submitted_documents_parsed: str,\n     \
-          \    mcp_endpoint: str) -> dict:\n    MCP_URL = mcp_endpoint + \"/mcp\"\
-          \ if mcp_endpoint else \"https://dcemcptools-production.up.railway.app/mcp\"\
+          \ timeout=60, context=CTX)\n    raw = resp2.read().decode()\n    for line\
+          \ in raw.split(\"\\n\"):\n        line = line.strip()\n        if line.startswith(\"\
+          data:\"):\n            data_str = line[5:].strip()\n            try:\n  \
+          \              rpc = json.loads(data_str)\n                content = rpc.get(\"\
+          result\", {}).get(\"content\", [])\n                if content and content[0].get(\"\
+          text\"):\n                    return content[0][\"text\"]\n            except\
+          \ Exception:\n                return data_str\n    return raw\n\n\ndef main(case_id:\
+          \ str, account_type: str, jurisdiction: str,\n         kb_chunks: str, submitted_documents_parsed:\
+          \ str,\n         mcp_endpoint: str) -> dict:\n    MCP_URL = mcp_endpoint\
+          \ + \"/mcp\" if mcp_endpoint else \"https://dcemcptools-production.up.railway.app/mcp\"\
           \n    try:\n        args = {\n            \"case_id\": case_id,\n       \
           \     \"account_type\": account_type,\n            \"jurisdiction\": jurisdiction,\n\
           \            \"kb_context\": (kb_chunks or \"\")[:2000]\n        }\n   \
-          \     result = mcp_call(MCP_URL, \"sa2_get_document_checklist\", args, 1)\n        try:\n\
-          \            checklist_data = json.loads(result)\n        except Exception:\n\
-          \            checklist_data = {\"mandatory_docs\": [], \"optional_docs\"\
+          \     result = mcp_call(MCP_URL, \"sa2_get_document_checklist\", args, 1)\n\
+          \        try:\n            checklist_data = json.loads(result)\n        except\
+          \ Exception:\n            checklist_data = {\"mandatory_docs\": [], \"optional_docs\"\
           : [], \"raw\": str(result)[:500]}\n        return {\n            \"checklist_json\"\
           : json.dumps(checklist_data),\n            \"checklist_source\": \"MCP_GENERATED\"\
           ,\n            \"checklist_error\": \"\"\n        }\n    except Exception\
@@ -749,6 +763,14 @@ workflow:
     - data:
         advanced_settings:
           group_enabled: false
+          groups:
+          - group_name: default
+            output_type: string
+            variables:
+            - - '2000000005'
+              - checklist_json
+            - - '2000000006'
+              - checklist_json
         desc: Merges checklist output from first-attempt (MCP generated) or retry
           path (DB reuse) into a single context variable for downstream OCR and assessment
           nodes.
@@ -775,61 +797,63 @@ workflow:
       type: custom
       width: 242
     - data:
-        code: "import json\nimport urllib.request\nimport re\n\nHEADERS = {\"Content-Type\"\
+        code: "import json\nimport ssl\nimport urllib.request\n\nHEADERS = {\"Content-Type\"\
           : \"application/json\", \"Accept\": \"application/json, text/event-stream\"\
-          }\n\n\ndef mcp_call(mcp_url, method_name, arguments, req_id=1):\n    body\
-          \ = json.dumps({\n        \"jsonrpc\": \"2.0\", \"id\": req_id,\n      \
-          \  \"method\": \"initialize\",\n        \"params\": {\"protocolVersion\"\
+          }\nCTX = ssl.create_default_context()\nCTX.check_hostname = False\nCTX.verify_mode\
+          \ = ssl.CERT_NONE\n\n\ndef mcp_call(mcp_url, method_name, arguments, req_id=1):\n\
+          \    body = json.dumps({\n        \"jsonrpc\": \"2.0\", \"id\": req_id,\n\
+          \        \"method\": \"initialize\",\n        \"params\": {\"protocolVersion\"\
           : \"2025-03-26\", \"capabilities\": {},\n                   \"clientInfo\"\
           : {\"name\": \"dify-sa2\", \"version\": \"1.0\"}}\n    }).encode()\n   \
           \ req = urllib.request.Request(mcp_url, data=body, headers=HEADERS, method=\"\
-          POST\")\n    resp = urllib.request.urlopen(req, timeout=30)\n    resp.read()\n\
-          \    session_id = resp.headers.get(\"Mcp-Session-Id\", \"\")\n    h = dict(HEADERS)\n\
-          \    h[\"Mcp-Session-Id\"] = session_id\n    tool_body = json.dumps({\n\
-          \        \"jsonrpc\": \"2.0\", \"id\": req_id + 1,\n        \"method\":\
-          \ \"tools/call\",\n        \"params\": {\"name\": method_name, \"arguments\"\
-          : arguments}\n    }).encode()\n    req2 = urllib.request.Request(mcp_url,\
+          POST\")\n    resp = urllib.request.urlopen(req, timeout=30, context=CTX)\n\
+          \    resp.read()\n    session_id = resp.headers.get(\"Mcp-Session-Id\", \"\"\
+          )\n    h = dict(HEADERS)\n    h[\"Mcp-Session-Id\"] = session_id\n    tool_body\
+          \ = json.dumps({\n        \"jsonrpc\": \"2.0\", \"id\": req_id + 1,\n  \
+          \      \"method\": \"tools/call\",\n        \"params\": {\"name\": method_name,\
+          \ \"arguments\": arguments}\n    }).encode()\n    req2 = urllib.request.Request(mcp_url,\
           \ data=tool_body, headers=h, method=\"POST\")\n    resp2 = urllib.request.urlopen(req2,\
-          \ timeout=90)\n    raw = resp2.read().decode()\n    match = re.search(r'\"\
-          result\"\\s*:\\s*(\\{[\\s\\S]*?\\}|\\[[\\s\\S]*?\\])', raw)\n    if match:\n\
-          \        return match.group(1)\n    for line in raw.split(\"\\n\"):\n  \
-          \      if line.startswith(\"data:\"):\n            return line[5:].strip()\n\
-          \    return raw\n\n\ndef main(checklist_output: str, submitted_documents_parsed:\
-          \ str,\n         mcp_endpoint: str) -> dict:\n    MCP_URL = mcp_endpoint\
-          \ + \"/mcp\" if mcp_endpoint else \"https://dcemcptools-production.up.railway.app/mcp\"\
-          \n    ocr_results = []\n    ocr_errors = []\n    try:\n \
-          \       docs = json.loads(submitted_documents_parsed) if submitted_documents_parsed\
-          \ else []\n    except Exception:\n        docs = []\n    for i, doc in enumerate(docs):\n\
-          \        doc_id = doc.get(\"doc_id\", \"UNKNOWN_{}\".format(i))\n      \
-          \  try:\n            args = {\n                \"doc_id\": doc_id,\n   \
-          \             \"storage_url\": doc.get(\"storage_url\", \"\"),\n       \
-          \         \"filename\": doc.get(\"filename\", \"\"),\n                \"\
-          mime_type\": doc.get(\"mime_type\", \"application/pdf\"),\n            \
-          \    \"expected_doc_type\": \"\"\n            }\n            result = mcp_call(MCP_URL, \"\
-          sa2_extract_document_metadata\", args, (i * 10) + 1)\n            try:\n   \
-          \             ocr_data = json.loads(result)\n            except Exception:\n\
-          \                ocr_data = {\"detected_doc_type\": \"UNKNOWN\", \"confidence_score\"\
-          : 0.5}\n            confidence = float(ocr_data.get(\"confidence_score\"\
-          , 0.5))\n            ocr_results.append({\n                \"doc_id\": doc_id,\n\
-          \                \"filename\": doc.get(\"filename\", \"\"),\n          \
-          \      \"detected_doc_type\": ocr_data.get(\"detected_doc_type\", \"UNKNOWN\"\
-          ),\n                \"confidence_score\": confidence,\n                \"\
-          expiry_date\": ocr_data.get(\"expiry_date\"),\n                \"issue_date\"\
-          : ocr_data.get(\"issue_date\"),\n                \"issuing_authority\":\
-          \ ocr_data.get(\"issuing_authority\", \"\"),\n                \"signatory_names\"\
+          \ timeout=90, context=CTX)\n    raw = resp2.read().decode()\n    for line\
+          \ in raw.split(\"\\n\"):\n        line = line.strip()\n        if line.startswith(\"\
+          data:\"):\n            data_str = line[5:].strip()\n            try:\n  \
+          \              rpc = json.loads(data_str)\n                content = rpc.get(\"\
+          result\", {}).get(\"content\", [])\n                if content and content[0].get(\"\
+          text\"):\n                    return content[0][\"text\"]\n            except\
+          \ Exception:\n                return data_str\n    return raw\n\n\ndef main(checklist_output:\
+          \ str, submitted_documents_parsed: str,\n         mcp_endpoint: str) -> dict:\n\
+          \    MCP_URL = mcp_endpoint + \"/mcp\" if mcp_endpoint else \"https://dcemcptools-production.up.railway.app/mcp\"\
+          \n    ocr_results = []\n    ocr_errors = []\n    try:\n        docs = json.loads(submitted_documents_parsed)\
+          \ if submitted_documents_parsed else []\n    except Exception:\n        docs\
+          \ = []\n    for i, doc in enumerate(docs):\n        doc_id = doc.get(\"doc_id\"\
+          , \"UNKNOWN_{}\".format(i))\n        try:\n            args = {\n       \
+          \         \"doc_id\": doc_id,\n                \"storage_url\": doc.get(\"\
+          storage_url\", \"\"),\n                \"filename\": doc.get(\"filename\"\
+          , \"\"),\n                \"mime_type\": doc.get(\"mime_type\", \"application/pdf\"\
+          ),\n                \"expected_doc_type\": \"\"\n            }\n         \
+          \   result = mcp_call(MCP_URL, \"sa2_extract_document_metadata\", args, (i\
+          \ * 10) + 1)\n            try:\n                ocr_data = json.loads(result)\n\
+          \            except Exception:\n                ocr_data = {\"detected_doc_type\"\
+          : \"UNKNOWN\", \"confidence_score\": 0.5}\n            confidence = float(ocr_data.get(\"\
+          confidence_score\", 0.5))\n            ocr_results.append({\n           \
+          \     \"doc_id\": doc_id,\n                \"filename\": doc.get(\"filename\"\
+          , \"\"),\n                \"detected_doc_type\": ocr_data.get(\"detected_doc_type\"\
+          , \"UNKNOWN\"),\n                \"confidence_score\": confidence,\n     \
+          \           \"expiry_date\": ocr_data.get(\"expiry_date\"),\n            \
+          \    \"issue_date\": ocr_data.get(\"issue_date\"),\n                \"issuing_authority\"\
+          : ocr_data.get(\"issuing_authority\", \"\"),\n                \"signatory_names\"\
           : ocr_data.get(\"signatory_names\", []),\n                \"extracted_text_preview\"\
           : str(ocr_data.get(\"extracted_text\", \"\"))[:500],\n                \"\
-          flagged_for_review\": confidence < 0.80\n            })\n        except\
-          \ Exception as e:\n            ocr_errors.append(\"OCR failed for {}: {}\"\
-          .format(doc_id, str(e)[:100]))\n            ocr_results.append({\n     \
-          \           \"doc_id\": doc_id,\n                \"filename\": doc.get(\"\
-          filename\", \"\"),\n                \"detected_doc_type\": \"OCR_FAILED\"\
-          ,\n                \"confidence_score\": 0.0,\n                \"expiry_date\"\
-          : None,\n                \"issue_date\": None,\n                \"issuing_authority\"\
-          : \"\",\n                \"signatory_names\": [],\n                \"extracted_text_preview\"\
-          : \"\",\n                \"flagged_for_review\": True\n            })\n\
-          \    return {\n        \"ocr_results_json\": json.dumps(ocr_results),\n\
-          \        \"ocr_errors_json\": json.dumps(ocr_errors),\n        \"doc_count_processed\"\
+          flagged_for_review\": confidence < 0.80\n            })\n        except Exception\
+          \ as e:\n            ocr_errors.append(\"OCR failed for {}: {}\".format(doc_id,\
+          \ str(e)[:100]))\n            ocr_results.append({\n                \"doc_id\"\
+          : doc_id,\n                \"filename\": doc.get(\"filename\", \"\"),\n  \
+          \              \"detected_doc_type\": \"OCR_FAILED\",\n                \"\
+          confidence_score\": 0.0,\n                \"expiry_date\": None,\n      \
+          \          \"issue_date\": None,\n                \"issuing_authority\": \"\"\
+          ,\n                \"signatory_names\": [],\n                \"extracted_text_preview\"\
+          : \"\",\n                \"flagged_for_review\": True\n            })\n \
+          \   return {\n        \"ocr_results_json\": json.dumps(ocr_results),\n  \
+          \      \"ocr_errors_json\": json.dumps(ocr_errors),\n        \"doc_count_processed\"\
           : str(len(ocr_results))\n    }\n"
         code_language: python3
         desc: Calls MCP extract_document_metadata for each submitted document. Extracts
@@ -1030,31 +1054,34 @@ workflow:
       type: custom
       width: 242
     - data:
-        code: "import json\nimport urllib.request\nimport re\n\nHEADERS = {\"Content-Type\"\
+        code: "import json\nimport ssl\nimport urllib.request\n\nHEADERS = {\"Content-Type\"\
           : \"application/json\", \"Accept\": \"application/json, text/event-stream\"\
-          }\n\n\ndef mcp_call(mcp_url, method_name, arguments, req_id=1):\n    body\
-          \ = json.dumps({\n        \"jsonrpc\": \"2.0\", \"id\": req_id,\n      \
-          \  \"method\": \"initialize\",\n        \"params\": {\"protocolVersion\"\
+          }\nCTX = ssl.create_default_context()\nCTX.check_hostname = False\nCTX.verify_mode\
+          \ = ssl.CERT_NONE\n\n\ndef mcp_call(mcp_url, method_name, arguments, req_id=1):\n\
+          \    body = json.dumps({\n        \"jsonrpc\": \"2.0\", \"id\": req_id,\n\
+          \        \"method\": \"initialize\",\n        \"params\": {\"protocolVersion\"\
           : \"2025-03-26\", \"capabilities\": {},\n                   \"clientInfo\"\
           : {\"name\": \"dify-sa2\", \"version\": \"1.0\"}}\n    }).encode()\n   \
           \ req = urllib.request.Request(mcp_url, data=body, headers=HEADERS, method=\"\
-          POST\")\n    resp = urllib.request.urlopen(req, timeout=30)\n    resp.read()\n\
-          \    session_id = resp.headers.get(\"Mcp-Session-Id\", \"\")\n    h = dict(HEADERS)\n\
-          \    h[\"Mcp-Session-Id\"] = session_id\n    tool_body = json.dumps({\n\
-          \        \"jsonrpc\": \"2.0\", \"id\": req_id + 1,\n        \"method\":\
-          \ \"tools/call\",\n        \"params\": {\"name\": method_name, \"arguments\"\
-          : arguments}\n    }).encode()\n    req2 = urllib.request.Request(mcp_url,\
+          POST\")\n    resp = urllib.request.urlopen(req, timeout=30, context=CTX)\n\
+          \    resp.read()\n    session_id = resp.headers.get(\"Mcp-Session-Id\", \"\"\
+          )\n    h = dict(HEADERS)\n    h[\"Mcp-Session-Id\"] = session_id\n    tool_body\
+          \ = json.dumps({\n        \"jsonrpc\": \"2.0\", \"id\": req_id + 1,\n  \
+          \      \"method\": \"tools/call\",\n        \"params\": {\"name\": method_name,\
+          \ \"arguments\": arguments}\n    }).encode()\n    req2 = urllib.request.Request(mcp_url,\
           \ data=tool_body, headers=h, method=\"POST\")\n    resp2 = urllib.request.urlopen(req2,\
-          \ timeout=60)\n    raw = resp2.read().decode()\n    match = re.search(r'\"\
-          result\"\\s*:\\s*(\\{[\\s\\S]*?\\}|\\[[\\s\\S]*?\\])', raw)\n    if match:\n\
-          \        return match.group(1)\n    for line in raw.split(\"\\n\"):\n  \
-          \      if line.startswith(\"data:\"):\n            return line[5:].strip()\n\
-          \    return raw\n\n\ndef main(ocr_results_json: str, mcp_endpoint: str) -> dict:\n\
-          \    MCP_URL = mcp_endpoint + \"/mcp\" if mcp_endpoint else \"https://dcemcptools-production.up.railway.app/mcp\"\
-          \n    validity_results\
-          \ = []\n    try:\n        ocr_results = json.loads(ocr_results_json) if\
-          \ ocr_results_json else []\n    except Exception:\n        ocr_results =\
-          \ []\n    for i, doc in enumerate(ocr_results):\n        doc_id = doc.get(\"\
+          \ timeout=60, context=CTX)\n    raw = resp2.read().decode()\n    for line\
+          \ in raw.split(\"\\n\"):\n        line = line.strip()\n        if line.startswith(\"\
+          data:\"):\n            data_str = line[5:].strip()\n            try:\n  \
+          \              rpc = json.loads(data_str)\n                content = rpc.get(\"\
+          result\", {}).get(\"content\", [])\n                if content and content[0].get(\"\
+          text\"):\n                    return content[0][\"text\"]\n            except\
+          \ Exception:\n                return data_str\n    return raw\n\n\ndef main(ocr_results_json:\
+          \ str, mcp_endpoint: str) -> dict:\n    MCP_URL = mcp_endpoint + \"/mcp\"\
+          \ if mcp_endpoint else \"https://dcemcptools-production.up.railway.app/mcp\"\
+          \n    validity_results = []\n    try:\n        ocr_results = json.loads(ocr_results_json)\
+          \ if ocr_results_json else []\n    except Exception:\n        ocr_results\
+          \ = []\n    for i, doc in enumerate(ocr_results):\n        doc_id = doc.get(\"\
           doc_id\", \"UNKNOWN\")\n        try:\n            args = {\n           \
           \     \"doc_id\": doc_id,\n                \"doc_type\": doc.get(\"detected_doc_type\"\
           , \"UNKNOWN\"),\n                \"expiry_date\": doc.get(\"expiry_date\"\
@@ -1170,7 +1197,7 @@ workflow:
     - data:
         context:
           enabled: false
-        desc: 'LLM (Haiku 4.5 — SKL-05): Generates actionable rejection reasons for
+        desc: 'LLM (Sonnet 4.6 — SKL-05): Generates actionable rejection reasons for
           each REJECTED or REQUIRES_RESUBMISSION document. Includes specific regulatory
           references (MAS Notice, ACRA) and resubmission instructions.'
         model:
@@ -1178,7 +1205,7 @@ workflow:
             max_tokens: 2048
             temperature: 0.1
           mode: chat
-          name: claude-haiku-4-5
+          name: claude-sonnet-4-6
           provider: langgenius/anthropic/anthropic
         prompt_template:
         - id: sa2-sys-rejection
@@ -1229,31 +1256,33 @@ workflow:
       type: custom
       width: 242
     - data:
-        code: "import json\nimport urllib.request\nimport re\n\nHEADERS = {\"Content-Type\"\
+        code: "import json\nimport ssl\nimport urllib.request\n\nHEADERS = {\"Content-Type\"\
           : \"application/json\", \"Accept\": \"application/json, text/event-stream\"\
-          }\n\n\ndef mcp_call(mcp_url, method_name, arguments, req_id=1):\n    body\
-          \ = json.dumps({\n        \"jsonrpc\": \"2.0\", \"id\": req_id,\n      \
-          \  \"method\": \"initialize\",\n        \"params\": {\"protocolVersion\"\
+          }\nCTX = ssl.create_default_context()\nCTX.check_hostname = False\nCTX.verify_mode\
+          \ = ssl.CERT_NONE\n\n\ndef mcp_call(mcp_url, method_name, arguments, req_id=1):\n\
+          \    body = json.dumps({\n        \"jsonrpc\": \"2.0\", \"id\": req_id,\n\
+          \        \"method\": \"initialize\",\n        \"params\": {\"protocolVersion\"\
           : \"2025-03-26\", \"capabilities\": {},\n                   \"clientInfo\"\
           : {\"name\": \"dify-sa2\", \"version\": \"1.0\"}}\n    }).encode()\n   \
           \ req = urllib.request.Request(mcp_url, data=body, headers=HEADERS, method=\"\
-          POST\")\n    resp = urllib.request.urlopen(req, timeout=30)\n    resp.read()\n\
-          \    session_id = resp.headers.get(\"Mcp-Session-Id\", \"\")\n    h = dict(HEADERS)\n\
-          \    h[\"Mcp-Session-Id\"] = session_id\n    tool_body = json.dumps({\n\
-          \        \"jsonrpc\": \"2.0\", \"id\": req_id + 1,\n        \"method\":\
-          \ \"tools/call\",\n        \"params\": {\"name\": method_name, \"arguments\"\
-          : arguments}\n    }).encode()\n    req2 = urllib.request.Request(mcp_url,\
+          POST\")\n    resp = urllib.request.urlopen(req, timeout=30, context=CTX)\n\
+          \    resp.read()\n    session_id = resp.headers.get(\"Mcp-Session-Id\", \"\"\
+          )\n    h = dict(HEADERS)\n    h[\"Mcp-Session-Id\"] = session_id\n    tool_body\
+          \ = json.dumps({\n        \"jsonrpc\": \"2.0\", \"id\": req_id + 1,\n  \
+          \      \"method\": \"tools/call\",\n        \"params\": {\"name\": method_name,\
+          \ \"arguments\": arguments}\n    }).encode()\n    req2 = urllib.request.Request(mcp_url,\
           \ data=tool_body, headers=h, method=\"POST\")\n    resp2 = urllib.request.urlopen(req2,\
-          \ timeout=60)\n    raw = resp2.read().decode()\n    match = re.search(r'\"\
-          result\"\\s*:\\s*(\\{[\\s\\S]*?\\}|\\[[\\s\\S]*?\\])', raw)\n    if match:\n\
-          \        return match.group(1)\n    for line in raw.split(\"\\n\"):\n  \
-          \      if line.startswith(\"data:\"):\n            return line[5:].strip()\n\
-          \    return raw\n\n\ndef main(completeness_json: str, rejection_llm_text:\
-          \ str, mcp_endpoint: str) -> dict:\n    MCP_URL = mcp_endpoint + \"/mcp\"\
-          \ if mcp_endpoint else \"https://dcemcptools-production.up.railway.app/mcp\"\
-          \n    flagged = []\n    errors = []\n    try:\n        comp\
-          \ = json.loads(completeness_json) if completeness_json else {}\n    except\
-          \ Exception:\n        comp = {}\n    try:\n        m = re.search(r'\\{[\\\
+          \ timeout=60, context=CTX)\n    raw = resp2.read().decode()\n    for line\
+          \ in raw.split(\"\\n\"):\n        line = line.strip()\n        if line.startswith(\"\
+          data:\"):\n            data_str = line[5:].strip()\n            try:\n  \
+          \              rpc = json.loads(data_str)\n                content = rpc.get(\"\
+          result\", {}).get(\"content\", [])\n                if content and content[0].get(\"\
+          text\"):\n                    return content[0][\"text\"]\n            except\
+          \ Exception:\n                return data_str\n    return raw\n\n\ndef main(completeness_json:\
+          \ str, rejection_llm_text: str, mcp_endpoint: str) -> dict:\n    MCP_URL\
+          \ = mcp_endpoint + \"/mcp\" if mcp_endpoint else \"https://dcemcptools-production.up.railway.app/mcp\"\
+          \n    flagged = []\n    errors = []\n    try:\n        comp = json.loads(completeness_json)\
+          \ if completeness_json else {}\n    except Exception:\n        comp = {}\n    try:\n        m = re.search(r'\\{[\\\
           s\\S]*\\}', rejection_llm_text)\n        rej = json.loads(m.group()) if\
           \ m else {}\n    except Exception:\n        rej = {}\n    rejection_reasons\
           \ = rej.get(\"rejection_reasons\", {})\n    documents = comp.get(\"documents\"\
@@ -1565,7 +1594,7 @@ workflow:
     - data:
         context:
           enabled: false
-        desc: 'LLM (Haiku 4.5 — SKL-07): Composes professional RM chase notification
+        desc: 'LLM (Sonnet 4.6 — SKL-07): Composes professional RM chase notification
           listing missing and rejected documents, regulatory references, and SLA deadline.
           On retry_count >= 2, includes Branch Manager in recipients.'
         model:
@@ -1573,7 +1602,7 @@ workflow:
             max_tokens: 1024
             temperature: 0.2
           mode: chat
-          name: claude-haiku-4-5
+          name: claude-sonnet-4-6
           provider: langgenius/anthropic/anthropic
         prompt_template:
         - id: sa2-sys-chase
@@ -1626,61 +1655,72 @@ workflow:
       type: custom
       width: 242
     - data:
-        code: "import json\nimport urllib.request\nimport re\n\nHEADERS = {\"Content-Type\"\
-          : \"application/json\", \"Accept\": \"application/json, text/event-stream\"\
-          }\n\n\ndef mcp_call(mcp_url, method_name, arguments, req_id=1):\n    body\
-          \ = json.dumps({\n        \"jsonrpc\": \"2.0\", \"id\": req_id,\n      \
-          \  \"method\": \"initialize\",\n        \"params\": {\"protocolVersion\"\
-          : \"2025-03-26\", \"capabilities\": {},\n                   \"clientInfo\"\
-          : {\"name\": \"dify-sa2\", \"version\": \"1.0\"}}\n    }).encode()\n   \
-          \ req = urllib.request.Request(mcp_url, data=body, headers=HEADERS, method=\"\
-          POST\")\n    resp = urllib.request.urlopen(req, timeout=30)\n    resp.read()\n\
-          \    session_id = resp.headers.get(\"Mcp-Session-Id\", \"\")\n    h = dict(HEADERS)\n\
-          \    h[\"Mcp-Session-Id\"] = session_id\n    tool_body = json.dumps({\n\
-          \        \"jsonrpc\": \"2.0\", \"id\": req_id + 1,\n        \"method\":\
-          \ \"tools/call\",\n        \"params\": {\"name\": method_name, \"arguments\"\
-          : arguments}\n    }).encode()\n    req2 = urllib.request.Request(mcp_url,\
-          \ data=tool_body, headers=h, method=\"POST\")\n    resp2 = urllib.request.urlopen(req2,\
-          \ timeout=60)\n    raw = resp2.read().decode()\n    match = re.search(r'\"\
-          result\"\\s*:\\s*(\\{[\\s\\S]*?\\}|\\[[\\s\\S]*?\\])', raw)\n    if match:\n\
-          \        return match.group(1)\n    for line in raw.split(\"\\n\"):\n  \
-          \      if line.startswith(\"data:\"):\n            return line[5:].strip()\n\
-          \    return raw\n\n\ndef main(validated_completeness_json: str, decision_json:\
-          \ str,\n         chase_llm_text: str, case_id: str, retry_count_int: str,\n\
-          \         mcp_endpoint: str) -> dict:\n    MCP_URL = mcp_endpoint + \"/mcp\"\
-          \ if mcp_endpoint else \"https://dcemcptools-production.up.railway.app/mcp\"\
-          \n    try:\n        comp = json.loads(validated_completeness_json)\
-          \ if validated_completeness_json else {}\n    except Exception:\n      \
-          \  comp = {}\n    try:\n        m = re.search(r'\\{[\\s\\S]*\\}', decision_json)\n\
-          \        dec = json.loads(m.group()) if m else {}\n    except Exception:\n\
-          \        dec = {}\n    next_node = dec.get(\"next_node\", \"DEAD\")\n  \
-          \  retry_recommended = dec.get(\"retry_recommended\", False)\n    n1_output\
-          \ = dict(comp)\n    n1_output[\"next_node\"] = next_node\n    n1_output[\"\
-          retry_recommended\"] = retry_recommended\n    n1_output[\"failure_reason\"\
-          ] = dec.get(\"failure_reason\")\n    n1_output[\"rm_chase_message\"] = dec.get(\"\
-          rm_chase_message\")\n    notify_result = \"\"\n    if retry_recommended\
-          \ and chase_llm_text and chase_llm_text.strip():\n        try:\n       \
-          \     m2 = re.search(r'\\{[\\s\\S]*\\}', chase_llm_text)\n            chase_data\
+        code: "import json\nimport re\nimport ssl\nimport urllib.request\n\nHEADERS\
+          \ = {\"Content-Type\": \"application/json\", \"Accept\": \"application/json,\
+          \ text/event-stream\"}\nCTX = ssl.create_default_context()\nCTX.check_hostname\
+          \ = False\nCTX.verify_mode = ssl.CERT_NONE\n\n\ndef mcp_call(mcp_url, method_name,\
+          \ arguments, req_id=1):\n    body = json.dumps({\n        \"jsonrpc\": \"\
+          2.0\", \"id\": req_id,\n        \"method\": \"initialize\",\n        \"\
+          params\": {\"protocolVersion\": \"2025-03-26\", \"capabilities\": {},\n \
+          \                  \"clientInfo\": {\"name\": \"dify-sa2\", \"version\":\
+          \ \"1.0\"}}\n    }).encode()\n    req = urllib.request.Request(mcp_url, data=body,\
+          \ headers=HEADERS, method=\"POST\")\n    resp = urllib.request.urlopen(req,\
+          \ timeout=30, context=CTX)\n    resp.read()\n    session_id = resp.headers.get(\"\
+          Mcp-Session-Id\", \"\")\n    h = dict(HEADERS)\n    h[\"Mcp-Session-Id\"\
+          ] = session_id\n    tool_body = json.dumps({\n        \"jsonrpc\": \"2.0\"\
+          , \"id\": req_id + 1,\n        \"method\": \"tools/call\",\n        \"params\"\
+          : {\"name\": method_name, \"arguments\": arguments}\n    }).encode()\n \
+          \   req2 = urllib.request.Request(mcp_url, data=tool_body, headers=h, method=\"\
+          POST\")\n    resp2 = urllib.request.urlopen(req2, timeout=60, context=CTX)\n\
+          \    raw = resp2.read().decode()\n    for line in raw.split(\"\\n\"):\n \
+          \       line = line.strip()\n        if line.startswith(\"data:\"):\n    \
+          \        data_str = line[5:].strip()\n            try:\n                rpc\
+          \ = json.loads(data_str)\n                content = rpc.get(\"result\", {}).get(\"\
+          content\", [])\n                if content and content[0].get(\"text\"):\n\
+          \                    return content[0][\"text\"]\n            except Exception:\n\
+          \                return data_str\n    return raw\n\n\ndef main(validated_completeness_json:\
+          \ str, decision_json: str,\n         chase_llm_text: str, case_id: str, retry_count_int:\
+          \ str,\n         mcp_endpoint: str) -> dict:\n    MCP_URL = mcp_endpoint\
+          \ + \"/mcp\" if mcp_endpoint else \"https://dcemcptools-production.up.railway.app/mcp\"\
+          \n    try:\n        comp = json.loads(validated_completeness_json) if validated_completeness_json\
+          \ else {}\n    except Exception:\n        comp = {}\n    try:\n        m\
+          \ = re.search(r'\\{[\\s\\S]*\\}', decision_json)\n        dec = json.loads(m.group())\
+          \ if m else {}\n    except Exception:\n        dec = {}\n    next_node =\
+          \ dec.get(\"next_node\", \"DEAD\")\n    retry_recommended = dec.get(\"retry_recommended\"\
+          , False)\n    n1_output = dict(comp)\n    n1_output[\"next_node\"] = next_node\n\
+          \    n1_output[\"retry_recommended\"] = retry_recommended\n    n1_output[\"\
+          failure_reason\"] = dec.get(\"failure_reason\")\n    n1_output[\"rm_chase_message\"\
+          ] = dec.get(\"rm_chase_message\")\n    notify_result = \"\"\n    if retry_recommended\
+          \ and chase_llm_text and chase_llm_text.strip():\n        try:\n         \
+          \   m2 = re.search(r'\\{[\\s\\S]*\\}', chase_llm_text)\n            chase_data\
           \ = json.loads(m2.group()) if m2 else {}\n            chase_text = chase_data.get(\"\
-          chase_message_text\", \"\")\n            recipients = chase_data.get(\"\
-          recipients\", [\"RM\"])\n            if chase_text:\n                retry_int\
-          \ = int(retry_count_int) if retry_count_int and retry_count_int.strip().isdigit()\
-          \ else 0\n                notify_args = {\n                    \"case_id\"\
-          : case_id,\n                    \"notification_type\": \"RM_CHASE\",\n \
-          \                   \"recipients\": json.dumps(recipients),\n          \
-          \          \"message_text\": chase_text,\n                    \"retry_count\"\
-          : retry_int\n                }\n                notify_result = str(mcp_call(MCP_URL, \"\
-          sa2_send_notification\", notify_args, 300))[:300]\n        except Exception\
-          \ as e:\n            notify_result = \"NOTIFY_FAILED: {}\".format(str(e)[:100])\n\
+          chase_message_text\", \"\")\n            recipients = chase_data.get(\"recipients\"\
+          , [\"RM\"])\n            if chase_text:\n                retry_int = int(retry_count_int)\
+          \ if retry_count_int and retry_count_int.strip().isdigit() else 0\n     \
+          \           notify_args = {\n                    \"case_id\": case_id,\n \
+          \                   \"notification_type\": \"RM_CHASE\",\n              \
+          \      \"recipients\": json.dumps(recipients),\n                    \"message_text\"\
+          : chase_text,\n                    \"retry_count\": retry_int\n         \
+          \       }\n                notify_result = str(mcp_call(MCP_URL, \"sa2_send_notification\"\
+          , notify_args, 300))[:300]\n        except Exception as e:\n            notify_result\
+          \ = \"NOTIFY_FAILED: {}\".format(str(e)[:100])\n    complete_result = \"\"\
+          \n    status = \"COMPLETE\" if next_node == \"N-2\" else \"FAILED\"\n   \
+          \ try:\n        complete_args = {\n            \"case_id\": case_id,\n  \
+          \          \"node_id\": \"N-1\",\n            \"status\": status,\n     \
+          \       \"output_json\": json.dumps(n1_output),\n            \"next_node\"\
+          : next_node\n        }\n        complete_result = str(mcp_call(MCP_URL, \"\
+          sa2_complete_node\", complete_args, 400))[:300]\n    except Exception as\
+          \ e:\n        complete_result = \"CHECKPOINT_FAILED: {}\".format(str(e)[:100])\n\
           \    final_output = {\n        \"status\": \"success\",\n        \"case_id\"\
           : case_id,\n        \"n1_output\": n1_output,\n        \"next_node\": next_node,\n\
           \        \"notification_sent\": bool(notify_result and \"FAILED\" not in\
-          \ notify_result)\n    }\n    return {\n        \"result_json\": json.dumps(final_output),\n\
-          \        \"case_id\": case_id,\n        \"next_node\": next_node\n    }\n"
+          \ notify_result),\n        \"checkpoint_result\": complete_result\n    }\n\
+          \    return {\n        \"result_json\": json.dumps(final_output),\n      \
+          \  \"case_id\": case_id,\n        \"next_node\": next_node\n    }\n"
         code_language: python3
         desc: Assembles final N1Output JSON. If retry_recommended, calls MCP send_notification
-          with chase message. Writes N-1 checkpoint to dce_ao_node_checkpoint and
-          updates dce_ao_case_state. Publishes NODE_COMPLETED event to Kafka dce.ao.events.
+          with chase message. Calls sa2_complete_node to write N-1 checkpoint and
+          update case_state. Publishes NODE_COMPLETED event to Kafka dce.ao.events.
           Reached from both retry and non-retry paths.
         outputs:
           case_id:
