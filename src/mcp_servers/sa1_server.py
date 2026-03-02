@@ -905,42 +905,23 @@ def sa1_complete_node(
 
 
 # ---------------------------------------------------------------------------
-# Custom app with health check endpoint
+# Health check route (added to MCP app's Starlette routes)
 # ---------------------------------------------------------------------------
-def create_app():
-    """Wrap the MCP streamable-http app with a /health endpoint for Railway."""
-    from starlette.applications import Starlette
-    from starlette.responses import JSONResponse
-    from starlette.routing import Route, Mount
+from starlette.responses import JSONResponse
+from starlette.routing import Route
 
-    async def health(request):
-        return JSONResponse({"status": "ok", "service": "dce-ao-sa1"})
 
-    mcp_app = mcp.streamable_http_app()
+async def _health(request):
+    return JSONResponse({"status": "ok", "service": "dce-ao-sa1"})
 
-    app = Starlette(
-        routes=[
-            Route("/health", health),
-            Mount("/", app=mcp_app),
-        ],
-    )
-    return app
+
+mcp.settings.streamable_http_path = "/mcp"
+mcp._custom_starlette_routes.append(Route("/health", _health))
 
 
 # ---------------------------------------------------------------------------
 # Server entry point
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    import uvicorn
-
     transport = os.getenv("MCP_TRANSPORT", "streamable-http")
-
-    if transport == "streamable-http":
-        app = create_app()
-        uvicorn.run(
-            app,
-            host=os.getenv("HOST", "0.0.0.0"),
-            port=int(os.getenv("PORT", "8000")),
-        )
-    else:
-        mcp.run(transport=transport)
+    mcp.run(transport=transport)
