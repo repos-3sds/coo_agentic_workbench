@@ -5,7 +5,7 @@
   },
   "deploy": {
     "startCommand": "python src/mcp_servers/sa1_server.py",
-    "healthcheckPath": "/mcp",
+    "healthcheckPath": "/health",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 3
   }
