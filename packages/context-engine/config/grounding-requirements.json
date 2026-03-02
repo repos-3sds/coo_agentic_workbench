@@ -1,0 +1,196 @@
+{
+    "claim_types": [
+        {
+            "claim_type": "classification_decision",
+            "requires_citation": true,
+            "min_authority_tier": 2,
+            "citation_format": {
+                "required_fields": [
+                    "source_id",
+                    "version",
+                    "section",
+                    "scoring_breakdown"
+                ]
+            },
+            "example_valid_citation": {
+                "source_id": "SOPv3.2_NPA_Classification_Criteria",
+                "version": "3.2",
+                "section": "4.2.1",
+                "scoring_breakdown": {
+                    "complexity": 3,
+                    "financial_impact": 2
+                }
+            },
+            "example_invalid_citation": {
+                "source_id": "SOPv1.1",
+                "version": "1.1",
+                "section": "General criteria"
+            }
+        },
+        {
+            "claim_type": "risk_assessment",
+            "requires_citation": true,
+            "min_authority_tier": 2,
+            "citation_format": {
+                "required_fields": [
+                    "source_id",
+                    "version",
+                    "section",
+                    "domain_scores"
+                ]
+            },
+            "example_valid_citation": {
+                "source_id": "GFM_Risk_Framework",
+                "version": "2025.A",
+                "section": "3.1.4",
+                "domain_scores": {
+                    "operational_risk": "HIGH",
+                    "market_risk": "LOW"
+                }
+            },
+            "example_invalid_citation": {
+                "source_id": "Risk guidelines",
+                "section": "Risk scoring"
+            }
+        },
+        {
+            "claim_type": "governance_rule",
+            "requires_citation": true,
+            "min_authority_tier": 2,
+            "citation_format": {
+                "required_fields": [
+                    "source_id",
+                    "version",
+                    "section"
+                ]
+            },
+            "example_valid_citation": {
+                "source_id": "NPA_Governance_Manual",
+                "version": "2.0",
+                "section": "5.3"
+            },
+            "example_invalid_citation": {
+                "source_id": "Bank policy doc",
+                "section": "Governance rules"
+            }
+        },
+        {
+            "claim_type": "regulatory_obligation",
+            "requires_citation": true,
+            "min_authority_tier": 4,
+            "citation_format": {
+                "required_fields": [
+                    "source_id",
+                    "version",
+                    "section",
+                    "jurisdiction",
+                    "regulator"
+                ]
+            },
+            "example_valid_citation": {
+                "source_id": "MAS_Notice_637",
+                "version": "2024-rev",
+                "section": "12.3",
+                "jurisdiction": "SG",
+                "regulator": "MAS"
+            },
+            "example_invalid_citation": {
+                "source_id": "MAS rules",
+                "section": "Stress testing requirement"
+            }
+        },
+        {
+            "claim_type": "signoff_requirement",
+            "requires_citation": true,
+            "min_authority_tier": 2,
+            "citation_format": {
+                "required_fields": [
+                    "source_id",
+                    "version",
+                    "section",
+                    "routing_rules"
+                ]
+            },
+            "example_valid_citation": {
+                "source_id": "SLA_Matrix",
+                "version": "5.1",
+                "section": "2.2.1",
+                "routing_rules": "Requires 72h turnaround for Finance sign-off"
+            },
+            "example_invalid_citation": {
+                "source_id": "Approval rules",
+                "section": "Approvals"
+            }
+        },
+        {
+            "claim_type": "financial_threshold",
+            "requires_citation": true,
+            "min_authority_tier": 1,
+            "citation_format": {
+                "required_fields": [
+                    "source_id",
+                    "fetched_at"
+                ]
+            },
+            "example_valid_citation": {
+                "source_id": "SoR:npa_projects:142",
+                "fetched_at": "2026-03-01T09:15:00Z"
+            },
+            "example_invalid_citation": {
+                "source_id": "Project DB",
+                "fetched_at": "yesterday"
+            }
+        },
+        {
+            "claim_type": "prohibited_item",
+            "requires_citation": true,
+            "min_authority_tier": 2,
+            "citation_format": {
+                "required_fields": [
+                    "source_id",
+                    "version",
+                    "section",
+                    "item_reference"
+                ]
+            },
+            "example_valid_citation": {
+                "source_id": "Prohibited_Items_List",
+                "version": "2025.Q4",
+                "section": "1.2",
+                "item_reference": "Crypto derivatives"
+            },
+            "example_invalid_citation": {
+                "source_id": "Prohibited list",
+                "section": "Crypto"
+            }
+        },
+        {
+            "claim_type": "sla_deadline",
+            "requires_citation": true,
+            "min_authority_tier": 2,
+            "citation_format": {
+                "required_fields": [
+                    "source_id",
+                    "version",
+                    "section"
+                ]
+            },
+            "example_valid_citation": {
+                "source_id": "SLA_Matrix",
+                "version": "5.1",
+                "section": "3.1"
+            },
+            "example_invalid_citation": {
+                "source_id": "SLA doc",
+                "section": "Deadlines"
+            }
+        }
+    ],
+    "verification_steps": {
+        "has_citation": "Check if the claim includes a valid citation block matching the claim type.",
+        "source_exists": "Verify that the cited source_id securely exists in the document Knowledge Base (KB) or System of Record (SoR) registries.",
+        "source_supports_claim": "Ensure the referenced section actually supports the asserted claim (e.g., scoring logic or SLA duration).",
+        "source_is_current": "Check the document's effective_date against the current date, ensuring it falls within the authorized timeframe.",
+        "authority_sufficient": "Verify the source's assigned authority tier is less than or equal to the minimum authority tier required for the claim."
+    }
+}

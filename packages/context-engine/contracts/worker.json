@@ -1,0 +1,24 @@
+{
+    "contract_id": "worker",
+    "archetype": "worker",
+    "version": "1.0",
+    "description": "Context contract for worker agents.",
+    "required_context": [
+        "assigned_task",
+        "entity_data",
+        "domain_knowledge",
+        "tool_results",
+        "user_context"
+    ],
+    "optional_context": [
+        "prior_worker_results",
+        "conversation_history",
+        "few_shot_examples"
+    ],
+    "excluded_context": [
+        "other_domain_data",
+        "full_conversation_history",
+        "routing_metadata"
+    ],
+    "budget_profile": "standard"
+}

@@ -1,0 +1,55 @@
+[
+    {
+        "level": "PUBLIC",
+        "ordinal": 0,
+        "definition": "Information that has been published externally or is intended for public consumption without restriction.",
+        "examples": [
+            "Annual reports",
+            "Press releases",
+            "Marketing materials",
+            "Public website content"
+        ],
+        "min_role_required": "any",
+        "agent_visibility_rule": "ALL_AGENTS"
+    },
+    {
+        "level": "INTERNAL",
+        "ordinal": 1,
+        "definition": "Information intended solely for internal use by bank employees and authorized contractors. Unauthorized disclosure could cause minor operational impact.",
+        "examples": [
+            "Internal organizational charts",
+            "General internal communications",
+            "Employee handbooks",
+            "Standard operating procedures (SOPs) not restricted by domain"
+        ],
+        "min_role_required": "employee",
+        "agent_visibility_rule": "AUTHENTICATED_AGENTS"
+    },
+    {
+        "level": "CONFIDENTIAL",
+        "ordinal": 2,
+        "definition": "Information intended for users on a strict need-to-know basis. Unauthorized disclosure could cause significant reputational, operational, or legal impact.",
+        "examples": [
+            "Client data",
+            "Deal terms",
+            "Non-public risk assessments",
+            "Audit findings",
+            "Pre-release financial results"
+        ],
+        "min_role_required": "analyst",
+        "agent_visibility_rule": "DOMAIN_SCOPED_AGENTS"
+    },
+    {
+        "level": "RESTRICTED",
+        "ordinal": 3,
+        "definition": "Information of the highest sensitivity. Unauthorized disclosure would cause severe operational, legal, or reputational damage to the bank.",
+        "examples": [
+            "Board papers",
+            "M&A data",
+            "Regulatory sanctions and investigations",
+            "Personally identifiable information (PII)"
+        ],
+        "min_role_required": "checker",
+        "agent_visibility_rule": "NAMED_AGENTS_ONLY"
+    }
+]

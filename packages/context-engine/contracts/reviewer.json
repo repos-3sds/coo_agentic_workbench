@@ -1,0 +1,22 @@
+{
+    "contract_id": "reviewer",
+    "archetype": "reviewer",
+    "version": "1.0",
+    "description": "Context contract for reviewer agents.",
+    "required_context": [
+        "worker_output",
+        "worker_provenance",
+        "validation_rubric",
+        "policy_references"
+    ],
+    "optional_context": [
+        "entity_data",
+        "injection_patterns"
+    ],
+    "excluded_context": [
+        "conversation_history",
+        "few_shot_examples",
+        "other_worker_outputs"
+    ],
+    "budget_profile": "compact"
+}

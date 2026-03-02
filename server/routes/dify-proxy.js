@@ -23,6 +23,15 @@ const { DIFY_BASE_URL, getAgent, getAllAgents } = require('../config/dify-agents
 const path = require('path');
 const AGENT_REGISTRY = require(path.resolve(__dirname, '..', '..', 'shared', 'agent-registry.json'));
 
+// ─── Canonical Services (extracted from this file — SINGLE SOURCE OF TRUTH) ──
+const { parseEnvelope, makeError, extractWorkflowMeta } = require('../services/envelope-parser');
+const { collectChatSSEStream, collectWorkflowSSEStream } = require('../services/sse-collector');
+const CHATFLOW_DEFAULT_INPUTS = require('../config/chatflow-defaults.json');
+
+// ─── Context Engine Bridge (Sprint 4) ────────────────────────────────────────
+const { assembleContextForAgent, ENABLED: CONTEXT_ENGINE_ENABLED } = require('../services/context-bridge');
+const { recordTrace } = require('./context-admin');
+
 const router = express.Router();
 
 function getDifyUser(req, bodyUser) {
@@ -34,47 +43,7 @@ function getDifyUser(req, bodyUser) {
     return `anon:${req.ip || 'unknown'}`;
 }
 
-// ─── Valid AgentAction values (source: agent-interfaces.ts + Freeze doc §6) ───
-
-const VALID_AGENT_ACTIONS = new Set([
-    'ROUTE_DOMAIN', 'DELEGATE_AGENT', 'ASK_CLARIFICATION', 'SHOW_CLASSIFICATION',
-    'SHOW_RISK', 'SHOW_PREDICTION', 'SHOW_AUTOFILL', 'SHOW_GOVERNANCE',
-    'SHOW_DOC_STATUS', 'SHOW_MONITORING', 'SHOW_KB_RESULTS', 'HARD_STOP',
-    'STOP_PROCESS', 'FINALIZE_DRAFT', 'ROUTE_WORK_ITEM', 'SHOW_RAW_RESPONSE',
-    'SHOW_ERROR'
-]);
-
-// ─── Default Inputs for Chatflow Agents ──────────────────────────────────────
-// Dify Chatflow apps declare input variables that can be REQUIRED.
-// The Angular client sends inputs={} by default.  To prevent 400 errors
-// from Dify ("variable is required in input form"), we merge sensible
-// defaults for each Chatflow agent before forwarding to Dify.
-// Only the keys listed here are sent — extra keys are harmless but omitting
-// REQUIRED keys causes hard Dify 400 failures.
-
-const CHATFLOW_DEFAULT_INPUTS = {
-    // CF_COO_Orchestrator — all optional in Dify, but we fill them for completeness
-    MASTER_COO: {
-        variable: '', session_id: '', current_project_id: '',
-        current_stage: '', user_role: 'analyst', last_action: ''
-    },
-    // CF_NPA_Orchestrator — 8 REQUIRED variables
-    NPA_ORCHESTRATOR: {
-        variable: '', session_id: '', current_project_id: '',
-        current_stage: 'ideation', user_role: 'analyst',
-        ideation_conversation_id: '', last_action: '',
-        user_id: '', user_message: ''
-    },
-    // CF_NPA_Ideation — only 'orchestrator_message' (optional paragraph)
-    IDEATION: {
-        orchestrator_message: ''
-    }
-    // CF_NPA_Query_Assistant (DILIGENCE, KB_SEARCH) — no variables defined in Dify
-};
-
-// ─── @@NPA_META@@ Envelope Parsing ───────────────────────────────────────────
-
-const META_REGEX = /@@NPA_META@@(\{[\s\S]*\})$/;
+// ─── Dify App Alias Resolution ───────────────────────────────────────────────
 
 function buildDifyAppAliases() {
     const aliases = {};
@@ -108,458 +77,10 @@ function buildDifyAppAliases() {
 
 const DIFY_APP_ALIASES = buildDifyAppAliases();
 
-/**
- * Parse [NPA_ACTION]...[NPA_SESSION] markers from Agent app response.
- * Returns { markers, markerStartIndex } or null if no markers found.
- */
-function parseMarkers(rawAnswer) {
-    const lines = rawAnswer.split('\n');
-    const markers = {};
-    let markerStartIndex = -1;
-
-    for (let i = 0; i < lines.length; i++) {
-        const stripped = lines[i].trim();
-        if (stripped.startsWith('[NPA_')) {
-            if (markerStartIndex === -1) markerStartIndex = i;
-            const bracketEnd = stripped.indexOf(']');
-            if (bracketEnd > 0) {
-                const key = stripped.substring(1, bracketEnd);
-                const value = stripped.substring(bracketEnd + 1).trim();
-                markers[key] = value;
-            }
-        }
-    }
-
-    if (markerStartIndex === -1 || !markers.NPA_ACTION) return null;
-
-    const cleanAnswer = lines.slice(0, markerStartIndex).join('\n').trimEnd();
-
-    // Parse [NPA_DATA] JSON
-    let dataObj = {};
-    if (markers.NPA_DATA) {
-        try {
-            dataObj = JSON.parse(markers.NPA_DATA);
-        } catch {
-            dataObj = { raw_answer: markers.NPA_DATA };
-        }
-    }
-
-    return {
-        answer: cleanAnswer,
-        metadata: {
-            agent_action: markers.NPA_ACTION || 'SHOW_RAW_RESPONSE',
-            agent_id: markers.NPA_AGENT || 'UNKNOWN',
-            payload: {
-                projectId: markers.NPA_PROJECT || '',
-                intent: markers.NPA_INTENT || '',
-                target_agent: markers.NPA_TARGET || '',
-                uiRoute: '/agents/npa',
-                data: dataObj
-            },
-            trace: {
-                session_id: markers.NPA_SESSION || ''
-            }
-        }
-    };
-}
-
-/**
- * Parse envelope from a Dify agent/chatflow answer string.
- * Supports TWO formats:
- *   1. [NPA_ACTION]...[NPA_SESSION] markers (Agent app)
- *   2. @@NPA_META@@{json} (Chatflow / future apps)
- * Returns { answer, metadata } where answer has markers/meta stripped.
- */
-function parseEnvelope(rawAnswer) {
-    if (!rawAnswer || typeof rawAnswer !== 'string') {
-        return {
-            answer: rawAnswer || '',
-            metadata: makeFallback(rawAnswer)
-        };
-    }
-
-    // Try marker format first (Agent app)
-    const markerResult = parseMarkers(rawAnswer);
-    if (markerResult) {
-        if (markerResult.metadata.agent_action && !VALID_AGENT_ACTIONS.has(markerResult.metadata.agent_action)) {
-            console.warn(`Unknown agent_action: ${markerResult.metadata.agent_action}`);
-        }
-        return markerResult;
-    }
-
-    // Try @@NPA_META@@ format (Chatflow)
-    const match = rawAnswer.match(META_REGEX);
-    if (!match) {
-        return {
-            answer: rawAnswer,
-            metadata: makeFallback(rawAnswer)
-        };
-    }
-
-    try {
-        const meta = JSON.parse(match[1]);
-
-        if (meta.agent_action && !VALID_AGENT_ACTIONS.has(meta.agent_action)) {
-            console.warn(`Unknown agent_action: ${meta.agent_action}`);
-        }
-
-        const cleanAnswer = rawAnswer.slice(0, match.index).trimEnd();
-
-        return {
-            answer: cleanAnswer,
-            metadata: {
-                agent_action: meta.agent_action || 'SHOW_RAW_RESPONSE',
-                agent_id: meta.agent_id || 'UNKNOWN',
-                payload: meta.payload || {},
-                trace: meta.trace || {}
-            }
-        };
-    } catch (parseErr) {
-        console.warn('@@NPA_META@@ JSON parse failed:', parseErr.message);
-        return {
-            answer: rawAnswer,
-            metadata: {
-                ...makeFallback(rawAnswer),
-                trace: { error: 'META_PARSE_FAILED', detail: parseErr.message }
-            }
-        };
-    }
-}
-
-/**
- * Build SHOW_RAW_RESPONSE fallback envelope.
- */
-function makeFallback(rawAnswer) {
-    return {
-        agent_action: 'SHOW_RAW_RESPONSE',
-        agent_id: 'UNKNOWN',
-        payload: { raw_answer: rawAnswer || '' },
-        trace: { error: 'META_PARSE_FAILED' }
-    };
-}
-
-/**
- * Build SHOW_ERROR envelope.
- */
-function makeError(agentId, errorType, message, detail) {
-    return {
-        agent_action: 'SHOW_ERROR',
-        agent_id: agentId || 'UNKNOWN',
-        payload: {
-            error_type: errorType,
-            message: message,
-            retry_allowed: true
-        },
-        trace: { error_detail: detail || '' }
-    };
-}
-
-/**
- * Extract structured metadata from workflow outputs.
- * Workflows return agent_action, agent_id, payload, trace as output variables.
- */
-function extractWorkflowMeta(outputs, agentId) {
-    if (!outputs) {
-        return makeError(agentId, 'WORKFLOW_FAILURE', 'Workflow returned no outputs');
-    }
-
-    // Workflows should set these output variables directly
-    if (outputs.agent_action) {
-        return {
-            agent_action: outputs.agent_action,
-            agent_id: outputs.agent_id || agentId,
-            payload: outputs.payload || outputs,
-            trace: outputs.trace || {}
-        };
-    }
-
-    // Fallback: wrap entire output as payload (for workflows that return raw data)
-    return {
-        agent_action: 'SHOW_RAW_RESPONSE',
-        agent_id: agentId,
-        payload: outputs,
-        trace: {}
-    };
-}
-
-// ─── SSE Stream Collector ─────────────────────────────────────────────────────
-
-/**
- * Collect SSE stream from Dify into a complete response.
- * Dify Agent apps only support streaming — this collects all chunks,
- * reassembles the answer, and returns structured data.
- *
- * SSE event types from Dify Agent app:
- *   - agent_message: text chunks from the LLM (incremental answer)
- *   - agent_thought: reasoning steps, tool calls
- *   - message_end: final event with conversation_id, message_id
- *   - message_file: file attachments
- *   - error: error events
- */
-function collectSSEStream(stream) {
-    return new Promise((resolve, reject) => {
-        let fullAnswer = '';
-        let conversationId = null;
-        let messageId = null;
-        let buffer = '';
-        let streamError = null; // Capture Dify-level errors but don't abort immediately
-        const debug = process.env.DIFY_DEBUG === '1';
-
-        stream.on('data', (chunk) => {
-            buffer += chunk.toString();
-            const lines = buffer.split('\n');
-            // Keep the last partial line in the buffer
-            buffer = lines.pop() || '';
-
-            for (const line of lines) {
-                if (!line.startsWith('data:')) continue;
-                const jsonStr = line.slice(5).trim();
-                if (!jsonStr) continue;
-
-                try {
-                    const evt = JSON.parse(jsonStr);
-
-                    if (evt.event === 'agent_message' || evt.event === 'message') {
-                        // Incremental answer text
-                        fullAnswer += (evt.answer || '');
-                    } else if (evt.event === 'message_end') {
-                        conversationId = evt.conversation_id || conversationId;
-                        messageId = evt.message_id || messageId;
-                    } else if (evt.event === 'error') {
-                        // Dify-level error (e.g. tool failure mid-stream).
-                        // Capture it but DON'T reject — wait for stream end.
-                        // If we already have a partial answer we can still return it.
-                        streamError = {
-                            code: evt.code || 'DIFY_STREAM_ERROR',
-                            message: evt.message || 'Dify stream error',
-                            status: evt.status || 500
-                        };
-                        if (debug) {
-                            console.warn(`[SSE] Dify error event: ${evt.code} — ${evt.message}`);
-                        }
-                    }
-
-                    // Capture IDs from any event that has them
-                    if (evt.conversation_id) conversationId = evt.conversation_id;
-                    if (evt.message_id) messageId = evt.message_id;
-                } catch { /* skip malformed SSE lines */ }
-            }
-        });
-
-        stream.on('end', () => {
-            // Process any remaining buffer
-            if (buffer.startsWith('data:')) {
-                const jsonStr = buffer.slice(5).trim();
-                try {
-                    const evt = JSON.parse(jsonStr);
-                    if (evt.event === 'agent_message' || evt.event === 'message') {
-                        fullAnswer += (evt.answer || '');
-                    }
-                    if (evt.conversation_id) conversationId = evt.conversation_id;
-                    if (evt.message_id) messageId = evt.message_id;
-                } catch { /* ignore */ }
-            }
-
-            // If we got a Dify error but also have a partial answer, return both.
-            // If we got an error with NO answer, still resolve (let caller handle empty answer).
-            resolve({ fullAnswer, conversationId, messageId, streamError });
-        });
-
-        stream.on('error', (err) => {
-            // Network-level error (TCP disconnect, etc.) — truly fatal
-            reject(err);
-        });
-    });
-}
-
-// ─── Workflow SSE Stream Collector ────────────────────────────────────────────
-
-/**
- * Collect SSE stream from Dify Workflow run into a complete response.
- * Workflow SSE event types differ from Chat:
- *   - workflow_started: initial event with task_id, workflow_run_id
- *   - node_started / node_finished: per-node progress (optional)
- *   - text_chunk: incremental text from LLM nodes
- *   - workflow_finished: final event with data.outputs, data.status
- *   - error: error events
- */
-function collectWorkflowSSEStream(stream) {
-    return new Promise((resolve, reject) => {
-        let outputs = {};
-        let workflowRunId = null;
-        let taskId = null;
-        let status = 'unknown';
-        let buffer = '';
-        let streamError = null;
-        let textChunks = ''; // Collect text_chunk events for LLM output
-
-        stream.on('data', (chunk) => {
-            buffer += chunk.toString();
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || '';
-
-            for (const line of lines) {
-                if (!line.startsWith('data:')) continue;
-                const jsonStr = line.slice(5).trim();
-                if (!jsonStr) continue;
-
-                try {
-                    const evt = JSON.parse(jsonStr);
-
-                    if (evt.event === 'workflow_started') {
-                        workflowRunId = evt.workflow_run_id || workflowRunId;
-                        taskId = evt.task_id || taskId;
-                    } else if (evt.event === 'workflow_finished') {
-                        workflowRunId = evt.workflow_run_id || workflowRunId;
-                        taskId = evt.task_id || taskId;
-                        outputs = evt.data?.outputs || {};
-                        status = evt.data?.status || 'succeeded';
-                        // Capture workflow-level error (e.g., MCP PluginInvokeError)
-                        if (evt.data?.error) {
-                            streamError = {
-                                code: 'WORKFLOW_EXECUTION_ERROR',
-                                message: evt.data.error,
-                                status: 500
-                            };
-                            console.warn(`[WF SSE] Workflow error: ${evt.data.error.substring(0, 200)}`);
-                        }
-                    } else if (evt.event === 'text_chunk') {
-                        textChunks += (evt.data?.text || '');
-                    } else if (evt.event === 'node_finished') {
-                        // Capture outputs from individual nodes as fallback
-                        if (evt.data?.outputs && !Object.keys(outputs).length) {
-                            // Only use node outputs if we haven't gotten workflow_finished yet
-                        }
-                    } else if (evt.event === 'error') {
-                        streamError = {
-                            code: evt.code || 'DIFY_WORKFLOW_STREAM_ERROR',
-                            message: evt.message || 'Dify workflow stream error',
-                            status: evt.status || 500
-                        };
-                        status = 'failed';
-                        console.warn(`[WF SSE] Dify error event: ${evt.code} — ${evt.message}`);
-                    }
-
-                    // Capture IDs from any event
-                    if (evt.workflow_run_id) workflowRunId = evt.workflow_run_id;
-                    if (evt.task_id) taskId = evt.task_id;
-                } catch { /* skip malformed SSE lines */ }
-            }
-        });
-
-        stream.on('end', () => {
-            // Process remaining buffer
-            if (buffer.startsWith('data:')) {
-                const jsonStr = buffer.slice(5).trim();
-                try {
-                    const evt = JSON.parse(jsonStr);
-                    if (evt.event === 'workflow_finished') {
-                        outputs = evt.data?.outputs || outputs;
-                        status = evt.data?.status || status;
-                    }
-                    if (evt.workflow_run_id) workflowRunId = evt.workflow_run_id;
-                    if (evt.task_id) taskId = evt.task_id;
-                } catch { /* ignore */ }
-            }
-
-            // Dify workflow Agent Nodes return their internal ReAct traces
-            // inside `workflow_finished.data.outputs.result` as an Array.
-            // The LLM's actual final answer comes via `text_chunk` SSE events.
-            if (textChunks) {
-                if (Array.isArray(outputs.result)) {
-                    // ReAct trace array — preserve trace but add the text answer as primary
-                    outputs._trace = outputs.result;
-                    outputs.result = textChunks;
-                    console.log(`[WF SSE] ReAct trace (${outputs._trace.length} items) — using textChunks as result`);
-                } else {
-                    outputs.result = textChunks;
-                }
-            } else if (Array.isArray(outputs.result)) {
-                // No text chunks AND result is a trace array — extract tool observations
-                // This happens when agents exhaust iterations before producing final text
-                console.log(`[WF SSE] ReAct trace with NO textChunks — extracting tool observations`);
-                outputs._trace = outputs.result;
-                const extracted = extractStructuredDataFromTrace(outputs.result);
-                if (extracted) {
-                    outputs.result = JSON.stringify(extracted);
-                    console.log(`[WF SSE] Extracted ${Object.keys(extracted).length} keys from trace observations`);
-                }
-            }
-
-            resolve({ outputs, workflowRunId, taskId, status, streamError });
-        });
-
-        stream.on('error', (err) => {
-            reject(err);
-        });
-    });
-}
-
-// ─── Helper: Extract structured data from ReAct agent trace ─────────────────
-
-/**
- * When a Dify ReAct agent exhausts its iteration limit without producing final text,
- * the trace array contains tool call observations with useful structured data.
- * This function extracts and merges that data into a single JSON object.
- */
-function extractStructuredDataFromTrace(traceArray) {
-    if (!Array.isArray(traceArray) || traceArray.length === 0) return null;
-
-    const merged = { _fromTrace: true, _traceItems: traceArray.length };
-    const toolObservations = [];
-    let lastThought = '';
-
-    for (const item of traceArray) {
-        const data = item.data || item;
-
-        // Extract tool observations (contain actual structured responses)
-        const observation = data.observation || data.tool_output || '';
-        if (observation) {
-            // Try to extract JSON from "tool response: {...}" patterns
-            const toolRx = /tool response:\s*(\{[\s\S]*?\})\s*(?=\n|$)/g;
-            let m;
-            while ((m = toolRx.exec(typeof observation === 'string' ? observation : JSON.stringify(observation))) !== null) {
-                try {
-                    const parsed = JSON.parse(m[1]);
-                    toolObservations.push(parsed);
-                    if (parsed.data) Object.assign(merged, parsed.data);
-                    else Object.assign(merged, parsed);
-                } catch { /* skip */ }
-            }
-            // Also try parsing the entire observation as JSON
-            if (typeof observation === 'string') {
-                try {
-                    const obsJson = JSON.parse(observation);
-                    if (obsJson.data) Object.assign(merged, obsJson.data);
-                    else if (typeof obsJson === 'object' && !Array.isArray(obsJson)) Object.assign(merged, obsJson);
-                } catch { /* not JSON */ }
-            } else if (typeof observation === 'object') {
-                if (observation.data) Object.assign(merged, observation.data);
-                else Object.assign(merged, observation);
-            }
-        }
-
-        // Capture LLM thoughts (the last thought often contains the "answer" it was about to emit)
-        const thought = data.thought || '';
-        if (thought && thought.length > lastThought.length) {
-            lastThought = thought;
-        }
-
-        // Extract from action_input (tool call parameters)
-        const actionName = data.action_name || data.action || '';
-        const actionInput = data.action_input || {};
-        if (actionName && typeof actionInput === 'object') {
-            merged._lastAction = actionName;
-        }
-    }
-
-    if (lastThought) {
-        merged._agentThought = lastThought.substring(0, 1000);
-    }
-    merged._toolObservations = toolObservations.length;
-
-    return Object.keys(merged).length > 3 ? merged : null; // >3 because of _fromTrace, _traceItems, _toolObservations
-}
+// ─── SSE Stream Collector (imported from services/sse-collector.js) ──────────
+// NOTE: parseEnvelope, makeError, extractWorkflowMeta imported from services/envelope-parser.js
+// NOTE: collectChatSSEStream, collectWorkflowSSEStream imported from services/sse-collector.js
+// NOTE: CHATFLOW_DEFAULT_INPUTS imported from config/chatflow-defaults.json
 
 // ─── Helper: Read stream error body ──────────────────────────────────────────
 
@@ -676,7 +197,7 @@ async function collectBlockingChat(agent, difyPayload, agentId, signal) {
             }
         );
 
-        const collected = await collectSSEStream(response.data);
+        const collected = await collectChatSSEStream(response.data);
         return {
             fullAnswer: collected.fullAnswer || '',
             convId: collected.conversationId || null,
@@ -688,8 +209,9 @@ async function collectBlockingChat(agent, difyPayload, agentId, signal) {
 
 /**
  * Parse envelope from collected stream and send JSON response.
+ * Optionally attaches context engine trace metadata.
  */
-function respondWithCollected(res, collected, agentId) {
+function respondWithCollected(res, collected, agentId, contextPackage) {
     const { fullAnswer, convId, msgId, streamError } = collected;
 
     const { answer, metadata } = parseEnvelope(fullAnswer);
@@ -699,6 +221,14 @@ function respondWithCollected(res, collected, agentId) {
         console.warn(`[${agentId}] Returning partial answer despite stream error: ${streamError.message}`);
         if (!metadata.trace) metadata.trace = {};
         metadata.trace.stream_warning = streamError.message;
+    }
+
+    // Attach context engine trace if available
+    if (contextPackage?._metadata) {
+        if (!metadata.trace) metadata.trace = {};
+        metadata.trace.context_trace_id = contextPackage._metadata.trace_id;
+        metadata.trace.context_stages = contextPackage._metadata.stages?.length || 0;
+        metadata.trace.context_budget = contextPackage._metadata.budget_report?.profile || null;
     }
 
     res.json({
@@ -785,6 +315,33 @@ router.post('/chat', async (req, res) => {
         console.log(`[CHAT] Merged ${Object.keys(defaults).length} default inputs for ${agent_id}`);
     }
 
+    // ── Context Engine: assemble context before forwarding to Dify ──────────
+    let contextPackage = null;
+    if (CONTEXT_ENGINE_ENABLED) {
+        try {
+            const userCtx = {
+                user_id: difyUser,
+                role: req.user?.role || 'analyst',
+                department: req.user?.department || '',
+                jurisdiction: req.user?.jurisdiction || 'SG',
+                session_id: conversation_id || '',
+            };
+            contextPackage = await assembleContextForAgent(agent_id, {
+                query: safeQuery,
+                entity_ids: safeInputs.current_project_id ? [safeInputs.current_project_id] : [],
+                conversation_history: [],
+                sources: [],
+            }, userCtx);
+
+            if (contextPackage?._metadata?.trace_id) {
+                res.setHeader('X-Context-Trace-Id', contextPackage._metadata.trace_id);
+                recordTrace({ agent_id, ...contextPackage });
+            }
+        } catch (ctxErr) {
+            console.warn(`[CONTEXT-BRIDGE] Failed for ${agent_id}, continuing without context: ${ctxErr.message}`);
+        }
+    }
+
     try {
         if (response_mode === 'streaming') {
             // Client wants SSE — pipe stream through to Angular
@@ -858,7 +415,7 @@ router.post('/chat', async (req, res) => {
                     continue;
                 }
 
-                return respondWithCollected(res, lastCollected, agent_id);
+                return respondWithCollected(res, lastCollected, agent_id, contextPackage);
             }
 
             // All retries exhausted — return a user-friendly 200 with fallback message

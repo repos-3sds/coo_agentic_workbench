@@ -1,0 +1,93 @@
+{
+  "config_id": "budget_defaults",
+  "version": "1.0.0",
+  "total_budget": 128000,
+  "response_headroom": {
+    "min": 10000,
+    "max": 20000
+  },
+  "allocations": {
+    "system_prompt_context": {
+      "min": 3000,
+      "max": 5000,
+      "priority": "FIXED"
+    },
+    "entity_data": {
+      "min": 5000,
+      "max": 25000,
+      "priority": "HIGH"
+    },
+    "knowledge_chunks": {
+      "min": 5000,
+      "max": 20000,
+      "priority": "HIGH"
+    },
+    "cross_agent_context": {
+      "min": 2000,
+      "max": 15000,
+      "priority": "MEDIUM"
+    },
+    "few_shot_examples": {
+      "min": 1000,
+      "max": 5000,
+      "priority": "MEDIUM"
+    },
+    "conversation_history": {
+      "min": 1000,
+      "max": 15000,
+      "priority": "LOW"
+    },
+    "tool_schemas": {
+      "min": 1000,
+      "max": 8000,
+      "priority": "ADAPTIVE"
+    }
+  },
+  "profiles": {
+    "lightweight": {
+      "description": "Minimal context for orchestrator agents — intent, routing, summaries only.",
+      "total_budget_pct": 0.40,
+      "max_tokens": 51200,
+      "allocation_overrides": {
+        "entity_data": { "max": 10000 },
+        "knowledge_chunks": { "max": 8000 },
+        "few_shot_examples": { "max": 2000 },
+        "conversation_history": { "max": 5000 },
+        "cross_agent_context": { "max": 8000 }
+      },
+      "used_by": ["orchestrator"]
+    },
+    "standard": {
+      "description": "Full context budget for worker agents — domain data, KB, tools, examples.",
+      "total_budget_pct": 1.0,
+      "max_tokens": 128000,
+      "allocation_overrides": {},
+      "used_by": ["worker"]
+    },
+    "compact": {
+      "description": "Focused context for reviewer agents — worker output, provenance, rubric.",
+      "total_budget_pct": 0.50,
+      "max_tokens": 64000,
+      "allocation_overrides": {
+        "entity_data": { "max": 8000 },
+        "knowledge_chunks": { "max": 10000 },
+        "few_shot_examples": { "max": 3000 },
+        "conversation_history": { "max": 3000 },
+        "cross_agent_context": { "max": 10000 }
+      },
+      "used_by": ["reviewer"]
+    }
+  },
+  "overflow_strategy": [
+    "compress_conversation_history",
+    "reduce_few_shot_examples",
+    "prune_lowest_kb_chunks",
+    "trim_cross_agent_reasoning"
+  ],
+  "never_compress": [
+    "system_prompt_context",
+    "entity_data",
+    "regulatory_refs",
+    "response_headroom"
+  ]
+}

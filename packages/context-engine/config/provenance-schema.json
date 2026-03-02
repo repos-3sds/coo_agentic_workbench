@@ -1,0 +1,98 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Provenance Tag Schema",
+    "description": "Standard context engine provenance tag schema for all data sources (Blueprint 11.1)",
+    "type": "object",
+    "properties": {
+        "source_id": {
+            "type": "string",
+            "description": "Unique identifier for the source document or data record."
+        },
+        "source_type": {
+            "type": "string",
+            "enum": [
+                "system_of_record",
+                "bank_sop",
+                "industry_standard",
+                "external_official",
+                "general_web",
+                "agent_output",
+                "user_input"
+            ],
+            "description": "The category type of the source."
+        },
+        "authority_tier": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Authority tier from 1 (System of Record - Highest) to 5 (General Web - Lowest)."
+        },
+        "version": {
+            "type": "string",
+            "description": "Version string of the source document or API format."
+        },
+        "effective_date": {
+            "type": "string",
+            "format": "date",
+            "description": "ISO 8601 date when the source becomes effective."
+        },
+        "expiry_date": {
+            "type": "string",
+            "format": "date",
+            "description": "ISO 8601 date when the source expires."
+        },
+        "owner": {
+            "type": "string",
+            "description": "Owner or custodian of the source data or document."
+        },
+        "fetched_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 datetime when the data was fetched or retrieved."
+        },
+        "ttl_seconds": {
+            "type": "integer",
+            "default": 3600,
+            "description": "Time-to-live in seconds before the data must be refetched."
+        },
+        "trust_class": {
+            "type": "string",
+            "enum": [
+                "TRUSTED",
+                "UNTRUSTED"
+            ],
+            "description": "Whether the source is explicitly verified as trusted."
+        },
+        "data_classification": {
+            "type": "string",
+            "enum": [
+                "PUBLIC",
+                "INTERNAL",
+                "CONFIDENTIAL",
+                "RESTRICTED"
+            ],
+            "description": "The sensitivity level of the data."
+        },
+        "jurisdiction": {
+            "type": "string",
+            "description": "Geographical or structural jurisdiction of the data (e.g., 'SG', 'GLOBAL')."
+        },
+        "doc_section": {
+            "type": "string",
+            "description": "Specific clause or section identifier within the document."
+        },
+        "chunk_hash": {
+            "type": "string",
+            "description": "SHA-256 hash of the specific chunk or context section."
+        }
+    },
+    "required": [
+        "source_id",
+        "source_type",
+        "authority_tier",
+        "fetched_at",
+        "ttl_seconds",
+        "trust_class",
+        "data_classification"
+    ]
+}

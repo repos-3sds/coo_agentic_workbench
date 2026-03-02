@@ -1,0 +1,107 @@
+{
+    "domain_id": "ORM",
+    "display_name": "Operational Risk Management",
+    "primary_entity": "incident_id",
+    "context_sources": [
+        {
+            "source_id": "orm_incident_api",
+            "source_type": "system_of_record",
+            "authority_tier": 1,
+            "description": "Incident records and lifecycle data."
+        },
+        {
+            "source_id": "orm_rcsa_api",
+            "source_type": "system_of_record",
+            "authority_tier": 1,
+            "description": "Risk and Control Self-Assessment data."
+        },
+        {
+            "source_id": "orm_kri_api",
+            "source_type": "system_of_record",
+            "authority_tier": 1,
+            "description": "Key Risk Indicator metrics."
+        },
+        {
+            "source_id": "orm_policies",
+            "source_type": "bank_sop",
+            "authority_tier": 2,
+            "description": "ORM policies and procedures."
+        },
+        {
+            "source_id": "orm_regulatory",
+            "source_type": "external_official",
+            "authority_tier": 4,
+            "description": "Regulatory requirements for operational risk."
+        }
+    ],
+    "scoping_fields": [
+        "incident_id",
+        "risk_category",
+        "control_id",
+        "business_line"
+    ],
+    "untrusted_content": [
+        "user_free_text",
+        "external_loss_data"
+    ],
+    "agents": [
+        {
+            "agent_id": "ORM_ORCH",
+            "archetype": "orchestrator",
+            "responsibility": "Route ORM requests."
+        },
+        {
+            "agent_id": "ORM_INCIDENT",
+            "archetype": "worker",
+            "responsibility": "Analyze incidents."
+        },
+        {
+            "agent_id": "ORM_RCA",
+            "archetype": "worker",
+            "responsibility": "Root cause analysis."
+        },
+        {
+            "agent_id": "ORM_RCSA",
+            "archetype": "worker",
+            "responsibility": "RCSA assessment."
+        },
+        {
+            "agent_id": "ORM_KRI",
+            "archetype": "worker",
+            "responsibility": "KRI monitoring."
+        },
+        {
+            "agent_id": "ORM_LOSS",
+            "archetype": "worker",
+            "responsibility": "Loss event analysis."
+        },
+        {
+            "agent_id": "ORM_CONTROL",
+            "archetype": "worker",
+            "responsibility": "Control testing."
+        },
+        {
+            "agent_id": "ORM_REMEDIATION",
+            "archetype": "worker",
+            "responsibility": "Remediation tracking."
+        },
+        {
+            "agent_id": "ORM_REVIEWER",
+            "archetype": "reviewer",
+            "responsibility": "Review ORM outputs."
+        }
+    ],
+    "grounding_overrides": {
+        "required_claim_types": [
+            "risk_assessment",
+            "governance_rule",
+            "regulatory_obligation"
+        ],
+        "min_authority_tier_overrides": {},
+        "citation_required_fields": [
+            "source_id",
+            "version",
+            "section"
+        ]
+    }
+}

@@ -1,0 +1,79 @@
+{
+  "domain_id": "NPA",
+  "display_name": "New Product Approval",
+  "primary_entity": "project_id",
+  "context_sources": [
+    {
+      "source_id": "npa_project_api",
+      "source_type": "system_of_record",
+      "authority_tier": 1,
+      "description": "Primary project and workflow data from NPA system-of-record tools."
+    },
+    {
+      "source_id": "bank_sops",
+      "source_type": "bank_sop",
+      "authority_tier": 2,
+      "description": "Approved internal NPA SOP and policy corpus."
+    },
+    {
+      "source_id": "industry_standards",
+      "source_type": "industry_standard",
+      "authority_tier": 3,
+      "description": "External industry standards used for comparative controls."
+    }
+  ],
+  "scoping_fields": [
+    "project_id",
+    "jurisdiction",
+    "product_type"
+  ],
+  "untrusted_content": [
+    "user_free_text",
+    "uploaded_documents"
+  ],
+  "agents": [
+    {
+      "agent_id": "NPA_ORCHESTRATOR",
+      "archetype": "orchestrator",
+      "responsibility": "Route NPA requests across specialist workers."
+    },
+    {
+      "agent_id": "NPA_CLASSIFIER",
+      "archetype": "worker",
+      "responsibility": "Classify request type and workflow path."
+    },
+    {
+      "agent_id": "NPA_RISK",
+      "archetype": "worker",
+      "responsibility": "Assess risk domains and produce structured outputs."
+    },
+    {
+      "agent_id": "NPA_GOVERNANCE",
+      "archetype": "worker",
+      "responsibility": "Enforce governance checks and sign-off requirements."
+    },
+    {
+      "agent_id": "NPA_REVIEWER",
+      "archetype": "reviewer",
+      "responsibility": "Validate worker outputs for groundedness and policy compliance."
+    }
+  ],
+  "grounding_overrides": {
+    "required_claim_types": [
+      "classification_decision",
+      "risk_assessment",
+      "governance_rule",
+      "regulatory_obligation",
+      "signoff_requirement"
+    ],
+    "min_authority_tier_overrides": {
+      "regulatory_obligation": 4,
+      "financial_threshold": 1
+    },
+    "citation_required_fields": [
+      "source_id",
+      "version",
+      "section"
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "config_id": "source_priority_hierarchy",
+  "version": "1.0.0",
+  "description": "Five-tier source authority hierarchy used to rank conflicting context sources.",
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "system_of_record",
+      "description": "Database records fetched through MCP tools; canonical bank data for entity state and workflow.",
+      "trust_class": "TRUSTED",
+      "conflict_resolution_rule": "System of record always wins against lower tiers, including SOP-derived statements.",
+      "examples": [
+        "npa_projects record",
+        "signoff matrix",
+        "risk checks",
+        "form data"
+      ]
+    },
+    {
+      "tier": 2,
+      "name": "bank_sop",
+      "description": "Bank-authored, versioned SOP and policy documents from the curated knowledge base.",
+      "trust_class": "TRUSTED",
+      "conflict_resolution_rule": "When SOP conflicts with SOP, newer effective_date wins; when group and local policies conflict, group policy wins.",
+      "examples": [
+        "GFM SOP Summary",
+        "classification criteria",
+        "PIR playbook",
+        "SLA matrix"
+      ]
+    },
+    {
+      "tier": 3,
+      "name": "industry_standard",
+      "description": "Authoritative industry standards and templates from recognized standards bodies.",
+      "trust_class": "TRUSTED",
+      "conflict_resolution_rule": "Resolve by jurisdiction and cited section; if no clear precedence remains, flag for human review.",
+      "examples": [
+        "ISDA master agreement template",
+        "Basel III guidance",
+        "FATF AML/KYC standards",
+        "FX global code"
+      ]
+    },
+    {
+      "tier": 4,
+      "name": "external_official",
+      "description": "Official regulator and government publications accessed via curated KB or approved APIs.",
+      "trust_class": "TRUSTED",
+      "conflict_resolution_rule": "Validate currency using effective_date and jurisdiction applicability before use; unresolved ambiguity is escalated for human review.",
+      "examples": [
+        "MAS notices",
+        "HKMA circulars",
+        "SEBI guidelines",
+        "RBI master directions"
+      ]
+    },
+    {
+      "tier": 5,
+      "name": "general_web",
+      "description": "Public internet content with unknown authority and verification status.",
+      "trust_class": "UNTRUSTED",
+      "conflict_resolution_rule": "Never used for regulatory claims or decision-making; treat as contextual data only.",
+      "examples": [
+        "industry articles",
+        "vendor blogs",
+        "market commentary",
+        "public forum posts"
+      ]
+    }
+  ],
+  "conflict_rules": [
+    {
+      "rule": "SoR vs SOP",
+      "outcome": "SoR wins"
+    },
+    {
+      "rule": "SOP vs SOP",
+      "outcome": "Newer effective_date wins"
+    },
+    {
+      "rule": "Group vs Local policy",
+      "outcome": "Group wins"
+    },
+    {
+      "rule": "Uncertain after precedence checks",
+      "outcome": "NEEDS_HUMAN_REVIEW"
+    }
+  ]
+}

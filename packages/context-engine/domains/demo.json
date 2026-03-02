@@ -1,0 +1,35 @@
+{
+  "domain_id": "DEMO",
+  "display_name": "Demo / Sandbox",
+  "primary_entity": "demo_id",
+  "context_sources": [
+    {
+      "source_id": "demo_source",
+      "source_type": "system_of_record",
+      "authority_tier": 1,
+      "description": "Minimal single source for testing loader and assembler wiring."
+    }
+  ],
+  "scoping_fields": [
+    "demo_id"
+  ],
+  "untrusted_content": [
+    "user_free_text"
+  ],
+  "agents": [
+    {
+      "agent_id": "DEMO_ORCHESTRATOR",
+      "archetype": "orchestrator",
+      "responsibility": "Route demo requests."
+    }
+  ],
+  "grounding_overrides": {
+    "required_claim_types": [
+      "classification_decision"
+    ],
+    "min_authority_tier_overrides": {},
+    "citation_required_fields": [
+      "source_id"
+    ]
+  }
+}
