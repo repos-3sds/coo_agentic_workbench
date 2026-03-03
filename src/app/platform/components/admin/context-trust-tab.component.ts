@@ -104,9 +104,9 @@ export class ContextTrustTabComponent implements OnInit {
         //   trust_classification → recent_decisions (fallback to raw.recent_decisions)
         //   domain_sources → active_domain_scoping
         return {
-            rules: this.normalizeRules(raw.rules ?? raw.source_priority ?? raw.trust_classification),
-            recent_decisions: this.normalizeDecisions(raw.recent_decisions ?? raw.trust_classification),
-            active_domain_scoping: this.normalizeScopes(raw.active_domain_scoping ?? raw.domain_sources)
+            rules: this.normalizeRules(raw['rules'] ?? raw['source_priority'] ?? raw['trust_classification']),
+            recent_decisions: this.normalizeDecisions(raw['recent_decisions'] ?? raw['trust_classification']),
+            active_domain_scoping: this.normalizeScopes(raw['active_domain_scoping'] ?? raw['domain_sources'])
         };
     }
 
@@ -118,9 +118,9 @@ export class ContextTrustTabComponent implements OnInit {
         return rawRules.map((item) => {
             const row = item as Record<string, unknown>;
             return {
-                source_pattern: String(row.source_pattern ?? row.source_id ?? 'unknown_source'),
-                trust_class: String(row.trust_class ?? 'UNTRUSTED'),
-                rationale: String(row.rationale ?? row.treatment ?? 'No rationale provided')
+                source_pattern: String(row['source_pattern'] ?? row['source_id'] ?? 'unknown_source'),
+                trust_class: String(row['trust_class'] ?? 'UNTRUSTED'),
+                rationale: String(row['rationale'] ?? row['treatment'] ?? 'No rationale provided')
             };
         });
     }
@@ -133,11 +133,11 @@ export class ContextTrustTabComponent implements OnInit {
         return rawDecisions.map((item) => {
             const row = item as Record<string, unknown>;
             return {
-                source_id: String(row.source_id ?? row.source_pattern ?? 'unknown_source'),
-                trust_class: String(row.trust_class ?? 'UNTRUSTED'),
-                domain: String(row.domain ?? row.domain_id ?? 'platform'),
-                decided_at: String(row.decided_at ?? row.fetched_at ?? ''),
-                reason: String(row.reason ?? row.rationale ?? 'N/A')
+                source_id: String(row['source_id'] ?? row['source_pattern'] ?? 'unknown_source'),
+                trust_class: String(row['trust_class'] ?? 'UNTRUSTED'),
+                domain: String(row['domain'] ?? row['domain_id'] ?? 'platform'),
+                decided_at: String(row['decided_at'] ?? row['fetched_at'] ?? ''),
+                reason: String(row['reason'] ?? row['rationale'] ?? 'N/A')
             };
         });
     }
@@ -151,8 +151,8 @@ export class ContextTrustTabComponent implements OnInit {
 
                 const row = item as Record<string, unknown>;
                 return {
-                    domain: String(row.domain ?? row.domain_id ?? 'unknown'),
-                    fields: Array.isArray(row.fields) ? row.fields.map(String) : []
+                    domain: String(row['domain'] ?? row['domain_id'] ?? 'unknown'),
+                    fields: Array.isArray(row['fields']) ? (row['fields'] as unknown[]).map(String) : []
                 };
             });
         }
