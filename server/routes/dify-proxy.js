@@ -319,9 +319,21 @@ router.post('/chat', async (req, res) => {
     let contextPackage = null;
     if (CONTEXT_ENGINE_ENABLED) {
         try {
+            // Map app roles (MAKER, CHECKER, APPROVER, COO, ADMIN) to context engine roles
+            // Context engine hierarchy: any < employee < analyst < checker < manager < coo < admin
+            const CE_ROLE_MAP = {
+                'MAKER': 'analyst',       // Makers draft NPAs — analyst-level access
+                'CHECKER': 'checker',     // Checkers review — checker-level access
+                'APPROVER': 'manager',    // Approvers sign off — manager-level access
+                'COO': 'coo',            // COO — coo-level access
+                'ADMIN': 'admin',        // Admin — full access
+            };
+            const appRole = (req.user?.role || '').toUpperCase();
+            const ceRole = CE_ROLE_MAP[appRole] || 'analyst';
+
             const userCtx = {
                 user_id: difyUser,
-                role: req.user?.role || 'analyst',
+                role: ceRole,
                 department: req.user?.department || '',
                 jurisdiction: req.user?.jurisdiction || 'SG',
                 session_id: conversation_id || '',

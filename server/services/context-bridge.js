@@ -209,7 +209,6 @@ async function assembleContextForAgent(agentId, request, userContext) {
 
         // Pre-fetch sources from seed data + optional live KB
         const sources = await fetchContextSources(query, domain, entityIds);
-
         const result = await runEngine('assemble', {
             agent_id: agentId,
             request: {
