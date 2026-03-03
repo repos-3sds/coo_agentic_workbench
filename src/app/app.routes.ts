@@ -86,7 +86,18 @@ export const routes: Routes = [
                 path: 'functions/npa',
                 loadComponent: () => import('./pages/coo-npa/coo-npa-dashboard.component').then(m => m.CooNpaDashboardComponent)
             },
-            { path: 'functions/dce', component: PlaceholderComponent },
+            {
+                path: 'functions/dce',
+                loadComponent: () => import('./pages/dce-dashboard/dce-dashboard.component').then(m => m.DceDashboardComponent)
+            },
+            {
+                path: 'functions/dce/cases',
+                loadComponent: () => import('./pages/dce-case-list/dce-case-list.component').then(m => m.DceCaseListComponent)
+            },
+            {
+                path: 'functions/dce/cases/:caseId',
+                loadComponent: () => import('./pages/dce-case-detail/dce-case-detail.component').then(m => m.DceCaseDetailComponent)
+            },
             { path: 'functions/orm', component: PlaceholderComponent },
             { path: 'functions/strategic-pm', component: PlaceholderComponent },
             { path: 'functions/business-lead', component: PlaceholderComponent },

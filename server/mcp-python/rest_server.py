@@ -44,7 +44,7 @@ rest_app = FastAPI(
     title="NPA Workbench MCP Tools API",
     description="REST API exposing MCP tools for NPA Multi-Agent Workbench. Import this spec into Dify as a Custom Tool provider.",
     version="1.0.0",
-    servers=[{"url": os.getenv("PUBLIC_URL", f"http://localhost:{REST_PORT}"), "description": os.getenv("ENV", "Local development")}],
+    servers=[{"url": os.getenv("PUBLIC_URL", "https://gfm-npa-agentic-service.apps.ocpsit.uat.dbs.com"), "description": os.getenv("ENV", "production")}],
     # Disable FastAPI's built-in /openapi.json so our custom one is served
     openapi_url=None,
 )
@@ -140,7 +140,7 @@ async def openapi_spec():
             "version": "1.0.0",
         },
         "servers": [
-            {"url": os.getenv("PUBLIC_URL", f"http://localhost:{REST_PORT}"), "description": os.getenv("ENV", "Local development")},
+            {"url": os.getenv("PUBLIC_URL", "https://gfm-npa-agentic-service.apps.ocpsit.uat.dbs.com"), "description": os.getenv("ENV", "production")},
         ],
         "paths": paths,
         "tags": [{"name": cat, "description": f"{cat} tools"} for cat in registry.get_categories()],
@@ -191,14 +191,14 @@ async def health():
         "dbOk": db_ok,
         "tools": registry.count(),
         "categories": registry.get_categories(),
-        "openApiSpec": f"{os.getenv('PUBLIC_URL', f'http://localhost:{REST_PORT}')}/openapi.json",
+        "openApiSpec": f"{os.getenv('PUBLIC_URL', 'https://gfm-npa-agentic-service.apps.ocpsit.uat.dbs.com')}/openapi.json",
     }
 
 
 def start_rest_server():
     """Start the unified server (ASGI path router → REST + MCP SSE)."""
     import uvicorn
-    public = os.getenv("PUBLIC_URL", f"http://localhost:{REST_PORT}")
+    public = os.getenv("PUBLIC_URL", "https://gfm-npa-agentic-service.apps.ocpsit.uat.dbs.com")
     print(f"[SERVER]   Listening on http://0.0.0.0:{REST_PORT}")
     print(f"[SERVER]   ASGI path router: /mcp/* → MCP SSE, /* → FastAPI REST")
     print(f"[REST API] OpenAPI spec: {public}/openapi.json")

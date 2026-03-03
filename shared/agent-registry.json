@@ -199,5 +199,29 @@
     "difyApp": "CF_NPA_LCS",
     "envKey": "DIFY_KEY_AG_NPA_LCS",
     "description": "Appendix 1–6 legal/compliance guidance"
+  },
+  {
+    "id": "DCE_SA1",
+    "name": "DCE Intake & Triage Agent",
+    "tier": 3,
+    "icon": "inbox",
+    "color": "bg-sky-50 text-sky-600",
+    "difyType": "workflow",
+    "difyApp": "WF_DCE_SA1_Intake_Triage",
+    "envKey": "DIFY_KEY_DCE_SA1",
+    "domain": "DCE",
+    "description": "Account opening intake: email ingestion, classification, priority, case creation, RM linking"
+  },
+  {
+    "id": "DCE_SA2",
+    "name": "DCE Document Collection Agent",
+    "tier": 3,
+    "icon": "file-check",
+    "color": "bg-sky-50 text-sky-700",
+    "difyType": "workflow",
+    "difyApp": "WF_DCE_SA2_Document_Collection",
+    "envKey": "DIFY_KEY_DCE_SA2",
+    "domain": "DCE",
+    "description": "Document checklist, OCR extraction, completeness assessment, GTA validation, RM chase"
   }
 ]

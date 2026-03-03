@@ -8,5 +8,5 @@ metadata:
 data:
   REST_PORT: "3002"
   ENV: "production"
-  # Public URL — update after Route is created
-  PUBLIC_URL: "http://npa-mcp-server.apps.your-cluster.com"
+  # Public URL — Dify uses this to call tool endpoints and SSE
+  PUBLIC_URL: "https://gfm-npa-agentic-service.apps.ocpsit.uat.dbs.com"

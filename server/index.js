@@ -42,6 +42,7 @@ if (helmet) {
                     "'self'",
                     "https://api.dify.ai",                     // Dify Cloud API
                     "https://mcp-tools-ppjv.onrender.com",     // MCP Tools Server (Render)
+                    "https://dcemcptools-production.up.railway.app", // DCE MCP Tools (Railway)
                     "https://npa-workbench.onrender.com",      // Frontend on Render
                     "ws:",                                     // WebSocket for dev HMR
                     "wss:",                                    // Secure WebSocket
@@ -114,8 +115,9 @@ if (rateLimit) {
 // which can take 30-120s depending on the agent.
 app.use('/api', (req, res, next) => {
     const isDifyRoute = req.path.startsWith('/dify/');
+    const isDceRoute = req.path.startsWith('/dce/');
     const isSeedRoute = req.path.includes('seed-demo');
-    const timeout = (isDifyRoute || isSeedRoute) ? 600000 : 30000; // 10 min for Dify/seed (AUTOFILL takes ~8 min), 30s for others
+    const timeout = (isDifyRoute || isDceRoute || isSeedRoute) ? 600000 : 30000; // 10 min for Dify/DCE/seed, 30s for others
     req.setTimeout(timeout, () => {
         if (!res.headersSent) {
             res.status(504).json({ error: 'Request timeout — server took too long to respond' });
@@ -147,17 +149,39 @@ const knowledgeRoutes = require('./routes/knowledge');
 const evidenceRoutes = require('./routes/evidence');
 const kbRoutes = require('./routes/kb');
 const studioRoutes = require('./routes/studio');
+const dceRoutes = require('./routes/dce');
 const { router: contextAdminRoutes } = require('./routes/context-admin');
 const { startMonitor: startSlaMonitor } = require('./jobs/sla-monitor');
 const { startHealthMonitor, getHealthStatus } = require('./jobs/agent-health');
 const { auditMiddleware } = require('./middleware/audit');
-const { authMiddleware, router: authRoutes } = require('./middleware/auth');
+const {
+    authMiddleware,
+    requireAuthWithBypass,
+    parseBypassActions,
+    router: authRoutes
+} = require('./middleware/auth');
 
 // ─── Global auth middleware — parses JWT and attaches req.user (non-blocking)
 app.use('/api', authMiddleware());
 
 // Auth routes (login, me) — must be before other routes
 app.use('/api/auth', authRoutes);
+
+// ─── Global API auth gate (JWT required) with explicit bypass actions
+const defaultBypassActions = [
+    { method: 'GET', path: '/api/health' },
+    { method: 'GET', path: '/api/dify/agents/health' },
+    { method: 'GET', path: '/api/users' },
+    { method: 'GET', path: '/api/users/*' },
+];
+const envBypassActions = parseBypassActions();
+const bypassActions = [...defaultBypassActions, ...envBypassActions];
+
+if (bypassActions.length > 0) {
+    console.log('[AUTH] JWT bypass actions:', bypassActions.map(a => `${a.method}:${a.path}`).join(', '));
+}
+
+app.use('/api', requireAuthWithBypass({ bypassActions }));
 
 // ─── Use Routes — auditMiddleware auto-logs POST/PUT/PATCH/DELETE on success (GAP-017)
 app.use('/api/governance', auditMiddleware('GOV'), governanceRoutes);
@@ -182,6 +206,7 @@ app.use('/api/knowledge', auditMiddleware('KNOWLEDGE'), knowledgeRoutes);
 app.use('/api/evidence', auditMiddleware('EVIDENCE'), evidenceRoutes);
 app.use('/api/kb', auditMiddleware('KB'), kbRoutes);
 app.use('/api/studio', auditMiddleware('STUDIO'), studioRoutes);
+app.use('/api/dce', auditMiddleware('DCE'), dceRoutes);
 app.use('/api/context', contextAdminRoutes);
 
 // GAP-022: Agent health endpoint — live Dify agent availability metrics + Dashboard Stats

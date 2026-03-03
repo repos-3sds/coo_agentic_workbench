@@ -6,8 +6,7 @@ metadata:
     app: npa-mcp-server
     part-of: npa-workbench
 spec:
-  # The route hostname will be auto-assigned if left empty
-  # Or set explicitly: host: npa-mcp-server.apps.your-cluster.com
+  host: gfm-npa-agentic-service.apps.ocpsit.uat.dbs.com
   to:
     kind: Service
     name: npa-mcp-server
