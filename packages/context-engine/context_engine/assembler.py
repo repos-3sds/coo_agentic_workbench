@@ -205,7 +205,10 @@ def assemble_context(
 
     rankable = []
     for idx, item in enumerate(all_sources):
-        prov = item.get("provenance", {})
+        # H3 fix: check both "provenance" and "_provenance" keys to handle
+        # items tagged by tag_provenance() (uses "_provenance") and items
+        # with inline "provenance" metadata from adapters.
+        prov = item.get("provenance") or item.get("_provenance") or {}
         if idx < n_scoped:
             category = "_scoped"
         elif idx < n_scoped + n_entity:
@@ -271,23 +274,59 @@ def assemble_context(
     # Add user_context to the assembled package
     draft_context["user_context"] = user_context
 
+    # H1 fix: validate assembled context against the archetype contract.
+    # This ensures the output is contract-compliant by construction.
+    # Missing required slots are flagged in metadata (not silently skipped).
+    contract_validation = validate_context(draft_context, contract)
+
     stages.append(_stage_event("ASSEMBLE", t0, {
         "slots": list(draft_context.keys()),
+        "contract_valid": contract_validation.get("valid", False),
+        "missing_required": contract_validation.get("missing_required", []),
     }))
 
     # ── Stage 7: TAG ──────────────────────────────────────────────────
     t0 = time.monotonic()
 
+    # H2 fix: enforce provenance on ALL assembled data. Items with existing
+    # provenance are validated; untagged items get a default T5/UNTRUSTED tag
+    # so every piece of assembled context has auditability.
     provenance_tags: list[dict] = []
+    untagged_count = 0
     for item in all_sources:
-        prov = item.get("provenance")
+        prov = item.get("provenance") or item.get("_provenance")
         if prov:
             validation = validate_provenance(prov)
             if validation["valid"]:
                 provenance_tags.append(prov)
+            else:
+                # Invalid provenance — replace with default tag
+                default_tag = create_provenance_tag({
+                    "source_id": item.get("source_id", f"untagged-{untagged_count}"),
+                    "source_type": item.get("source_type", "general_web"),
+                    "authority_tier": 5,
+                    "trust_class": "UNTRUSTED",
+                    "data_classification": "INTERNAL",
+                })
+                item["_provenance"] = default_tag
+                provenance_tags.append(default_tag)
+                untagged_count += 1
+        else:
+            # No provenance at all — auto-tag with T5/UNTRUSTED default
+            default_tag = create_provenance_tag({
+                "source_id": item.get("source_id", f"untagged-{untagged_count}"),
+                "source_type": item.get("source_type", "general_web"),
+                "authority_tier": 5,
+                "trust_class": "UNTRUSTED",
+                "data_classification": "INTERNAL",
+            })
+            item["_provenance"] = default_tag
+            provenance_tags.append(default_tag)
+            untagged_count += 1
 
     stages.append(_stage_event("TAG", t0, {
         "provenance_tags_collected": len(provenance_tags),
+        "auto_tagged": untagged_count,
     }))
 
     # ── Final output ──────────────────────────────────────────────────
@@ -300,6 +339,7 @@ def assemble_context(
             "stages": stages,
             "budget_report": budget_report,
             "provenance_tags": provenance_tags,
+            "contract_validation": contract_validation,
         },
     }
 

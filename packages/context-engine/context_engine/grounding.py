@@ -191,20 +191,38 @@ def _check_source_supports(claim: dict, citation: dict | None) -> dict:
     }
 
 
-def _check_source_current(citation: dict | None) -> dict:
-    """Step 4: Check the source is not expired per TTL."""
+def _check_source_current(citation: dict | None, claim_type: str = "") -> dict:
+    """Step 4: Check the source is not expired per TTL.
+
+    H4 fix: fail-closed for regulated claim types. Missing or unparseable
+    timestamps now fail the check for regulatory_obligation, governance_rule,
+    signoff_requirement, and financial_threshold claims. Non-regulated claims
+    retain fail-open behaviour (benefit of the doubt for system sources).
+    """
     if not citation:
         return {"step": "source_current", "passed": False, "detail": "No citation to verify"}
+
+    # Regulated claim types require strict timestamp validation
+    _REGULATED_CLAIM_TYPES = {
+        "regulatory_obligation", "governance_rule",
+        "signoff_requirement", "financial_threshold",
+    }
+    strict = claim_type in _REGULATED_CLAIM_TYPES
 
     ttl = citation.get("ttl_seconds", 3600)
     fetched_at = citation.get("fetched_at")
 
     if not fetched_at:
-        # No timestamp — assume current (benefit of the doubt for system sources)
+        if strict:
+            return {
+                "step": "source_current",
+                "passed": False,
+                "detail": f"No fetched_at timestamp; fail-closed for {claim_type}",
+            }
         return {
             "step": "source_current",
             "passed": True,
-            "detail": "No fetched_at timestamp; assumed current",
+            "detail": "No fetched_at timestamp; assumed current (non-regulated claim)",
         }
 
     try:
@@ -224,10 +242,16 @@ def _check_source_current(citation: dict | None) -> dict:
     except (ValueError, TypeError):
         pass
 
+    if strict:
+        return {
+            "step": "source_current",
+            "passed": False,
+            "detail": f"Could not parse fetched_at; fail-closed for {claim_type}",
+        }
     return {
         "step": "source_current",
         "passed": True,
-        "detail": "Could not parse fetched_at; assumed current",
+        "detail": "Could not parse fetched_at; assumed current (non-regulated claim)",
     }
 
 
@@ -289,7 +313,7 @@ def verify_claim(
 
     step2 = _check_source_exists(citation, provenance_tags)
     step3 = _check_source_supports(claim, citation)
-    step4 = _check_source_current(citation)
+    step4 = _check_source_current(citation, claim_type=claim.get("claim_type", ""))
     step5 = _check_authority_sufficient(claim, citation)
 
     steps = [step1, step2, step3, step4, step5]

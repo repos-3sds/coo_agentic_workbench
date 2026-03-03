@@ -15,6 +15,10 @@ import time
 from datetime import datetime, timezone
 from typing import Any, Callable
 
+class CircuitOpenError(Exception):
+    """Raised when a call is attempted on an OPEN circuit with raise_on_open=True."""
+
+
 # Global cache to satisfy existing stub wrappers if necessary
 _global_breakers: dict[str, dict] = {}
 
@@ -22,10 +26,21 @@ _global_breakers: dict[str, dict] = {}
 def create_circuit_breaker(options: dict) -> dict:
     """
     Creates a stateful circuit breaker instance.
+
+    Options:
+        failure_threshold: int — consecutive failures before OPEN (default 3)
+        cooldown_ms: int — ms before OPEN → HALF_OPEN probe (default 10000)
+        fallback: callable — returned when circuit is OPEN or on failure
+        raise_on_open: bool — if True, raise CircuitOpenError instead of
+                              returning fallback when circuit is OPEN (default False)
+        propagate_exceptions: set[str] — exception class names that should be
+                              re-raised instead of swallowed (e.g. {"ValueError"})
     """
     failure_threshold = options.get("failure_threshold", 3)
     cooldown_ms = options.get("cooldown_ms", 10000)
     fallback = options.get("fallback", lambda *args, **kwargs: None)
+    raise_on_open = options.get("raise_on_open", False)
+    propagate_exceptions = set(options.get("propagate_exceptions", set()))
 
     # Internal state mutated by closures
     state_machine = {
@@ -68,11 +83,13 @@ def create_circuit_breaker(options: dict) -> dict:
 
     def call(fn: Callable, *args: Any, **kwargs: Any) -> Any:
         st = _get_current_state()
-        
+
         if st == "OPEN":
-            # Short-circuit to fallback immediately
+            # M7 fix: raise CircuitOpenError if raise_on_open is True
+            if raise_on_open:
+                raise CircuitOpenError("Circuit breaker is OPEN")
             return fallback(*args, **kwargs)
-        
+
         # State is CLOSED or HALF_OPEN. Attempt call.
         try:
             res = fn(*args, **kwargs)
@@ -88,7 +105,11 @@ def create_circuit_breaker(options: dict) -> dict:
                 # CLOSED state success: reset consecutive failures
                 state_machine["failures"] = 0
             return res
-        except Exception:
+        except Exception as exc:
+            # M7 fix: re-raise exceptions in propagate_exceptions set
+            if propagate_exceptions and type(exc).__name__ in propagate_exceptions:
+                raise
+
             # Failure path
             state_machine["failures"] += 1
             state_machine["last_failure"] = time.monotonic()
@@ -100,7 +121,7 @@ def create_circuit_breaker(options: dict) -> dict:
                 # CLOSED state failure: check threshold
                 if state_machine["failures"] >= failure_threshold:
                     state_machine["state"] = "OPEN"
-                    
+
             return fallback(*args, **kwargs)
 
     return {

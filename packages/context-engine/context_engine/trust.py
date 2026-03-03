@@ -229,10 +229,13 @@ def is_never_allowed(source_type: str) -> bool:
     """
     Check if a source type is in the NEVER-allowed list.
     These sources must THROW, never silently return UNTRUSTED.
+
+    M8 fix: uses prefix matching so variants like "social_media_feed"
+    or "competitor_intelligence_report" are also blocked.
     """
     if not source_type:
         return False
-    return source_type in NEVER_PATTERNS
+    return any(source_type.startswith(p) for p in NEVER_PATTERNS)
 
 
 def get_source_hierarchy() -> list[dict]:

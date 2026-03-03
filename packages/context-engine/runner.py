@@ -48,6 +48,7 @@ def handle_health(_payload: dict) -> dict:
         "trust", "contracts", "provenance", "token_counter",
         "scoper", "budget", "assembler", "memory", "delegation",
         "tracer", "circuit_breaker", "mcp_provenance",
+        "grounding", "rag",
     ]
 
     available = []
@@ -91,8 +92,11 @@ def main() -> None:
         result = COMMANDS[command](payload)
         json.dump(result, sys.stdout, default=str)
     except Exception as e:
+        # M6 fix: redact traceback from response. Log internally only.
+        # Callers see error type + message; full stack trace goes to stderr.
+        sys.stderr.write(traceback.format_exc())
         json.dump(
-            {"error": str(e), "traceback": traceback.format_exc()},
+            {"error": f"{type(e).__name__}: {e}"},
             sys.stdout,
         )
         sys.exit(1)

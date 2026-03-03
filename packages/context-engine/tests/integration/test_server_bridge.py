@@ -73,13 +73,14 @@ class TestRunnerHealth:
         assert result["version"] == "1.0.0"
 
     def test_health_lists_all_modules(self):
-        """Health command returns all 12 expected modules."""
+        """Health command returns all 14 expected modules."""
         result = run_engine("health")
-        assert result["module_count"] == 12
+        assert result["module_count"] == 14
         expected = [
             "trust", "contracts", "provenance", "token_counter",
             "scoper", "budget", "assembler", "memory", "delegation",
             "tracer", "circuit_breaker", "mcp_provenance",
+            "grounding", "rag",
         ]
         for mod in expected:
             assert mod in result["modules"], f"Missing module: {mod}"

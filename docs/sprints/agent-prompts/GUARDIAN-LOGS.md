@@ -6,6 +6,35 @@
 
 ---
 
+## Codex Enterprise Review — Fix Round (2026-03-04)
+
+**Trigger:** Codex ran an independent enterprise-grade review of Context Engine against NIST AI RMF, ISO/IEC 42001, SR 11-7, EU AI Act/DORA, and MAS TRM. Produced 9 findings (4 HIGH, 4 MEDIUM, 1 LOW). Grade: B (7.4/10). All findings triaged against current codebase (8 valid, 1 partially valid). All 9 fixed by Lead.
+**Scope:** `assembler.py`, `grounding.py`, `rag.py`, `runner.py`, `circuit_breaker.py`, `trust.py`
+**Baseline:** 551/551 tests passing, 91 prior findings (81 fixed, 9 accepted, 1 conceded).
+
+**Note:** Codex review was run against an older 505/505 test state. Some findings may have been partially addressed by subsequent Guardian fixes, but all 9 were re-verified against the current codebase and fixed where valid.
+
+### Findings
+
+| ID | Severity | File | Finding | Disposition | Fixed Date |
+|----|----------|------|---------|-------------|------------|
+| CX-H-001 | HIGH | assembler.py | Assembler output is contract-invalid for worker/reviewer archetypes — ASSEMBLE stage never calls `validate_context()` | ✅ Fixed — ASSEMBLE stage now calls `validate_context(draft_context, contract)` and includes `contract_validation` in metadata | 2026-03-04 |
+| CX-H-002 | HIGH | assembler.py | Provenance not enforced at assembly boundary — TAG stage only collects existing tags, never creates defaults for untagged items | ✅ Fixed — TAG stage now auto-tags untagged items with T5/UNTRUSTED defaults; validates existing provenance; tracks `untagged_count` | 2026-03-04 |
+| CX-H-003 | HIGH | assembler.py | RANK stage reads `item.get("provenance")` but `tag_provenance()` writes to `"_provenance"` key — ranking ignores provenance for adapter-tagged items | ✅ Fixed — RANK now reads both `item.get("provenance") or item.get("_provenance")` | 2026-03-04 |
+| CX-H-004 | HIGH | grounding.py | `_check_source_current()` is fail-open — missing `fetched_at` returns `passed: True` even for regulated claims (regulatory_obligation, governance_rule, etc.) | ✅ Fixed — fail-closed for regulated claim types (`regulatory_obligation`, `governance_rule`, `signoff_requirement`, `financial_threshold`); non-regulated claims retain fail-open | 2026-03-04 |
+| CX-M-005 | MEDIUM | rag.py | `_tag_chunk_provenance()` defaults `source_type` to `"unknown"` which fails provenance schema validation; no try/except around `create_provenance_tag()` | ✅ Fixed — defaults to `"general_web"`, validates against canonical set, wraps in try/except for graceful degradation | 2026-03-04 |
+| CX-M-006 | MEDIUM | runner.py | `runner.py` returns full Python traceback in JSON response to Node.js caller — information disclosure risk | ✅ Fixed — traceback written to `sys.stderr` only; JSON response contains `{type}: {message}` only | 2026-03-04 |
+| CX-M-007 | MEDIUM | circuit_breaker.py | Circuit breaker swallows ALL exceptions — no way to surface `ValueError` or `TypeError` from callers; no `raise_on_open` mode | ✅ Fixed — added `CircuitOpenError` exception, `raise_on_open` option, and `propagate_exceptions` set for selective re-raising | 2026-03-04 |
+| CX-M-008 | MEDIUM | trust.py | `is_never_allowed()` uses exact-match only — `"social_media_feed"` or `"competitor_intelligence_report"` bypass NEVER list | ✅ Fixed — upgraded to prefix matching (`source_type.startswith(pattern)`) | 2026-03-04 |
+| CX-L-009 | LOW | runner.py | Health endpoint omits `grounding` and `rag` from module inventory (both are Sprint 5 modules) | ✅ Fixed — added `"grounding"` and `"rag"` to health check module list | 2026-03-04 |
+
+**Cumulative tracker update:**
+- Open findings: **0**
+- Fixed: 90 (CX-H-001 through CX-L-009 all fixed by Lead) | Accepted: 9 | Conceded: 1 (RA-M-001)
+- Total ever raised: **100**
+
+---
+
 ## Full End-to-End Architectural Audit Sweep (2026-03-03)
 
 **Trigger:** User instruction: "do a complete audit sweep end to end and make sure its upto our architectural blueprint."
@@ -1036,7 +1065,7 @@ All 6 findings from the Sprint 2 Phase 0 provenance audit (H-001, M-001 through 
 | RA-L-004 | S6 | test_pipeline_bench.py | LOW | ✅ Fixed — `system_prompt` → `system_prompt_context`, `kb_chunks` → `knowledge_chunks` (canonical slot names) | 2026-03-02 | 2026-03-02 |
 | FE-L-001 | E2E | budget-defaults.json | LOW | ✅ Fixed — removed `regulatory_refs` and `response_headroom` from `never_compress` (phantom entries, not canonical slots) | 2026-03-03 | 2026-03-03 |
 
-**Open findings: 0 | Fixed: 81 | Accepted: 9 | Conceded: 1 (RA-M-001) | Total ever raised: 91**
+**Open findings: 0 | Fixed: 90 | Accepted: 9 | Conceded: 1 (RA-M-001) | Total ever raised: 100**
 
 > **Dispute resolution (2026-03-02):** M-010, M-011, and L-005 all confirmed fixed by Lead. M-010: `ordinals.get(classification, 3)` enforces deny-by-default. M-011: 13 new tests for `scope_context`/`filter_by_entitlements`. L-005: docstring corrected. 524/524 tests passing.
 
@@ -1072,4 +1101,4 @@ All 6 findings from the Sprint 2 Phase 0 provenance audit (H-001, M-001 through 
 
 ---
 
-*QA Guardian — last updated 2026-03-03 (full end-to-end architectural sweep). RA-M-001 Guardian concedes — external_official IS TRUSTED per blueprint §5. FE-L-001 fixed (removed phantom never_compress entries). Open: 0 | Fixed: 81 | Accepted: 9 | Conceded: 1 (RA-M-001) | Total ever raised: 91*
+*QA Guardian — last updated 2026-03-04 (Codex enterprise review fixes applied). All 9 Codex findings (4H+4M+1L) fixed. Open: 0 | Fixed: 90 | Accepted: 9 | Conceded: 1 (RA-M-001) | Total ever raised: 100*

@@ -1,6 +1,6 @@
 # QA Guardian — Audit Agent Prompt
 
-> **Last updated:** 2026-03-03 (Full end-to-end architectural sweep completed — 91 findings, 81 fixed, 9 accepted, 1 conceded (RA-M-001), 0 open)
+> **Last updated:** 2026-03-04 (Codex enterprise review fixes applied — 100 findings, 90 fixed, 9 accepted, 1 conceded (RA-M-001), 0 open)
 > **Instruction:** Read this file top-to-bottom. When the human says "audit sprint N",
 > audit the files listed under that sprint's scope and produce a report.
 
@@ -80,7 +80,7 @@ PRIORITY 3 (Supporting context):
 |  JSON configs:     13 files (6 config, 3 contracts, 4 domains)             |
 |  Angular comps:    7 components (6 admin tabs + 1 shared citation-panel)   |
 |  Package version:  1.0.0                                                    |
-|  Guardian audits:  S1 ✅ S2 ✅ S3 ✅ S4 ✅ S5 ✅ S6 ✅ E2E-SWEEP ✅ — 91 findings, 1 open |
+|  Guardian audits:  S1 ✅ S2 ✅ S3 ✅ S4 ✅ S5 ✅ S6 ✅ E2E ✅ Codex ✅ — 100 findings, 0 open |
 +============================================================================+
 ```
 
@@ -531,8 +531,18 @@ See `GUARDIAN-LOGS.md` for full audit history including:
   - RA-L-004: **FIXED** — Bench slot names `system_prompt` → `system_prompt_context`, `kb_chunks` → `knowledge_chunks`
 - Full End-to-End Architectural Sweep (2026-03-03): All 14 Python modules, 6 config JSONs, 3 contract JSONs, 4 domain JSONs, `__init__.py` audited against blueprint. OVERALL PASS ✅. 1 new finding:
   - FE-L-001: **FIXED** — Removed `regulatory_refs` and `response_headroom` from `never_compress` in `budget-defaults.json` (phantom entries, not canonical assembler slots).
+- Codex Enterprise Review (2026-03-04): Independent enterprise-grade review (NIST AI RMF, ISO/IEC 42001, SR 11-7, EU AI Act/DORA, MAS TRM). 9 findings (4H+4M+1L). All 9 fixed by Lead:
+  - CX-H-001: **FIXED** — Assembler ASSEMBLE stage now calls `validate_context()`
+  - CX-H-002: **FIXED** — TAG stage auto-tags untagged items with T5/UNTRUSTED defaults
+  - CX-H-003: **FIXED** — RANK reads both `provenance` and `_provenance` keys
+  - CX-H-004: **FIXED** — Grounding fail-closed for regulated claims (missing/unparseable `fetched_at`)
+  - CX-M-005: **FIXED** — RAG graceful degradation (default `general_web`, try/except around provenance)
+  - CX-M-006: **FIXED** — Runner traceback to stderr only, JSON response redacted
+  - CX-M-007: **FIXED** — Circuit breaker `raise_on_open` + `propagate_exceptions` options
+  - CX-M-008: **FIXED** — NEVER-list upgraded to prefix matching
+  - CX-L-009: **FIXED** — Health endpoint now includes `grounding` and `rag` modules
 
-**Cumulative: 81 fixed, 9 accepted, 1 conceded (RA-M-001), 0 open, 91 total ever raised**
+**Cumulative: 90 fixed, 9 accepted, 1 conceded (RA-M-001), 0 open, 100 total ever raised**
 
 ---
 
@@ -631,8 +641,8 @@ See `GUARDIAN-LOGS.md` for full audit history including:
 - **Test impact:** 541 → 551 tests (10 new tests, 0 regressions)
 
 ### Cross-Sprint Maintenance
-- Resolved all 91 Guardian findings across 15 audit sessions (Sprints 1-6 + Re-Audit + RA-series + E2E architectural sweep)
-- 81 fixed, 9 accepted, 1 conceded (RA-M-001), 0 open — all sprints closed + full E2E audit PASS
+- Resolved all 100 findings across 16 audit sessions (Sprints 1-6 + Re-Audit + RA-series + E2E architectural sweep + Codex enterprise review)
+- 90 fixed, 9 accepted, 1 conceded (RA-M-001), 0 open — all sprints closed + E2E audit PASS + Codex review PASS
 - Maintained 100% test pass rate throughout all fix rounds
 - Ensured cross-module consistency: slot names, deny-by-default, token encoding, provenance chains
 - Updated GUARDIAN-LOGS.md and GUARDIAN-PROMPT.md after each audit cycle
@@ -662,6 +672,6 @@ See `GUARDIAN-LOGS.md` for full audit history including:
 
 **You are the QA Guardian. Await the human's "audit sprint N" command.**
 
-**Current state: Sprint 1 ✅ | Sprint 2 ✅ | Sprint 3 ✅ | Sprint 4 ✅ | Sprint 5 ✅ | Sprint 6 ✅ | Re-Audit ✅ | E2E Sweep ✅ — ALL SPRINTS CLOSED**
+**Current state: Sprint 1 ✅ | Sprint 2 ✅ | Sprint 3 ✅ | Sprint 4 ✅ | Sprint 5 ✅ | Sprint 6 ✅ | Re-Audit ✅ | E2E Sweep ✅ | Codex Review ✅ — ALL CLOSED**
 
-**All 91 Guardian findings resolved (81 fixed, 9 accepted, 1 conceded). 551/551 tests passing. Context Engine v1.0.0 is production-ready.**
+**All 100 findings resolved (90 fixed, 9 accepted, 1 conceded). 551/551 tests passing. Context Engine v1.0.0 is production-ready.**

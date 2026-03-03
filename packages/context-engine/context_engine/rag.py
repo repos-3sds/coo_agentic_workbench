@@ -234,17 +234,41 @@ def _derive_trust_class(tier: int) -> str:
 
 
 def _tag_chunk_provenance(chunk: dict) -> dict:
-    """Attach provenance tag to a chunk."""
-    tier = chunk.get("authority_tier", 5)
-    prov = create_provenance_tag({
-        "source_id": chunk.get("source_id", "unknown"),
-        "source_type": chunk.get("source_type", "unknown"),
-        "authority_tier": tier,
-        "trust_class": chunk.get("trust_class", _derive_trust_class(tier)),
-        "data_classification": chunk.get("data_classification", "INTERNAL"),
-    })
+    """Attach provenance tag to a chunk.
 
-    chunk["_provenance"] = prov
+    M5 fix: gracefully degrade on incomplete chunk metadata. If source_type
+    is missing or not canonical, default to "general_web" (T5/UNTRUSTED)
+    instead of "unknown" which would fail schema validation.
+    """
+    tier = chunk.get("authority_tier", 5)
+    source_type = chunk.get("source_type", "general_web")
+    # Ensure source_type is canonical — fall back to general_web for safety
+    _VALID_SOURCE_TYPES = {
+        "system_of_record", "bank_sop", "industry_standard",
+        "external_official", "general_web", "agent_output", "user_input",
+    }
+    if source_type not in _VALID_SOURCE_TYPES:
+        source_type = "general_web"
+
+    try:
+        prov = create_provenance_tag({
+            "source_id": chunk.get("source_id", f"rag-chunk-{id(chunk)}"),
+            "source_type": source_type,
+            "authority_tier": tier,
+            "trust_class": chunk.get("trust_class", _derive_trust_class(tier)),
+            "data_classification": chunk.get("data_classification", "INTERNAL"),
+        })
+        chunk["_provenance"] = prov
+    except (ValueError, TypeError):
+        # Graceful degradation: attach a minimal T5/UNTRUSTED tag
+        chunk["_provenance"] = {
+            "source_id": chunk.get("source_id", "unknown"),
+            "source_type": "general_web",
+            "authority_tier": 5,
+            "trust_class": "UNTRUSTED",
+            "data_classification": "INTERNAL",
+        }
+
     return chunk
 
 
