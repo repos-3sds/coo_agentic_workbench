@@ -1,6 +1,6 @@
 # QA Guardian — Audit Agent Prompt
 
-> **Last updated:** 2026-03-02 (All sprints closed — S1-S6 ✅ ALL PASSED + RE-AUDIT VERIFIED — 90 findings, 80 fixed, 9 accepted, 1 disputed, 0 open)
+> **Last updated:** 2026-03-03 (Full end-to-end architectural sweep completed — 91 findings, 81 fixed, 9 accepted, 1 conceded (RA-M-001), 0 open)
 > **Instruction:** Read this file top-to-bottom. When the human says "audit sprint N",
 > audit the files listed under that sprint's scope and produce a report.
 
@@ -80,7 +80,7 @@ PRIORITY 3 (Supporting context):
 |  JSON configs:     13 files (6 config, 3 contracts, 4 domains)             |
 |  Angular comps:    7 components (6 admin tabs + 1 shared citation-panel)   |
 |  Package version:  1.0.0                                                    |
-|  Guardian audits:  S1 ✅ S2 ✅ S3 ✅ S4 ✅ S5 ✅ S6 ✅ RE-AUDIT ✅ — 90 findings, 0 open  |
+|  Guardian audits:  S1 ✅ S2 ✅ S3 ✅ S4 ✅ S5 ✅ S6 ✅ E2E-SWEEP ✅ — 91 findings, 1 open |
 +============================================================================+
 ```
 
@@ -263,7 +263,10 @@ The following patterns have been established and should be consistent across all
 
 13. CANONICAL SOURCE TYPES (enforced across all domain configs):
     - system_of_record (T1/TRUSTED), bank_sop (T2/TRUSTED), industry_standard (T3/TRUSTED)
-    - external_official (T4/UNTRUSTED), general_web (T5/UNTRUSTED)
+    - external_official (T4/TRUSTED), general_web (T5/UNTRUSTED)
+    - CORRECTION (2026-03-03): T4 external_official IS TRUSTED per blueprint §5, source-priority.json
+      line 49, and trust-classification.json line 19. Guardian's prior KNOWN PATTERN #13 was wrong.
+      RA-M-001 — Guardian concedes. Deny-by-default (UNTRUSTED) applies to UNKNOWN sources, not T4.
     - test_domain_configs.py validates all domain config sources against this canonical set
 ```
 
@@ -521,13 +524,15 @@ See `GUARDIAN-LOGS.md` for full audit history including:
 - Sprint 6 Final Audit: FAIL ❌ → Lead Fixes → ✅ ALL 14 PASSED (14 fixed, both HIGHs resolved)
   - Key: DOMAIN-ONBOARDING-PLAYBOOK created, contracts-tab normalizer, orm.json canonical source_type, ORM regression tests
 - Re-Audit (Guardian verification, 2026-03-02): All 30 original + 2 N-series confirmed. 5 RA-series discovered → ALL RESOLVED:
-  - RA-M-001: **DISPUTED** — Playbook T4 `external_official` labeled TRUSTED is CORRECT. `source-priority.json` line 49 and `trust-classification.json` line 20 both confirm `trust_class: "TRUSTED"`. Guardian misread.
+  - RA-M-001: **CONCEDED** (2026-03-03) — Guardian formally concedes. `external_official` T4 IS TRUSTED per blueprint §5, `source-priority.json` line 49, `trust-classification.json` line 19. KNOWN PATTERN #13 was wrong. Lead was correct on all counts.
   - RA-L-001: **FIXED** — CHANGELOG test count "397" → "551"
   - RA-L-002: **FIXED** — Playbook Pitfall #2 updated to reflect M-003 display_name test
   - RA-L-003: **ACCEPTED** — trust-tab recent_decisions empty (LOW UI gap, needs dedicated endpoint)
   - RA-L-004: **FIXED** — Bench slot names `system_prompt` → `system_prompt_context`, `kb_chunks` → `knowledge_chunks`
+- Full End-to-End Architectural Sweep (2026-03-03): All 14 Python modules, 6 config JSONs, 3 contract JSONs, 4 domain JSONs, `__init__.py` audited against blueprint. OVERALL PASS ✅. 1 new finding:
+  - FE-L-001: **FIXED** — Removed `regulatory_refs` and `response_headroom` from `never_compress` in `budget-defaults.json` (phantom entries, not canonical assembler slots).
 
-**Cumulative: 80 fixed, 9 accepted, 1 disputed, 0 open, 90 total ever raised — ALL SPRINTS CLOSED ✅**
+**Cumulative: 81 fixed, 9 accepted, 1 conceded (RA-M-001), 0 open, 91 total ever raised**
 
 ---
 
@@ -626,8 +631,8 @@ See `GUARDIAN-LOGS.md` for full audit history including:
 - **Test impact:** 541 → 551 tests (10 new tests, 0 regressions)
 
 ### Cross-Sprint Maintenance
-- Resolved all 90 Guardian findings across 14 audit sessions (Sprints 1-6 + Re-Audit + RA-series dispute resolution)
-- 80 fixed, 9 accepted, 1 disputed, 0 open — all sprints closed + re-audit verified
+- Resolved all 91 Guardian findings across 15 audit sessions (Sprints 1-6 + Re-Audit + RA-series + E2E architectural sweep)
+- 81 fixed, 9 accepted, 1 conceded (RA-M-001), 0 open — all sprints closed + full E2E audit PASS
 - Maintained 100% test pass rate throughout all fix rounds
 - Ensured cross-module consistency: slot names, deny-by-default, token encoding, provenance chains
 - Updated GUARDIAN-LOGS.md and GUARDIAN-PROMPT.md after each audit cycle
@@ -657,6 +662,6 @@ See `GUARDIAN-LOGS.md` for full audit history including:
 
 **You are the QA Guardian. Await the human's "audit sprint N" command.**
 
-**Current state: Sprint 1 ✅ | Sprint 2 ✅ | Sprint 3 ✅ | Sprint 4 ✅ | Sprint 5 ✅ | Sprint 6 ✅ | Re-Audit ✅ — ALL SPRINTS CLOSED**
+**Current state: Sprint 1 ✅ | Sprint 2 ✅ | Sprint 3 ✅ | Sprint 4 ✅ | Sprint 5 ✅ | Sprint 6 ✅ | Re-Audit ✅ | E2E Sweep ✅ — ALL SPRINTS CLOSED**
 
-**All 90 Guardian findings resolved (80 fixed, 9 accepted, 1 disputed). 551/551 tests passing. Context Engine v1.0.0 is production-ready.**
+**All 91 Guardian findings resolved (81 fixed, 9 accepted, 1 conceded). 551/551 tests passing. Context Engine v1.0.0 is production-ready.**

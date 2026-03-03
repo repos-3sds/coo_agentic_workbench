@@ -6,6 +6,122 @@
 
 ---
 
+## Full End-to-End Architectural Audit Sweep (2026-03-03)
+
+**Trigger:** User instruction: "do a complete audit sweep end to end and make sure its upto our architectural blueprint."
+**Scope:** Every Python module, config JSON, contract JSON, domain JSON, and `__init__.py` in `@coo/context-engine` — verified against `docs/CONTEXT-ENGINEERING-BLUEPRINT.md`.
+**Method:** Read every file in the package; compare against blueprint sections; flag any deviation.
+**Baseline:** 551/551 tests passing, 90 total prior findings (80 fixed, 9 accepted, 1 disputed).
+
+---
+
+### Module-by-Module Results
+
+#### Python Modules (14/14 audited)
+
+| Module | Blueprint § | Verdict | Notes |
+|--------|------------|---------|-------|
+| `trust.py` | §5 | ✅ PASS | NEVER_PATTERNS hardcoded; deny-by-default (`classify_trust(unknown)→"UNTRUSTED"`); `can_user_access(bad_role)→False`; `reset_cache()` clears all 3 caches |
+| `contracts.py` | §9 | ✅ PASS | Rich + simple contract formats; `VALID_ARCHETYPES = ("orchestrator","worker","reviewer")`; `validate_context()` warns on excluded slots, does not invalidate |
+| `provenance.py` | §11 | ✅ PASS | Schema-driven validation; UTC-aware `is_expired()`; `compute_chunk_hash()` returns `"sha256:"` prefix (§4.3); `merge_provenance()` takes lower authority + more restrictive classification |
+| `budget.py` | §7 | ✅ PASS | Profiles (lightweight/standard/compact) load from config; `trim_to_budget()` respects `never_compress`; story-spec aliases `get_budget_for_profile` + `handle_overflow` present |
+| `scoper.py` | §10 | ✅ PASS | 6 scoping dimensions in correct order; `scope_by_role()` deny-by-default RESTRICTED; temporal always applied; M-010 (absent-classification ordinal) remains ACCEPTED from Sprint 2 |
+| `token_counter.py` | §7 | ✅ PASS | `cl100k_base` default; Claude model names normalize to cl100k_base; `get_model_limit()` returns 128000 for unknown |
+| `assembler.py` | §4 | ✅ PASS | All 7 stages in correct order; canonical slot names consistent with budget-defaults.json; adapter `None` guard; RANK feeds BUDGET correctly |
+| `memory.py` | §8 | ✅ PASS | 4-tier memory (working/session/entity/domain); `compress_history()` preserves provenance tags from dropped turns; all timestamps UTC-aware |
+| `delegation.py` | §8.3 | ✅ PASS | Worker strips routing metadata; reviewer gets worker_output + provenance only; orchestrator gets full context; `build_reviewer_context()` validates provenance tags before including |
+| `tracer.py` | §13 | ✅ PASS | `create_trace()` includes all enterprise audit fields (agent_id, domain, entity_id, user_id); stage events record §13.2 fields (conflicts_detected, overflow, sources_tagged); `finalize_trace()` computes totals |
+| `circuit_breaker.py` | §12 | ✅ PASS | Verified Sprint 4 re-audit — CLOSED→OPEN→HALF_OPEN; `reset()` clears both failures and successes |
+| `mcp_provenance.py` | §4 | ✅ PASS | Verified Sprint 4 re-audit — deny-by-default: `source_type="general_web"`, `authority_tier=5`, `trust_class="UNTRUSTED"` |
+| `grounding.py` | §5.2 | ✅ PASS | Verified Sprint 5 re-audit — 5-step verification; UTC-aware `_check_source_current()` |
+| `rag.py` | §6 | ✅ PASS | Verified Sprint 5 re-audit — Stage1 top_k=40, Stage2 top_k=8; monotonic sort loop |
+
+#### Config Files (6/6 audited)
+
+| Config | Verdict | Notes |
+|--------|---------|-------|
+| `source-priority.json` | ✅ PASS | T1-T4 TRUSTED, T5 UNTRUSTED; all 4 conflict rules present |
+| `trust-classification.json` | ✅ PASS | 10 rules; NEVER sources documented in `_note_never_sources` pointing to `trust.py` (correct single-source-of-truth per H-001) |
+| `budget-defaults.json` | ⚠️ PASS + 1 LOW | Slot names match assembler canonical names ✅; `never_compress` contains phantom entries (see FE-L-001) |
+| `data-classification.json` | ✅ PASS | 4 levels (PUBLIC/INTERNAL/CONFIDENTIAL/RESTRICTED); ordinals 0-3; min_role_required aligns with `ROLE_HIERARCHY` in trust.py |
+| `provenance-schema.json` | ✅ PASS | Required fields (source_id, source_type, authority_tier, fetched_at, ttl_seconds, trust_class, data_classification) match `provenance.py` validators; source_type enum matches `VALID_SOURCE_TYPES` |
+| `grounding-requirements.json` | ✅ PASS | 8 claim types; `regulatory_obligation` min_authority_tier=4 (T4 SoR only); `financial_threshold` min_authority_tier=1; 5 verification_steps match grounding.py step names |
+
+#### Contract JSONs (3/3 audited)
+
+| Contract | Budget Profile | Format | Verdict |
+|----------|---------------|--------|---------|
+| `orchestrator.json` | lightweight | Rich (slot dicts) | ✅ PASS — 4 required slots (user_context, intent, routing_context, entity_summary); 3 excluded (raw_kb_chunks, detailed_form_data, full_audit_trail) |
+| `worker.json` | standard | Simple (strings) | ✅ PASS — 5 required slots (assigned_task, entity_data, domain_knowledge, tool_results, user_context) |
+| `reviewer.json` | compact | Simple (strings) | ✅ PASS — 4 required slots (worker_output, worker_provenance, validation_rubric, policy_references); conversation_history + few_shot_examples excluded |
+
+#### Domain JSONs (4/4 audited)
+
+| Domain | display_name | All source_types canonical | grounding_overrides | Verdict |
+|--------|-------------|--------------------------|---------------------|---------|
+| `npa.json` | "New Product Approval" | ✅ | ✅ — regulatory_obligation:4, financial_threshold:1 | ✅ PASS |
+| `orm.json` | Verified S6 | ✅ `external_official` fixed | ✅ `min_authority_tier_overrides: {}` | ✅ PASS |
+| `desk.json` | Verified S6 | ✅ | ✅ `min_authority_tier_overrides: {}` | ✅ PASS |
+| `demo.json` | "Demo / Sandbox" | ✅ `system_of_record` | ✅ `min_authority_tier_overrides: {}` | ✅ PASS |
+
+#### `__init__.py` Public API
+
+✅ PASS — All modules exported in sprint order (S1→S2→S3→S4→S5); `create_context_engine()` factory exposes all key functions; `__all__` list matches imports.
+
+---
+
+### RA-M-001 — Formal Concession
+
+**Guardian formally concedes RA-M-001.** After reading `source-priority.json` (line 49: `"trust_class": "TRUSTED"` for T4 `external_official`), `trust-classification.json` (line 19: `^external_official` → `TRUSTED`), and blueprint §5 (Tier 4 = "TRUSTED — official regulator sources, governed access"), it is clear that `external_official` IS TRUSTED in this architecture.
+
+Guardian's original finding was based on a misapplication of the deny-by-default rule (which applies to **unknown** or **null** sources, not to explicitly configured T4 sources). KNOWN PATTERN #13 in GUARDIAN-PROMPT.md was factually wrong. The Lead's dispute was correct on all counts.
+
+**RA-M-001 status: GUARDIAN CONCEDES → CLOSED (Lead correct)**
+
+---
+
+### New Finding: FE-L-001
+
+#### FE-L-001 — `budget-defaults.json` `never_compress` Contains Phantom Slots [LOW]
+
+- **File:** `packages/context-engine/config/budget-defaults.json`, `never_compress` array (lines 87–92)
+- **Issue:** The `never_compress` list contains two entries that are NOT canonical assembler context slots:
+  - `"regulatory_refs"` — not in the `allocations` dict, not produced by `assembler.py` Stage 5. Appears aspirational for a future slot.
+  - `"response_headroom"` — this is a numeric budget parameter (`response_headroom: {min: 10000, max: 20000}`), not a context slot name. It cannot appear as a key in a context package.
+- **How it manifests:** `trim_to_budget()` iterates `for slot in trimmed` (the context dict). Since `regulatory_refs` and `response_headroom` are never produced as context slots, these `never_compress` entries are permanent dead code — they are never reached in the guard `if target_slot in never_compress: continue`.
+- **Impact:** Harmless at runtime (never matched). However, it could mislead a domain developer who:
+  (a) Reads `never_compress` and assumes `regulatory_refs` is a supported protected slot, then adds it to their context package expecting automatic protection.
+  (b) Is confused by `response_headroom` appearing in both `never_compress` (as a string) and as a nested numeric object in the same config.
+- **Blueprint alignment:** Blueprint §7 protected slots: `system_prompt_context` and `entity_data` are correct entries. `regulatory_refs` and `response_headroom` are not mentioned as protected slots.
+- **Recommended fix:** Remove `regulatory_refs` and `response_headroom` from `never_compress`. If regulatory references need protection in a future slot, document the canonical slot name (e.g., `knowledge_chunks` for KB-sourced regulatory chunks, which is already HIGH priority).
+- **Severity:** LOW — config hygiene, no behavioral impact today.
+
+---
+
+### End-to-End Audit Verdict
+
+**OVERALL RESULT: PASS** ✅
+
+The `@coo/context-engine` package is architecturally sound and aligned with `CONTEXT-ENGINEERING-BLUEPRINT.md`. All 14 Python modules implement their designated blueprint sections correctly. All config and contract files are internally consistent. The 7-stage pipeline, 5-tier source hierarchy, deny-by-default trust model, provenance schema, and delegation boundaries are faithfully implemented.
+
+| Category | Count |
+|----------|-------|
+| Modules audited | 14 Python + 6 config + 3 contract + 4 domain + 1 `__init__.py` |
+| Modules fully passing | 28/29 |
+| New findings | 1 (FE-L-001 LOW) |
+| RA-M-001 concession | GUARDIAN CONCEDES — Lead correct |
+
+**Cumulative tracker update:**
+- Open findings: **0**
+- Fixed: 81 (FE-L-001 fixed by Lead) | Accepted: 9 | Conceded: 1 (RA-M-001)
+- Total ever raised: **91**
+
+---
+
+*QA Guardian — full end-to-end architectural audit completed 2026-03-03*
+
+---
+
 ## Sprint 4/5/6 — Re-Audit: Lead Fixes Verification (2026-03-01)
 
 **Trigger:** Lead claims all 30 original S4/5/6 findings resolved + 2 self-discovered N-series findings (N-001, N-002). Guardian reads every affected file to verify before closing sprints.
@@ -918,8 +1034,9 @@ All 6 findings from the Sprint 2 Phase 0 provenance audit (H-001, M-001 through 
 | RA-L-002 | S6 | DOMAIN-ONBOARDING-PLAYBOOK.md | LOW | ✅ Fixed — Pitfall #2 rewritten to reflect M-003 display_name test now exists | 2026-03-02 | 2026-03-02 |
 | RA-L-003 | S6 | context-trust-tab.component.ts | LOW | ⚠️ Accepted — recent_decisions returns [] for non-array input. No crash, empty-state UI only. Would need dedicated `/api/context/trust-decisions` endpoint to populate. | 2026-03-02 | 2026-03-02 |
 | RA-L-004 | S6 | test_pipeline_bench.py | LOW | ✅ Fixed — `system_prompt` → `system_prompt_context`, `kb_chunks` → `knowledge_chunks` (canonical slot names) | 2026-03-02 | 2026-03-02 |
+| FE-L-001 | E2E | budget-defaults.json | LOW | ✅ Fixed — removed `regulatory_refs` and `response_headroom` from `never_compress` (phantom entries, not canonical slots) | 2026-03-03 | 2026-03-03 |
 
-**Open findings: 0 | Fixed: 80 | Accepted: 9 | Disputed: 1 | Total ever raised: 90**
+**Open findings: 0 | Fixed: 81 | Accepted: 9 | Conceded: 1 (RA-M-001) | Total ever raised: 91**
 
 > **Dispute resolution (2026-03-02):** M-010, M-011, and L-005 all confirmed fixed by Lead. M-010: `ordinals.get(classification, 3)` enforces deny-by-default. M-011: 13 new tests for `scope_context`/`filter_by_entitlements`. L-005: docstring corrected. 524/524 tests passing.
 
@@ -955,4 +1072,4 @@ All 6 findings from the Sprint 2 Phase 0 provenance audit (H-001, M-001 through 
 
 ---
 
-*QA Guardian — last updated 2026-03-02 by Lead (RA-series resolution — RA-M-001 DISPUTED [Playbook T4 trust class correct per both configs], RA-L-001/002/004 FIXED, RA-L-003 ACCEPTED. All sprints CLOSED ✅. Open: 0 | Fixed: 80 | Accepted: 9 | Disputed: 1 | Total ever raised: 90)*
+*QA Guardian — last updated 2026-03-03 (full end-to-end architectural sweep). RA-M-001 Guardian concedes — external_official IS TRUSTED per blueprint §5. FE-L-001 fixed (removed phantom never_compress entries). Open: 0 | Fixed: 81 | Accepted: 9 | Conceded: 1 (RA-M-001) | Total ever raised: 91*

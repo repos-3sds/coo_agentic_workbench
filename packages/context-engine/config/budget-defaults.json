@@ -86,8 +86,6 @@
   ],
   "never_compress": [
     "system_prompt_context",
-    "entity_data",
-    "regulatory_refs",
-    "response_headroom"
+    "entity_data"
   ]
 }
