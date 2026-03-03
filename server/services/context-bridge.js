@@ -18,6 +18,8 @@
 
 const { execFile } = require('child_process');
 const path = require('path');
+const fs = require('fs');
+const axios = require('axios');
 
 // ── Configuration ────────────────────────────────────────────────────────────
 
@@ -26,6 +28,21 @@ const PYTHON_BIN = process.env.CONTEXT_ENGINE_PYTHON || 'python3';
 const ENGINE_ROOT = path.resolve(__dirname, '..', '..', 'packages', 'context-engine');
 const RUNNER_SCRIPT = path.resolve(ENGINE_ROOT, 'runner.py');
 const TIMEOUT_MS = Number(process.env.CONTEXT_ENGINE_TIMEOUT_MS) || 10000;
+
+const DIFY_BASE_URL = process.env.DIFY_BASE_URL || 'https://api.dify.ai/v1';
+const DIFY_DATASET_API_KEY = process.env.DIFY_DATASET_API_KEY || '';
+const SEED_SOURCES_PATH = path.resolve(__dirname, '..', 'config', 'context-seed-sources.json');
+const MAX_QUERY_LENGTH = 2000; // M-001: cap query before sending to KB API
+
+// M-002: Cache seed sources at module load (avoid blocking I/O per-request)
+let _seedCache = null;
+try {
+    if (fs.existsSync(SEED_SOURCES_PATH)) {
+        _seedCache = JSON.parse(fs.readFileSync(SEED_SOURCES_PATH, 'utf-8'));
+    }
+} catch (_err) {
+    console.warn(`[CONTEXT-BRIDGE] Failed to preload seed sources: ${_err.message}`);
+}
 
 let _healthy = null; // null = untested, true/false after first check
 
@@ -98,6 +115,83 @@ function createServerAdapters(db, mcpTools) {
 }
 
 /**
+ * Fetch context sources for the pipeline.
+ *
+ * Strategy:
+ *   1. Always load seed sources from context-seed-sources.json (baseline)
+ *   2. If DIFY_DATASET_API_KEY is set, also query Dify KB for live chunks
+ *   3. Attach provenance-compatible fields to every source
+ *
+ * @param {string} query - User's query text
+ * @param {string} domain - Domain ID (NPA, ORM, etc.)
+ * @param {string[]} entityIds - Entity IDs for entity data lookup
+ * @returns {Promise<Array>} Sources array with provenance tags
+ */
+async function fetchContextSources(query, domain, entityIds) {
+    const sources = [];
+    const now = new Date().toISOString();
+
+    // 1. Load seed sources from cached config (M-002: no per-request I/O)
+    try {
+        if (_seedCache) {
+            const domainKey = `${domain.toLowerCase()}_seed_sources`;
+            const seeds = _seedCache[domainKey] || _seedCache.npa_seed_sources || [];
+            for (const seed of seeds) {
+                sources.push({
+                    ...seed,
+                    fetched_at: seed.fetched_at || now,
+                    ttl_seconds: seed.ttl_seconds || 3600,
+                });
+            }
+        }
+    } catch (err) {
+        console.warn(`[CONTEXT-BRIDGE] Failed to load seed sources: ${String(err.message).slice(0, 200)}`);
+    }
+
+    // 2. If Dify KB API is available, fetch live KB chunks
+    const safeQuery = String(query || '').slice(0, MAX_QUERY_LENGTH); // M-001: validate query length
+    if (DIFY_DATASET_API_KEY && safeQuery) {
+        try {
+            const response = await axios.post(
+                `${DIFY_BASE_URL}/datasets/retrieve`,
+                {
+                    query: safeQuery,
+                    top_k: 8,
+                    score_threshold: 0.3,
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${DIFY_DATASET_API_KEY}`,
+                        'Content-Type': 'application/json',
+                    },
+                    timeout: 8000,
+                }
+            );
+
+            const records = response.data?.records || response.data?.data || [];
+            for (const record of records) {
+                sources.push({
+                    source_id: `kb:${record.dataset_id || 'unknown'}:${record.document_id || record.id || 'unknown'}`,
+                    source_type: 'general_web',     // M-003: KB content is unverified — let pipeline classify
+                    authority_tier: 4,               // M-003: external_official level, not bank_sop
+                    content: record.content || record.segment?.content || '',
+                    domain: domain,
+                    data_classification: 'INTERNAL',
+                    fetched_at: now,
+                    ttl_seconds: 3600,
+                    relevance_score: record.score || 0,
+                });
+            }
+            console.log(`[CONTEXT-BRIDGE] Fetched ${records.length} KB chunks for query: "${safeQuery.slice(0, 50)}..."`); // L-002: safe
+        } catch (kbErr) {
+            console.warn(`[CONTEXT-BRIDGE] KB fetch failed (continuing with seed data): ${String(kbErr.message || '').slice(0, 200)}`); // L-003: truncate
+        }
+    }
+
+    return sources;
+}
+
+/**
  * Assemble context for an agent before forwarding to Dify.
  *
  * @param {string} agentId - Agent identifier (e.g. "AG_NPA_BIZ")
@@ -109,21 +203,28 @@ async function assembleContextForAgent(agentId, request, userContext) {
     if (!ENABLED) return null;
 
     try {
+        const domain = mapAgentToDomain(agentId);
+        const query = request.query || '';
+        const entityIds = request.entity_ids || [];
+
+        // Pre-fetch sources from seed data + optional live KB
+        const sources = await fetchContextSources(query, domain, entityIds);
+
         const result = await runEngine('assemble', {
             agent_id: agentId,
             request: {
                 agent_id: agentId,
-                entity_ids: request.entity_ids || [],
+                entity_ids: entityIds,
                 entity_type: request.entity_type || 'project',
-                query: request.query || '',
+                query: query,
                 system_prompt: request.system_prompt || '',
                 conversation_history: request.conversation_history || [],
                 few_shot_examples: [],
                 tool_schemas: [],
-                sources: request.sources || [],
+                sources: sources,
             },
             archetype: mapAgentToArchetype(agentId),
-            domain: mapAgentToDomain(agentId),
+            domain: domain,
             user_context: userContext || {},
         });
 
@@ -208,6 +309,7 @@ function mapAgentToDomain(agentId) {
 
 module.exports = {
     createServerAdapters,
+    fetchContextSources,
     assembleContextForAgent,
     getContextEngineHealth,
     mapAgentToArchetype,

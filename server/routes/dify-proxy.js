@@ -330,15 +330,50 @@ router.post('/chat', async (req, res) => {
                 query: safeQuery,
                 entity_ids: safeInputs.current_project_id ? [safeInputs.current_project_id] : [],
                 conversation_history: [],
-                sources: [],
             }, userCtx);
 
             if (contextPackage?._metadata?.trace_id) {
-                res.setHeader('X-Context-Trace-Id', contextPackage._metadata.trace_id);
-                recordTrace({ agent_id, ...contextPackage });
+                // M-004: sanitize trace_id before setting as HTTP header
+                const traceId = String(contextPackage._metadata.trace_id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+                if (traceId) res.setHeader('X-Context-Trace-Id', traceId);
+                // M-005: store only metadata in traces, not full source content
+                recordTrace({ agent_id, _metadata: contextPackage._metadata });
             }
         } catch (ctxErr) {
             console.warn(`[CONTEXT-BRIDGE] Failed for ${agent_id}, continuing without context: ${ctxErr.message}`);
+        }
+    }
+
+    // ── Context Engine: inject assembled context into Dify inputs ────────
+    const CONTEXT_AWARE_AGENTS = new Set([
+        'AG_NPA_BIZ', 'AG_NPA_TECH_OPS', 'AG_NPA_FINANCE',
+        'AG_NPA_RMG', 'AG_NPA_LCS', 'DILIGENCE',
+    ]);
+
+    // M-006: type guard — ensure context is a plain object before injection
+    if (contextPackage?.context && typeof contextPackage.context === 'object' && !Array.isArray(contextPackage.context) && CONTEXT_AWARE_AGENTS.has(agent_id)) {
+        const contextForDify = {
+            entity_data: contextPackage.context.entity_data || [],
+            knowledge_chunks: contextPackage.context.knowledge_chunks || [],
+            system_prompt_context: contextPackage.context.system_prompt_context || '',
+            user_context: contextPackage.context.user_context || {},
+            _provenance_summary: (contextPackage._metadata?.provenance_tags || []).map(t => ({
+                source_id: t.source_id,
+                source_type: t.source_type,
+                authority_tier: t.authority_tier,
+                trust_class: t.trust_class,
+            })),
+            _trace_id: contextPackage._metadata?.trace_id || '',
+        };
+
+        const serialized = JSON.stringify(contextForDify);
+
+        // Safety: cap at 50KB to stay within Dify input variable limits
+        if (serialized.length <= 50000) {
+            difyPayload.inputs.assembled_context = serialized;
+            console.log(`[CONTEXT-BRIDGE] Injected assembled_context (${serialized.length} chars, ${(contextPackage._metadata?.provenance_tags || []).length} provenance tags) for ${agent_id}`);
+        } else {
+            console.warn(`[CONTEXT-BRIDGE] assembled_context too large (${serialized.length} chars), skipping injection for ${agent_id}`);
         }
     }
 

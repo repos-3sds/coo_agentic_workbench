@@ -72,9 +72,15 @@ COMMANDS = {
 }
 
 
+MAX_INPUT_SIZE = 2 * 1024 * 1024  # M-007: 2MB stdin size guard
+
+
 def main() -> None:
     try:
-        raw = sys.stdin.read()
+        raw = sys.stdin.read(MAX_INPUT_SIZE + 1)
+        if len(raw) > MAX_INPUT_SIZE:
+            json.dump({"error": "Input too large (exceeds 2MB limit)"}, sys.stdout)
+            sys.exit(1)
         payload = json.loads(raw) if raw.strip() else {}
     except json.JSONDecodeError as e:
         json.dump({"error": f"Invalid JSON input: {e}"}, sys.stdout)
