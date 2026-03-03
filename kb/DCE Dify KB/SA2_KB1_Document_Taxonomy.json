@@ -1,0 +1,373 @@
+[
+  {
+    "doc_type_code": "AO_FORM",
+    "classification_logic": "Master account opening form. Must contain client legal name, jurisdiction, product election, and authorised signatures where applicable. Validate form variant matches entity type (corporate vs individual).",
+    "key_fields": [
+      "client_legal_name",
+      "entity_type",
+      "jurisdiction",
+      "products_requested",
+      "signature_block"
+    ],
+    "max_age_days": 180,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT"
+    ],
+    "ingestion_capability": {
+      "supported_formats": [
+        "EML",
+        "CSV",
+        "XLSX",
+        "PDF",
+        "XML",
+        "PROPERTIES",
+        "XLS",
+        "MARKDOWN",
+        "DOCX",
+        "DOC",
+        "EPUB",
+        "PPT",
+        "HTML",
+        "TXT",
+        "MSG",
+        "VTT",
+        "HTM",
+        "MDX",
+        "PPTX",
+        "MD"
+      ],
+      "batch_max_files": 5,
+      "file_max_mb": 15,
+      "total_files_max": 50
+    }
+  },
+  {
+    "doc_type_code": "AO_FORM_INDIV",
+    "classification_logic": "Individual AO form for retail onboarding. Must include personal identifiers, residential address, risk acknowledgement section, and client signature.",
+    "key_fields": [
+      "full_name",
+      "id_number",
+      "residential_address",
+      "risk_acknowledgement",
+      "client_signature"
+    ],
+    "max_age_days": 180,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT"
+    ]
+  },
+  {
+    "doc_type_code": "CERT_INCORP",
+    "classification_logic": "Certificate of incorporation or official corporate registration profile. Must evidence active legal existence and registration identifier.",
+    "key_fields": [
+      "legal_name",
+      "registration_number",
+      "incorporation_date",
+      "status"
+    ],
+    "max_age_days": 365,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT"
+    ]
+  },
+  {
+    "doc_type_code": "BOARD_RES",
+    "classification_logic": "Board resolution authorising account opening and designated signatories. Validate signatory authority and execution count per constitution/signing mandate.",
+    "key_fields": [
+      "entity_name",
+      "resolution_text",
+      "authorised_signatories",
+      "resolution_date",
+      "signatures"
+    ],
+    "max_age_days": 365,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT"
+    ]
+  },
+  {
+    "doc_type_code": "AUTH_SIGNATORY",
+    "classification_logic": "Authorised signatory list or mandate letter defining who may execute legal and operational documents for the client.",
+    "key_fields": [
+      "signatory_name",
+      "designation",
+      "signing_rule",
+      "effective_date"
+    ],
+    "max_age_days": 365,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT"
+    ]
+  },
+  {
+    "doc_type_code": "ID_NRIC_OR_PASSPORT",
+    "classification_logic": "Primary identity proof for individuals/signatories. Must be legible and match name in AO form and signatory records.",
+    "key_fields": [
+      "name",
+      "document_number",
+      "date_of_birth",
+      "issue_or_expiry"
+    ],
+    "max_age_days": null,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT",
+      "HTML",
+      "HTM"
+    ]
+  },
+  {
+    "doc_type_code": "ID_HKID_OR_PASSPORT",
+    "classification_logic": "HK identity proof. Must align with AO form personal details and jurisdiction-specific naming conventions.",
+    "key_fields": [
+      "name",
+      "id_number",
+      "date_of_birth"
+    ],
+    "max_age_days": null,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT",
+      "HTML",
+      "HTM"
+    ]
+  },
+  {
+    "doc_type_code": "PROOF_ADDR",
+    "classification_logic": "Address verification document from accepted issuer (utility, bank, government). Address must match onboarding records and satisfy recency rules.",
+    "key_fields": [
+      "name_or_entity",
+      "service_or_account_address",
+      "issuer",
+      "issue_date"
+    ],
+    "max_age_days": 90,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT",
+      "HTML",
+      "HTM"
+    ]
+  },
+  {
+    "doc_type_code": "INCOME_PROOF",
+    "classification_logic": "Employment/income evidence for retail suitability checks. Must be recent and attributable to client.",
+    "key_fields": [
+      "name",
+      "employer",
+      "issue_date",
+      "income_reference"
+    ],
+    "max_age_days": 180,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT"
+    ]
+  },
+  {
+    "doc_type_code": "RISK_DISCLOSURE",
+    "classification_logic": "Risk disclosure acknowledgement form. Must be signed and aligned with selected product risk class.",
+    "key_fields": [
+      "client_name",
+      "product_risk_scope",
+      "signature",
+      "signed_date"
+    ],
+    "max_age_days": 365,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT"
+    ]
+  },
+  {
+    "doc_type_code": "GTA_MASTER",
+    "classification_logic": "General Trading Agreement master terms. Validate version and execution pages. Cross-check signatories with authority documents.",
+    "key_fields": [
+      "gta_version",
+      "client_name",
+      "signed_date",
+      "signatories"
+    ],
+    "max_age_days": null,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT"
+    ]
+  },
+  {
+    "doc_type_code": "GTA_SCH_7A",
+    "classification_logic": "Schedule for exchange-traded derivatives. Required when futures/options elected.",
+    "key_fields": [
+      "schedule_identifier",
+      "product_scope",
+      "signature_block"
+    ],
+    "max_age_days": null,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT"
+    ]
+  },
+  {
+    "doc_type_code": "GTA_SCH_9",
+    "classification_logic": "OTC derivatives schedule. Required when OTC product scope elected.",
+    "key_fields": [
+      "schedule_identifier",
+      "otc_scope",
+      "signature_block"
+    ],
+    "max_age_days": null,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT"
+    ]
+  },
+  {
+    "doc_type_code": "GTA_SCH_10",
+    "classification_logic": "Physical commodities schedule. Required for physical delivery products.",
+    "key_fields": [
+      "schedule_identifier",
+      "commodity_scope",
+      "delivery_terms",
+      "signature_block"
+    ],
+    "max_age_days": null,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT"
+    ]
+  },
+  {
+    "doc_type_code": "LEI_CERT",
+    "classification_logic": "Legal Entity Identifier certificate used for institutional/OTC controls. Must match legal name and be active.",
+    "key_fields": [
+      "lei_code",
+      "entity_name",
+      "registration_status"
+    ],
+    "max_age_days": 365,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT"
+    ]
+  },
+  {
+    "doc_type_code": "FUND_PPM",
+    "classification_logic": "Fund offering/PPM document used to evidence structure and investment mandate.",
+    "key_fields": [
+      "fund_name",
+      "strategy",
+      "governance_parties",
+      "effective_date"
+    ],
+    "max_age_days": null,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT"
+    ]
+  },
+  {
+    "doc_type_code": "FUND_IMA",
+    "classification_logic": "Investment Management Agreement defining manager authority and fund operation terms.",
+    "key_fields": [
+      "fund_name",
+      "manager_name",
+      "effective_date",
+      "signatures"
+    ],
+    "max_age_days": null,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT"
+    ]
+  },
+  {
+    "doc_type_code": "FATCA_CRS",
+    "classification_logic": "Tax self-certification package. Must identify tax residency and classification consistent with entity profile.",
+    "key_fields": [
+      "entity_or_individual_name",
+      "tax_residency",
+      "classification",
+      "signature"
+    ],
+    "max_age_days": 365,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT"
+    ]
+  },
+  {
+    "doc_type_code": "COMMODITY_LICENSE",
+    "classification_logic": "Licence or equivalent regulatory proof for commodity trading where required by jurisdiction.",
+    "key_fields": [
+      "license_number",
+      "issuing_authority",
+      "validity_dates"
+    ],
+    "max_age_days": 365,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT"
+    ]
+  },
+  {
+    "doc_type_code": "WAREHOUSE_AGREEMENT",
+    "classification_logic": "Operational agreement covering commodity storage/warehouse arrangements for physical settlement.",
+    "key_fields": [
+      "counterparty",
+      "facility",
+      "effective_date",
+      "liability_terms"
+    ],
+    "max_age_days": null,
+    "accepted_formats": [
+      "PDF",
+      "DOCX",
+      "DOC",
+      "TXT"
+    ]
+  }
+]

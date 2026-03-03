@@ -1,0 +1,341 @@
+# SA2 KB2 Checklist Rules
+
+Source: `SA2_KB2_Checklist_Rules.json`
+Record count: 8
+
+## Record 1
+
+### jurisdiction
+SGP
+
+### account_type
+INSTITUTIONAL_FUTURES
+
+### entity_type
+CORP
+
+### product_codes
+- SGX
+- CME
+- HKEX
+
+### rule_text
+Document checklist requirements for INSTITUTIONAL_FUTURES account opening in SGP jurisdiction for CORP entity type. Mandatory core set: AO form, Board Resolution, Certificate of Incorporation/ACRA profile, Constitution (or M&A), UBO declaration, authorised signatory list, directors IDs (minimum two signatories or approved signing matrix), GTA master, Risk Disclosure, FATCA/CRS self-certification, and bank account registration for settlement. Regulatory references include MAS SFA, MAS AML/CFT notices, and DBS internal market access controls. Any mismatch between AO form legal name and incorporation records is a hard-stop exception.
+
+### mandatory_documents
+- AO_FORM
+- BOARD_RES
+- CERT_INCORP
+- M_AND_A
+- UBO_DECL
+- AUTH_SIGNATORY
+- ID_DIRECTORS
+- GTA_MASTER
+- RISK_DISCLOSURE
+- FATCA_CRS
+- BANK_ACCOUNT_REG
+
+### conditional_documents
+- GTA_SCH_7A when exchange-traded futures/options enabled
+- LEI_CERT when institutional entity trades on venues requiring LEI
+- MARGIN_ADDENDUM when margin financing requested
+
+### completeness_gate
+All mandatory docs present, signed, and valid. Conditional docs required only if trigger condition met.
+
+### regulatory_basis
+MAS SFA; MAS AML/CFT; DBS T&M Account Opening Standards
+
+### risk_notes
+If UBO chain has unresolved ownership >25%, set retry_recommended=true and route HITL_RM.
+
+## Record 2
+
+### jurisdiction
+SGP
+
+### account_type
+MULTI_PRODUCT
+
+### entity_type
+FUND
+
+### product_codes
+- SGX
+- OTC_DERIVATIVES
+- PHYSICAL_COMMODITIES
+
+### rule_text
+Checklist for FUND entities requesting multi-product access in Singapore. In addition to corporate core documents, fund-specific pack is mandatory: PPM/prospectus, IMA, administrator confirmation, and latest audited financials/NAV statement. Because products span exchange, OTC, and physical, composite legal schedules are required and assessed together. Missing any product-specific legal schedule blocks progression to N-2.
+
+### mandatory_documents
+- AO_FORM
+- FUND_PPM
+- FUND_IMA
+- FUND_ADMIN_CONF
+- FIN_STMT
+- UBO_DECL
+- BOARD_RES
+- CERT_INCORP
+- GTA_MASTER
+- RISK_DISCLOSURE
+- FATCA_CRS
+
+### conditional_documents
+- GTA_SCH_7A for listed derivatives
+- GTA_SCH_9 for OTC derivatives
+- GTA_SCH_10 for physical commodities
+- CSA when collateralized OTC products requested
+
+### completeness_gate
+Mandatory docs + all product-triggered schedules required.
+
+### regulatory_basis
+MAS SFA; MAS AML/CFT; fund governance standards
+
+### risk_notes
+If strategy documents and product election are inconsistent, flag for review and reject auto-complete.
+
+## Record 3
+
+### jurisdiction
+SGP
+
+### account_type
+OTC_DERIVATIVES
+
+### entity_type
+FI
+
+### product_codes
+- IRS
+- CCS
+- FX_OPTIONS
+
+### rule_text
+OTC Derivatives onboarding for FI entities in Singapore. Mandatory controls prioritize legal enforceability and reporting readiness: GTA master, OTC schedule, ISDA/CSA where applicable, LEI, regulatory licence evidence, and authorised dealer list. If netting/collateral terms are incomplete, case cannot move to KYC.
+
+### mandatory_documents
+- AO_FORM
+- GTA_MASTER
+- GTA_SCH_9
+- ISDA_MASTER
+- LEI_CERT
+- REGULATORY_LICENSE
+- AUTH_SIGNATORY
+- BOARD_RES
+- RISK_DISCLOSURE
+- FATCA_CRS
+
+### conditional_documents
+- CSA when collateral terms are elected
+- EMIR_OR_EQUIVALENT_REPORTING_DISCLOSURE when cross-border OTC reporting obligations apply
+
+### completeness_gate
+Legal framework docs must be internally consistent across GTA/ISDA/Board resolution.
+
+### regulatory_basis
+MAS OTC derivatives framework; MAS AML/CFT; DBS legal policy
+
+### risk_notes
+LEI missing for reportable OTC trades is a hard fail with escalation to RM manager on retry 2.
+
+## Record 4
+
+### jurisdiction
+HKG
+
+### account_type
+INSTITUTIONAL_FUTURES
+
+### entity_type
+FI
+
+### product_codes
+- HKEX
+- CME
+
+### rule_text
+Institutional futures onboarding for Hong Kong FI entities. Requires corporate legal pack, HK regulatory licensing evidence, risk disclosures, and futures schedule coverage. For cross-border booking into Singapore operations, ensure jurisdictional addendum mapping is present.
+
+### mandatory_documents
+- AO_FORM
+- CERT_INCORP
+- BOARD_RES
+- REGULATORY_LICENSE
+- LEI_CERT
+- AUTH_SIGNATORY
+- GTA_MASTER
+- GTA_SCH_7A
+- RISK_DISCLOSURE
+
+### conditional_documents
+- HKG_ADDENDUM for HK governed client terms
+- CROSS_BORDER_ADDENDUM when booking center differs from client domicile
+
+### completeness_gate
+All mandatory docs accepted; no rejected mandatory doc outstanding.
+
+### regulatory_basis
+HKMA SPM; SFC Code of Conduct; DBS cross-border policy
+
+### risk_notes
+If jurisdictional addendum is missing while cross-border flag=true, keep next_node=HITL_RM.
+
+## Record 5
+
+### jurisdiction
+HKG
+
+### account_type
+RETAIL_FUTURES
+
+### entity_type
+INDIVIDUAL
+
+### product_codes
+- HKEX
+
+### rule_text
+Retail futures onboarding for individual clients in Hong Kong. Mandatory set: individual AO form, HKID/passport, proof of address within allowed age, income or employment proof, signed risk disclosure, GTA signed, and suitability evidence where applicable. Age-window and identity-match checks are strict and non-negotiable.
+
+### mandatory_documents
+- AO_FORM_INDIV
+- ID_HKID_OR_PASSPORT
+- PROOF_ADDR
+- INCOME_PROOF
+- RISK_DISCLOSURE
+- GTA_MASTER
+
+### conditional_documents
+- INVESTMENT_EXPERIENCE_DECL when derivatives suitability requires enhanced assessment
+- PROFESSIONAL_INVESTOR_DECL when PI treatment requested
+
+### completeness_gate
+All six mandatory documents must be accepted; otherwise retry required.
+
+### regulatory_basis
+HKMA SPM AML/CFT; SFC suitability obligations
+
+### risk_notes
+Proof of address outside max age is REJECTED, not UNMATCHED.
+
+## Record 6
+
+### jurisdiction
+CHN
+
+### account_type
+COMMODITIES_PHYSICAL
+
+### entity_type
+CORP
+
+### product_codes
+- PHYSICAL_METALS
+- PHYSICAL_ENERGY
+
+### rule_text
+Physical commodities onboarding for PRC-domiciled corporates. Requires commodity-specific legal and operational evidence: trading licence (if applicable), warehouse or logistics agreements, delivery instructions, and Chinese-language document translation controls. Certified translations are mandatory where source docs are non-English and used for control decisions.
+
+### mandatory_documents
+- AO_FORM
+- CERT_INCORP
+- BOARD_RES
+- GTA_MASTER
+- GTA_SCH_10
+- COMMODITY_LICENSE
+- WAREHOUSE_AGREEMENT
+- DELIVERY_INSTRUCTIONS
+- UBO_DECL
+
+### conditional_documents
+- CERTIFIED_TRANSLATION for non-English legal docs
+- SANCTIONS_OWNER_DECL for high-risk shipping corridors
+
+### completeness_gate
+Mandatory commodity controls and enforceability docs must pass before N-2.
+
+### regulatory_basis
+DBS commodities risk policy; MAS AML/CFT cross-border controls
+
+### risk_notes
+If translation quality is uncertain, set flagged_for_review=true and route HITL escalation.
+
+## Record 7
+
+### jurisdiction
+OTHER
+
+### account_type
+MULTI_PRODUCT
+
+### entity_type
+SPV
+
+### product_codes
+- SGX
+- OTC_DERIVATIVES
+
+### rule_text
+SPV onboarding outside primary jurisdictions requires enhanced beneficial ownership and sponsor chain verification. Mandatory SPV constitution, sponsor letter, structure chart with natural-person UBO trace, and legal agreements matching requested products. If UBO trace is incomplete, do not auto-progress.
+
+### mandatory_documents
+- AO_FORM
+- SPV_CONSTITUTION
+- SPONSOR_LETTER
+- ORG_CHART
+- UBO_DECL
+- CERT_INCORP
+- GTA_MASTER
+
+### conditional_documents
+- GTA_SCH_7A when listed derivatives requested
+- GTA_SCH_9 when OTC products requested
+- LOCAL_COUNSEL_OPINION when enforceability risk is high
+
+### completeness_gate
+UBO and sponsor accountability controls are mandatory regardless of product mix.
+
+### regulatory_basis
+MAS AML/CFT risk-based approach; DBS jurisdictional risk framework
+
+### risk_notes
+Any unresolved nominee ownership structure requires manual review.
+
+## Record 8
+
+### jurisdiction
+SGP
+
+### account_type
+RETAIL_FUTURES
+
+### entity_type
+INDIVIDUAL
+
+### product_codes
+- SGX
+- CME
+
+### rule_text
+Retail futures onboarding in Singapore requires strong suitability and identity controls. Mandatory: AO form individual, NRIC/passport, proof of address, risk disclosure, and knowledge/suitability documentation when required by product class. Outdated address or missing risk acknowledgement is a direct reject.
+
+### mandatory_documents
+- AO_FORM_INDIV
+- ID_NRIC_OR_PASSPORT
+- PROOF_ADDR
+- RISK_DISCLOSURE
+- CKA_OR_EQUIVALENT
+
+### conditional_documents
+- ACCREDITED_INV_DECL if client requests treatment for complex products
+
+### completeness_gate
+All mandatory docs accepted and suitability control satisfied.
+
+### regulatory_basis
+MAS SFA SIP/CKA obligations; DBS retail derivatives control standard
+
+### risk_notes
+Suitability uncertainty requires HITL_RM, not auto-accept.

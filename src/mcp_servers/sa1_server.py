@@ -19,6 +19,13 @@ SA-2 (Node N-1) — Document Collection & Completeness:
  11. sa2_save_completeness_assessment — Persist completeness assessment to DB
  12. sa2_save_gta_validation     — Persist GTA version validation to DB
  13. sa2_complete_node           — Checkpoint + event log + state update for N-1
+
+Read / UI tools:
+ 14. dce_list_cases              — List cases with filters + pagination
+ 15. dce_get_case_detail         — Full case detail (state, classification, checkpoints, RM)
+ 16. dce_get_case_documents      — Documents for a case (staged, OCR, reviews, checklist)
+ 17. dce_get_case_events         — Event log + notification log for a case
+ 18. dce_get_dashboard_kpis      — Aggregate KPIs for dashboard
 """
 
 import json
@@ -1833,6 +1840,350 @@ def sa2_complete_node(
     except Exception as e:
         conn.rollback()
         return {"status": "error", "error": str(e), "checkpoint_id": None}
+    finally:
+        conn.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# READ TOOLS — UI / Workbench data access
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TOOL 14 — dce_list_cases
+# ═══════════════════════════════════════════════════════════════════════════
+@mcp.tool()
+def dce_list_cases(
+    status: str = "",
+    priority: str = "",
+    jurisdiction: str = "",
+    current_node: str = "",
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    """
+    List DCE Account Opening cases with optional filters.
+
+    Parameters
+    ----------
+    status : str — Filter by case status (ACTIVE, HITL_PENDING, ESCALATED, DONE, DEAD). Empty = all.
+    priority : str — Filter by priority (URGENT, STANDARD, DEFERRED). Empty = all.
+    jurisdiction : str — Filter by jurisdiction (SGP, HKG, CHN). Empty = all.
+    current_node : str — Filter by current node (N-0, N-1, N-2, etc.). Empty = all.
+    limit : int — Max rows to return (default 50).
+    offset : int — Pagination offset (default 0).
+
+    Returns
+    -------
+    dict with keys: cases (list), total (int), limit, offset
+    """
+    conn = _get_conn()
+    try:
+        with conn.cursor() as cur:
+            where_clauses = []
+            params = []
+            if status:
+                where_clauses.append("status = %s")
+                params.append(status)
+            if priority:
+                where_clauses.append("priority = %s")
+                params.append(priority)
+            if jurisdiction:
+                where_clauses.append("jurisdiction = %s")
+                params.append(jurisdiction)
+            if current_node:
+                where_clauses.append("current_node = %s")
+                params.append(current_node)
+
+            where_sql = (" WHERE " + " AND ".join(where_clauses)) if where_clauses else ""
+
+            cur.execute(f"SELECT COUNT(*) AS total FROM dce_ao_case_state{where_sql}", params)
+            total = cur.fetchone()["total"]
+
+            cur.execute(
+                f"SELECT * FROM dce_ao_case_state{where_sql} "
+                f"ORDER BY created_at DESC LIMIT %s OFFSET %s",
+                params + [limit, offset],
+            )
+            cases = cur.fetchall()
+
+            # Serialize datetime/JSON fields
+            for c in cases:
+                for k, v in c.items():
+                    if isinstance(v, (datetime.datetime, datetime.date)):
+                        c[k] = v.isoformat()
+
+        return {"cases": cases, "total": total, "limit": limit, "offset": offset}
+    except Exception as e:
+        return {"status": "error", "error": str(e), "cases": []}
+    finally:
+        conn.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TOOL 15 — dce_get_case_detail
+# ═══════════════════════════════════════════════════════════════════════════
+@mcp.tool()
+def dce_get_case_detail(case_id: str) -> dict[str, Any]:
+    """
+    Get full detail for a single DCE case: state, classification,
+    checkpoints, RM hierarchy, and latest completeness assessment.
+
+    Parameters
+    ----------
+    case_id : str — e.g. "AO-2026-000101"
+
+    Returns
+    -------
+    dict with keys: case_state, classification, checkpoints,
+                    rm_hierarchy, completeness_assessment
+    """
+    conn = _get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT * FROM dce_ao_case_state WHERE case_id = %s", (case_id,))
+            case_state = cur.fetchone()
+            if not case_state:
+                return {"status": "error", "error": f"Case {case_id} not found"}
+
+            cur.execute(
+                "SELECT * FROM dce_ao_classification_result WHERE case_id = %s "
+                "ORDER BY classified_at DESC LIMIT 1", (case_id,),
+            )
+            classification = cur.fetchone()
+
+            cur.execute(
+                "SELECT * FROM dce_ao_node_checkpoint WHERE case_id = %s "
+                "ORDER BY started_at ASC", (case_id,),
+            )
+            checkpoints = cur.fetchall()
+
+            cur.execute(
+                "SELECT * FROM dce_ao_rm_hierarchy WHERE case_id = %s", (case_id,),
+            )
+            rm_hierarchy = cur.fetchone()
+
+            cur.execute(
+                "SELECT * FROM dce_ao_completeness_assessment WHERE case_id = %s "
+                "ORDER BY attempt_number DESC LIMIT 1", (case_id,),
+            )
+            completeness = cur.fetchone()
+
+        # Serialize datetimes
+        def _ser(obj):
+            if obj is None:
+                return None
+            if isinstance(obj, list):
+                for row in obj:
+                    for k, v in row.items():
+                        if isinstance(v, (datetime.datetime, datetime.date)):
+                            row[k] = v.isoformat()
+                        elif isinstance(v, __import__("decimal").Decimal):
+                            row[k] = float(v)
+                return obj
+            for k, v in obj.items():
+                if isinstance(v, (datetime.datetime, datetime.date)):
+                    obj[k] = v.isoformat()
+                elif isinstance(v, __import__("decimal").Decimal):
+                    obj[k] = float(v)
+            return obj
+
+        return {
+            "status": "success",
+            "case_state": _ser(case_state),
+            "classification": _ser(classification),
+            "checkpoints": _ser(checkpoints),
+            "rm_hierarchy": _ser(rm_hierarchy),
+            "completeness_assessment": _ser(completeness),
+        }
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+    finally:
+        conn.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TOOL 16 — dce_get_case_documents
+# ═══════════════════════════════════════════════════════════════════════════
+@mcp.tool()
+def dce_get_case_documents(case_id: str) -> dict[str, Any]:
+    """
+    Get all documents for a case: staged docs, OCR results,
+    review decisions, and checklist items.
+
+    Parameters
+    ----------
+    case_id : str — e.g. "AO-2026-000101"
+
+    Returns
+    -------
+    dict with keys: staged_documents, ocr_results, reviews, checklist_items
+    """
+    conn = _get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT * FROM dce_ao_document_staged WHERE case_id = %s "
+                "ORDER BY created_at ASC", (case_id,),
+            )
+            staged = cur.fetchall()
+
+            cur.execute(
+                "SELECT * FROM dce_ao_document_ocr_result WHERE case_id = %s "
+                "ORDER BY processed_at ASC", (case_id,),
+            )
+            ocr = cur.fetchall()
+
+            cur.execute(
+                "SELECT * FROM dce_ao_document_review WHERE case_id = %s "
+                "ORDER BY reviewed_at ASC", (case_id,),
+            )
+            reviews = cur.fetchall()
+
+            cur.execute(
+                "SELECT ci.* FROM dce_ao_document_checklist_item ci "
+                "JOIN dce_ao_document_checklist c ON ci.checklist_id = c.checklist_id "
+                "WHERE c.case_id = %s ORDER BY ci.item_id ASC", (case_id,),
+            )
+            items = cur.fetchall()
+
+        def _ser_list(rows):
+            for row in rows:
+                for k, v in row.items():
+                    if isinstance(v, (datetime.datetime, datetime.date)):
+                        row[k] = v.isoformat()
+                    elif isinstance(v, __import__("decimal").Decimal):
+                        row[k] = float(v)
+            return rows
+
+        return {
+            "status": "success",
+            "staged_documents": _ser_list(staged),
+            "ocr_results": _ser_list(ocr),
+            "reviews": _ser_list(reviews),
+            "checklist_items": _ser_list(items),
+        }
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+    finally:
+        conn.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TOOL 17 — dce_get_case_events
+# ═══════════════════════════════════════════════════════════════════════════
+@mcp.tool()
+def dce_get_case_events(case_id: str, limit: int = 100) -> dict[str, Any]:
+    """
+    Get event log and notification log for a case.
+
+    Parameters
+    ----------
+    case_id : str — e.g. "AO-2026-000101"
+    limit : int — Max events to return (default 100).
+
+    Returns
+    -------
+    dict with keys: events, notifications
+    """
+    conn = _get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT * FROM dce_ao_event_log WHERE case_id = %s "
+                "ORDER BY triggered_at DESC LIMIT %s", (case_id, limit),
+            )
+            events = cur.fetchall()
+
+            cur.execute(
+                "SELECT * FROM dce_ao_notification_log WHERE case_id = %s "
+                "ORDER BY created_at DESC LIMIT %s", (case_id, limit),
+            )
+            notifications = cur.fetchall()
+
+        def _ser_list(rows):
+            for row in rows:
+                for k, v in row.items():
+                    if isinstance(v, (datetime.datetime, datetime.date)):
+                        row[k] = v.isoformat()
+            return rows
+
+        return {
+            "status": "success",
+            "events": _ser_list(events),
+            "notifications": _ser_list(notifications),
+        }
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+    finally:
+        conn.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TOOL 18 — dce_get_dashboard_kpis
+# ═══════════════════════════════════════════════════════════════════════════
+@mcp.tool()
+def dce_get_dashboard_kpis() -> dict[str, Any]:
+    """
+    Aggregate KPIs for the DCE dashboard: case counts by status,
+    priority distribution, SLA compliance, node distribution.
+
+    Returns
+    -------
+    dict with keys: total_cases, by_status, by_priority, by_jurisdiction,
+                    by_node, sla_breaches, avg_duration_seconds
+    """
+    conn = _get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) AS total FROM dce_ao_case_state")
+            total = cur.fetchone()["total"]
+
+            cur.execute(
+                "SELECT status, COUNT(*) AS count FROM dce_ao_case_state GROUP BY status"
+            )
+            by_status = {r["status"]: r["count"] for r in cur.fetchall()}
+
+            cur.execute(
+                "SELECT priority, COUNT(*) AS count FROM dce_ao_case_state GROUP BY priority"
+            )
+            by_priority = {r["priority"]: r["count"] for r in cur.fetchall()}
+
+            cur.execute(
+                "SELECT jurisdiction, COUNT(*) AS count FROM dce_ao_case_state GROUP BY jurisdiction"
+            )
+            by_jurisdiction = {r["jurisdiction"]: r["count"] for r in cur.fetchall()}
+
+            cur.execute(
+                "SELECT current_node, COUNT(*) AS count FROM dce_ao_case_state GROUP BY current_node"
+            )
+            by_node = {r["current_node"]: r["count"] for r in cur.fetchall()}
+
+            cur.execute(
+                "SELECT COUNT(*) AS breaches FROM dce_ao_case_state "
+                "WHERE sla_deadline < NOW() AND status NOT IN ('DONE','DEAD')"
+            )
+            sla_breaches = cur.fetchone()["breaches"]
+
+            cur.execute(
+                "SELECT AVG(duration_seconds) AS avg_dur FROM dce_ao_node_checkpoint "
+                "WHERE status = 'COMPLETE' AND duration_seconds > 0"
+            )
+            avg_row = cur.fetchone()
+            avg_dur = float(avg_row["avg_dur"]) if avg_row and avg_row["avg_dur"] else 0
+
+        return {
+            "status": "success",
+            "total_cases": total,
+            "by_status": by_status,
+            "by_priority": by_priority,
+            "by_jurisdiction": by_jurisdiction,
+            "by_node": by_node,
+            "sla_breaches": sla_breaches,
+            "avg_duration_seconds": round(avg_dur, 1),
+        }
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
     finally:
         conn.close()
 
