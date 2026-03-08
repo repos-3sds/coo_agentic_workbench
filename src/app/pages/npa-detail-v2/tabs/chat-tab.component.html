@@ -36,7 +36,7 @@
           placeholder="Ask the AI agents about this NPA..."
           class="flex-1 px-4 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all" />
         <button (click)="sendChat()"
-          class="p-2.5 rounded-xl bg-dbs-primary text-white hover:bg-dbs-primary-hover transition-colors shadow-sm"
+          class="p-2.5 rounded-xl bg-mbs-primary text-white hover:bg-mbs-primary-hover transition-colors shadow-sm"
           [class.opacity-50]="!chatInput.trim()"
           [disabled]="!chatInput.trim()">
           <lucide-icon name="send" class="w-4 h-4"></lucide-icon>

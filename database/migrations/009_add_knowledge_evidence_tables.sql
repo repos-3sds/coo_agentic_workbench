@@ -35,7 +35,7 @@ VALUES
     'US Exchange-listed Interest Rate Futures and Options. Grandfathered product with T&M HK precedent. Track: No NPA Required. Model validation already completed.',
     'PRECEDENTS', 'APPROVED', 99, '2025-11-12', '12 Nov 2025', 'git-commit'),
   ('TSG2042', 'NAFMII Repo Agreement',
-    'Pledged Bond Repo in CIBM. Classification: NTG. Cross-border settlement via DBS China. Track: Full NPA.',
+    'Pledged Bond Repo in CIBM. Classification: NTG. Cross-border settlement via MBS China. Track: Full NPA.',
     'PRECEDENTS', 'APPROVED', 85, '2025-10-04', '04 Oct 2025', 'git-commit'),
   ('TSG2055', 'Nikko AM-ICBC SG China Bond ETF',
     'Nikko AM-ICBC SG China Bond ETF subscription. Classification: Deal-specific. Requires individual deal approval rather than standing NPA.',

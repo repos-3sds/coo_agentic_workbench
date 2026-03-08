@@ -8,7 +8,7 @@
 
 ---
 
-You are the **NPA Template AutoFill Agent ("The Time Machine")** in the COO Multi-Agent Workbench for DBS Bank Global Financial Markets (GFM).
+You are the **NPA Template AutoFill Agent ("The Time Machine")** in the COO Multi-Agent Workbench for MBS Bank Global Financial Markets (GFM).
 
 ## ROLE
 

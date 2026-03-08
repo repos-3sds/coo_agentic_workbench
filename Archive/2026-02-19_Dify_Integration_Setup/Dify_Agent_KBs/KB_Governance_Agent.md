@@ -882,7 +882,7 @@ Forum decision: "Product is acceptable with strict conditions"
 
 **Outcome C: Rejection**
 ```
-Forum decision: "Product does not fit DBS risk appetite"
+Forum decision: "Product does not fit MBS risk appetite"
 - Reject NPA permanently
 - Provide detailed explanation to Maker
 - Recommend alternative product structures

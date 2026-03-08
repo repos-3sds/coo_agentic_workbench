@@ -5,7 +5,7 @@
 **Last Updated:** February 19, 2026
 **Purpose:** Consolidated policy reference for LLM agents covering ALL NPA policies, procedures, and governance
 **Source of Truth:** NPA Business Process Deep Knowledge Report (2026-02-18), Architecture Gap Register (44 rules R01-R44)
-**Policy Hierarchy:** NPA Policy > NPA Standard (DBS_10_S_0012_GR) > GFM NPA SOP — Where they differ, the STRICTER requirement prevails
+**Policy Hierarchy:** NPA Policy > NPA Standard (MBS_10_S_0012_GR) > GFM NPA SOP — Where they differ, the STRICTER requirement prevails
 
 ---
 
@@ -43,13 +43,13 @@
 ### 1.1 Purpose
 
 **New Product Approval (NPA) Policy establishes:**
-- Controls and governance for introducing new products/services across DBS Group
+- Controls and governance for introducing new products/services across MBS Group
 - Standards for changes to existing products/services
 - Risk assessment and sign-off requirements
 
 **Scope:**
 - **Applicable to:** ALL Business Units (BUs), Support Units (SUs), branches, subsidiaries in ALL locations
-- **Geographic:** Singapore, Hong Kong, London, India, and all other DBS locations
+- **Geographic:** Singapore, Hong Kong, London, India, and all other MBS locations
 - **Product Types:** Financial products, services, initiatives (principal, agent, intermediary, advisor roles)
 
 ---
@@ -61,7 +61,7 @@ NPA is governed by three layers. Where they conflict, the **stricter** requireme
 | Priority | Document | Owner | Scope |
 |----------|----------|-------|-------|
 | 1 (Highest) | **New Product Approval Policy** | Group | Overarching group policy |
-| 2 | **NPA Standard** (DBS_10_S_0012_GR) | RMG-OR | Detailed standard issued by Risk Management Group |
+| 2 | **NPA Standard** (MBS_10_S_0012_GR) | RMG-OR | Detailed standard issued by Risk Management Group |
 | 3 | **GFM NPA Standard Operating Procedures** | GFM COO | GFM-specific rules — STRICTER than group standard in several areas |
 
 **Critical rule:** Where the GFM SOP and the Group Standard differ, the stricter requirement prevails.
@@ -70,13 +70,13 @@ NPA is governed by three layers. Where they conflict, the **stricter** requireme
 
 ### 1.3 Regulatory Primacy Rule
 
-**If DBS policy differs from regulatory requirements:**
+**If MBS policy differs from regulatory requirements:**
 - **The STRICTER requirement prevails** (always more conservative)
 - RMG-OR (Risk Management Group - Operational Risk) must be notified
 
 **Examples:**
-- MAS requires 30-day approval timeline, DBS policy requires 20 days → Use 20 days
-- Local regulation allows 2-year validity, DBS allows 1 year → Use 1 year
+- MAS requires 30-day approval timeline, MBS policy requires 20 days → Use 20 days
+- Local regulation allows 2-year validity, MBS allows 1 year → Use 1 year
 
 ---
 
@@ -85,7 +85,7 @@ NPA is governed by three layers. Where they conflict, the **stricter** requireme
 ### 2.1 What is a "New Product/Service"?
 
 **Definition:**
-Any product or service DBS Group intends to offer as principal, agent, intermediary, or advisor.
+Any product or service MBS Group intends to offer as principal, agent, intermediary, or advisor.
 
 **Three Main Categories:**
 
@@ -94,19 +94,19 @@ Any product or service DBS Group intends to offer as principal, agent, intermedi
 ### 2.1.1 New-to-Group (NTG) [R03, R11, R16]
 
 **Definition:**
-Product/service DBS Group has NEVER done before — in any entity, in any form, in any location.
+Product/service MBS Group has NEVER done before — in any entity, in any form, in any location.
 
 **Criteria (ANY triggers NTG classification):**
 
 **Category A: New Businesses/Products**
 - New businesses, initiatives, products, financial instruments, services
-- **Example:** Credit Default Swaps (CDS) - DBS has never traded CDS → NTG
-- **Example:** Cryptocurrency derivatives - DBS has never offered crypto products → NTG
+- **Example:** Credit Default Swaps (CDS) - MBS has never traded CDS → NTG
+- **Example:** Cryptocurrency derivatives - MBS has never offered crypto products → NTG
 
 **Category B: New Roles**
 - New roles within business/product group
 - **Roles:** Origination, trading as principal, distribution, agency, custodian, operating an exchange, providing operations support
-- **Example:** DBS distributes FX Options, but never traded as principal → NTG (huge risk shift)
+- **Example:** MBS distributes FX Options, but never traded as principal → NTG (huge risk shift)
 - **Example:** First time acting as custodian for mutual funds → NTG
 
 **Category C: New Channels/Segments/Markets**
@@ -178,7 +178,7 @@ Modification to existing product/service that **alters risk profile** for custom
 ### 2.1.3 Existing [R05]
 
 **Definition:**
-Products/services already approved elsewhere in DBS, but new to specific context.
+Products/services already approved elsewhere in MBS, but new to specific context.
 
 **Three Sub-Types:**
 
@@ -235,7 +235,7 @@ Products/services already approved elsewhere in DBS, but new to specific context
 ### Stage 1: What IS This Product? (Ontology)
 
 Determine the fundamental nature of the product:
-- **New-to-Group (NTG)** — Never done before anywhere in DBS Group
+- **New-to-Group (NTG)** — Never done before anywhere in MBS Group
 - **Variation** — Modification that alters risk profile
 - **Existing** — Already approved elsewhere, new context
 
@@ -345,7 +345,7 @@ Standard vanilla products "always on" for 3 years (see Section 21).
 **No exceptions without Compliance/EVP review.**
 
 **Three Prohibition Layers:**
-1. **Internal bank policy** — Products DBS has decided not to offer (risk appetite, reputational)
+1. **Internal bank policy** — Products MBS has decided not to offer (risk appetite, reputational)
 2. **Regulatory restrictions** — MAS, CFTC, FCA, local regulators
 3. **Sanctions/embargoes** — OFAC SDN, UN Security Council, EU, MAS (zero tolerance, criminal liability)
 
@@ -765,7 +765,7 @@ Step 5: Validity extended by +6 months
 - The date the product is first marketed AND resulted in a sale/offer, OR
 - The first trade date
 
-**NOT Launch:** Merely indicating DBS interest to customer (not yet launched)
+**NOT Launch:** Merely indicating MBS interest to customer (not yet launched)
 
 ---
 
@@ -1026,7 +1026,7 @@ Level 4: Relevant committees (GFM NPA Governance Forum)
 - Ongoing review records
 
 **Storage:** Bank's operational risk management system (centralized)
-**Retention:** Per DBS record retention policy
+**Retention:** Per MBS record retention policy
 
 ---
 
@@ -1047,7 +1047,7 @@ Level 4: Relevant committees (GFM NPA Governance Forum)
 
 | Type | Description | PAC Required | SOPs |
 |------|-------------|-------------|------|
-| **Full NPA (NTG)** | Product DBS has never done before | YES | All 7 |
+| **Full NPA (NTG)** | Product MBS has never done before | YES | All 7 |
 | **Full NPA (Non-NTG)** | Significant variation, high risk/complexity | NO | All 7 |
 | **NPA Lite** | Low/medium risk variation, existing product, dormant <3yr | NO | Reduced (2-3) |
 | **Evergreen** | Pre-approved standard products, auto-approved if within limits | NO | None (log-only) |
@@ -1095,7 +1095,7 @@ Level 4: Relevant committees (GFM NPA Governance Forum)
 2. **No significant changes** since last approval/trade
 3. **Back-to-back basis** (hedged trades) with professional counterparty
 4. **Vanilla in nature** (foundation product, all variants built upon it)
-5. **Liquidity management** products (including DBS Group Holdings)
+5. **Liquidity management** products (including MBS Group Holdings)
 6. **Exchange products** hedging customer trades
 7. **ABS deals** (origination to meet client demand)
 8. **Validity active** (within 3-year period)

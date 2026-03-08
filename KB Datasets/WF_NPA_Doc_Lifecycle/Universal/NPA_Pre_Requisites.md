@@ -19,7 +19,7 @@ This document outlines the comprehensive pre-requisite framework that must be co
 
 #### Pre-Check Requirements:
 - [ ] **Strategic Alignment Assessment**
-  - Product aligns with DBS strategic priorities
+  - Product aligns with MBS strategic priorities
   - Supports digital transformation objectives
   - Contributes to customer experience enhancement
   - Fits within approved business unit mandates
@@ -82,7 +82,7 @@ This document outlines the comprehensive pre-requisite framework that must be co
 #### Classification Decision Tree:
 
 ```
-START → Is this product completely new to DBS Group?
+START → Is this product completely new to MBS Group?
 ├── YES → NEW-TO-GROUP (NTG)
 │   ├── Criteria Met: >50% of NTG indicators
 │   ├── Process: Full NPA Required

@@ -474,7 +474,7 @@ test_tool("log_routing_decision", {
     "source_agent": "classification-agent", "target_agent": "autofill-agent",
     "routing_reason": "Classification complete, proceeding to form fill", "confidence": 92,
 })
-test_tool("get_user_profile", {"email": "ahmad.razak@dbs.com"})
+test_tool("get_user_profile", {"email": "ahmad.razak@mbs.com"})
 print()
 
 # ═══════════════════════════════════════════════════════════════════

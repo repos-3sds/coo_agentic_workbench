@@ -469,7 +469,7 @@ workflow:
             \ (max 50 words per value). Do NOT write essays or long paragraphs. Focus\
             \ on accuracy and specifics, not verbose explanations. The total JSON\
             \ output must stay under 6000 tokens.\n\nYou are BRANCH A of the NPA Template\
-            \ AutoFill Agent in the COO Multi-Agent Workbench for DBS Bank Global\
+            \ AutoFill Agent in the COO Multi-Agent Workbench for MBS Bank Global\
             \ Financial Markets (GFM).\n\nBRANCH ASSIGNMENT: You fill ONLY these sections:\n\
             - Part C, Section I: Product Specifications (~18 fields: product_name,\
             \ product_type, product_category, underlying_asset, booking_entity, pac_reference,\
@@ -644,7 +644,7 @@ workflow:
             \ (max 50 words per value). Do NOT write essays or long paragraphs. Focus\
             \ on accuracy and specifics, not verbose explanations. The total JSON\
             \ output must stay under 6000 tokens.\n\nYou are BRANCH B of the NPA Template\
-            \ AutoFill Agent in the COO Multi-Agent Workbench for DBS Bank Global\
+            \ AutoFill Agent in the COO Multi-Agent Workbench for MBS Bank Global\
             \ Financial Markets (GFM).\n\nBRANCH ASSIGNMENT: You fill ONLY these sections:\n\
             - Part C, Section III: Pricing Model (~8 fields: pricing_methodology,\
             \ fee_structure, margin_analysis, roae_analysis, pricing_benchmarks, revenue_projections,\
@@ -788,7 +788,7 @@ workflow:
             \ (max 50 words per value). Do NOT write essays or long paragraphs. Focus\
             \ on accuracy and specifics, not verbose explanations. The total JSON\
             \ output must stay under 6000 tokens.\n\nYou are BRANCH C of the NPA Template\
-            \ AutoFill Agent in the COO Multi-Agent Workbench for DBS Bank Global\
+            \ AutoFill Agent in the COO Multi-Agent Workbench for MBS Bank Global\
             \ Financial Markets (GFM).\n\nBRANCH ASSIGNMENT: You fill ONLY these sections:\n\
             - Part C, Section IV: Risk Analysis (~35 fields — the LARGEST section).\
             \ Sub-sections:\n  - IV.A: Credit Risk (credit_risk, counterparty_exposure,\

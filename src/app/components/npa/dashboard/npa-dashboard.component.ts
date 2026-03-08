@@ -83,7 +83,7 @@ import { KbListOverlayComponent } from './kb-list-overlay.component';
 
            <!-- Primary CTA -->
           <div class="flex flex-col gap-3 w-full md:w-[420px]">
-             <button (click)="onCreateNew()" class="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-dbs-primary hover:bg-dbs-primary-hover text-white rounded-xl font-bold text-lg shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 focus:ring-4 focus:ring-blue-100">
+             <button (click)="onCreateNew()" class="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-mbs-primary hover:bg-mbs-primary-hover text-white rounded-xl font-bold text-lg shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 focus:ring-4 focus:ring-blue-100">
                 <lucide-icon name="message-square" class="w-6 h-6"></lucide-icon>
                 Chat with Agent
                 <span class="absolute right-0 top-0 -mt-1 -mr-1 flex h-3 w-3">
@@ -93,13 +93,13 @@ import { KbListOverlayComponent } from './kb-list-overlay.component';
              </button>
              
              <div class="grid grid-cols-2 gap-2">
-                <button *ngIf="userRole() === 'MAKER'" (click)="onContinueDraft()" class="px-4 py-2 bg-white border border-dbs-border text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors flex items-center justify-center gap-2 whitespace-nowrap">
+                <button *ngIf="userRole() === 'MAKER'" (click)="onContinueDraft()" class="px-4 py-2 bg-white border border-mbs-border text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors flex items-center justify-center gap-2 whitespace-nowrap">
                    <lucide-icon name="file-edit" class="w-3.5 h-3.5"></lucide-icon> Continue Draft
                 </button>
-                <button *ngIf="userRole() !== 'MAKER'" (click)="onOpenWorkspaceInbox()" class="px-4 py-2 bg-white border border-dbs-border text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors flex items-center justify-center gap-2 whitespace-nowrap">
+                <button *ngIf="userRole() !== 'MAKER'" (click)="onOpenWorkspaceInbox()" class="px-4 py-2 bg-white border border-mbs-border text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors flex items-center justify-center gap-2 whitespace-nowrap">
                    <lucide-icon name="inbox" class="w-3.5 h-3.5"></lucide-icon> My Inbox
                 </button>
-                <button (click)="onSearchKb()" class="px-4 py-2 bg-white border border-dbs-border text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors flex items-center justify-center gap-2 whitespace-nowrap">
+                <button (click)="onSearchKb()" class="px-4 py-2 bg-white border border-mbs-border text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors flex items-center justify-center gap-2 whitespace-nowrap">
                    <lucide-icon name="search" class="w-3.5 h-3.5"></lucide-icon> Search KB
                 </button>
              </div>

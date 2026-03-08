@@ -1332,14 +1332,14 @@ Action:
 
 **Option C: Reject as Unsuitable**
 ```
-Forum Decision: "Product is not suitable for DBS risk appetite."
+Forum Decision: "Product is not suitable for MBS risk appetite."
 
 Action:
   - Record rejection reason: "Product complexity exceeds capabilities, 
                               multiple operational issues identified"
   - Transition to Rejected (terminal)
   - Notify Maker: "Forum has rejected NPA after 3 iterations. 
-                   Product not suitable for DBS at this time."
+                   Product not suitable for MBS at this time."
 ```
 
 ---

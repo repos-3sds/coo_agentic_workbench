@@ -34,7 +34,7 @@ Think of the database as a **giant filing cabinet** with different drawers for d
 ```
 Users Drawer (already exists):
 ├─ Name: Sarah Lim
-├─ Email: sarah.lim@dbs.com
+├─ Email: sarah.lim@mbs.com
 ├─ Department: Singapore FX Desk
 ├─ Role: MAKER
 └─ Can create NPAs: YES
@@ -135,7 +135,7 @@ ML Prediction Agent Decision:
 ```
 NPA Drawer (UPDATED):
 ├─ Is Cross-Border: YES
-├─ Booking Entities: ["DBS Singapore", "DBS Hong Kong"]
+├─ Booking Entities: ["MBS Singapore", "MBS Hong Kong"]
 └─ Location: Singapore
 
 Agent Decision Drawer (NEW ENTRY):

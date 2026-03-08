@@ -124,7 +124,7 @@ export const MOCK_RISK: RiskAssessment = {
   layers: [
     {
       name: 'Internal Policy', status: 'PASS',
-      details: 'Complies with DBS commodity finance policy 2025.',
+      details: 'Complies with MBS commodity finance policy 2025.',
       checks: [
         { name: 'Approved counterparty list', status: 'PASS',    detail: 'PT Borneo Agri is on the approved list.' },
         { name: 'Notional limit check',       status: 'WARNING', detail: 'Within limit but uses 78% of available capacity.' },
@@ -377,7 +377,7 @@ export const MOCK_DRAFT_AGENT_MESSAGES: DraftAgentMessage[] = [
   { id: 'da2', role: 'agent', agentTeam: 'Business',       text: 'Section I (Product Specifications) is 85% complete. Key gaps: PAC conditions (waiting for PAC meeting outcome) and marketing plan. Revenue projections are AI-generated with 72-75% confidence — please verify with Finance.', timestamp: '10:16 AM', citations: ['Classification Agent Output', 'FY2026 Revenue Model v2'] },
   { id: 'da3', role: 'user',                                text: 'Can you help fill in the NTG justification field?',                                                                                                                                                              timestamp: '10:18 AM' },
   { id: 'da4', role: 'agent', agentTeam: 'Business',       text: 'Done. I\'ve drafted the NTG justification based on the classification agent output. The key differentiators are: (1) structured commodity pledge with cross-border Indonesian collateral — not present in existing product taxonomy, (2) revolving + term hybrid structure differs from standard TF templates. Confidence: 91%.', timestamp: '10:18 AM', citations: ['NPA Policy Manual v4.2, Section 2.3', 'Product Taxonomy 2026'] },
-  { id: 'da5', role: 'agent', agentTeam: 'Risk Mgmt',     text: 'Section IV (Risk Analysis) partially pre-filled from risk assessment agent. Credit risk, market risk, and reputational risk sections are complete. Still missing: "Regulatory Capital Requirements" (PC.IV.B.3) and "Large Exposure Rules" (PC.IV.C.6) — these require Finance VP input.',                                 timestamp: '10:22 AM', citations: ['Risk Assessment Output (Score: 62/100)', 'DBS Risk Appetite Statement Q1 2026'] },
+  { id: 'da5', role: 'agent', agentTeam: 'Risk Mgmt',     text: 'Section IV (Risk Analysis) partially pre-filled from risk assessment agent. Credit risk, market risk, and reputational risk sections are complete. Still missing: "Regulatory Capital Requirements" (PC.IV.B.3) and "Large Exposure Rules" (PC.IV.C.6) — these require Finance VP input.',                                 timestamp: '10:22 AM', citations: ['Risk Assessment Output (Score: 62/100)', 'MBS Risk Appetite Statement Q1 2026'] },
   { id: 'da6', role: 'agent', agentTeam: 'Legal & Compl.', text: 'Appendix 3 (Financial Crime) pre-filled. AML assessment and sanctions screening are auto-populated from compliance systems. FC risk rating set to Medium based on commodity sector + cross-border factors. Please review fraud risk section.',                                                                              timestamp: '10:25 AM', citations: ['Sanctions Screening Report (Feb 2026)', 'AML Policy Framework v5.1'] },
   { id: 'da7', role: 'user',                                text: 'What about the operational adequacy section? Ops team flagged some concerns.',                                                                                                                                    timestamp: '10:28 AM' },
   { id: 'da8', role: 'agent', agentTeam: 'Tech & Ops',     text: 'I\'ve flagged 3 manual workarounds in Section II.1.f. The ops adequacy checklist (II.1.c) shows: staffing needs 2 additional ops staff for Q2, process docs are 80% complete, and system readiness is partial (Q3 enhancement pending). Raj Patel from Ops has left a comment confirming the Q3 timeline is on track.',    timestamp: '10:29 AM', citations: ['Ops Readiness Assessment (Feb 2026)', 'TFP Enhancement Roadmap Q2-Q3'] },
@@ -404,11 +404,11 @@ export const MOCK_DRAFT_SECTIONS: DraftSection[] = [
         fields: [
           { key: 'business_rationale', label: 'Purpose / Rationale for Proposal', type: 'textarea', value: 'A structured commodity trade finance facility designed to support palm oil and rubber export operations across Indonesia, Malaysia, and Singapore.', required: true, strategy: 'LLM', lineage: 'AUTO', confidence: 0.88, guidance: 'Describe the purpose or rationale — what are the benefits to customers or BU/SU? Address the problem statement and value proposition.', nodeId: 'PC.I.1.a', maxLength: 2000 },
           { key: 'problem_statement', label: 'Problem Statement', type: 'textarea', value: 'Current commodity trade finance products do not support cross-border collateral structures with Indonesian pledge mechanisms.', required: false, strategy: 'LLM', lineage: 'AUTO', confidence: 0.85, nodeId: 'PC.I.1.a' },
-          { key: 'value_proposition', label: 'Value Proposition', type: 'textarea', value: 'Enables DBS to capture commodity trade flows across ASEAN with a single integrated facility.', required: false, strategy: 'LLM', lineage: 'AUTO', confidence: 0.83, nodeId: 'PC.I.1.a' },
+          { key: 'value_proposition', label: 'Value Proposition', type: 'textarea', value: 'Enables MBS to capture commodity trade flows across ASEAN with a single integrated facility.', required: false, strategy: 'LLM', lineage: 'AUTO', confidence: 0.83, nodeId: 'PC.I.1.a' },
           { key: 'customer_benefit', label: 'Benefits to Customers', type: 'textarea', value: 'Single-facility access to revolving credit, pre-export financing, and receivables discounting across 3 jurisdictions.', required: false, strategy: 'LLM', lineage: 'AUTO', confidence: 0.86, nodeId: 'PC.I.1.a' },
           { key: 'bu_benefit', label: 'Benefits to Business Unit', type: 'textarea', value: 'Expands IBG commodity trade finance franchise across ASEAN. Estimated incremental revenue of USD 4.5M in Year 1.', required: false, strategy: 'LLM', lineage: 'AUTO', confidence: 0.80, nodeId: 'PC.I.1.a' },
           { key: 'competitive_landscape', label: 'Competitive Landscape', type: 'textarea', value: 'Limited competition in cross-border commodity pledge space. OCBC and UOB offer simpler bilateral facilities without cross-border collateral.', required: false, strategy: 'LLM', lineage: 'AUTO', confidence: 0.77, nodeId: 'PC.I.1.a' },
-          { key: 'market_opportunity', label: 'Market Opportunity', type: 'textarea', value: 'ASEAN palm oil trade valued at USD 28B annually. DBS market share currently 4.2%, target 6% within 3 years.', required: false, strategy: 'LLM', lineage: 'AUTO', confidence: 0.74, nodeId: 'PC.I.1.a' },
+          { key: 'market_opportunity', label: 'Market Opportunity', type: 'textarea', value: 'ASEAN palm oil trade valued at USD 28B annually. MBS market share currently 4.2%, target 6% within 3 years.', required: false, strategy: 'LLM', lineage: 'AUTO', confidence: 0.74, nodeId: 'PC.I.1.a' },
           { key: 'product_name', label: 'Product / Service Name', type: 'text', value: 'Structured Commodity Trade Finance Facility', required: true, strategy: 'RULE', lineage: 'AUTO', confidence: 0.95, nodeId: 'PC.I.1.b' },
           { key: 'product_type', label: 'Product Type', type: 'dropdown', value: 'Trade Finance', required: true, strategy: 'RULE', lineage: 'AUTO', options: ['Derivative', 'Structured Product', 'Loan', 'Bond', 'Fund', 'Insurance', 'Digital Asset', 'Trade Finance', 'Other'], nodeId: 'PC.I.1.b' },
           { key: 'underlying_asset', label: 'Underlying Asset', type: 'text', value: 'Palm Oil (CPO) & Rubber', required: false, strategy: 'LLM', lineage: 'AUTO', confidence: 0.92, nodeId: 'PC.I.1.b' },
@@ -457,7 +457,7 @@ export const MOCK_DRAFT_SECTIONS: DraftSection[] = [
         id: 'PC.I.3', numbering: '3', label: 'Commercialization Approach',
         guidance: 'Distribution channels, sales suitability, marketing, sales surveillance, and staff training.',
         fields: [
-          { key: 'distribution_channels', label: 'Channel Availability', type: 'multiselect', value: 'DBS Bank,Direct Sales', required: true, strategy: 'COPY', lineage: 'AUTO', options: ['DBS Bank', 'DBSV', 'DBS Treasures', 'DBS Private Bank', 'digibank', 'Third Party Distributors', 'Direct Sales'], nodeId: 'PC.I.3.a' },
+          { key: 'distribution_channels', label: 'Channel Availability', type: 'multiselect', value: 'MBS Bank,Direct Sales', required: true, strategy: 'COPY', lineage: 'AUTO', options: ['MBS Bank', 'MBSV', 'MBS Treasures', 'MBS Private Bank', 'digibank', 'Third Party Distributors', 'Direct Sales'], nodeId: 'PC.I.3.a' },
           { key: 'channel_rationale', label: 'Multi-Channel Rationale', type: 'textarea', value: 'IBG direct origination for corporate clients. Financial institution clients via FICC desk.', required: false, strategy: 'LLM', lineage: 'AUTO', confidence: 0.78, nodeId: 'PC.I.3.a' },
           { key: 'sales_suitability', label: 'Sales Suitability & Onboarding', type: 'textarea', value: 'Standard IBG onboarding process with enhanced CDD for commodity clients. KYC review at origination and annual refresh.', required: false, strategy: 'COPY', lineage: 'AUTO', confidence: 0.85, nodeId: 'PC.I.3.b' },
           { key: 'onboarding_process', label: 'Customer Onboarding Process', type: 'textarea', value: 'CDD/KYC → Credit Assessment → Facility Documentation → System Setup → Drawdown Activation', required: false, strategy: 'COPY', lineage: 'ADAPTED', confidence: 0.82, nodeId: 'PC.I.3.b' },
@@ -634,7 +634,7 @@ export const MOCK_DRAFT_SECTIONS: DraftSection[] = [
         guidance: 'Legal & compliance, finance & tax, financial crimes, and funding liquidity risk.',
         fields: [
           { key: 'legal_opinion', label: 'Legal Opinion', type: 'textarea', value: 'English law governing agreement with Indonesian pledge perfection under local law. Separate opinion required for OJK regulatory matters.', required: true, strategy: 'COPY', lineage: 'AUTO', confidence: 0.84, nodeId: 'PC.IV.A.1' },
-          { key: 'licensing_requirements', label: 'Licensing Requirements', type: 'textarea', value: 'DBS holds all required MAS licenses. OJK foreign lending license obtained for Indonesia operations.', required: false, strategy: 'LLM', lineage: 'AUTO', confidence: 0.87, nodeId: 'PC.IV.A.1' },
+          { key: 'licensing_requirements', label: 'Licensing Requirements', type: 'textarea', value: 'MBS holds all required MAS licenses. OJK foreign lending license obtained for Indonesia operations.', required: false, strategy: 'LLM', lineage: 'AUTO', confidence: 0.87, nodeId: 'PC.IV.A.1' },
           { key: 'primary_regulation', label: 'Primary Regulation', type: 'text', value: 'MAS Notice 757 (Capital Adequacy)', required: false, strategy: 'RULE', lineage: 'AUTO', nodeId: 'PC.IV.A.1' },
           { key: 'secondary_regulations', label: 'Secondary Regulations', type: 'bullet_list', value: '', required: false, strategy: 'LLM', lineage: 'AUTO', bulletItems: ['OJK Regulation on Foreign Lending', 'FATCA/CRS Reporting', 'MAS AML/CFT Notice 626'], nodeId: 'PC.IV.A.1' },
           { key: 'regulatory_reporting', label: 'Regulatory Reporting Obligations', type: 'textarea', value: 'MAS 610 quarterly, FATCA/CRS annual, OJK monthly foreign lending report, Bank Indonesia capital flows report.', required: false, strategy: 'LLM', lineage: 'AUTO', confidence: 0.84, nodeId: 'PC.IV.A.1' },
@@ -693,7 +693,7 @@ export const MOCK_DRAFT_SECTIONS: DraftSection[] = [
         id: 'PC.IV.D', numbering: 'D', label: 'Reputational Risk',
         guidance: 'Reputational risk exposure, negative impact assessment, and ESG classification.',
         fields: [
-          { key: 'reputational_risk', label: 'Reputational Risk Assessment', type: 'textarea', value: 'Palm oil sector carries ESG concerns. Mitigated by counterparty\'s RSPO certification and DBS sustainability framework compliance.', required: true, strategy: 'LLM', lineage: 'AUTO', confidence: 0.83, nodeId: 'PC.IV.D' },
+          { key: 'reputational_risk', label: 'Reputational Risk Assessment', type: 'textarea', value: 'Palm oil sector carries ESG concerns. Mitigated by counterparty\'s RSPO certification and MBS sustainability framework compliance.', required: true, strategy: 'LLM', lineage: 'AUTO', confidence: 0.83, nodeId: 'PC.IV.D' },
           { key: 'esg_assessment', label: 'ESG Assessment', type: 'textarea', value: 'RSPO-certified supply chain. No deforestation pledge. Carbon footprint monitoring in place.', required: false, strategy: 'LLM', lineage: 'AUTO', confidence: 0.81, nodeId: 'PC.IV.D' },
           { key: 'esg_classification', label: 'ESG Classification', type: 'dropdown', value: 'Transition', required: false, strategy: 'LLM', lineage: 'AUTO', options: ['Green', 'Social', 'Sustainable', 'Transition', 'Not Applicable'], nodeId: 'PC.IV.D' },
         ]
@@ -712,7 +712,7 @@ export const MOCK_DRAFT_SECTIONS: DraftSection[] = [
         id: 'PC.V.1', numbering: '1', label: 'Design for Data (D4D)',
         guidance: 'Data governance, ownership, stewardship, quality monitoring, and GDPR compliance.',
         fields: [
-          { key: 'data_governance', label: 'Data Governance Framework', type: 'textarea', value: 'Standard DBS data governance framework applies. Data steward: Head of Trade Finance Operations.', required: false, strategy: 'COPY', lineage: 'AUTO', confidence: 0.85, nodeId: 'PC.V.1' },
+          { key: 'data_governance', label: 'Data Governance Framework', type: 'textarea', value: 'Standard MBS data governance framework applies. Data steward: Head of Trade Finance Operations.', required: false, strategy: 'COPY', lineage: 'AUTO', confidence: 0.85, nodeId: 'PC.V.1' },
           { key: 'data_ownership', label: 'Data Ownership', type: 'text', value: 'IBG Trade Finance', required: false, strategy: 'COPY', lineage: 'AUTO', nodeId: 'PC.V.1' },
           { key: 'data_quality', label: 'Data Quality Monitoring', type: 'textarea', value: 'Automated data quality checks at T+0. Exception reporting for data anomalies. Monthly data quality MI dashboard.', required: false, strategy: 'COPY', lineage: 'AUTO', confidence: 0.80, nodeId: 'PC.V.1' },
           { key: 'data_privacy', label: 'Data Privacy Assessment', type: 'textarea', value: 'PDPA compliant. Cross-border data transfer under SCC framework for Indonesia/Singapore.', required: false, strategy: 'COPY', lineage: 'AUTO', confidence: 0.82, nodeId: 'PC.V.1' },
@@ -772,11 +772,11 @@ export const MOCK_DRAFT_SECTIONS: DraftSection[] = [
   {
     id: 'APP.1', label: 'Entity / Location', numbering: 'Appendix 1', owner: 'LCS', icon: 'building',
     fields: [
-      { key: 'sales_entity', label: 'Sales / Origination Entity', type: 'text', value: 'DBS Bank Ltd, Singapore', required: true, strategy: 'RULE', lineage: 'AUTO', nodeId: 'APP.1' },
-      { key: 'booking_entity', label: 'Booking Entity', type: 'text', value: 'DBS Bank Ltd, Singapore (Head Office)', required: true, strategy: 'RULE', lineage: 'AUTO', nodeId: 'APP.1' },
-      { key: 'risk_taking_entity', label: 'Risk Taking Entity', type: 'text', value: 'DBS Bank Ltd, Singapore', required: true, strategy: 'RULE', lineage: 'AUTO', nodeId: 'APP.1' },
-      { key: 'processing_entity', label: 'Processing Entity', type: 'text', value: 'DBS Bank Ltd, Singapore — Trade Finance Operations', required: false, strategy: 'RULE', lineage: 'AUTO', nodeId: 'APP.1' },
-      { key: 'hedge_entity', label: 'Hedging Entity', type: 'text', value: 'DBS Bank Ltd, Singapore — Treasury', required: false, strategy: 'RULE', lineage: 'AUTO', nodeId: 'APP.1' },
+      { key: 'sales_entity', label: 'Sales / Origination Entity', type: 'text', value: 'MBS Bank Ltd, Singapore', required: true, strategy: 'RULE', lineage: 'AUTO', nodeId: 'APP.1' },
+      { key: 'booking_entity', label: 'Booking Entity', type: 'text', value: 'MBS Bank Ltd, Singapore (Head Office)', required: true, strategy: 'RULE', lineage: 'AUTO', nodeId: 'APP.1' },
+      { key: 'risk_taking_entity', label: 'Risk Taking Entity', type: 'text', value: 'MBS Bank Ltd, Singapore', required: true, strategy: 'RULE', lineage: 'AUTO', nodeId: 'APP.1' },
+      { key: 'processing_entity', label: 'Processing Entity', type: 'text', value: 'MBS Bank Ltd, Singapore — Trade Finance Operations', required: false, strategy: 'RULE', lineage: 'AUTO', nodeId: 'APP.1' },
+      { key: 'hedge_entity', label: 'Hedging Entity', type: 'text', value: 'MBS Bank Ltd, Singapore — Treasury', required: false, strategy: 'RULE', lineage: 'AUTO', nodeId: 'APP.1' },
       { key: 'governing_law', label: 'Governing Law', type: 'dropdown', value: 'English Law', required: true, strategy: 'COPY', lineage: 'AUTO', options: ['English Law', 'Singapore Law', 'New York Law', 'Hong Kong Law', 'Local Law'], nodeId: 'APP.1' },
     ],
     subSections: []
@@ -788,7 +788,7 @@ export const MOCK_DRAFT_SECTIONS: DraftSection[] = [
   {
     id: 'APP.2', label: 'Intellectual Property', numbering: 'Appendix 2', owner: 'LCS', icon: 'key',
     fields: [
-      { key: 'dbs_ip_exists', label: 'DBS-Owned IP Created?', type: 'yesno', value: 'No', required: true, strategy: 'MANUAL', lineage: 'MANUAL', yesNoValue: false, guidance: 'Does this product create or use IP owned by DBS?', nodeId: 'APP.2' },
+      { key: 'mbs_ip_exists', label: 'MBS-Owned IP Created?', type: 'yesno', value: 'No', required: true, strategy: 'MANUAL', lineage: 'MANUAL', yesNoValue: false, guidance: 'Does this product create or use IP owned by MBS?', nodeId: 'APP.2' },
       { key: 'third_party_ip_exists', label: 'Third-Party IP Used?', type: 'yesno', value: 'No', required: true, strategy: 'MANUAL', lineage: 'MANUAL', yesNoValue: false, guidance: 'Does this product use any third-party intellectual property?', nodeId: 'APP.2' },
       { key: 'ip_licensing', label: 'IP Licensing Arrangements', type: 'textarea', value: 'N/A — no proprietary IP involved.', required: false, strategy: 'RULE', lineage: 'AUTO', nodeId: 'APP.2' },
     ],
@@ -861,7 +861,7 @@ export const MOCK_DRAFT_SECTIONS: DraftSection[] = [
         guidance: 'Describe the third-party platform use case and business justification.',
         fields: [
           { key: 'tp_use_case_description', label: 'Use Case Description', type: 'textarea', value: 'SGS commodity surveying platform for real-time warehouse stock monitoring and automated valuation feeds.', required: false, strategy: 'MANUAL', lineage: 'MANUAL', nodeId: 'APP.6.A' },
-          { key: 'tp_business_justification', label: 'Business Justification', type: 'textarea', value: 'Required for independent commodity collateral monitoring per DBS collateral policy.', required: false, strategy: 'LLM', lineage: 'AUTO', confidence: 0.80, nodeId: 'APP.6.A' },
+          { key: 'tp_business_justification', label: 'Business Justification', type: 'textarea', value: 'Required for independent commodity collateral monitoring per MBS collateral policy.', required: false, strategy: 'LLM', lineage: 'AUTO', confidence: 0.80, nodeId: 'APP.6.A' },
           { key: 'tp_vendor_name', label: 'Vendor Name', type: 'text', value: 'SGS SA', required: false, strategy: 'MANUAL', lineage: 'MANUAL', nodeId: 'APP.6.A' },
           { key: 'tp_contract_duration', label: 'Contract Duration', type: 'text', value: '3 years (aligned with facility tenor)', required: false, strategy: 'MANUAL', lineage: 'MANUAL', nodeId: 'APP.6.A' },
         ]

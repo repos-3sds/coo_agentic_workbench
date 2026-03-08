@@ -32,7 +32,7 @@
 
 ### Classification 1: New-to-Group (NTG)
 
-**Definition**: DBS Group has NEVER done this before, anywhere, in any form.
+**Definition**: MBS Group has NEVER done this before, anywhere, in any form.
 
 **20 NTG Criteria** (ANY triggers NTG):
 1. New asset class (e.g., crypto, NFT, carbon credits)
@@ -100,13 +100,13 @@ if classification == "NTG":
 **Examples**:
 ```
 Example 1: Credit Default Swaps
-- Historical: DBS never traded CDS
+- Historical: MBS never traded CDS
 - Request: Singapore desk wants CDS for corporates
 - Classification: NTG (new product type)
 - Confidence: 0.96
 
 Example 2: FX Options as Principal
-- Historical: DBS distributed FX Options (broker role)
+- Historical: MBS distributed FX Options (broker role)
 - Request: Hong Kong wants to trade as principal
 - Classification: NTG (new role = massive risk shift)
 - Confidence: 0.89
@@ -628,7 +628,7 @@ else:
     {"condition": "same_category", "passed": true, "detail": "Both: FX Derivatives"},
     {"condition": "no_new_risk", "passed": true, "detail": "0 new risk types"},
     {"condition": "within_notional_limit", "passed": true, "detail": "$30M vs $50M parent (60%)"},
-    {"condition": "same_booking_entity", "passed": true, "detail": "Both: DBS Singapore"},
+    {"condition": "same_booking_entity", "passed": true, "detail": "Both: MBS Singapore"},
     {"condition": "same_jurisdictions", "passed": true, "detail": "SG subset of SG,HK"},
     {"condition": "no_new_counterparty", "passed": true, "detail": "Same counterparty type"},
     {"condition": "operational_capacity", "passed": true, "detail": "12 active < 50 limit"}
@@ -672,7 +672,7 @@ if approval_track == "Evergreen":
   "classification": "New-to-Group",
   "confidence": 0.92,
   "approval_track": "Full NPA",
-  "reasoning": "DBS has never traded Credit Default Swaps before. This constitutes a new product type for the entire Group.",
+  "reasoning": "MBS has never traded Credit Default Swaps before. This constitutes a new product type for the entire Group.",
   "evidence": [
     "RAG similarity search returned 0 results >50%",
     "Product type 'CDS' not in existing product taxonomy",

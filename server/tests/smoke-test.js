@@ -14,7 +14,7 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 
 const BASE = process.env.API_URL || 'http://localhost:3000/api';
-const DEMO_PASSWORD = process.env.DEMO_PASSWORD || 'DBS@2026';
+const DEMO_PASSWORD = process.env.DEMO_PASSWORD || 'MBS@2026';
 
 const tokens = {
   maker: null,
@@ -45,28 +45,28 @@ async function api(method, path, body, token = null) {
 // ---------- 0. Auth bootstrap ----------
 describe('Auth Bootstrap', () => {
   it('should login as MAKER and receive JWT', async () => {
-    const { status, data } = await api('POST', '/auth/login', { email: 'sarah.lim@dbs.com', password: DEMO_PASSWORD });
+    const { status, data } = await api('POST', '/auth/login', { email: 'sarah.lim@mbs.com', password: DEMO_PASSWORD });
     assert.equal(status, 200, `Login failed: ${JSON.stringify(data)}`);
     assert.ok(data.token, 'No token returned');
     tokens.maker = data.token;
   });
 
   it('should login as CHECKER and receive JWT', async () => {
-    const { status, data } = await api('POST', '/auth/login', { email: 'david.chen@dbs.com', password: DEMO_PASSWORD });
+    const { status, data } = await api('POST', '/auth/login', { email: 'david.chen@mbs.com', password: DEMO_PASSWORD });
     assert.equal(status, 200, `Login failed: ${JSON.stringify(data)}`);
     assert.ok(data.token, 'No token returned');
     tokens.checker = data.token;
   });
 
   it('should login as APPROVER and receive JWT', async () => {
-    const { status, data } = await api('POST', '/auth/login', { email: 'jane.tan@dbs.com', password: DEMO_PASSWORD });
+    const { status, data } = await api('POST', '/auth/login', { email: 'jane.tan@mbs.com', password: DEMO_PASSWORD });
     assert.equal(status, 200, `Login failed: ${JSON.stringify(data)}`);
     assert.ok(data.token, 'No token returned');
     tokens.approver = data.token;
   });
 
   it('should login as COO and receive JWT', async () => {
-    const { status, data } = await api('POST', '/auth/login', { email: 'elena.torres@dbs.com', password: DEMO_PASSWORD });
+    const { status, data } = await api('POST', '/auth/login', { email: 'elena.torres@mbs.com', password: DEMO_PASSWORD });
     assert.equal(status, 200, `Login failed: ${JSON.stringify(data)}`);
     assert.ok(data.token, 'No token returned');
     tokens.coo = data.token;

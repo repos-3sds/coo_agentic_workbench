@@ -1,7 +1,7 @@
 # COO Multi-Agent Workbench — Agent Test Report
 
 **Date:** 2026-02-27
-**Test Project:** `NPA-f2d96cc5538c452ba501ab5efc27d5ec` (Green Bond ETF - DBS-FTSE Green Bond Index Fund, NPA-2026-1111111)
+**Test Project:** `NPA-f2d96cc5538c452ba501ab5efc27d5ec` (Green Bond ETF - MBS-FTSE Green Bond Index Fund, NPA-2026-1111111)
 **Environment:** Express backend (localhost:3000) → Dify API (api.dify.ai/v1)
 **Tester:** Claude Code (Automated)
 
@@ -34,7 +34,7 @@
 ```json
 {
   "project_id": "NPA-f2d96cc5538c452ba501ab5efc27d5ec",
-  "product_name": "Green Bond ETF - DBS-FTSE Green Bond Index Fund",
+  "product_name": "Green Bond ETF - MBS-FTSE Green Bond Index Fund",
   "product_type": "Variation",
   "risk_level": "MEDIUM",
   "description": "ETF - Exchange-Traded Fund",

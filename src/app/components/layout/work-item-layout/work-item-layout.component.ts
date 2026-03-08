@@ -34,7 +34,7 @@ import { AuditLogComponent } from '../../common/audit-log/audit-log.component';
 
           <div class="flex items-center gap-3">
              <span class="text-xs text-slate-500 font-mono">Last updated: Just now</span>
-             <button class="px-3 py-1.5 rounded-lg bg-dbs-primary hover:bg-dbs-primary-hover text-white text-xs font-semibold transition-colors shadow-sm">
+             <button class="px-3 py-1.5 rounded-lg bg-mbs-primary hover:bg-mbs-primary-hover text-white text-xs font-semibold transition-colors shadow-sm">
                 Save & Continue
              </button>
           </div>

@@ -82,8 +82,8 @@ INSERT INTO kb_documents
   (doc_id, filename, doc_type, embedding_id, last_synced, title, description, ui_category, agent_target, icon_name, display_date)
 VALUES
   -- UNIVERSAL
-  ('DBS_10_S_0012_GR', 'DBS Group NPA Policy & Standard', 'POLICY', NULL, '2025-10-01 00:00:00',
-    'DBS Group NPA Policy & Standard',
+  ('MBS_10_S_0012_GR', 'MBS Group NPA Policy & Standard', 'POLICY', NULL, '2025-10-01 00:00:00',
+    'MBS Group NPA Policy & Standard',
     'Overarching global policy (RMG-OR). Defines NTG vs Variation vs Existing classifications and standard 1-year validity.',
     'UNIVERSAL', NULL, 'file-text', 'Oct 2025'),
   ('GFM_SOP_v2.3', 'GFM NPA Standard Operating Procedures', 'SOP', NULL, '2026-01-01 00:00:00',
@@ -102,8 +102,8 @@ VALUES
     'Historical NPA Master Archive',
     'Indexed database of all past NPA documents (1,784+ records) for similarity searches.',
     'UNIVERSAL', NULL, 'archive', 'Live'),
-  ('DBS_LIQ_POL', 'DBS Group Holdings Liquidity Policy', 'POLICY', NULL, '2025-12-01 00:00:00',
-    'DBS Group Holdings Liquidity Policy',
+  ('MBS_LIQ_POL', 'MBS Group Holdings Liquidity Policy', 'POLICY', NULL, '2025-12-01 00:00:00',
+    'MBS Group Holdings Liquidity Policy',
     'Enterprise-wide liquidity requirements affecting GFM funding and capital products.',
     'UNIVERSAL', NULL, 'droplet', 'Dec 2025'),
   ('D4D_PURE_v1', 'GFM Data Management Policy (PURE)', 'POLICY', NULL, '2025-11-01 00:00:00',
@@ -118,8 +118,8 @@ VALUES
     'External Platform Review Standards',
     'Checklists and risk controls for connecting GFM product flows to third-party vendor platforms.',
     'UNIVERSAL', NULL, 'monitor-speaker', 'Aug 2025'),
-  ('ESG_FRAMEWORK', 'DBS Group Sustainability Framework', 'POLICY', NULL, '2025-05-01 00:00:00',
-    'DBS Group Sustainability Framework',
+  ('ESG_FRAMEWORK', 'MBS Group Sustainability Framework', 'POLICY', NULL, '2025-05-01 00:00:00',
+    'MBS Group Sustainability Framework',
     'Definitions and criteria for classifying products as \"Green\", \"Social\", or \"Sustainable\".',
     'UNIVERSAL', NULL, 'leaf', 'May 2025'),
 
@@ -234,7 +234,7 @@ VALUES
     'US Exchange-listed Interest Rate Futures and Options. Grandfathered product with T&M HK precedent. Track: No NPA Required. Model validation already completed.',
     'PRECEDENTS', 'APPROVED', 99, '2025-11-12', '12 Nov 2025', 'git-commit'),
   ('TSG2042', 'NAFMII Repo Agreement',
-    'Pledged Bond Repo in CIBM. Classification: NTG. Cross-border settlement via DBS China. Track: Full NPA.',
+    'Pledged Bond Repo in CIBM. Classification: NTG. Cross-border settlement via MBS China. Track: Full NPA.',
     'PRECEDENTS', 'APPROVED', 85, '2025-10-04', '04 Oct 2025', 'git-commit'),
   ('TSG2055', 'Nikko AM-ICBC SG China Bond ETF',
     'Nikko AM-ICBC SG China Bond ETF subscription. Classification: Deal-specific. Requires individual deal approval rather than standing NPA.',

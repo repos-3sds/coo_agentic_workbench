@@ -39,7 +39,7 @@ const usedKeys = [
     'automated_reporting', 'other_risks_exist', 'operational_risk', 'additional_risk_mitigants',
     'trading_product', 'appendix5_required', 'booking_entity', 'sales_entity', 'booking_location',
     'sales_location', 'risk_taking_entity', 'risk_taking_location', 'processing_entity', 'processing_location',
-    'counterparty', 'hedge_entity', 'dbs_ip_exists', 'dbs_ip_details', 'third_party_ip_exists',
+    'counterparty', 'hedge_entity', 'mbs_ip_exists', 'mbs_ip_details', 'third_party_ip_exists',
     'third_party_ip_details', 'ip_licensing', 'aml_assessment', 'terrorism_financing', 'sanctions_assessment',
     'fraud_risk', 'bribery_corruption', 'fc_risk_rating', 'fc_mitigation_measures', 'fc_policy_framework',
     'fc_screening_controls', 'fc_transaction_monitoring', 'fc_suspicious_reporting', 'fc_record_keeping',

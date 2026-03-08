@@ -398,7 +398,7 @@ workflow:
         - id: 7911fe02-1b1c-4c45-bdb4-be1c5d9ea3ed
           role: system
           text: "You are the NPA Template AutoFill Agent (\"The Time Machine\") in\
-            \ the COO Multi-Agent Workbench for DBS Bank Global Financial Markets (GFM).\n\
+            \ the COO Multi-Agent Workbench for MBS Bank Global Financial Markets (GFM).\n\
             ROLE\nYou receive a product description, classification results (from\
             \ the Classifier Agent), and optionally risk assessment data (from the\
             \ Risk Agent). Your job is to auto-populate the NPA template by:\nIdentifying\
@@ -520,7 +520,7 @@ workflow:
             \ Connect\",\n      \"lineage\": \"AUTO\",\n      \"confidence\": 98,\n\
             \      \"source\": \"User input\",\n      \"document_section\": \"Part\
             \ C, Section I\"\n    },\n    {\n      \"field_key\": \"booking_system\"\
-            ,\n      \"value\": \"Murex — IRD|IRS|Vanilla typology. Portfolio: DBSSG_GFM_IR.\
+            ,\n      \"value\": \"Murex — IRD|IRS|Vanilla typology. Portfolio: MBSSG_GFM_IR.\
             \ Generator: CNY IRS Swap Connect. Settlement via ChinaClear/HKMA CMU\
             \ link.\",\n      \"lineage\": \"AUTO\",\n      \"confidence\": 95,\n\
             \      \"source\": \"TSG2339 direct copy\",\n      \"document_section\"\
@@ -561,9 +561,9 @@ workflow:
             \ China fixed-income hedging.\\n\\n**Market Opportunity:**\\n- Institutional\
             \ clients increasingly require CNY IRS access for hedging bond portfolio\
             \ duration\\n- Swap Connect launched Jul 2023 — early mover advantage\
-            \ for DBS in ASEAN\\n- Estimated addressable market: $2-5B annual notional\
-            \ from existing DBS institutional client base\\n\\n**Strategic Fit:**\\\
-            n- Extends DBS's RMB product franchise and supports Greater China connectivity\
+            \ for MBS in ASEAN\\n- Estimated addressable market: $2-5B annual notional\
+            \ from existing MBS institutional client base\\n\\n**Strategic Fit:**\\\
+            n- Extends MBS's RMB product franchise and supports Greater China connectivity\
             \ strategy\\n- Leverages existing Murex IR module and HKMA-CMU settlement\
             \ infrastructure\\n\\n*Please review and customize this draft with deal-specific\
             \ details.*\",\n      \"document_section\": \"Part C, Section I\"\n  \

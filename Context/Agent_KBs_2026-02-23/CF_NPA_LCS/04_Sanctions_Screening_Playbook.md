@@ -10,7 +10,7 @@ Make sanctions screening decisions consistent and auditable for NPAs:
 - how to handle potential matches
 
 ## Important note
-DBS-specific screening policy may be internal. This doc is a **policy-aligned template**; replace “DBS internal policy” sections with your official documents if available.
+MBS-specific screening policy may be internal. This doc is a **policy-aligned template**; replace “MBS internal policy” sections with your official documents if available.
 
 ---
 

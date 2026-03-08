@@ -84,7 +84,7 @@ interface CheckQuestion {
                      <button (click)="cancel.emit()" class="px-6 py-3 text-slate-500 font-medium hover:text-slate-800 transition-colors">Cancel</button>
                      <button (click)="startAnalysis()" 
                              [disabled]="!projectTitle || !projectDescription"
-                             class="px-8 py-3 bg-dbs-primary text-white rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-dbs-primary-hover transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                             class="px-8 py-3 bg-mbs-primary text-white rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-mbs-primary-hover transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
                          <lucide-icon name="bot" class="w-5 h-5"></lucide-icon>
                          Run AI Readiness Check
                      </button>
@@ -103,7 +103,7 @@ interface CheckQuestion {
               </div>
               <h2 class="text-2xl font-bold text-slate-900 mb-2">Analyzing Policy Alignment...</h2>
               <div class="text-slate-500 h-6 overflow-hidden">
-                  <p class="animate-bounce">Checking DBS Strategic Priorities FY2026...</p>
+                  <p class="animate-bounce">Checking MBS Strategic Priorities FY2026...</p>
               </div>
           </div>
       </div>
@@ -341,7 +341,7 @@ export class NpaReadinessAssessmentComponent {
             status: 'PENDING',
             score: 0,
             questions: [
-                { id: 's1', text: 'Product aligns with DBS strategic priorities', required: true, checked: false, evidence: '', attachments: [] },
+                { id: 's1', text: 'Product aligns with MBS strategic priorities', required: true, checked: false, evidence: '', attachments: [] },
                 { id: 's2', text: 'Business case document prepared and approved', required: true, checked: false, evidence: '', attachments: [] },
                 { id: 's3', text: 'Market opportunity and customer demand validated', required: true, checked: false, evidence: '', attachments: [] }
             ]

@@ -23,7 +23,7 @@
         <span class="text-xs font-bold text-blue-700">{{ ((draftProgress.filled / draftProgress.total) * 100) | number:'1.0-0' }}%</span>
       </div>
       <button (click)="openDraft.emit()"
-        class="px-4 py-2 text-sm font-semibold text-white bg-dbs-primary hover:bg-dbs-primary-hover rounded-lg shadow-sm flex items-center gap-2 transition-colors">
+        class="px-4 py-2 text-sm font-semibold text-white bg-mbs-primary hover:bg-mbs-primary-hover rounded-lg shadow-sm flex items-center gap-2 transition-colors">
         <lucide-icon name="pencil" class="w-4 h-4"></lucide-icon>
         Edit Draft
       </button>

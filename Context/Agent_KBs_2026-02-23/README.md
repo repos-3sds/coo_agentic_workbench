@@ -5,7 +5,7 @@ Purpose: Provide **agent-grounding** documents for the COO Command Center / NPA 
 Notes:
 - These KBs are written to be **usable by agents** (checklists, decision rules, and explicit outputs).
 - Regulatory summaries are **paraphrased** and link to authoritative sources. Do **not** treat these as legal advice.
-- Some DBS-internal policies (e.g., PURE, sanctions screening policy) may not be publicly available; those sections are written as **templates** with clear TODOs.
+- Some MBS-internal policies (e.g., PURE, sanctions screening policy) may not be publicly available; those sections are written as **templates** with clear TODOs.
 
 ## Agents → KBs
 

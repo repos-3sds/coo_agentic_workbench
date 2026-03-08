@@ -44,7 +44,7 @@ import { ToastService } from '../../services/toast.service';
             <input #fileInput type="file" (change)="onFileSelected($event)" class="hidden"
                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.json,.png,.jpg,.jpeg">
             <button (click)="fileInput.click()"
-                    class="px-4 py-2 bg-dbs-primary text-white rounded-lg text-sm font-semibold hover:bg-dbs-primary-hover transition-colors flex items-center gap-2">
+                    class="px-4 py-2 bg-mbs-primary text-white rounded-lg text-sm font-semibold hover:bg-mbs-primary-hover transition-colors flex items-center gap-2">
               <lucide-icon name="upload-cloud" class="w-4 h-4"></lucide-icon>
               Upload Document
             </button>
@@ -64,7 +64,7 @@ import { ToastService } from '../../services/toast.service';
           <div *ngIf="!npaId" class="text-sm text-slate-500">
             Select an NPA to manage documents.
             <input [(ngModel)]="npaIdInput" placeholder="Enter NPA ID (e.g. NPA-001)" class="ml-3 px-3 py-1.5 border border-slate-200 rounded-lg text-sm w-48">
-            <button (click)="loadNpa()" class="ml-2 px-3 py-1.5 bg-dbs-primary text-white rounded-lg text-xs font-semibold hover:bg-dbs-primary-hover transition-colors">Load</button>
+            <button (click)="loadNpa()" class="ml-2 px-3 py-1.5 bg-mbs-primary text-white rounded-lg text-xs font-semibold hover:bg-mbs-primary-hover transition-colors">Load</button>
           </div>
         </div>
       </div>

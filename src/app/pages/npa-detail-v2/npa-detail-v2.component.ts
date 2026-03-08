@@ -170,7 +170,7 @@ export class NpaDetailV2Component {
         id: `da-${Date.now()}`,
         role: 'agent',
         agentTeam: 'Orchestrator',
-        text: `Based on DBS policy guidelines, I recommend reviewing the relevant sections in the NPA template. Shall I pre-fill any specific fields?`,
+        text: `Based on MBS policy guidelines, I recommend reviewing the relevant sections in the NPA template. Shall I pre-fill any specific fields?`,
         timestamp: new Date().toLocaleTimeString(),
         citations: ['NPA Policy Manual v4.2, Section 3.1', 'Trade Finance Ops Manual, Section 7.3'],
       });

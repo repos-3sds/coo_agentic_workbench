@@ -171,7 +171,7 @@ test_tool "get_session_history" "{\"project_id\": \"$NPA_ID\"}"
 
 test_tool "log_routing_decision" "{\"session_id\": \"$SESSION_ID\", \"project_id\": \"$NPA_ID\", \"source_agent\": \"classification-agent\", \"target_agent\": \"autofill-agent\", \"routing_reason\": \"Classification complete, proceeding to form fill\", \"confidence\": 92}"
 
-test_tool "get_user_profile" '{"email": "ahmad.razak@dbs.com"}'
+test_tool "get_user_profile" '{"email": "ahmad.razak@mbs.com"}'
 
 echo ""
 

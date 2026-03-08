@@ -293,8 +293,8 @@ Approval requirements organized by **product type + risk attributes** into 5 tie
 **A product is cross-border if ANY of the following:**
 
 **Condition 1: Different Booking Entities**
-- Example: Singapore desk books in DBSH (Hong Kong entity)
-- Example: Hong Kong desk books in DBS Bank Ltd (Singapore entity)
+- Example: Singapore desk books in MBSH (Hong Kong entity)
+- Example: Hong Kong desk books in MBS Bank Ltd (Singapore entity)
 
 **Condition 2: Different Settlement Locations**
 - Example: Singapore booking, Hong Kong settlement
@@ -343,7 +343,7 @@ Timeline: 7 business days (Tier 3 cross-border SLA)
 Product: Interest Rate Swap SGD
 Notional: $25M
 Counterparty: XYZ Bank (Singapore), BBB+ rated
-Booking: Singapore desk → DBS Bank Ltd (Singapore entity)
+Booking: Singapore desk → MBS Bank Ltd (Singapore entity)
 Settlement: Singapore
 
 Cross-Border: NO (same jurisdiction, same entity, same settlement)
@@ -546,7 +546,7 @@ ELSE (any limit breached):
 
 ### Case 4: NTG (New-to-Group)
 
-**Definition:** Product DBS Group has NEVER done before.
+**Definition:** Product MBS Group has NEVER done before.
 
 **Mandatory Requirements:**
 1. **PAC Approval FIRST** (before NPA submission)

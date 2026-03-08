@@ -49,7 +49,7 @@ For enhanced performance, attach these KB datasets if available:
 - Banking Act (Cap 19) excerpts
 - MAS AML/CFT guidelines (Notice 626)
 - PDPA compliance guides
-- DBS sanctions screening policy
+- MBS sanctions screening policy
 - Third-party risk management framework
 
 **KB Settings:**
@@ -66,7 +66,7 @@ This chatflow does NOT need MCP tools.
 **Test 1: Entity selection**
 ```
 User: The product is booked in Singapore and sold from Hong Kong. Help me fill the entity structure.
-Expected: Agent suggests booking_entity="DBS Bank Ltd", booking_location="Singapore", sales_entity="DBS Bank (Hong Kong) Ltd", sales_location="Hong Kong", flags cross-border, includes @@NPA_META@@ for multiple entity fields
+Expected: Agent suggests booking_entity="MBS Bank Ltd", booking_location="Singapore", sales_entity="MBS Bank (Hong Kong) Ltd", sales_location="Hong Kong", flags cross-border, includes @@NPA_META@@ for multiple entity fields
 ```
 
 **Test 2: Financial crime assessment**
@@ -84,7 +84,7 @@ Expected: Agent asks about data flow, integration scope, then provides comprehen
 **Test 4: IP considerations**
 ```
 User: We developed a proprietary pricing algorithm. Do I need to fill the IP section?
-Expected: Agent confirms dbs_ip_exists=Yes, guides on dbs_ip_details content
+Expected: Agent confirms mbs_ip_exists=Yes, guides on mbs_ip_details content
 ```
 
 **Test 5: Section boundary**

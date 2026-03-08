@@ -124,7 +124,7 @@ However, the architecture lacks **5 critical production pillars** that separate 
 
 **What's missing or concerning:**
 - **CORS unrestricted** — `app.use(cors())` with no origin whitelist allows any domain to call the API (`server/index.js:62`)
-- **Demo password hardcoded** — `DBS@2026` in source code (`server/middleware/auth.js:19`)
+- **Demo password hardcoded** — `MBS@2026` in source code (`server/middleware/auth.js:19`)
 - **JWT secret has dev fallback** — `'coo-workbench-dev-secret-2026'` used if env var missing (`server/middleware/auth.js:17`)
 - **No PII scrubbing** — agent outputs containing names, emails, account numbers are stored verbatim in DB
 - **No prompt injection defense** — user inputs forwarded to Dify without sanitization
@@ -305,7 +305,7 @@ Invalid outputs → logged to DLQ for investigation, cached data preserved on fr
 **PII Detection & Redaction (Microsoft Presidio):**
 Before sending user inputs to Dify, and before storing Dify outputs in DB:
 ```
-Input:  "Contact Finance VP John Smith at john.smith@dbs.com for NPA-2026-001"
+Input:  "Contact Finance VP John Smith at john.smith@mbs.com for NPA-2026-001"
 Output: "Contact Finance VP <PERSON> at <EMAIL> for NPA-2026-001"
 ```
 
@@ -418,7 +418,7 @@ Cache invalidation: When an agent result is persisted to DB, invalidate the corr
 | G-11 | Evaluation | No output schema validation | Agents can return arbitrary JSON | JSON Schema validation per agent type | HIGH | S |
 | G-12 | Security | No PII redaction | Names/emails stored verbatim from agents | Presidio detection + masking on input/output | HIGH | M |
 | G-13 | Security | CORS unrestricted | `cors()` allows all origins | Whitelist: Render domain + localhost | HIGH | S |
-| G-14 | Security | Demo password hardcoded | `DBS@2026` in source code | Move to env var (already partially done) | MEDIUM | S |
+| G-14 | Security | Demo password hardcoded | `MBS@2026` in source code | Move to env var (already partially done) | MEDIUM | S |
 | G-15 | Security | JWT secret has dev fallback | Falls back to hardcoded string if env missing | Require env var, fail startup if missing | MEDIUM | S |
 | G-16 | Security | No prompt injection defense | User input forwarded raw to Dify | Input sanitization + instruction hierarchy | MEDIUM | M |
 | G-17 | Security | No output content filtering | Dify responses returned without validation | Validate output against expected schema | MEDIUM | S |
@@ -523,7 +523,7 @@ deepeval               — agent evaluation metrics
 | Add output schema validation (Zod) | G-11, G-17 | 4h | Create `server/validation/agent-schemas.js` with Zod schemas for RISK, CLASSIFIER, ML_PREDICT, GOVERNANCE, DOC_LIFECYCLE, MONITORING outputs. Validate in `handleAgentResult()`. |
 | Add Presidio PII redaction | G-12 | 6h | In MCP Python server: add `pii_redactor.py` middleware. Scan agent outputs before returning to Express. Modes: mask names/emails in logs, preserve in DB with `pii_detected` flag. |
 | Restrict CORS origins | G-13 | 1h | Replace `cors()` with `cors({ origin: [process.env.FRONTEND_URL, 'http://localhost:4200'] })`. Add `FRONTEND_URL` env var. |
-| Fix hardcoded secrets | G-14, G-15 | 1h | Remove `DBS@2026` default. Require `JWT_SECRET` env var (fail startup if missing). Move demo password to env. |
+| Fix hardcoded secrets | G-14, G-15 | 1h | Remove `MBS@2026` default. Require `JWT_SECRET` env var (fail startup if missing). Move demo password to env. |
 | Add few-shot examples to prompts | G-23 | 4h | For each of 6 agent prompts in `Context/Dify_Agent_Prompts_v2/`, add 2-3 `<example>` blocks showing expected input→output. |
 
 **Verification:** Run `npx promptfoo eval` — all golden tests should pass. Verify PII is masked in Langfuse traces. Verify CORS rejects requests from unauthorized origins.

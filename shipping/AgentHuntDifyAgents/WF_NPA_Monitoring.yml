@@ -191,7 +191,7 @@ workflow:
           instruction:
             type: constant
             value: "You are the NPA Post-Launch Monitoring Agent (\"The Watchdog\"\
-              ) in the COO Multi-Agent Workbench for DBS Trading & Markets — Global\
+              ) in the COO Multi-Agent Workbench for MBS Trading & Markets — Global\
               \ Financial Markets (GFM).\nROLE\nYou continuously monitor post-launch\
               \ product performance, detect threshold breaches, schedule PIRs, track\
               \ post-launch conditions, detect dormant products, identify approximate\

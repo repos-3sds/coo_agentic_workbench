@@ -169,7 +169,7 @@ PART C: Detailed Product Information (Sections I-VII + Appendices I-VII)
 **SEC_ENTITY -- Appendices Entity & IP (5 fields)**:
 | Field Key | Label | Type | Lineage | Req |
 |-----------|-------|------|---------|-----|
-| booking_entity | Booking Entity (DBS SG/HK/London/India) | select | AUTO | Y |
+| booking_entity | Booking Entity (MBS SG/HK/London/India) | select | AUTO | Y |
 | counterparty | Counterparty Legal Name | text | MANUAL | Y |
 | counterparty_rating | Counterparty Credit Rating | text | ADAPTED | N |
 | strike_price | Strike/Exercise Price | decimal | MANUAL | N |
@@ -503,7 +503,7 @@ These fields are product-type-specific (not deal-specific) and can be copied ver
 | SEC_REG | secondary_regulations | Additional regulations per product type |
 | SEC_REG | regulatory_reporting | Standard reporting per product/location |
 | SEC_REG | sanctions_check | From Risk Agent output (PASS/FAIL) |
-| SEC_ENTITY | booking_entity | User location -> default entity (SG->DBS Bank Ltd) |
+| SEC_ENTITY | booking_entity | User location -> default entity (SG->MBS Bank Ltd) |
 | SEC_ENTITY | ip_considerations | Standard IP template by product type |
 | SEC_SIGN | required_signoffs | Computed from approval track + overrides |
 | SEC_SIGN | signoff_order | Standard sequence by track |
@@ -539,7 +539,7 @@ These fields are product-type-specific (not deal-specific) and can be copied ver
 | SEC_FINCRIME | sanctions_assessment | From Risk Agent (mirrors sanctions_check) |
 | SEC_TRADING | collateral_types | Standard collateral per product (CSA terms) |
 | SEC_TRADING | valuation_method | Standard valuation by product type |
-| SEC_TRADING | funding_source | Standard funding (DBS Treasury/Client Collateral) |
+| SEC_TRADING | funding_source | Standard funding (MBS Treasury/Client Collateral) |
 | SEC_TRADING | booking_schema | Murex typology + generator from similar NPA |
 
 ---
@@ -759,7 +759,7 @@ EXPANSIONS = {
     "condition": "has_esg_features == True",
     "fields_affected": ["reputational_risk", "esg_assessment"],
     "text_additions": {
-      "reputational_risk": "ESG labeling risk: product must meet sustainability criteria per DBS Green/Social/Sustainability Bond Framework. Greenwashing risk assessment required.",
+      "reputational_risk": "ESG labeling risk: product must meet sustainability criteria per MBS Green/Social/Sustainability Bond Framework. Greenwashing risk assessment required.",
       "esg_assessment": "Climate risk factors assessed. Transition risk for underlying assets evaluated. Physical risk exposure within acceptable limits."
     }
   }
@@ -984,7 +984,7 @@ Auto-populated fields:
   1. No significant changes since last approval
   2. BTB basis with professional counterparty
   3. Vanilla/foundational product
-  4. Liquidity management product (including DBS Group Holdings)
+  4. Liquidity management product (including MBS Group Holdings)
   5. Exchange product used as hedge against customer trades
   6. ABS origination to meet client demand
 
@@ -1461,7 +1461,7 @@ if user_override_detected(field_id):
 
 ### Case 5: NTG Product (No Historical Match)
 
-**Scenario**: Credit Default Swap -- DBS has never traded CDS (similarity <50%)
+**Scenario**: Credit Default Swap -- MBS has never traded CDS (similarity <50%)
 
 **Handling**:
 ```python

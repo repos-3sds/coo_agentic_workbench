@@ -48,7 +48,7 @@ For enhanced performance, attach these KB datasets if available:
 - Pricing model documentation
 - SIMM guidelines
 - BCBS 239 / RDAR requirements
-- DBS PURE framework guidelines
+- MBS PURE framework guidelines
 
 **KB Settings:**
 - Retrieval: Hybrid (keyword + semantic)

@@ -113,7 +113,7 @@
 
 | # | Field | Type | Notes |
 |---|-------|------|-------|
-| a | Channel availability — Online ie. internet (ie. internet/e-digital online with such as DBS Bank, DBSV net, etc.) and if there total 1 distribution to investor, distributor | Dropdown / Multi-select | e.g. DBS digibank, Branch, iBanking |
+| a | Channel availability — Online ie. internet (ie. internet/e-digital online with such as MBS Bank, MBSV net, etc.) and if there total 1 distribution to investor, distributor | Dropdown / Multi-select | e.g. MBS digibank, Branch, iBanking |
 | b | Sales suitability — Document the customer screening process that would be implemented to ensure only qualified customers have access to the product service (for advisory: include suitability assessment requirement; for non-advisory: include appropriateness/product highlight process) | Text Area + Attach | |
 | c | Marketing & communication — Document the process of marketing and communicating the product/service to prospective or existing customers and to internal stakeholders (provide details of marketing and communication strategy, how would the PU plan to ensure the communications are true, fair and not misleading) | Text Area + Attach | |
 | d | Sales surveillance — Describe the sales surveillance process to check compliance with established sales process. | Text Area + Attach | |
@@ -221,7 +221,7 @@
 |---|-------|------|-------|
 | a | If a continuity event occurs at the operational/business of the product service, will there be any major impact to clients of customer, analytics, liquidity or financial obligations? | Yes/No + Text Area | |
 | b | Normalised Business Impact Analysis (BIA) | Dropdown | e.g. New-to-Group, Variation, Existing |
-| c | Updated Continuity-of-Business plans (to be published in Singapore, please email DBS ECRM/Continuity Control) | Yes/No | |
+| c | Updated Continuity-of-Business plans (to be published in Singapore, please email MBS ECRM/Continuity Control) | Yes/No | |
 | d | BCP test results/familiarisation exercises done? | Yes/No | |
 | e | Critical business services that this product covers | Text Area | |
 | f | Delivery platforms and solutions (to support to ensure continued delivery of the product/ services after the BCP) | Text Area | |
@@ -368,7 +368,7 @@
 
 | # | Field | Type | Notes |
 |---|-------|------|-------|
-| a | Is the primary obligor paid only when DBS has first received — Do they acquire a one-sided form of credit support? | Yes/No + Text | |
+| a | Is the primary obligor paid only when MBS has first received — Do they acquire a one-sided form of credit support? | Yes/No + Text | |
 | b | Pre-settlement or credit risk in process AB includes the normal credit parameters (established by RMG) Credit Risk? | Text Area | |
 | c | Counterparty Risk factors — consider and document all the credit risk elements | Text Area | |
 | d | Contingent liabilities and commitments — have they been adequately addressed? | Text Area | |
@@ -404,7 +404,7 @@
 | # | Field | Type | Notes |
 |---|-------|------|-------|
 | a | Are procedures in place to ensure the unit responsible for regulatory reporting actions (including (e.g.) credit risk regulatory reports updates on the regulatory board / the Pillar 3 disclosures, Risk Weighted Asset (RWA) computations/projections, and financial reporting requirements? | Text Area | Reference: SST — SG8 0497, SEC Risk and financial requirements |
-| b | Have to hold DBS master recovery fund | Yes/No | |
+| b | Have to hold MBS master recovery fund | Yes/No | |
 
 #### 6. Counterparty credit risk
 
@@ -416,16 +416,16 @@
 | c.i | Is alpha applied? | Yes/No | |
 | c.ii | Is there a replacement cost? | Yes/No | |
 | c.iii | Is there a potential future exposure? | Yes/No | |
-| d | Margin update: please advise in the DBS Credit review section | Text Area | |
+| d | Margin update: please advise in the MBS Credit review section | Text Area | |
 
 ### D. Reputational Risk
 
 | # | Field | Type | Notes |
 |---|-------|------|-------|
-| 1 | Evaluate and provide an assessment of the reputational risk exposure to DBS which typically is an outcome of failure to manage the various risk types? the Financial Services Regulator assessment to determine impact and likelihood of the risks to the Group's reputation, brand and franchise value. | Text Area | |
+| 1 | Evaluate and provide an assessment of the reputational risk exposure to MBS which typically is an outcome of failure to manage the various risk types? the Financial Services Regulator assessment to determine impact and likelihood of the risks to the Group's reputation, brand and franchise value. | Text Area | |
 | 2 | Has the product involved misleading claims, complex structures (or product documentation might be confusing to clients and investor), or concealed risks? | Text Area | |
 | 3 | Does the product involve selling or dealing or regular model transaction for economic outcomes of the Bank and/or its banking subsidiaries, analysed and evaluated? | Text Area | |
-| 4 | Is it an instrument used by DBS other than for normal hedging purposes (e.g. as a speculative or fund vehicle)? | Yes/No + Text | |
+| 4 | Is it an instrument used by MBS other than for normal hedging purposes (e.g. as a speculative or fund vehicle)? | Yes/No + Text | |
 | 5 | Impact on existing MAS accountability relationships which provides exchange, reallocation/re-, payment and settlement between stakeholders. | Text Area | |
 | 6 | What is the Step-in Risk Assessment? (Evaluate 3 steps (1 step-in and respond to the examiner)) | Text Area | |
 
@@ -438,7 +438,7 @@
 | # | Field | Type | Notes |
 |---|-------|------|-------|
 | 1 | All products/services with a consumer/customer interface or consumer interface must include D4D references, volume by assessment in Osmosis (D4D) consultation audit profile | Text Area | Reference: MAS collection rules, FATCA process etc. |
-| 2 | Does the data relating to new product/service comply with the Bank's data management principles? i.e., Refer to the virtual data management resource (via data.dbs.com) — for the virtual data management resource platform, please press your mini portal | Yes/No + Text | |
+| 2 | Does the data relating to new product/service comply with the Bank's data management principles? i.e., Refer to the virtual data management resource (via data.mbs.com) — for the virtual data management resource platform, please press your mini portal | Yes/No + Text | |
 | 3 | Have the data fields been validated? If Yes, please proof/validation ID | Yes/No + Text | |
 
 ### 2. PURE (Purposeful, Unsurprising, Respectful, Explainable) principles
@@ -481,7 +481,7 @@
 
 | # | Field | Type | Notes |
 |---|-------|------|-------|
-| 1 | Legal Entity | Text | e.g., DBS Bank, DBS Vickers, DBS HK |
+| 1 | Legal Entity | Text | e.g., MBS Bank, MBS Vickers, MBS HK |
 | 2 | Country | Text | e.g., Singapore, HK, Thailand, Indonesia |
 | 3 | Booking | Text | |
 | 4 | Risk Taking | Text | |
@@ -491,20 +491,20 @@
 
 ## Appendix 2: Intellectual Property ("IP")
 
-### Part A — DBS IP
+### Part A — MBS IP
 
 | # | Field | Type | Notes |
 |---|-------|------|-------|
-| 1 | Does the new product/service create or incorporate the use of any IP that is owned or to be owned by DBS (whether existing, newly created)? | Yes/No | |
-| 2 | If the answer is Yes, does the new product/service create a first-to-all (i.e., anticipated portfolio, method/s, variant), set out the DBS stance? | Yes/No + Text | |
+| 1 | Does the new product/service create or incorporate the use of any IP that is owned or to be owned by MBS (whether existing, newly created)? | Yes/No | |
+| 2 | If the answer is Yes, does the new product/service create a first-to-all (i.e., anticipated portfolio, method/s, variant), set out the MBS stance? | Yes/No + Text | |
 
-### Part B — Non-DBS IP
+### Part B — Non-MBS IP
 
 | # | Field | Type | Notes |
 |---|-------|------|-------|
 | 1 | Does the new product/service create or incorporate the use of any IP that is owned or to be owned by a third party (whether existing, newly created) or patented? | Yes/No | |
-| 2 | Has DBS acquired a licence to use such IP? (IP relevant to licence, equity terms of use/paid base measures data card of policy) | Yes/No + Text | |
-| 3 | Does the DBS entity who has the rights have the licence to the DBS and local bank with registered mark? | Text Area | |
+| 2 | Has MBS acquired a licence to use such IP? (IP relevant to licence, equity terms of use/paid base measures data card of policy) | Yes/No + Text | |
+| 3 | Does the MBS entity who has the rights have the licence to the MBS and local bank with registered mark? | Text Area | |
 
 ---
 
@@ -546,7 +546,7 @@
 | # | Field | Type | Notes |
 |---|-------|------|-------|
 | 1 | Information to analyse and monitor inherent risks mass of the product / initiative | Text Area | |
-| 2 | Is commercially-related data such as "specific" "discoverable" "customer-related" "DBS" etc. a cost being provided to the product service? If yes, Please justify if it/this (of) are not or not intended or not in cost | Yes/No + Text | |
+| 2 | Is commercially-related data such as "specific" "discoverable" "customer-related" "MBS" etc. a cost being provided to the product service? If yes, Please justify if it/this (of) are not or not intended or not in cost | Yes/No + Text | |
 | 3 | Evidence specifically to the sustainability, then document significantly marked and evidence or cost | Text Area | |
 
 ### Data Privacy
@@ -606,9 +606,9 @@
 
 | # | Field | Type | Notes |
 |---|-------|------|-------|
-| 1 | Provide the accrual and booking policy of pricing transactions with entities of DBS Group in reference to the representation in the NPA document with the appropriate rules/standards confirmed? | Text Area | |
+| 1 | Provide the accrual and booking policy of pricing transactions with entities of MBS Group in reference to the representation in the NPA document with the appropriate rules/standards confirmed? | Text Area | |
 | 2 | Intercompany treatment — Have the Group interrelated and internally group/regional transactions been confirmed? | Yes/No + Text | |
-| 3 | Transfer pricing/benchmarks? Has the product verified with any DBS domestic or DBS entities on the local-facing or to be sold? | Text Area | Provide details of applicable product for these, as DBS product/service rule can be a set out the specific entity or entities |
+| 3 | Transfer pricing/benchmarks? Has the product verified with any MBS domestic or MBS entities on the local-facing or to be sold? | Text Area | Provide details of applicable product for these, as MBS product/service rule can be a set out the specific entity or entities |
 | 4 | Revenue numbers, include actual? Revenue booking surcharges, include actual year-to-date | Text Area | |
 | 5 | Is there any cross-booking of a partnership pack product in Reserve or GFM products for market-risk funding? | Yes/No + Text | |
 
@@ -661,15 +661,15 @@
 
 | # | Field | Type | Notes |
 |---|-------|------|-------|
-| 1 | Does it involve the use of a DBS system? | Yes/No | |
+| 1 | Does it involve the use of a MBS system? | Yes/No | |
 | 2 | List out the issues | Text Area | |
-| 3 | Does it involve the setup and use of Non-DBS accounts? | Yes/No + Text | DBS employees signing up on their own e.g. social media using personal or DBS-owned accounts |
+| 3 | Does it involve the setup and use of Non-MBS accounts? | Yes/No + Text | MBS employees signing up on their own e.g. social media using personal or MBS-owned accounts |
 | 4 | What is corporate's exposure as risk hedge set? | Text Area | |
 | 5 | Is confidential information disclosed through the communication/media channel/platform? | Yes/No | |
 | | **1-Way Communication** — Send only to CRS. No exchange permitted. | | |
 | | Types: may be initiated by either CRS or customers (depending on scope of the approved use cases). Only CRS can initiate communications. Customer opt-in/opt-out, customer consent, Classification and Handling etc. | | |
 | | **Is assessment of:** | | |
-| | a) DBS Corporate (Service CRS) | | |
+| | a) MBS Corporate (Service CRS) | | |
 | | b) Staff/employee | | |
 | | c) Customer opt-in/sign up, appointment, attendance/venue, meeting, etc. | | |
 
@@ -677,13 +677,13 @@
 
 | # | Field | Type | Notes |
 |---|-------|------|-------|
-| 1 | Integration with DBS systems? | Yes/No | e.g. integration with DBS systems via... |
+| 1 | Integration with MBS systems? | Yes/No | e.g. integration with MBS systems via... |
 | 2 | How do Employee Integration/migration of data occur? | Text Area | |
 | 2a | HTTPS (ie: any email transactions)? | Yes/No | |
-| 2b | HDBS HTTP platform API access will be performed via DBS Technology? | Yes/No | |
+| 2b | HMBS HTTP platform API access will be performed via MBS Technology? | Yes/No | |
 | 2c | API | Yes/No | |
-| 3 | DBS Staff Access | Sub-group | |
-| 3a | How will the DBS staff access the platform? | Text Area | |
+| 3 | MBS Staff Access | Sub-group | |
+| 3a | How will the MBS staff access the platform? | Text Area | |
 | 3b | CTMS will authenticate with multi-factor credentials: description of access to data (e.g., scheduling, offboarding, periodic reconciliation, review) | Text Area | |
 | 3c | The service with data of the platform | Text Area | |
 | 4 | Access to Admin Screens of Messages | Sub-group | |
@@ -691,7 +691,7 @@
 | 4b | Are there reporting options on monitoring staff activities of use /engagement? | Yes/No | |
 | 4c | Permissions, roles and scope of responsibilities | Text Area | |
 | 4d | Please describe how reports or learned and all reporting offered by Platform; establishes and in some cases this is done indirectly by the platform | Text Area | |
-| 5 | Data Leakage Controls for Outbound Traffic (DBS to Platform) | Text Area | Description of all data/traffic controls regarding DBS storage of workflow data on platform. Content moderation, for data classification management |
+| 5 | Data Leakage Controls for Outbound Traffic (MBS to Platform) | Text Area | Description of all data/traffic controls regarding MBS storage of workflow data on platform. Content moderation, for data classification management |
 | 6 | Security Controls for Inbound Traffic | Text Area | Malware/traffic scan through CloudFlare WAF / VPN impairment-related? |
 | 7 | Cybersecurity Assessment for third party | Sub-group | |
 | 7a | Penetrate/vulnerability scan through CloudFlare WAF / VPN impairment-related? | Yes/No + Text | |
@@ -717,25 +717,25 @@
 |---|-------|------|-------|
 | | **Does the third-party hosted platform:** | | |
 | 1 | Does the third-party hosted platform: has it been previously loaded? Include total if the approval arrangement: | Yes/No + Text | |
-| 2 | Is there a risk that the Platform can access and share personal data of DBS's customers? | Yes/No + Text | |
-| 3 | Does the Platform security contingent (describe the DBS requirements for personally identifiable information security) meets DBS requirements? | Yes/No + Text | |
+| 2 | Is there a risk that the Platform can access and share personal data of MBS's customers? | Yes/No + Text | |
+| 3 | Does the Platform security contingent (describe the MBS requirements for personally identifiable information security) meets MBS requirements? | Yes/No + Text | |
 
 **Intellectual Property / Platform Rights:**
 
 | # | Field | Type | Notes |
 |---|-------|------|-------|
 | 4 | Is the licence good value (allow the entities to modify, adapt, or create derivative)? | Yes/No + Text | |
-| 5 | Is the Platform operated or stated DBS intellectual property held? (e.g. a code, determine activity, development or function(s) will by DBS employees while using the platform would be claimed by the 3rd-party service provider?) | Yes/No + Text | |
-| 6 | Is there a risk that IP on any IT created by DBS employees while using the platform would be claimed by the 3rd-party service provider? | Yes/No + Text | |
+| 5 | Is the Platform operated or stated MBS intellectual property held? (e.g. a code, determine activity, development or function(s) will by MBS employees while using the platform would be claimed by the 3rd-party service provider?) | Yes/No + Text | |
+| 6 | Is there a risk that IP on any IT created by MBS employees while using the platform would be claimed by the 3rd-party service provider? | Yes/No + Text | |
 
 **Ownership — Use of Data and Proprietary Content:**
 
 | # | Field | Type | Notes |
 |---|-------|------|-------|
-| 7 | Does the Platform retain, keep or store (as part of its services) any personal data, customer data or DBS content (including communications with customers)? | Yes/No + Text | |
-| 8 | Will the Platform own any of personal data, customer data or DBS content (including communications with customers) processed or stored by the Platform? | Yes/No + Text | |
+| 7 | Does the Platform retain, keep or store (as part of its services) any personal data, customer data or MBS content (including communications with customers)? | Yes/No + Text | |
+| 8 | Will the Platform own any of personal data, customer data or MBS content (including communications with customers) processed or stored by the Platform? | Yes/No + Text | |
 | 9 | Is there a risk that the Platform will have broad usage rights over the various types of data and content transmitted via or processed by the Platform? | Yes/No + Text | |
-| 10 | Does the Platform have the right to restrict DBS's access to the various types of data and content processed or stored by the Platform? | Yes/No + Text | |
+| 10 | Does the Platform have the right to restrict MBS's access to the various types of data and content processed or stored by the Platform? | Yes/No + Text | |
 
 ---
 

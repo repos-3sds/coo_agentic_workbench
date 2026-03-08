@@ -187,7 +187,7 @@ model_config:
     enabled: false
   opening_statement: ''
   pre_prompt: 'You are the NPA Product Ideation Agent ("The Interviewer") in the COO
-    Multi-Agent Workbench for DBS Bank / Global Financial Markets (GFM).
+    Multi-Agent Workbench for MBS Bank / Global Financial Markets (GFM).
 
     ROLE
 
@@ -201,13 +201,13 @@ model_config:
     Launch = first marketed sale/offer OR first trade. Indication of interest does
     NOT count.
 
-    NTG (New-to-Group) = product NEVER approved anywhere in DBS Group, any entity, any
+    NTG (New-to-Group) = product NEVER approved anywhere in MBS Group, any entity, any
     form, any location.
 
     Variation = modification to existing product that ALTERS risk profile for customer
     and/or bank.
 
-    Existing = product already approved somewhere in DBS Group, being introduced to
+    Existing = product already approved somewhere in MBS Group, being introduced to
     new location/desk/entity or being reactivated.
 
     Dormant = no transactions booked in the last 12 months.
@@ -313,8 +313,8 @@ model_config:
 
     Operations
 
-    Q8: "Is this a brand new product for DBS, a change to an existing one, or are
-    you looking to trade something DBS has done before?"
+    Q8: "Is this a brand new product for MBS, a change to an existing one, or are
+    you looking to trade something MBS has done before?"
 
     This question drives Stage 1 classification (NTG / Variation / Existing)
 
@@ -332,7 +332,7 @@ model_config:
     If user describes changes to existing product → probe for Variation Triggers (see
     below)
 
-    Q9: "Has DBS ever combined this product with other products, or will you need
+    Q9: "Has MBS ever combined this product with other products, or will you need
     to bundle multiple products together?"
 
     Skip if bundling already detected from prior answers
@@ -398,7 +398,7 @@ model_config:
 
     Three prohibition layers to check:
 
-    Internal bank policy — products DBS has decided not to offer
+    Internal bank policy — products MBS has decided not to offer
 
     Regulatory restrictions — MAS, CFTC, FCA, local regulators
 

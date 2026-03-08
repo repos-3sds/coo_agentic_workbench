@@ -112,9 +112,9 @@ The agent performs four sequential checks, each operating as a HARD STOP gate. I
 
 ---
 
-### Layer 1: Internal Bank Policy (DBS Prohibited List)
+### Layer 1: Internal Bank Policy (MBS Prohibited List)
 
-**What This Checks**: Products/activities that DBS has decided not to offer, regardless of legality
+**What This Checks**: Products/activities that MBS has decided not to offer, regardless of legality
 
 #### Why Banks Have Internal Prohibitions
 
@@ -123,7 +123,7 @@ The agent performs four sequential checks, each operating as a HARD STOP gate. I
 - **Strategic decision**: Exiting certain business lines (e.g., coal mining financing)
 - **Capacity constraints**: Lack of expertise/infrastructure (e.g., complex structured credit)
 
-#### Example Internal Prohibitions at DBS
+#### Example Internal Prohibitions at MBS
 
 **Category 1: Cryptocurrency Products**
 - All derivatives with cryptocurrency underlying (Bitcoin, Ethereum, etc.)
@@ -184,7 +184,7 @@ Product: Bitcoin Option
 Status: PROHIBITED
 
 Reason:
-This product involves cryptocurrency derivatives, which are prohibited under DBS internal risk policy.
+This product involves cryptocurrency derivatives, which are prohibited under MBS internal risk policy.
 
 Policy Details:
 - Category: Cryptocurrency Derivatives
@@ -193,7 +193,7 @@ Policy Details:
 - Policy Owner: Group Risk Management
 
 Why Prohibited:
-DBS has determined that cryptocurrency derivatives carry unacceptable volatility risk and regulatory uncertainty. All derivative products with cryptocurrency underlying assets are prohibited regardless of structure or client type.
+MBS has determined that cryptocurrency derivatives carry unacceptable volatility risk and regulatory uncertainty. All derivative products with cryptocurrency underlying assets are prohibited regardless of structure or client type.
 
 Alternative Products:
 Consider these approved alternatives:
@@ -203,7 +203,7 @@ Consider these approved alternatives:
 
 Next Steps:
 If you believe this is an error or have a compelling business case:
-1. Contact Group Risk Management: risk-management@dbs.com
+1. Contact Group Risk Management: risk-management@mbs.com
 2. Request policy exception review (requires EVP approval)
 3. Expected review time: 2-4 weeks
 
@@ -333,7 +333,7 @@ Next Steps:
 2. If retail: Choose alternative product
 3. If institutional: Update NPA with correct client segment
 
-Note: This is a HARD STOP. DBS cannot proceed with regulatory violations regardless of business case.
+Note: This is a HARD STOP. MBS cannot proceed with regulatory violations regardless of business case.
 ```
 
 **Key Difference from Internal Policy**:
@@ -446,7 +446,7 @@ Your Transaction:
 
 Why This Is Critical:
 • Criminal offense under U.S. law (potential $10M+ fine per violation)
-• Asset freeze risk (U.S. can freeze DBS assets in USD clearing)
+• Asset freeze risk (U.S. can freeze MBS assets in USD clearing)
 • Correspondent banking risk (U.S. banks may terminate relationships)
 • Criminal liability for executives involved
 • Reputational damage (DOJ prosecution, media coverage)
@@ -458,11 +458,11 @@ Alternative Options:
 NONE - Recommend declining client request
 
 If Client Insists:
-Explain: "DBS cannot facilitate this transaction due to international sanctions. Proceeding would expose both DBS and the client to severe legal and financial penalties."
+Explain: "MBS cannot facilitate this transaction due to international sanctions. Proceeding would expose both MBS and the client to severe legal and financial penalties."
 
 Compliance Escalation:
 This attempted transaction has been automatically reported to:
-• DBS Compliance Team (compliance@dbs.com)
+• MBS Compliance Team (compliance@mbs.com)
 • Group Financial Crime Compliance
 • Sanctions Monitoring Unit
 
@@ -545,7 +545,7 @@ Product: Silicon Valley Bank Corporate Bond
 Status: PROHIBITED
 
 Reason:
-Silicon Valley Bank is currently in FDIC receivership following its failure on March 10, 2023. DBS policy prohibits trading securities of failed institutions.
+Silicon Valley Bank is currently in FDIC receivership following its failure on March 10, 2023. MBS policy prohibits trading securities of failed institutions.
 
 Regulatory Status:
 - Event: FDIC Receivership
@@ -569,7 +569,7 @@ If client seeks bank bonds, consider:
 • Covered bonds with collateral protection
 
 Next Steps:
-Inform client that DBS cannot facilitate this trade due to issuer failure.
+Inform client that MBS cannot facilitate this trade due to issuer failure.
 
 Last Checked: 2025-12-26 09:00:00 SGT (Real-Time)
 Data Source: FDIC Public Database, Bloomberg Regulatory Feed
@@ -683,7 +683,7 @@ Status: PROHIBITED - WORKFLOW TERMINATED
 
 This transaction violates MULTIPLE compliance layers:
 
-❌ VIOLATION 1: Internal Policy (DBS Prohibited List)
+❌ VIOLATION 1: Internal Policy (MBS Prohibited List)
    - Cryptocurrency derivatives are banned
    - Policy: RMG Policy 2023-001
    - Severity: HIGH
@@ -714,7 +714,7 @@ NEXT STEPS:
 3. Meet with Compliance Officer within 48 hours
 
 If you believe this is an error, contact:
-• Sanctions Monitoring Unit: sanctions@dbs.com
+• Sanctions Monitoring Unit: sanctions@mbs.com
 • Compliance Hotline: +65-6878-XXXX
 
 This incident has been logged for regulatory audit purposes.
@@ -917,7 +917,7 @@ For products that PASS all compliance layers, the NPA governance model determine
 1. No significant changes since last approval
 2. Back-to-Back (BTB) basis with professional counterparty
 3. Vanilla/foundational product
-4. Liquidity management product (including for DBS Group Holdings)
+4. Liquidity management product (including for MBS Group Holdings)
 5. Exchange product used as hedge against customer trades
 6. ABS origination to meet client demand
 
@@ -1196,7 +1196,7 @@ This NPA can NO LONGER proceed. Sanctions prohibit all transactions with XYZ Cor
 
 Immediate Actions Required:
 1. Cancel launch preparation
-2. Notify client: DBS cannot proceed due to sanctions
+2. Notify client: MBS cannot proceed due to sanctions
 3. Review existing trades with XYZ Corporation for wind-down requirements
 4. Legal review: Assess sanctions compliance for in-flight deals
 

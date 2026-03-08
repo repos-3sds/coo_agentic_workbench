@@ -8,7 +8,7 @@
 
 ## EXECUTIVE SUMMARY
 
-This document provides the definitive classification framework for all NPA submissions at DBS Bank. It includes detailed criteria, decision trees, examples, and edge cases to ensure consistent and accurate classification of all products and services.
+This document provides the definitive classification framework for all NPA submissions at MBS Bank. It includes detailed criteria, decision trees, examples, and edge cases to ensure consistent and accurate classification of all products and services.
 
 ---
 
@@ -20,7 +20,7 @@ This document provides the definitive classification framework for all NPA submi
 
 ```
 NEW-TO-GROUP (NTG)
-├── Completely new products/services to DBS Group
+├── Completely new products/services to MBS Group
 ├── Novel market approaches or customer segments
 ├── Fundamentally new risk profiles
 └── Requires PAC approval
@@ -61,20 +61,20 @@ EXISTING
 ## 2. NEW-TO-GROUP (NTG) CLASSIFICATION
 
 ### 2.1 Definition and Scope
-**New-to-Group products or services are those that introduce fundamentally new capabilities, risk profiles, or market approaches that have never been offered by DBS Group in any jurisdiction or format.**
+**New-to-Group products or services are those that introduce fundamentally new capabilities, risk profiles, or market approaches that have never been offered by MBS Group in any jurisdiction or format.**
 
 ### 2.2 NTG Classification Criteria (20 Indicators)
 
 #### Product Innovation Criteria (5 indicators):
 - [ ] **Novel Product Structure**: Fundamentally new product architecture or features
 - [ ] **New Asset Class**: Introduction of previously untradeable asset classes
-- [ ] **Innovative Technology**: Uses technology not previously deployed by DBS
+- [ ] **Innovative Technology**: Uses technology not previously deployed by MBS
 - [ ] **New Revenue Model**: Introduces previously unexploited revenue streams
 - [ ] **Unique Market Position**: Creates new market-making or intermediation roles
 
 #### Market and Customer Criteria (4 indicators):
 - [ ] **New Customer Segment**: Targets previously unserved customer categories
-- [ ] **New Geographic Market**: Entry into markets where DBS has no presence
+- [ ] **New Geographic Market**: Entry into markets where MBS has no presence
 - [ ] **New Distribution Channel**: Uses distribution methods not previously employed
 - [ ] **New Partnership Model**: Requires new types of external partnerships
 
@@ -96,7 +96,7 @@ EXISTING
 ### 2.3 NTG Classification Decision Tree
 
 ```
-START: Is this product completely new to DBS Group?
+START: Is this product completely new to MBS Group?
 │
 ├── Check Product Innovation (5 criteria)
 │   ├── ≥3 criteria met → Continue to Market Check
@@ -154,7 +154,7 @@ START: Is this product completely new to DBS Group?
 ## 3. VARIATION CLASSIFICATION
 
 ### 3.1 Definition and Scope
-**Variation products are modifications, enhancements, or adaptations of existing DBS products or services that maintain the same fundamental structure but introduce changes that may affect risk profile, operational processes, or regulatory treatment.**
+**Variation products are modifications, enhancements, or adaptations of existing MBS products or services that maintain the same fundamental structure but introduce changes that may affect risk profile, operational processes, or regulatory treatment.**
 
 ### 3.2 Variation Sub-Classifications
 
@@ -230,7 +230,7 @@ Is this a Material Variation?
 ## 4. EXISTING CLASSIFICATION
 
 ### 4.1 Definition and Scope
-**Existing products are those that have been previously approved and implemented by DBS, and are being offered in the same or substantially similar format with minimal modifications.**
+**Existing products are those that have been previously approved and implemented by MBS, and are being offered in the same or substantially similar format with minimal modifications.**
 
 ### 4.2 Existing Product Criteria
 
@@ -519,7 +519,7 @@ Classification Logic:
 
 #### Update Triggers:
 - **Regulatory Changes**: New regulations affecting classification
-- **Business Evolution**: Changes in DBS business model or strategy
+- **Business Evolution**: Changes in MBS business model or strategy
 - **Market Development**: New market conditions or product types
 - **Technology Advancement**: New technology capabilities affecting products
 
@@ -546,12 +546,12 @@ Classification Logic:
 ```
 START: New Product/Service to Classify
 │
-├── Never offered by DBS before?
+├── Never offered by MBS before?
 │   ├── YES → Check NTG Criteria (20 indicators)
 │   │   ├── Score ≥10 → NEW-TO-GROUP
 │   │   └── Score <10 → VARIATION
 │   │
-│   └── NO → Previously offered by DBS?
+│   └── NO → Previously offered by MBS?
 │       ├── YES → Check Material Changes
 │       │   ├── Material → VARIATION (Full NPA)
 │       │   ├── Minor → VARIATION (NPA Lite)
@@ -564,7 +564,7 @@ START: New Product/Service to Classify
 
 | Classification | Key Characteristics | Process | Timeline | PAC | PIR |
 |----------------|-------------------|---------|----------|-----|-----|
-| **NTG** | New to DBS Group, >10 criteria | Full NPA | 12-16 weeks | ✅ | ✅ |
+| **NTG** | New to MBS Group, >10 criteria | Full NPA | 12-16 weeks | ✅ | ✅ |
 | **Variation (Material)** | Material changes, 3+ criteria | Full NPA | 8-12 weeks | ❌ | ❌ |
 | **Variation (Minor)** | Minor changes, <3 criteria | NPA Lite | 4-6 weeks | ❌ | ❌ |
 | **Existing** | Minimal changes, existing framework | NPA Lite/Bundle | 2-6 weeks | ❌ | ❌ |
@@ -617,4 +617,4 @@ START: New Product/Service to Classify
 
 ---
 
-*This comprehensive classification framework provides clear, consistent, and accurate classification guidance for all DBS product and service offerings while supporting strategic business objectives and regulatory compliance.*
+*This comprehensive classification framework provides clear, consistent, and accurate classification guidance for all MBS product and service offerings while supporting strategic business objectives and regulatory compliance.*

@@ -373,7 +373,7 @@ PIR Template
       (a) There have been no significant changes that constitute a variant in bookings or other risks associated with the product since it was last approved or traded.  
       (b) Products that are done on back-to-back basis.  
       (c) Products that are vanilla in nature or product that serves as the foundation for all other variants to be built upon.  
-      (d) Product for liquidity management, including for DBS Group Holdings.  
+      (d) Product for liquidity management, including for MBS Group Holdings.  
       (e) Exchange products that are a hedge against customer trades.  
       (f) Origination of ABS deals to meet client demand.  
 

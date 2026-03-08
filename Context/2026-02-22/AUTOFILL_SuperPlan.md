@@ -234,7 +234,7 @@ The Python merge code stays (it works after the trailing comma fix), but gets si
 | booking_legal_form | Booking - Legal Form | Short (e.g., "ISDA Master Agreement") |
 | booking_family | Booking - Family | Code (e.g., "IRD", "FXD", "CRY") |
 | booking_typology | Booking - Typology | Code (e.g., "IRD_IRS_VANILLA") |
-| portfolio_allocation | Portfolio Allocation | Code (e.g., "DBSSG_GFM_FX") |
+| portfolio_allocation | Portfolio Allocation | Code (e.g., "MBSSG_GFM_FX") |
 | confirmation_process | Confirmation Process | 3-5 numbered steps |
 | reconciliation | Reconciliation | 1-2 sentences |
 | tech_requirements | System Requirements | 3-4 bullet points |

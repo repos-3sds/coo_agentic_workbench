@@ -34,7 +34,7 @@ import { DiligenceResponse } from '../../../lib/agent-interfaces';
                 <button
                     (click)="submitQuestion()"
                     [disabled]="!questionText.trim()"
-                    class="rounded-lg bg-dbs-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-dbs-primary-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
+                    class="rounded-lg bg-mbs-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-mbs-primary-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
                 >
                     <lucide-icon name="send" [size]="14"></lucide-icon>
                     Ask

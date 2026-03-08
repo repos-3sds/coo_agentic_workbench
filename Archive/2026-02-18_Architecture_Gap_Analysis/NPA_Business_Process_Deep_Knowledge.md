@@ -1,5 +1,5 @@
 # NPA Business Process — Deep Knowledge Report
-## Comprehensive Business Analysis of the New Product Approval Process at DBS Bank / Global Financial Markets (GFM)
+## Comprehensive Business Analysis of the New Product Approval Process at MBS Bank / Global Financial Markets (GFM)
 
 **Author:** Claude Code (Deep Research — Task No. 1)
 **Date:** 2026-02-18
@@ -35,9 +35,9 @@
 
 ### The Core Purpose
 
-The **New Product Approval (NPA)** process is DBS Bank's gatekeeper function for Global Financial Markets (GFM). It is a mandatory, group-wide governance process that ensures every new financial product, service, or variation is properly assessed for risk before it reaches a client or a trading desk.
+The **New Product Approval (NPA)** process is MBS Bank's gatekeeper function for Global Financial Markets (GFM). It is a mandatory, group-wide governance process that ensures every new financial product, service, or variation is properly assessed for risk before it reaches a client or a trading desk.
 
-In simple terms: **before DBS can trade, sell, or offer any new financial product, it must go through NPA.**
+In simple terms: **before MBS can trade, sell, or offer any new financial product, it must go through NPA.**
 
 ### Why It Matters
 
@@ -49,13 +49,13 @@ Banks trade enormously complex financial instruments — interest rate swaps, FX
 - **Legal/compliance risk** — regulations may prohibit or restrict the activity
 - **Reputational risk** — the product may harm the bank's standing
 
-NPA exists to prevent DBS from launching a product that could cause financial loss, regulatory penalty, or reputational damage. It is not optional — it is mandated by the bank's Risk Management Group and enforced by regulatory expectations (MAS, CFTC, FCA, HKMA, etc.).
+NPA exists to prevent MBS from launching a product that could cause financial loss, regulatory penalty, or reputational damage. It is not optional — it is mandated by the bank's Risk Management Group and enforced by regulatory expectations (MAS, CFTC, FCA, HKMA, etc.).
 
 ### The Policy Framework
 
 NPA is governed by:
 - **New Product Approval Policy** — the overarching group policy
-- **New Product Approval Standard** (DBS_10_S_0012_GR) — the detailed standard issued by RMG-OR (Risk Management Group — Operational Risk)
+- **New Product Approval Standard** (MBS_10_S_0012_GR) — the detailed standard issued by RMG-OR (Risk Management Group — Operational Risk)
 - **GFM NPA Standard Operating Procedures** — GFM-specific rules that are *stricter* than the group standard in several areas
 
 **Critical rule:** Where the GFM SOP and the Group Standard differ, the stricter requirement prevails.
@@ -118,7 +118,7 @@ Classification is the single most important decision in the NPA process. It happ
 
 ### 3.1 New-to-Group (NTG)
 
-**Definition:** Products that have NEVER been approved anywhere in DBS Group, in any entity, in any form, in any location.
+**Definition:** Products that have NEVER been approved anywhere in MBS Group, in any entity, in any form, in any location.
 
 **Triggers — ANY of the following makes it NTG:**
 - Brand new businesses, initiatives, products, or financial instruments
@@ -136,7 +136,7 @@ Classification is the single most important decision in the NPA process. It happ
 - 1-year validity from approval (extendable once for +6 months)
 - For overseas locations: Head Office function sign-offs required
 
-**Real example:** DBS has distributed FX Options to clients as a broker. Now the Hong Kong desk wants to trade FX Options as principal (taking market risk onto DBS's books). Even though FX Options exist in the bank, trading as *principal* is a completely new role → NTG.
+**Real example:** MBS has distributed FX Options to clients as a broker. Now the Hong Kong desk wants to trade FX Options as principal (taking market risk onto MBS's books). Even though FX Options exist in the bank, trading as *principal* is a completely new role → NTG.
 
 ### 3.2 Variation
 
@@ -160,7 +160,7 @@ Classification is the single most important decision in the NPA process. It happ
 
 ### 3.3 Existing
 
-**Definition:** Products already approved somewhere in DBS Group, being introduced to a new location, desk, or entity — or being reactivated after dormancy/expiry.
+**Definition:** Products already approved somewhere in MBS Group, being introduced to a new location, desk, or entity — or being reactivated after dormancy/expiry.
 
 **Three sub-categories:**
 1. **New to location/desk/entity** — FX Option approved in Singapore, now Hong Kong wants it
@@ -247,7 +247,7 @@ See [Section 9: Evergreen Products](#9-evergreen-products) for full details.
 Products or jurisdictions explicitly banned by policy or regulation. Immediate workflow termination. No exceptions without Compliance/EVP review.
 
 Three prohibition layers:
-1. **Internal bank policy** — Products DBS has decided not to offer (risk appetite, reputational)
+1. **Internal bank policy** — Products MBS has decided not to offer (risk appetite, reputational)
 2. **Regulatory restrictions** — MAS, CFTC, FCA, local regulators
 3. **Sanctions/embargoes** — OFAC, UN, EU (zero tolerance, criminal liability)
 
@@ -441,7 +441,7 @@ Evergreen products are standard, vanilla products that are "always on" for **3 y
 1. No significant changes since last approval
 2. Back-to-Back (BTB) basis with professional counterparty
 3. Vanilla/foundational product (building block for other variants)
-4. Liquidity management product (including for DBS Group Holdings)
+4. Liquidity management product (including for MBS Group Holdings)
 5. Exchange product used as hedge against customer trades
 6. ABS origination to meet client demand
 
@@ -698,7 +698,7 @@ The NPA document follows a standardized template (RMG OR Version Jun 2025):
 - **Track:** Full NPA
 - **Complexity:**
   - New legal framework (NAFMII vs traditional GMRA)
-  - Cross-border settlement via DBS China and ABOC
+  - Cross-border settlement via MBS China and ABOC
   - Restricted currency handling (CNY/CNH)
   - Chinese withholding tax and VAT implications
   - Daily trade volume: RMB 4 billion in a RMB 4 trillion market
@@ -714,7 +714,7 @@ The NPA document follows a standardized template (RMG OR Version Jun 2025):
 
 - **Product:** Interest Rate Swaps via Swap Connect platform (cross-border Hong Kong ↔ China)
 - **Booking:** IRD|IRS|Vanilla typology with CNH 7DREPO 3M SWAPCON generator
-- **Portfolio:** DBSSG AMM BCB1 mapped for margin requirements
+- **Portfolio:** MBSSG AMM BCB1 mapped for margin requirements
 - **Legal:** ISDA with novation to HKEx OTC Clear
 - **Lesson:** Infrastructure market access products (like Swap Connect) require Full NPA because they change the operational model fundamentally, even if IRS itself is an existing product
 
@@ -870,8 +870,8 @@ Every other COO function either feeds into NPA (trader profiles, mandates, compl
 | Term | Definition |
 |------|-----------|
 | **NPA** | New Product Approval — the governance process for approving new products |
-| **NTG** | New-to-Group — product never approved anywhere in DBS Group |
-| **GFM** | Global Financial Markets — the trading/markets division of DBS |
+| **NTG** | New-to-Group — product never approved anywhere in MBS Group |
+| **GFM** | Global Financial Markets — the trading/markets division of MBS |
 | **PAC** | Product Approval Committee — Group-level committee for NTG products |
 | **PIR** | Post-Implementation Review — mandatory review after product launch |
 | **SOP** | Sign-Off Party — functional expert who reviews NPA in their domain |

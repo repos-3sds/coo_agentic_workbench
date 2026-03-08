@@ -835,7 +835,7 @@ Example: User wants FX Option → TSG1567 Corporate Loan (0.12)
 
 ### Edge Case 1: No Similar NPAs Found
 
-**Scenario**: User's product is Credit Default Swap (DBS has never traded CDS)
+**Scenario**: User's product is Credit Default Swap (MBS has never traded CDS)
 
 **Challenge**: Semantic search returns zero results >80% similarity
 
@@ -848,7 +848,7 @@ if max_similarity_score < 0.80:
   # Broaden search
   search_related_products = ["Interest Rate Swap", "FX Option", "Credit Derivative"]
 
-  display_message = "⚠️ No exact matches found (DBS has not traded CDS before). Showing most similar derivative products for reference."
+  display_message = "⚠️ No exact matches found (MBS has not traded CDS before). Showing most similar derivative products for reference."
 
   suggest_escalation = "This appears to be New-to-Group. Recommend engaging PAC for guidance."
 ```

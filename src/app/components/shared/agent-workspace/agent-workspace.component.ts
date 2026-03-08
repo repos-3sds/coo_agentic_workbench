@@ -393,7 +393,7 @@ interface AgentIdentity {
           <!-- Generate Work Item Button -->
           <div *ngIf="showGenerateButton" class="px-4 py-3 border-t border-indigo-100 bg-indigo-50/50 flex-none">
              <button (click)="navigateToDomain(activeDomainRoute)"
-                     class="w-full py-3 bg-dbs-primary hover:bg-dbs-primary-hover text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 transform active:scale-95">
+                     class="w-full py-3 bg-mbs-primary hover:bg-mbs-primary-hover text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 transform active:scale-95">
                 <lucide-icon name="file-plus-2" class="w-4 h-4"></lucide-icon>
                 Open in {{ activeDomainAgent?.name || 'Domain Agent' }}
              </button>
@@ -527,7 +527,7 @@ interface AgentIdentity {
                 </div>
              </div>
              <div class="p-4 border-t border-slate-200 bg-slate-50">
-                <button (click)="submitTemplateForm()" class="w-full py-3 bg-dbs-primary hover:bg-dbs-primary-hover text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 transform active:scale-95">
+                <button (click)="submitTemplateForm()" class="w-full py-3 bg-mbs-primary hover:bg-mbs-primary-hover text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 transform active:scale-95">
                    <lucide-icon name="sparkles" class="w-4 h-4"></lucide-icon> Generate with AI
                 </button>
              </div>

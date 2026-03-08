@@ -179,7 +179,7 @@ interface AgentIdentity {
       <!-- Generate Work Item Button -->
       <div *ngIf="showGenerateButton" class="px-4 py-3 border-t border-blue-100 bg-blue-50/50">
          <button (click)="generateWorkItem()"
-                 class="w-full py-3 bg-dbs-primary hover:bg-dbs-primary-hover text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 transform active:scale-95">
+                 class="w-full py-3 bg-mbs-primary hover:bg-mbs-primary-hover text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 transform active:scale-95">
             <lucide-icon name="file-plus-2" class="w-4 h-4"></lucide-icon>
             Generate Work Item
          </button>

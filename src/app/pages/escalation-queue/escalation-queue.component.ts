@@ -173,7 +173,7 @@ import { ToastService } from '../../services/toast.service';
             </div>
           </div>
           <div class="px-6 py-4 border-t border-slate-200 flex justify-end gap-3">
-            <button (click)="resolveModal = null" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-lg border border-dbs-border">Cancel</button>
+            <button (click)="resolveModal = null" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-lg border border-mbs-border">Cancel</button>
             <button (click)="submitResolve()" [disabled]="!resolveNotes || !resolveDecision"
                     class="px-4 py-2 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
               Resolve

@@ -56,7 +56,7 @@ User Input → Agent Processing → Knowledge Enrichment → Validation → Stor
 ├── /Policy_Documents/
 │   ├── MAS_656_Guidelines.pdf
 │   ├── PBOC_Swap_Connect_Framework.pdf
-│   └── DBS_Risk_Framework.pdf
+│   └── MBS_Risk_Framework.pdf
 ├── /Templates/
 │   ├── NPA_Standard_Template.docx
 │   ├── Risk_Assessment_Templates/

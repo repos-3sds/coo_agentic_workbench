@@ -96,7 +96,7 @@ model_config:
     enabled: false
   opening_statement: ''
   pre_prompt: 'You are the **NPA Finance Agent** in the COO Multi-Agent Workbench
-    for DBS Trading & Markets — Global Financial Markets (GFM).
+    for MBS Trading & Markets — Global Financial Markets (GFM).
 
 
     ## ROLE
@@ -413,7 +413,7 @@ model_config:
     - Backtesting required: 1-year lookback, 99th percentile
 
 
-    ### PURE Assessment Framework (DBS)
+    ### PURE Assessment Framework (MBS)
 
     - **Purposeful**: Does the product serve a genuine customer need?
 
@@ -460,7 +460,7 @@ model_config:
     5. For LLM strategy fields, generate substantive finance content based on the
     product''''s pricing and risk characteristics.
 
-    6. For COPY strategy fields, base suggestions on standard DBS data governance
+    6. For COPY strategy fields, base suggestions on standard MBS data governance
     frameworks.
 
     7. Always check if ROAE analysis is required based on notional amount thresholds.

@@ -46,7 +46,7 @@
 ### Classification 1: New-to-Group (NTG)
 
 **Definition:**  
-DBS Group has **NEVER** done this before, anywhere, in any form.
+MBS Group has **NEVER** done this before, anywhere, in any form.
 
 **Priority:** HIGHEST (if NTG, automatically → Full NPA in Stage 2)
 
@@ -55,9 +55,9 @@ DBS Group has **NEVER** done this before, anywhere, in any form.
 **Category A: Product Novelty (Criteria 1-6)**
 
 **Criterion 1: New Asset Class**
-- **Condition:** Asset class not in DBS product catalog
+- **Condition:** Asset class not in MBS product catalog
 - **Examples:**
-  - ✅ Cryptocurrency derivatives (DBS never traded crypto)
+  - ✅ Cryptocurrency derivatives (MBS never traded crypto)
   - ✅ Carbon credit derivatives (new asset class)
   - ✅ NFT-backed lending (blockchain assets)
   - ❌ FX Options (existing asset class: FX)
@@ -65,13 +65,13 @@ DBS Group has **NEVER** done this before, anywhere, in any form.
 **Criterion 2: New Product Type Within Asset Class**
 - **Condition:** Asset class exists, but this specific product type does not
 - **Examples:**
-  - ✅ Credit Default Swaps (DBS trades credit derivatives, but never CDS)
-  - ✅ Barrier Options (DBS trades FX options, but never barrier style)
+  - ✅ Credit Default Swaps (MBS trades credit derivatives, but never CDS)
+  - ✅ Barrier Options (MBS trades FX options, but never barrier style)
   - ✅ Digital Options (vanilla options exist, digitals do not)
   - ❌ Standard FX Forward (product type exists)
 
 **Criterion 3: New Role in Product Ecosystem**
-- **Condition:** DBS has distributed/brokered this product, but never as principal
+- **Condition:** MBS has distributed/brokered this product, but never as principal
 - **Examples:**
   - ✅ Acting as market maker (previously only distributor)
   - ✅ Principal trading (previously only agency broker)
@@ -83,7 +83,7 @@ DBS Group has **NEVER** done this before, anywhere, in any form.
 - **Examples:**
   - ✅ Self-service mobile app (previously only via RM)
   - ✅ API-based trading (previously only phone/email)
-  - ✅ White-label partner distribution (previously only DBS channels)
+  - ✅ White-label partner distribution (previously only MBS channels)
   - ❌ Same distribution channel
 
 **Criterion 5: New Customer Segment**
@@ -160,7 +160,7 @@ DBS Group has **NEVER** done this before, anywhere, in any form.
 **Category C: Regulatory & Compliance (Criteria 13-16)**
 
 **Criterion 13: New Regulatory Regime**
-- **Condition:** Subject to regulations DBS hasn't navigated before
+- **Condition:** Subject to regulations MBS hasn't navigated before
 - **Examples:**
   - ✅ MiFID II compliance (first EU product)
   - ✅ Dodd-Frank Title VII (first US swaps)
@@ -170,7 +170,7 @@ DBS Group has **NEVER** done this before, anywhere, in any form.
 **Criterion 14: New Booking Desk/Entity**
 - **Condition:** Product booked in legal entity never used for this purpose
 - **Examples:**
-  - ✅ Booking in DBS Bank Ltd (previously only DBSH)
+  - ✅ Booking in MBS Bank Ltd (previously only MBSH)
   - ✅ Booking in newly established SPV
   - ✅ Cross-border booking (SG booking for HK client)
   - ❌ Same booking entity as before
@@ -189,7 +189,7 @@ DBS Group has **NEVER** done this before, anywhere, in any form.
   - ✅ ISDA 2002 with custom CSA (previously only ISDA 1992)
   - ✅ Smart contract legal framework
   - ✅ First use of GMRA for repo
-  - ❌ Standard DBS T&Cs
+  - ❌ Standard MBS T&Cs
 
 ---
 
@@ -308,7 +308,7 @@ Modification to an **existing** product that **alters the risk profile** for cus
 - **Risk Assessment:** Greenwashing risk, ESG reporting requirements
 
 **Criterion 6: Innovative/Advanced Technology**
-- **Condition:** Uses technology not standard for DBS
+- **Condition:** Uses technology not standard for MBS
 - **Examples:**
   - ✅ Fintech partnership (e.g., robo-advisor, API integration)
   - ✅ Blockchain/DLT settlement
@@ -362,7 +362,7 @@ ELSE:
 ### Classification 3: Existing
 
 **Definition:**  
-Product **already approved** elsewhere in DBS Group, now being introduced to new location/desk/entity.
+Product **already approved** elsewhere in MBS Group, now being introduced to new location/desk/entity.
 
 **Priority:** LOWEST (most likely NPA Lite or Evergreen)
 
@@ -657,7 +657,7 @@ IF (Product on Evergreen list):
 **Prohibited Sources (Check ALL):**
 
 **Source 1: Internal Bank Policy**
-- Products banned by DBS Group policy
+- Products banned by MBS Group policy
 - Check: Query Supabase `prohibited_products` table
 - Example: Crypto derivatives (if bank policy prohibits)
 
@@ -676,7 +676,7 @@ IF (Product on Evergreen list):
 - Example: Trading with sanctioned Russian entities
 
 **Source 4: Jurisdictional Prohibitions**
-- Country/region where DBS cannot operate
+- Country/region where MBS cannot operate
 - Check: Cross-reference jurisdiction against approved list
 - Example: Trading in North Korea, Iran (sanctioned countries)
 
@@ -1142,7 +1142,7 @@ Check NTG Criteria:
   - Criterion 2: New product type? 
     → Query historical NPAs: SELECT * FROM npa_instances WHERE product_type LIKE '%CDS%'
     → Result: 0 matches
-    → ✅ DBS has NEVER traded CDS → NTG Criterion 2 MET
+    → ✅ MBS has NEVER traded CDS → NTG Criterion 2 MET
 
 Confidence Calculation:
   - Base: 0.85 (1 criterion clearly met)
@@ -1168,10 +1168,10 @@ IF (NTG):
   "stage1_classification": "New-to-Group (NTG)",
   "stage2_approval_track": "Full NPA",
   "confidence": 0.90,
-  "reasoning": "DBS has never traded Credit Default Swaps before. This constitutes a new product type for the entire Group, triggering NTG classification per Criterion 2.",
+  "reasoning": "MBS has never traded Credit Default Swaps before. This constitutes a new product type for the entire Group, triggering NTG classification per Criterion 2.",
   "evidence": [
     "Historical NPA search returned 0 results for 'CDS' or 'Credit Default Swap'",
-    "Product type 'CDS' not found in DBS product catalog",
+    "Product type 'CDS' not found in MBS product catalog",
     "RAG similarity search: 0% match to existing products"
   ],
   "mandatory_requirements": {
@@ -1522,7 +1522,7 @@ Query prohibited_products table:
   
   Result: MATCH FOUND
     - product_type: "Cryptocurrency derivatives"
-    - reason: "DBS Group Policy - No crypto exposure"
+    - reason: "MBS Group Policy - No crypto exposure"
     - jurisdiction: "ALL"
 
 → ❌ HARD STOP - PROHIBITED
@@ -1537,8 +1537,8 @@ Query prohibited_products table:
   "stage2_approval_track": "Prohibited",
   "confidence": 1.00,
   "hard_stop": true,
-  "prohibition_reason": "DBS Group Policy prohibits all cryptocurrency-related products and derivatives. This includes Bitcoin, Ethereum, and all digital asset exposures.",
-  "prohibition_source": "Internal Policy - DBS Group Risk Framework, Section 8.3",
+  "prohibition_reason": "MBS Group Policy prohibits all cryptocurrency-related products and derivatives. This includes Bitcoin, Ethereum, and all digital asset exposures.",
+  "prohibition_source": "Internal Policy - MBS Group Risk Framework, Section 8.3",
   "applicable_jurisdictions": "ALL (global prohibition)",
   "action_required": "Cannot proceed with this NPA. Please contact Compliance if you believe this is an error or if you have senior management approval to override this policy.",
   "alternative_suggestions": [
@@ -1546,7 +1546,7 @@ Query prohibited_products table:
     "Consider equity derivatives on blockchain technology companies (not direct crypto exposure)",
     "Contact Innovation team for potential Proof-of-Concept (PoC) approval under controlled environment"
   ],
-  "escalation_contact": "compliance@dbs.com",
+  "escalation_contact": "compliance@mbs.com",
   "source": "KB_NPA_Classification_Rules - Section 3, Track E (Prohibited)"
 }
 ```

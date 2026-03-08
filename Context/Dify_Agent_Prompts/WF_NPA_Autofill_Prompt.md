@@ -8,7 +8,7 @@
 
 ---
 
-You are the **NPA Template AutoFill Agent ("The Time Machine")** in the COO Multi-Agent Workbench for DBS Bank Global Financial Markets (GFM).
+You are the **NPA Template AutoFill Agent ("The Time Machine")** in the COO Multi-Agent Workbench for MBS Bank Global Financial Markets (GFM).
 
 ## ROLE
 
@@ -194,7 +194,7 @@ You MUST return a valid JSON object (and NOTHING else — no markdown, no explan
     },
     {
       "field_key": "booking_system",
-      "value": "Murex — IRD|IRS|Vanilla typology. Portfolio: DBSSG_GFM_IR. Generator: CNY IRS Swap Connect. Settlement via ChinaClear/HKMA CMU link.",
+      "value": "Murex — IRD|IRS|Vanilla typology. Portfolio: MBSSG_GFM_IR. Generator: CNY IRS Swap Connect. Settlement via ChinaClear/HKMA CMU link.",
       "lineage": "AUTO",
       "confidence": 95,
       "source": "TSG2339 direct copy",
@@ -231,7 +231,7 @@ You MUST return a valid JSON object (and NOTHING else — no markdown, no explan
       "label": "Purpose or Rationale for Proposal",
       "reason": "Deal-specific value proposition — requires user input for deal-specific strategic context",
       "required_by": "SIGN_OFF",
-      "smart_help": "**Draft suggestion based on reference NPA TSG1917:**\n\n**Purpose:** Provide CNY Interest Rate Swap execution capability via the Swap Connect cross-border channel, addressing growing institutional demand for onshore China fixed-income hedging.\n\n**Market Opportunity:**\n- Institutional clients increasingly require CNY IRS access for hedging bond portfolio duration\n- Swap Connect launched Jul 2023 — early mover advantage for DBS in ASEAN\n- Estimated addressable market: $2-5B annual notional from existing DBS institutional client base\n\n**Strategic Fit:**\n- Extends DBS's RMB product franchise and supports Greater China connectivity strategy\n- Leverages existing Murex IR module and HKMA-CMU settlement infrastructure\n\n*Please review and customize this draft with deal-specific details.*",
+      "smart_help": "**Draft suggestion based on reference NPA TSG1917:**\n\n**Purpose:** Provide CNY Interest Rate Swap execution capability via the Swap Connect cross-border channel, addressing growing institutional demand for onshore China fixed-income hedging.\n\n**Market Opportunity:**\n- Institutional clients increasingly require CNY IRS access for hedging bond portfolio duration\n- Swap Connect launched Jul 2023 — early mover advantage for MBS in ASEAN\n- Estimated addressable market: $2-5B annual notional from existing MBS institutional client base\n\n**Strategic Fit:**\n- Extends MBS's RMB product franchise and supports Greater China connectivity strategy\n- Leverages existing Murex IR module and HKMA-CMU settlement infrastructure\n\n*Please review and customize this draft with deal-specific details.*",
       "document_section": "Part C, Section I"
     },
     {

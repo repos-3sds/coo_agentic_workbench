@@ -55,7 +55,7 @@ import { AgentCapability } from '../../../services/dify/dify-agent.service';
                <span class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-mono">Model: GPT-4o</span>
                <span class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-mono">Tools: 3</span>
             </div>
-             <button class="w-full mt-3 py-1.5 rounded-lg bg-dbs-primary text-white font-semibold hover:bg-dbs-primary-hover transition-colors">
+             <button class="w-full mt-3 py-1.5 rounded-lg bg-mbs-primary text-white font-semibold hover:bg-mbs-primary-hover transition-colors">
                Launch Full Mode
             </button>
          </div>

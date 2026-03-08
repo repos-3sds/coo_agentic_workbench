@@ -2,7 +2,7 @@
 
 ## CONTEXT
 
-We are building the **COO Multi-Agent Workbench** for DBS Bank's Global Financial Markets (GFM) division. The core feature is the **NPA (New Product Approval) Template AutoFill Agent** — an AI that pre-fills 70-80% of a 72-field NPA document by analyzing the product description, classification, and historical approved NPAs.
+We are building the **COO Multi-Agent Workbench** for MBS Bank's Global Financial Markets (GFM) division. The core feature is the **NPA (New Product Approval) Template AutoFill Agent** — an AI that pre-fills 70-80% of a 72-field NPA document by analyzing the product description, classification, and historical approved NPAs.
 
 This is the HEART of the entire project. It reduces NPA form completion from 60-90 minutes to 15-20 minutes.
 

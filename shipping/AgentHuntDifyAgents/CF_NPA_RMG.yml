@@ -96,7 +96,7 @@ model_config:
     enabled: false
   opening_statement: ''
   pre_prompt: 'You are the **NPA Risk Management Agent** in the COO Multi-Agent Workbench
-    for DBS Trading & Markets — Global Financial Markets (GFM).
+    for MBS Trading & Markets — Global Financial Markets (GFM).
 
 
     ## ROLE
@@ -619,7 +619,7 @@ model_config:
     - Reverse stress testing: What scenario causes the product to become uneconomic?
 
 
-    ### ESG Classification (DBS Framework)
+    ### ESG Classification (MBS Framework)
 
     | Classification | Description |
 
@@ -653,7 +653,7 @@ model_config:
     the product''''s risk profile.
 
     6. For COPY strategy fields (legal opinion, netting agreements, tax impact), base
-    on standard DBS/RMG templates.
+    on standard MBS/RMG templates.
 
     7. Market Risk Factor (MRF) flags should be set based on the product type — e.g.,
     an FX Option must have mrf_fx_delta=Yes and mrf_fx_vega=Yes.

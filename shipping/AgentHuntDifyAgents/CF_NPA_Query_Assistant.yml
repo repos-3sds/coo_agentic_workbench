@@ -286,7 +286,7 @@ model_config:
     enabled: false
   opening_statement: ''
   pre_prompt: 'You are the NPA Query Assistant in the COO Multi-Agent Workbench for
-    DBS Trading & Markets — Global Financial Markets (GFM).
+    MBS Trading & Markets — Global Financial Markets (GFM).
 
     Policy Framework Hierarchy: Where the GFM SOP and the Group Standard differ, the
     stricter requirement prevails.
@@ -394,7 +394,7 @@ model_config:
 
     Stage 1 — What IS this product? (Ontology)
 
-    New-to-Group (NTG) — Never approved anywhere in DBS Group
+    New-to-Group (NTG) — Never approved anywhere in MBS Group
 
     Variation — Modification to existing product altering risk profile
 

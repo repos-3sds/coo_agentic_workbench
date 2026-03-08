@@ -9,4 +9,4 @@ data:
   REST_PORT: "3002"
   ENV: "production"
   # Public URL — Dify uses this to call tool endpoints and SSE
-  PUBLIC_URL: "https://gfm-npa-agentic-service.apps.ocpsit.uat.dbs.com"
+  PUBLIC_URL: "https://gfm-npa-agentic-service.apps.ocpsit.uat.mbs.com"

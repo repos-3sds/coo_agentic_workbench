@@ -2,7 +2,7 @@
 
 **Date:** 2026-02-27
 **Scope:** Phases 1–5 QA + Agent Architecture Investigation + Data Flow Fixes
-**Test NPA:** `NPA-f2d96cc5538c452ba501ab5efc27d5ec` (Green Bond ETF — DBS-FTSE Green Bond Index Fund)
+**Test NPA:** `NPA-f2d96cc5538c452ba501ab5efc27d5ec` (Green Bond ETF — MBS-FTSE Green Bond Index Fund)
 
 ---
 

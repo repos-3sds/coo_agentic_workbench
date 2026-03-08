@@ -6,7 +6,7 @@
 
 ## Document Purpose
 
-This document serves as the definitive, universal template for all New Product Approval (NPA) submissions at DBS Bank. It consolidates requirements from the comprehensive NPA framework and real-world template analysis to provide a single source of truth for NPA creation.
+This document serves as the definitive, universal template for all New Product Approval (NPA) submissions at MBS Bank. It consolidates requirements from the comprehensive NPA framework and real-world template analysis to provide a single source of truth for NPA creation.
 
 ---
 
@@ -27,7 +27,7 @@ This document serves as the definitive, universal template for all New Product A
 |-------|-------------|----------|-------------------|
 | **Proposing Unit (PU)** | Primary business unit proposing the product | ✓ | User Profile |
 | **Locations Covered** | All geographical locations where product will be offered | ✓ | Manual |
-| **Legal Entities Involved** | All DBS entities participating in product delivery | ✓ | Manual |
+| **Legal Entities Involved** | All MBS entities participating in product delivery | ✓ | Manual |
 | **Product Manager Name & Team** | Primary product owner and team structure | ✓ | User Profile |
 | **Group Product Head** | Senior executive sponsor | ✓ | Org Chart |
 | **Proposal Preparer/Lead** | Document author and primary contact | ✓ | User Profile |
@@ -87,7 +87,7 @@ This document serves as the definitive, universal template for all New Product A
 Template Questions:
 - What customer problem does this product solve?
 - What are the specific benefits to customers or business units?
-- How does this product align with DBS strategic objectives?
+- How does this product align with MBS strategic objectives?
 - What market opportunity does this address?
 ```
 
@@ -145,7 +145,7 @@ Assessment Framework:
 
 | Channel Type | Availability | Requirements |
 |--------------|-------------|--------------|
-| **Digital Channels** | DBS omni, digibank, institutional portals | Tech integration |
+| **Digital Channels** | MBS omni, digibank, institutional portals | Tech integration |
 | **Relationship Managers** | IBG, PWM, SME Banking | Sales training |
 | **Trading Desks** | Direct market access | Trading infrastructure |
 | **Third-Party Partners** | External distributors | Partnership agreements |
@@ -235,7 +235,7 @@ BCP Requirements:
 **Auto-Fill Score: 20%**
 ```
 Assessment Areas:
-- Licensing requirements (DBS and staff)
+- Licensing requirements (MBS and staff)
 - Regulatory approvals and notifications
 - Cross-border regulatory considerations
 - Banking Act compliance (S27, S29, S30, S35)
@@ -359,10 +359,10 @@ Data Aggregation Requirements:
 
 | Function | Legal Entity | Location | Regulatory Requirements |
 |----------|-------------|----------|------------------------|
-| **Sales/Origination** | DBS Bank Ltd | Singapore | MAS supervision |
-| **Booking** | DBS Bank Ltd | Singapore | Accounting standards |
-| **Risk Taking** | DBS Bank Ltd | Singapore | Capital allocation |
-| **Processing** | DBS operations | Multiple | Local compliance |
+| **Sales/Origination** | MBS Bank Ltd | Singapore | MAS supervision |
+| **Booking** | MBS Bank Ltd | Singapore | Accounting standards |
+| **Risk Taking** | MBS Bank Ltd | Singapore | Capital allocation |
+| **Processing** | MBS operations | Multiple | Local compliance |
 
 ### Appendix 2: Financial Crime Risk Detailed Assessment
 **Auto-Fill Score: 50%**
@@ -457,4 +457,4 @@ Version Control:
 
 **Template End**
 
-*This template represents the consolidation of DBS NPA requirements, real-world template analysis, and best practices from actual NPA submissions. It serves as the definitive reference for all New Product Approval documentation.*
+*This template represents the consolidation of MBS NPA requirements, real-world template analysis, and best practices from actual NPA submissions. It serves as the definitive reference for all New Product Approval documentation.*

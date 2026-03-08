@@ -13,7 +13,7 @@
 When someone walks up to the NPA system and says "I want to trade a dual currency deposit with an FX option embedded," the system needs to answer two fundamental questions:
 
 **Question 1: What IS this?**
-- Is this something completely new to DBS (New-to-Group)?
+- Is this something completely new to MBS (New-to-Group)?
 - Is this a twist on something we already do (Variation)?
 - Is this something we've approved before (Existing)?
 
@@ -50,31 +50,31 @@ Similarly in NPA, you can't decide "Full NPA vs NPA Lite" until you know whether
 
 ## Stage 1: Product Classification Logic
 
-This stage answers: **"What IS this product, relative to DBS Group's history?"**
+This stage answers: **"What IS this product, relative to MBS Group's history?"**
 
 ### Classification Category 1: New-to-Group (NTG)
 
 **The Simple Test:**
-Has DBS Group **EVER** done this before, anywhere in the world, in any entity, in any form?
+Has MBS Group **EVER** done this before, anywhere in the world, in any entity, in any form?
 
 If the answer is NO → It's New-to-Group.
 
 **Real-World Examples:**
 
 **Example 1: Credit Default Swaps**
-- DBS has never traded CDS before
+- MBS has never traded CDS before
 - Singapore desk wants to start offering CDS to corporate clients
 - **Classification:** New-to-Group
 - **Why:** Brand new product type to entire Group
 
 **Example 2: FX Options as Principal**
-- DBS has distributed FX Options (acting as broker for clients)
+- MBS has distributed FX Options (acting as broker for clients)
 - Now Hong Kong desk wants to trade FX Options as principal (taking market risk)
 - **Classification:** New-to-Group
 - **Why:** New ROLE within product group (principal vs distributor is massive risk shift)
 
 **Example 3: Retail Mobile App Channel**
-- DBS offers structured deposits to institutional clients via relationship managers
+- MBS offers structured deposits to institutional clients via relationship managers
 - Now wants to offer same deposits to retail via mobile app
 - **Classification:** New-to-Group
 - **Why:** New distribution channel + new customer segment (retail via self-service)
@@ -505,13 +505,13 @@ One of the most important features of this agent is **explainability**. Users ne
 **Reasoning:**
 "I classified this as New-to-Group because:
 
-1. **No historical precedent found** → I searched 1,784 historical NPAs and found zero matches for 'Credit Default Swap.' This indicates DBS has never traded CDS before.
+1. **No historical precedent found** → I searched 1,784 historical NPAs and found zero matches for 'Credit Default Swap.' This indicates MBS has never traded CDS before.
 
 2. **New product type** → CDS is not in our existing product taxonomy. This is a new asset class for the bank.
 
-3. **High regulatory impact** → CDS trading requires CFTC registration, which DBS does not currently have. This confirms it's genuinely new to Group.
+3. **High regulatory impact** → CDS trading requires CFTC registration, which MBS does not currently have. This confirms it's genuinely new to Group.
 
-4. **Your confirmation** → You stated 'This is the first time DBS is considering CDS.' This corroborates my analysis.
+4. **Your confirmation** → You stated 'This is the first time MBS is considering CDS.' This corroborates my analysis.
 
 Because this is New-to-Group, the following requirements are mandatory:
 - PAC approval required BEFORE NPA starts

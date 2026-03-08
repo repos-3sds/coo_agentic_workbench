@@ -4,13 +4,13 @@ Version	Date	Author	Status
 1.0	December 2025	COO Technology Team	Draft
 1.1	December 2025	COO Technology Team	Enhanced - Gaps Addressed
 Executive Summary
-The COO Multi-Agent Workbench is an enterprise-grade, unified agentic AI platform designed to orchestrate and automate complex workflows across all seven functions under the Chief Operating Officer (COO) of Trading & Markets (T&M) at DBS Bank.
+The COO Multi-Agent Workbench is an enterprise-grade, unified agentic AI platform designed to orchestrate and automate complex workflows across all seven functions under the Chief Operating Officer (COO) of Trading & Markets (T&M) at MBS Bank.
 This platform represents a paradigm shift from function-specific siloed systems to an integrated, intelligent command center where AI agents collaborate across domains, share knowledge, and autonomously execute tasks while maintaining human oversight and regulatory compliance.
 Primary Objective: Reduce manual operational overhead by 60%, improve decision quality by 40%, and enable real-time visibility into all COO operations through intelligent automation.
 
 1. Vision & Strategic Context
 1.1 The Challenge
-The COO Office at DBS T&M manages seven critical functions spanning across Singapore, Hong Kong, China, Taiwan, India, Indonesia, Korea, London, and Japan:
+The COO Office at MBS T&M manages seven critical functions spanning across Singapore, Hong Kong, China, Taiwan, India, Indonesia, Korea, London, and Japan:
 1. Desk Support (12 operational pillars)
 2. New Product Assessment (NPA) (6-stage lifecycle)
 3. Strategic Programme Management
@@ -1042,7 +1042,7 @@ MCP SERVERS
 [+ Add MCP Server] (admin only)
 REST APIs
 ðŸŒ C720 Customer API
-* Endpoint: https://internal.dbs.com/api/c720
+* Endpoint: https://internal.mbs.com/api/c720
 * Status: ðŸŸ¢ Healthy
 * Latency: 120ms (avg)
 * Purpose: Fetch customer data for NPA context
@@ -1050,7 +1050,7 @@ REST APIs
 * Success Rate: 99.1%
 * [Test] [View API Docs] [Configure] (admin only)
 ðŸŒ Murex Trading API
-* Endpoint: https://murex.dbs.com/api/trades
+* Endpoint: https://murex.mbs.com/api/trades
 * Status: ðŸŸ¢ Healthy
 * Latency: 85ms
 * Purpose: Fetch trade data for product risk assessment
@@ -1058,7 +1058,7 @@ REST APIs
 * Success Rate: 98.7%
 * [Test] [Docs] [Configure] (admin only)
 ðŸŒ MINV Limit API
-* Endpoint: https://minv.dbs.com/api/limits
+* Endpoint: https://minv.mbs.com/api/limits
 * Status: ðŸŸ¢ Healthy
 * Latency: 65ms
 * Purpose: Check credit and capital limits
@@ -1068,7 +1068,7 @@ REST APIs
 [+ Add API] (admin only)
 WEBHOOKS
 ðŸ”” Outbound: NPA Approval Notification
-* URL: https://npahouse.dbs.com/webhook/approval
+* URL: https://npahouse.mbs.com/webhook/approval
 * Trigger: When NPA approved
 * Status: ðŸŸ¢ Active
 * Sent Today: 5
@@ -1085,7 +1085,7 @@ WEBHOOKS
 DATABASE CONNECTIONS
 ðŸ—„ï¸ NPA Historical Database
 * Type: PostgreSQL
-* Host: npa-db.internal.dbs.com
+* Host: npa-db.internal.mbs.com
 * Status: ðŸŸ¢ Connected
 * Purpose: Historical NPA records for ML training
 * Queries Today: 67
@@ -1384,7 +1384,7 @@ Internal APIs:
 * MINV Limit API (REST)
 * RICO Risk API (REST)
 Authentication: OAuth 2.0 / SAML 2.0
-* SSO integration with DBS Active Directory
+* SSO integration with MBS Active Directory
 * Role-based access control (RBAC)
 Audit & Compliance:
 * All API calls logged
@@ -1699,7 +1699,7 @@ User Adoption (Active Users)	>80%
 Support Ticket Resolution Time	<4 hours
 User Satisfaction (Change Process)	>4.0/5.0
 10. Conclusion
-The COO Multi-Agent Workbench represents a transformational shift in how DBS T&M's COO Office operates. By unifying seven critical functions under one intelligent platform, we achieve:
+The COO Multi-Agent Workbench represents a transformational shift in how MBS T&M's COO Office operates. By unifying seven critical functions under one intelligent platform, we achieve:
 1. Unprecedented Efficiency: 67% reduction in processing times, 15,000+ hours saved annually
 2. Enhanced Quality: 92% decision accuracy, 100% compliance coverage
 3. Strategic Insight: Real-time visibility into all operations, proactive bottleneck detection

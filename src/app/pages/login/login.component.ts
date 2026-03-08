@@ -16,11 +16,11 @@ interface QuickUser {
 }
 
 const QUICK_USERS: QuickUser[] = [
-  { id: 'usr-001', name: 'Sarah Chen', email: 'sarah.chen@dbs.com', role: 'MAKER', department: 'Treasury & Markets', jobTitle: 'VP, Product Management', color: '#22c55e', initials: 'SC' },
-  { id: 'usr-002', name: 'James Wilson', email: 'james.wilson@dbs.com', role: 'CHECKER', department: 'Risk Management', jobTitle: 'Director, Risk Analytics', color: '#f59e0b', initials: 'JW' },
-  { id: 'usr-003', name: 'Maria Rodriguez', email: 'maria.rodriguez@dbs.com', role: 'APPROVER', department: 'Legal & Compliance', jobTitle: 'MD, Compliance', color: '#3b82f6', initials: 'MR' },
-  { id: 'usr-004', name: 'David Kim', email: 'david.kim@dbs.com', role: 'COO', department: 'COO Office', jobTitle: 'Chief Operating Officer', color: '#a855f7', initials: 'DK' },
-  { id: 'usr-005', name: 'Emily Thompson', email: 'emily.thompson@dbs.com', role: 'ADMIN', department: 'Technology & Ops', jobTitle: 'Platform Administrator', color: '#ef4444', initials: 'ET' },
+  { id: 'usr-001', name: 'Sarah Chen', email: 'sarah.chen@mbs.com', role: 'MAKER', department: 'Treasury & Markets', jobTitle: 'VP, Product Management', color: '#22c55e', initials: 'SC' },
+  { id: 'usr-002', name: 'James Wilson', email: 'james.wilson@mbs.com', role: 'CHECKER', department: 'Risk Management', jobTitle: 'Director, Risk Analytics', color: '#f59e0b', initials: 'JW' },
+  { id: 'usr-003', name: 'Maria Rodriguez', email: 'maria.rodriguez@mbs.com', role: 'APPROVER', department: 'Legal & Compliance', jobTitle: 'MD, Compliance', color: '#3b82f6', initials: 'MR' },
+  { id: 'usr-004', name: 'David Kim', email: 'david.kim@mbs.com', role: 'COO', department: 'COO Office', jobTitle: 'Chief Operating Officer', color: '#a855f7', initials: 'DK' },
+  { id: 'usr-005', name: 'Emily Thompson', email: 'emily.thompson@mbs.com', role: 'ADMIN', department: 'Technology & Ops', jobTitle: 'Platform Administrator', color: '#ef4444', initials: 'ET' },
 ];
 
 const ROLE_LABELS: Record<string, string> = {
@@ -45,7 +45,7 @@ const ROLE_LABELS: Record<string, string> = {
       <div class="brand-logo">
         <img src="assets/logos/Expanded_Logo.svg" alt="COO Workbench" class="brand-logo-img" />
         <div class="brand-title-group">
-          <span class="brand-name">DBS Bank</span>
+          <span class="brand-name">MBS Bank</span>
           <span class="brand-sub">COO Agentic Workbench</span>
         </div>
       </div>
@@ -120,7 +120,7 @@ const ROLE_LABELS: Record<string, string> = {
                 type="email"
                 [(ngModel)]="email"
                 name="email"
-                placeholder="name@dbs.com"
+                placeholder="name@mbs.com"
                 autocomplete="email"
                 [disabled]="loading"
                 required />
@@ -138,7 +138,7 @@ const ROLE_LABELS: Record<string, string> = {
                 [type]="showPassword ? 'text' : 'password'"
                 [(ngModel)]="password"
                 name="password"
-                placeholder="DBS@2026"
+                placeholder="MBS@2026"
                 autocomplete="current-password"
                 [disabled]="loading" />
               <button type="button" class="pw-toggle" (click)="showPassword = !showPassword">
@@ -149,7 +149,7 @@ const ROLE_LABELS: Record<string, string> = {
                 }
               </button>
             </div>
-            <p class="field-hint">Demo password: <strong>DBS&#64;2026</strong> (or leave blank)</p>
+            <p class="field-hint">Demo password: <strong>MBS&#64;2026</strong> (or leave blank)</p>
           </div>
 
           @if (error) {
@@ -223,7 +223,7 @@ const ROLE_LABELS: Record<string, string> = {
 
       <!-- Footer -->
       <p class="login-footer">
-        © 2026 DBS Bank Ltd · COO Workbench v2.0 · Demo Environment
+        © 2026 MBS Bank Ltd · COO Workbench v2.0 · Demo Environment
       </p>
 
     </div>

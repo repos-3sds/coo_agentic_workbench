@@ -121,7 +121,7 @@ import { ToastService } from '../../services/toast.service';
                     <div class="flex items-center justify-center gap-2">
                       <button *ngIf="item.pir_status === 'PENDING' || item.pir_status === 'OVERDUE'"
                               (click)="submitPir(item)"
-                              class="px-3 py-1.5 bg-dbs-primary text-white rounded-lg text-xs font-semibold hover:bg-dbs-primary-hover transition-colors">
+                              class="px-3 py-1.5 bg-mbs-primary text-white rounded-lg text-xs font-semibold hover:bg-mbs-primary-hover transition-colors">
                         Submit PIR
                       </button>
                       <button *ngIf="item.pir_status === 'SUBMITTED'"
@@ -131,7 +131,7 @@ import { ToastService } from '../../services/toast.service';
                       </button>
                       <button *ngIf="item.pir_status !== 'COMPLETED'"
                               (click)="extendPir(item)"
-                              class="px-3 py-1.5 bg-white text-slate-700 border border-dbs-border rounded-lg text-xs font-semibold hover:bg-slate-50 transition-colors">
+                              class="px-3 py-1.5 bg-white text-slate-700 border border-mbs-border rounded-lg text-xs font-semibold hover:bg-slate-50 transition-colors">
                         Extend
                       </button>
                     </div>

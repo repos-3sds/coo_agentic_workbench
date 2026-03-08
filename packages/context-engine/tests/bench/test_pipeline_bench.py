@@ -88,7 +88,7 @@ def _npa_request() -> dict:
         "agent_id": "NPA_BIZ",
         "entity_ids": ["NPA-200", "NPA-201"],
         "query": "Evaluate viability and risk classification of structured derivative product",
-        "system_prompt": "You are a senior business analyst at DBS Bank specializing in NPA evaluation.",
+        "system_prompt": "You are a senior business analyst at MBS Bank specializing in NPA evaluation.",
         "conversation_history": [
             {"role": "user", "content": "Analyze the derivative product proposal."},
             {"role": "assistant", "content": "I'll evaluate the product across business, risk, and regulatory dimensions."},
