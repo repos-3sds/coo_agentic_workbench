@@ -17,11 +17,11 @@ This documentation provides a comprehensive guide to the New Product Approval (N
 
 ## NPA Process Overview
 
-The New Product Approval (NPA) process is a comprehensive risk assessment framework used by DBS Bank to evaluate and approve new products and services. The process ensures that all risks are identified, assessed, and mitigated before product launch.
+The New Product Approval (NPA) process is a comprehensive risk assessment framework used by MBS Bank to evaluate and approve new products and services. The process ensures that all risks are identified, assessed, and mitigated before product launch.
 
 ### NPA Types
 
-1. **New-to-Group**: Completely new products/services not previously offered by DBS
+1. **New-to-Group**: Completely new products/services not previously offered by MBS
 2. **Variation**: Modifications to existing products with different risk profiles
 3. **Existing**: Extensions or reactivations of previously approved products
 4. **NPA Lite**: Streamlined process for variations or existing products with minimal incremental risk
@@ -71,7 +71,7 @@ Seven main sections with comprehensive appendices
 ```
 Purpose: Enable Bond Repo trading in China Interbank Bond Market (CIBM)
 through CIBM Direct and RQFII to manage onshore RMB liquidity and enhance
-returns. Daily trade volume: RMB 4 trillion market, expected DBS volume:
+returns. Daily trade volume: RMB 4 trillion market, expected MBS volume:
 RMB 4 billion daily.
 ```
 
@@ -100,7 +100,7 @@ RMB 4 billion daily.
 **Example from TSG2339 (Swap Connect)**:
 ```
 Booking: IRD|IRS|Vanilla typology with CNH 7DREPO 3M SWAPCON generator
-Portfolio: DBSSG AMM BCB1 mapped for margin requirements
+Portfolio: MBSSG AMM BCB1 mapped for margin requirements
 Legal Form: ISDA with novation to HKEx OTC Clear
 ```
 
@@ -191,7 +191,7 @@ Enhanced requirements for trading instruments including:
 **Product**: Pledged Bond Repo in China Interbank Bond Market
 **Key Innovations**:
 - New legal framework (NAFMII vs traditional GMRA)
-- Cross-border settlement via DBS China and ABOC
+- Cross-border settlement via MBS China and ABOC
 - Specific risk management for restricted currency (CN1)
 - Tax considerations for Chinese withholding and VAT
 
@@ -202,7 +202,7 @@ Enhanced requirements for trading instruments including:
 - Time-sensitive approval (48-hour turnaround)
 - Multi-currency classes (RMB and SGD)
 - Complex booking flow with dummy/actual counters
-- DBS as both Primary Dealer and Trustee
+- MBS as both Primary Dealer and Trustee
 
 ### TSG2339: Swap Connect
 **Type**: NPA Lite
@@ -227,7 +227,7 @@ Enhanced requirements for trading instruments including:
 **Type**: NPA Lite
 **Product**: Bond trading and FX liquidity provision under SSC framework
 **Scope**:
-- DBS as sole FX liquidity provider appointed by PBOC
+- MBS as sole FX liquidity provider appointed by PBOC
 - China OTC Bond (COB) model for direct customer trading
 - Multi-flow structure (bond trading, FX conversion, settlement)
 - CFETS direct access and reporting requirements
@@ -321,7 +321,7 @@ Enhanced requirements for trading instruments including:
 Standard matrix covering Sales/Origination, Booking, Risk Taking, and Processing across legal entities and locations.
 
 ### Appendix 2: Intellectual Property Assessment
-Two-part assessment covering DBS IP and Third Party IP with licensing considerations.
+Two-part assessment covering MBS IP and Third Party IP with licensing considerations.
 
 ### Appendix 3: Financial Crime Risk Areas
 Comprehensive questionnaire covering:
@@ -398,12 +398,12 @@ Complex NPAs, particularly those involving cross-border arrangements or new mark
 
 ## Additional NPA Implementations Discovered
 
-### 7. TSG21XX - Bond Borrowing and Lending with DBS China
+### 7. TSG21XX - Bond Borrowing and Lending with MBS China
 
 **Purpose**: Enable bond borrowing and lending activities in China's interbank bond market
 **Key Features**:
 - Currency: CNY/CNH with tenor up to 1 year (mostly <1 month)
-- Target clients: DBS China initially, expanding to major market participants
+- Target clients: MBS China initially, expanding to major market participants
 - Fee structure: ~70bps per annum average
 - Booking: IRD Lending Borrowing (IRD|LB) with Bond Repos (IRD|REPO) in packages
 
@@ -440,7 +440,7 @@ Complex NPAs, particularly those involving cross-border arrangements or new mark
 **Purpose**: Seed investment in CSOP iEdge ASEAN Plus Tech Index ETF
 **Investment Details**:
 - Fund size: SGD 100 million
-- DBS subscription: Up to SGD 10 million (≤10% threshold)
+- MBS subscription: Up to SGD 10 million (≤10% threshold)
 - Holding period: 12 months minimum per seeding agreement
 
 **Strategic Rationale**: Secure long-term partnership with CSOP including custodian and trustee appointments
@@ -457,13 +457,13 @@ Complex NPAs, particularly those involving cross-border arrangements or new mark
 **Operating Models**:
 
 **Model 1: OTC Bond & FX Trading** (Primary focus)
-- DBS Singapore acts as principal counterparty for overseas institutional investors
+- MBS Singapore acts as principal counterparty for overseas institutional investors
 - Direct CFETS connectivity for bond trading and FX activity
 - Comprehensive FX hedging services (CNY spots, forwards, swaps)
 
 **Model 2: Direct Custody & FX Conversion** (Excluded from current proposal)
 - Direct investor-to-onshore counterparty bond trading
-- DBS custody services via GTS-SFS
+- MBS custody services via GTS-SFS
 - Optional FX hedging arrangements
 
 ### Target Client Framework
@@ -567,7 +567,7 @@ Complex NPAs, particularly those involving cross-border arrangements or new mark
 
 ## Conclusion
 
-This comprehensive analysis of DBS Bank's New Product Approval framework reveals a sophisticated, multi-layered approach to risk management and regulatory compliance. The framework successfully balances innovation enablement with prudent risk management across diverse product categories from simple instrument reactivations to complex cross-border initiatives.
+This comprehensive analysis of MBS Bank's New Product Approval framework reveals a sophisticated, multi-layered approach to risk management and regulatory compliance. The framework successfully balances innovation enablement with prudent risk management across diverse product categories from simple instrument reactivations to complex cross-border initiatives.
 
 ### Key Success Factors Validated
 

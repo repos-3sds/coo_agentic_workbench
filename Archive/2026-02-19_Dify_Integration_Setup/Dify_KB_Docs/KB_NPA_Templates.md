@@ -340,7 +340,7 @@ PART C: Detailed Product Information (Sections I-VII + Appendices I-VII)
 #### Field 1.7: Maker (Proposing Officer)
 - **Type:** User lookup (auto-filled)
 - **Format:** Name, Email, Employee ID
-- **Example:** `Sarah Lee, sarah.lee@dbs.com, EMP12345`
+- **Example:** `Sarah Lee, sarah.lee@mbs.com, EMP12345`
 - **Auto-Fill Logic:** Current logged-in user
 - **Validation:** Must be active employee
 
@@ -349,7 +349,7 @@ PART C: Detailed Product Information (Sections I-VII + Appendices I-VII)
 #### Field 1.8: NPA Champion
 - **Type:** User lookup (auto-filled)
 - **Format:** Name, Email, Employee ID
-- **Example:** `John Tan, john.tan@dbs.com, EMP67890`
+- **Example:** `John Tan, john.tan@mbs.com, EMP67890`
 - **Auto-Fill Logic:** Desk/BU NPA Champion from org hierarchy
 - **Validation:** Must be designated NPA Champion
 
@@ -363,7 +363,7 @@ PART C: Detailed Product Information (Sections I-VII + Appendices I-VII)
   - High Net Worth Individuals (HNWI)
   - Private Banking (Accredited Investors)
   - Retail (Mass Market)
-  - Treasury (DBS Group internal)
+  - Treasury (MBS Group internal)
 - **Auto-Fill Logic:**
   - If similar NPA found → Suggest customer segment
   - If product type = structured note → Default to HNWI + Private Banking
@@ -570,7 +570,7 @@ PART C: Detailed Product Information (Sections I-VII + Appendices I-VII)
   - Reuters
   - ICE Data Services
   - MarkitSERV
-  - Internal DBS Pricing
+  - Internal MBS Pricing
   - Broker Quotes
   - Other (specify)
 - **Additional Text:** Specific Data Fields Required (500 chars)
@@ -909,7 +909,7 @@ PART C: Detailed Product Information (Sections I-VII + Appendices I-VII)
   - **Model Validation Status:** Dropdown (Validated, Pending Validation, Expired)
   - **Model Validation Date:** Date
   - **SIMM Treatment:** Dropdown (Standard, Custom, Exempt)
-  - **Funding Source:** Dropdown (DBS Treasury, External, Client Collateral)
+  - **Funding Source:** Dropdown (MBS Treasury, External, Client Collateral)
   - **Funding Cost (bps):** Numeric
 - **Auto-Fill Logic:** Product type → Model mapping; Copy from similar NPA
 
@@ -920,7 +920,7 @@ PART C: Detailed Product Information (Sections I-VII + Appendices I-VII)
 - **Sub-fields:**
   - **Murex Typology:** Text (e.g., `IRD|IRS|Vanilla`)
   - **Murex Generator:** Text (e.g., `CNH 7DREPO 3M SWAPCON`)
-  - **Portfolio Code:** Text (e.g., `DBSSG AMM BCB1`)
+  - **Portfolio Code:** Text (e.g., `MBSSG AMM BCB1`)
   - **Booking Entity:** Dropdown (from Appendix II entity list)
   - **Front-Office System:** Dropdown (Murex, Calypso, Summit, Bloomberg, Other)
   - **Cross-Border Booking?:** Auto-calculated from Appendix II
@@ -1101,7 +1101,7 @@ PART C: Detailed Product Information (Sections I-VII + Appendices I-VII)
 
 #### Field AII.1: Booking Entity
 - **Type:** Dropdown (required)
-- **Options:** DBS Bank Ltd (SG), DBS Bank (HK) Ltd, DBS Bank Ltd (London), DBS Bank India Ltd, [etc.]
+- **Options:** MBS Bank Ltd (SG), MBS Bank (HK) Ltd, MBS Bank Ltd (London), MBS Bank India Ltd, [etc.]
 - **Auto-Fill Logic:** User's location/desk → Default booking entity
 
 ---
@@ -1202,7 +1202,7 @@ PART C: Detailed Product Information (Sections I-VII + Appendices I-VII)
 - **Type:** Auto-executed (read-only results)
 - **CRITICAL — PROHIBITED CHECK [R01]:** This check runs BEFORE classification (Step 0). Hard stop if FAIL.
 - **Three Prohibition Layers:**
-  1. **Internal bank policy** — Products DBS has decided not to offer (risk appetite, reputational)
+  1. **Internal bank policy** — Products MBS has decided not to offer (risk appetite, reputational)
   2. **Regulatory restrictions** — MAS, CFTC, FCA, local regulators
   3. **Sanctions/embargoes** — OFAC SDN, UN Security Council, EU Sanctions, MAS Sanctions, HKMA Sanctions (zero tolerance, criminal liability)
 - **Screening:** Counterparty + Ultimate Beneficial Owner (UBO) against all lists
@@ -1250,7 +1250,7 @@ PART C: Detailed Product Information (Sections I-VII + Appendices I-VII)
   1. No significant changes since last approval
   2. Back-to-Back (BTB) basis with professional counterparty
   3. Vanilla/foundational product (building block for other variants)
-  4. Liquidity management product (including for DBS Group Holdings)
+  4. Liquidity management product (including for MBS Group Holdings)
   5. Exchange product used as hedge against customer trades
   6. ABS origination to meet client demand
 - **NOT Eligible for Evergreen:**
@@ -1577,12 +1577,12 @@ INFO: Similar NPA found (TSG1917, 94% match) - auto-fill available
 
 **6. CRM System (C720)**
 - **Fields:** Counterparty details, KYC status, credit rating, relationship manager
-- **Source:** DBS internal CRM
+- **Source:** MBS internal CRM
 - **API:** Real-time query
 
 **7. Limit Management System (MINV)**
 - **Fields:** Desk limits, VaR limits, concentration limits
-- **Source:** DBS internal limit system
+- **Source:** MBS internal limit system
 - **API:** Real-time query
 
 **8. Market Data (Bloomberg/Reuters)**
@@ -1790,7 +1790,7 @@ END
 - **Track:** Full NPA [R11: NTG → always Full NPA]
 - **Complexity:**
   - New legal framework (NAFMII vs traditional GMRA)
-  - Cross-border settlement via DBS China and ABOC [R07: 5 mandatory SOPs]
+  - Cross-border settlement via MBS China and ABOC [R07: 5 mandatory SOPs]
   - Restricted currency handling (CNY/CNH)
   - Chinese withholding tax and VAT implications
   - Daily trade volume: RMB 4 billion in a RMB 4 trillion market
@@ -1814,7 +1814,7 @@ END
 - **Track:** Full NPA [R11]
 - **Key Details:**
   - Booking: `IRD|IRS|Vanilla` typology with `CNH 7DREPO 3M SWAPCON` generator
-  - Portfolio: `DBSSG AMM BCB1` mapped for margin requirements
+  - Portfolio: `MBSSG AMM BCB1` mapped for margin requirements
   - Legal: ISDA with novation to HKEx OTC Clear
 - **Lesson:** Infrastructure/market access products require Full NPA because they change the operational model fundamentally, even if IRS itself is an existing product
 - **Pattern:** New infrastructure/platform = NTG even if underlying product exists

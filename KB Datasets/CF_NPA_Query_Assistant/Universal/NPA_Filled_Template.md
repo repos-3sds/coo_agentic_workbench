@@ -82,10 +82,10 @@ Group COO of GFM - Peter Soh
 #### 1. Description:
 
 **a) Purpose or Rationale for Proposal:**
-The Digital Currency Trading Platform addresses the growing institutional demand for secure, regulated digital asset trading capabilities. This platform will enable DBS to:
+The Digital Currency Trading Platform addresses the growing institutional demand for secure, regulated digital asset trading capabilities. This platform will enable MBS to:
 - Capture significant revenue opportunities in the digital assets market (estimated $2.3B annually)
 - Provide institutional clients with professional-grade digital currency trading services
-- Position DBS as a leader in digital finance innovation
+- Position MBS as a leader in digital finance innovation
 - Meet increasing client demand for cryptocurrency exposure and trading
 
 **b) Scope and Parameters of Product/Service:**
@@ -116,7 +116,7 @@ The Digital Currency Trading Platform addresses the growing institutional demand
 - Target ROI: 35% by Year 3
 
 **e) Special Purpose Vehicles (SPV):**
-DBS Digital Assets Trading Pte Ltd (Singapore incorporation) for regulatory segregation and risk isolation
+MBS Digital Assets Trading Pte Ltd (Singapore incorporation) for regulatory segregation and risk isolation
 
 #### 2. Target Customer:
 
@@ -198,7 +198,7 @@ The platform operates as an integrated digital asset trading and custody solutio
 **Group:** DGTL (Digital Assets)
 **Type:** SPOT (Spot Trading)
 **Typology (Contract):** CRY_SPOT_TRADE
-**Portfolio:** DBSSG_GFM_CRYPTO
+**Portfolio:** MBSSG_GFM_CRYPTO
 **Counterparty:** Institutional clients with appropriate digital asset agreements
 
 **Transaction Flow:**
@@ -248,7 +248,7 @@ The platform requires comprehensive security infrastructure including:
 - Regular security audits and penetration testing
 
 **b) Information Security Policy and Standard (ISS):**
-No deviations from ISS policies. All requirements fully compliant with DBS security standards.
+No deviations from ISS policies. All requirements fully compliant with MBS security standards.
 
 #### 4. Technology Resiliency
 
@@ -279,7 +279,7 @@ No deviations from ISS policies. All requirements fully compliant with DBS secur
 **Yes** - Comprehensive pricing model validation completed
 
 #### 2. Model Name and Validation Date:
-**Model:** DBS-CRYPTO-PRC-2026-v1.0
+**Model:** MBS-CRYPTO-PRC-2026-v1.0
 **Validation Date:** January 20, 2026
 **Restrictions:**
 - Maximum position size limits per client and currency
@@ -419,22 +419,22 @@ PURE assessment completed: ID PURE-DIG-2026-001
 
 | Function | Legal Entity | Location | Regulatory Framework |
 |----------|-------------|----------|---------------------|
-| Sales/Origination | DBS Bank Ltd | Singapore | MAS Regulation |
-| Booking | DBS Digital Assets Trading Pte Ltd | Singapore | MAS DPT License |
-| Risk Taking | DBS Bank Ltd | Singapore | Banking Act |
-| Processing | DBS Operations | Singapore/Hong Kong | Local Banking Regulations |
+| Sales/Origination | MBS Bank Ltd | Singapore | MAS Regulation |
+| Booking | MBS Digital Assets Trading Pte Ltd | Singapore | MAS DPT License |
+| Risk Taking | MBS Bank Ltd | Singapore | Banking Act |
+| Processing | MBS Operations | Singapore/Hong Kong | Local Banking Regulations |
 
 ---
 
 ## Appendix 2: Intellectual Property (IP)
 
-### Part A - DBS IP
-**Does the new product create or incorporate DBS IP?** Yes
+### Part A - MBS IP
+**Does the new product create or incorporate MBS IP?** Yes
 - Proprietary trading algorithms and risk management systems
 - Custom digital asset trading platform interface
 - Enhanced security protocols and procedures
 
-**Third-party use of DBS IP:** Yes
+**Third-party use of MBS IP:** Yes
 - Technology partners require limited license for integration
 - Appropriate IP protection agreements in place
 
@@ -509,7 +509,7 @@ PURE assessment completed: ID PURE-DIG-2026-001
 
 ### 2. Product Information:
 **Hedging Purpose:** Client facilitation and market making
-**Strategic Initiative:** Part of DBS digital transformation strategy
+**Strategic Initiative:** Part of MBS digital transformation strategy
 
 ### 3. Collateral and Pledged Assets:
 **Collateral Types:** Digital assets held in secure custody
@@ -547,4 +547,4 @@ PURE assessment completed: ID PURE-DIG-2026-001
 
 ---
 
-**Note:** This mock NPA demonstrates the comprehensive structure and level of detail required for a New-to-Group product approval, covering all major sections and appendices as found in actual DBS NPA submissions. The digital currency trading platform represents a realistic example of an innovative financial product that would require full NPA treatment due to its novel nature and risk profile.
+**Note:** This mock NPA demonstrates the comprehensive structure and level of detail required for a New-to-Group product approval, covering all major sections and appendices as found in actual MBS NPA submissions. The digital currency trading platform represents a realistic example of an innovative financial product that would require full NPA treatment due to its novel nature and risk profile.

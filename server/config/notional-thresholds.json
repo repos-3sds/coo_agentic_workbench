@@ -1,0 +1,26 @@
+{
+    "_comment": "GAP-012: Notional amount threshold checks — additional sign-off parties by threshold",
+    "thresholds": [
+        {
+            "min_amount": 20000000,
+            "party_name": "ROAE",
+            "party_group": "NOTIONAL_THRESHOLD",
+            "sla_hours": 72,
+            "department": "Finance"
+        },
+        {
+            "min_amount": 50000000,
+            "party_name": "Finance VP",
+            "party_group": "NOTIONAL_THRESHOLD",
+            "sla_hours": 72,
+            "department": "Finance"
+        },
+        {
+            "min_amount": 100000000,
+            "party_name": "CFO",
+            "party_group": "NOTIONAL_THRESHOLD",
+            "sla_hours": 96,
+            "department": "Finance"
+        }
+    ]
+}

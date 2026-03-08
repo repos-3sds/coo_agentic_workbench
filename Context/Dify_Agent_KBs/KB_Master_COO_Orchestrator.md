@@ -477,7 +477,7 @@ The JSON must be valid and on a single line after `@@NPA_META@@`.
   "track": "FULL_NPA",
   "overallConfidence": 92,
   "scores": [
-    { "criterion": "Novel product structure", "score": 2, "maxScore": 2, "reasoning": "First green bond ETF for DBS" }
+    { "criterion": "Novel product structure", "score": 2, "maxScore": 2, "reasoning": "First green bond ETF for MBS" }
   ],
   "prohibitedMatch": { "matched": false },
   "mandatorySignOffs": ["Market & Liquidity Risk", "Credit Risk", "Legal", "Compliance", "Technology"]
@@ -611,12 +611,12 @@ I'd like to help, but I need to know which project you're referring to. Could yo
 ```
 I've classified NPA-2026-003 (Global Green Bond ETF). It's a New-to-Group product requiring the Full NPA track. 5 mandatory sign-off parties have been identified.
 
-@@NPA_META@@{"agent_action":"SHOW_CLASSIFICATION","agent_id":"CLASSIFIER","payload":{"projectId":"NPA-2026-003","intent":"classify_npa","target_agent":"CLASSIFIER","uiRoute":"/agents/npa","data":{"type":"New-to-Group","track":"FULL_NPA","overallConfidence":92,"scores":[{"criterion":"Novel product structure","score":2,"maxScore":2,"reasoning":"First green bond ETF for DBS"}],"prohibitedMatch":{"matched":false},"mandatorySignOffs":["Market & Liquidity Risk","Credit Risk","Legal","Compliance","Technology"]}},"trace":{"session_id":"abc-123","project_id":"NPA-2026-003"}}
+@@NPA_META@@{"agent_action":"SHOW_CLASSIFICATION","agent_id":"CLASSIFIER","payload":{"projectId":"NPA-2026-003","intent":"classify_npa","target_agent":"CLASSIFIER","uiRoute":"/agents/npa","data":{"type":"New-to-Group","track":"FULL_NPA","overallConfidence":92,"scores":[{"criterion":"Novel product structure","score":2,"maxScore":2,"reasoning":"First green bond ETF for MBS"}],"prohibitedMatch":{"matched":false},"mandatorySignOffs":["Market & Liquidity Risk","Credit Risk","Legal","Compliance","Technology"]}},"trace":{"session_id":"abc-123","project_id":"NPA-2026-003"}}
 ```
 
 **Hard Stop:**
 ```
-This product has been flagged by the risk assessment. Bitcoin derivative trading is currently on the DBS prohibited products list. This NPA cannot proceed.
+This product has been flagged by the risk assessment. Bitcoin derivative trading is currently on the MBS prohibited products list. This NPA cannot proceed.
 
 @@NPA_META@@{"agent_action":"HARD_STOP","agent_id":"RISK","payload":{"projectId":"NPA-2026-005","intent":"risk_assessment","target_agent":"RISK","uiRoute":"/agents/npa","data":{"reason":"Product is on the prohibited list","prohibitedItem":"Cryptocurrency derivatives trading","layer":"INTERNAL_POLICY"}},"trace":{"session_id":"abc-123","project_id":"NPA-2026-005"}}
 ```
@@ -770,7 +770,7 @@ This section provides enough NPA domain context for you to make accurate routing
 
 | Classification | Description | Approval Track | Timeline |
 |---------------|-------------|---------------|----------|
-| New-to-Group (NTG) | Completely new product/service to DBS Group | Full NPA | 12-16 weeks |
+| New-to-Group (NTG) | Completely new product/service to MBS Group | Full NPA | 12-16 weeks |
 | Variation (Material) | Material changes to existing product (3+ criteria) | Full NPA | 8-12 weeks |
 | Variation (Minor) | Minor changes to existing product (<3 criteria) | NPA Lite | 4-6 weeks |
 | Existing | Previously approved product, minimal changes | NPA Lite / Bundling | 2-6 weeks |
@@ -802,8 +802,8 @@ If a user mentions any of these, route to WF_NPA_Risk for verification:
 - Cryptocurrency / Digital asset / Bitcoin / Ethereum trading
 - Products involving sanctioned countries (North Korea, Iran, Russia, Syria, Cuba)
 - Products involving sanctioned entities or persons
-- Products explicitly on the DBS prohibited list
-- Products requiring licenses DBS does not currently hold
+- Products explicitly on the MBS prohibited list
+- Products requiring licenses MBS does not currently hold
 
 When detected, warn:
 > "This product type may trigger a prohibited item check. Let me run the risk assessment to verify."
@@ -990,7 +990,7 @@ NPA is one of seven major functions under the GFM COO umbrella. Understanding th
 |---|----------|-----------|-------------|---------------------|
 | 1 | **Desk Support** | ROBO | Day-to-day operational support for trading desks | Feeds trader profiles and mandates INTO NPA classification |
 | 2 | **NPA** | NPA HOUSE | The product approval function (this system) | Core function -- all NPA lifecycle management |
-| 3 | **ORM** | RICO | Operational Risk Management | Owns the NPA Standard (DBS_10_S_0012_GR). Consultative SOP role. Conducts audits. |
+| 3 | **ORM** | RICO | Operational Risk Management | Owns the NPA Standard (MBS_10_S_0012_GR). Consultative SOP role. Conducts audits. |
 | 4 | **Biz Lead/Analysis** | -- | Business analytics and reporting | Provides revenue dashboards, performance data used in NPA business cases |
 | 5 | **Strategic PM** | BCP | Strategic Project Management and Business Continuity | BCP requirements feed into NPA Section II (Business Continuity Management) |
 | 6 | **DCE** | DEGA 2.0 | Digital Client Experience | Digital product proposals route through NPA for approval |
@@ -1054,7 +1054,7 @@ The COO governance spans 5+ process themes that the orchestrator should be aware
 ### Key Insight for Orchestrator Routing
 
 NPA is not an isolated process. It sits at the intersection of:
-- **Product governance** (what DBS is allowed to trade)
+- **Product governance** (what MBS is allowed to trade)
 - **Risk management** (how exposure is controlled)
 - **Regulatory compliance** (what regulators require)
 - **Operational readiness** (whether systems can handle it)

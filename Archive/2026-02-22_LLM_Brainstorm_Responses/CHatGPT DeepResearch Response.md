@@ -1,4 +1,4 @@
-# Deep Research Report on AUTOFILL Agent Architecture for NPA Template Completion in DBS GFM
+# Deep Research Report on AUTOFILL Agent Architecture for NPA Template Completion in MBS GFM
 
 ## Executive summary
 
@@ -20,7 +20,7 @@ Even if you fix schema drift by listing exact keys, the core UX and reliability 
 Parsing conversational text is less reliable than consuming a structured output channel. Dify can deliver workflow/node events in the stream (node_started/node_finished, workflow_started/workflow_finished) and you can place your structured JSON in node outputs while separately streaming clean text. citeturn20view1turn6view3turn21view0  
 
 **Critical platform risk to plan for now:**  
-On Anthropic’s own API, **Claude Sonnet 3.5 is retired** (retired October 28, 2025), and **Claude Sonnet 3.7 is retired February 19, 2026**—which matters for long-term stability and structured-output capabilities. If DBS is still using Sonnet 3.5 via a managed provider (or existing-customer access on a partner platform), you should still **design a migration path** to a currently active model tier. citeturn19view1turn19view0  
+On Anthropic’s own API, **Claude Sonnet 3.5 is retired** (retired October 28, 2025), and **Claude Sonnet 3.7 is retired February 19, 2026**—which matters for long-term stability and structured-output capabilities. If MBS is still using Sonnet 3.5 via a managed provider (or existing-customer access on a partner platform), you should still **design a migration path** to a currently active model tier. citeturn19view1turn19view0  
 
 ## Research findings from primary sources
 
@@ -93,7 +93,7 @@ This is how you realistically hit <3 minutes **and** cut cost: the fastest token
 
 ### Model lifecycle and “don’t get trapped on Sonnet 3.5”
 
-You asked to use Claude 3.5 Sonnet. However, on Anthropic’s own API, Sonnet 3.5 is retired (retired Oct 28, 2025). If DBS is still using it via a partner platform or legacy access, you should still architect so the model can be swapped without changing schemas/UI. citeturn19view1turn19view0  
+You asked to use Claude 3.5 Sonnet. However, on Anthropic’s own API, Sonnet 3.5 is retired (retired Oct 28, 2025). If MBS is still using it via a partner platform or legacy access, you should still architect so the model can be swapped without changing schemas/UI. citeturn19view1turn19view0  
 
 ## Concrete implementation blueprint
 

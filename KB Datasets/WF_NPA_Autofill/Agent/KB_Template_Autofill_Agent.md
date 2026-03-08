@@ -275,7 +275,7 @@ Product-type-specific fields (not deal-specific), copied verbatim from source NP
 | data_ownership | PC.V.1 | Standard ownership matrix (FO/MO/BO) |
 | pure_assessment_id | PC.V.2 | Auto-generated PURE reference ID |
 | reporting_requirements | PC.V.3 | Regulatory and internal reporting obligations |
-| booking_entity | APP.1 | DBS Bank Ltd — Singapore |
+| booking_entity | APP.1 | MBS Bank Ltd — Singapore |
 | collateral_types | APP.5.3 | CSA eligible collateral by product type |
 | valuation_method | APP.5.4 | IPV methodology, tolerance thresholds |
 | funding_source | APP.5.4 | Treasury funding structure and FTP rate |

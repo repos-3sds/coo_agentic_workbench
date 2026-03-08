@@ -47,7 +47,7 @@ This analysis is based on:
 **Gaps Identified:**
 - ❌ **Regulatory Classification Layer**: Missing classification for regulatory approval requirements (PBOC, MAS, CFETS)
 - ❌ **Infrastructure Classification**: Cannot classify based on required platforms/systems (NAFMII vs GMRA, CFETS vs Bloomberg)
-- ❌ **Multi-Entity Classification**: Real NPAs involve multiple DBS entities (DBS China, DBS Singapore, ABOC) requiring entity-specific routing
+- ❌ **Multi-Entity Classification**: Real NPAs involve multiple MBS entities (MBS China, MBS Singapore, ABOC) requiring entity-specific routing
 - ❌ **Time-Sensitive Classifications**: Deal-specific approvals (TSG2055 - 48 hours) require different logic
 - ❌ **Clearing Arrangement Classification**: OTC Clear, SHCH, bilateral arrangements require specialized routing
 
@@ -149,12 +149,12 @@ This analysis is based on:
 
 **Gaps Identified:**
 - ❌ **External Approval Dependencies**: Cannot orchestrate external regulatory approvals (PBOC, CFETS, MAS notifications)
-- ❌ **Multi-Entity Coordination**: Real NPAs require coordination across DBS entities and external parties
+- ❌ **Multi-Entity Coordination**: Real NPAs require coordination across MBS entities and external parties
 - ❌ **Platform Approval Workflows**: Missing integration with external platform approval processes (CFETS membership, Bloomberg connectivity)
 - ❌ **Conditional Approval Handling**: Complex conditional approvals require specialized workflow management
 - ❌ **Regulatory Milestone Tracking**: Cannot track regulatory approval milestones and dependencies
 
-**Critical Gap**: Limited to internal DBS workflow; missing external dependency orchestration.
+**Critical Gap**: Limited to internal MBS workflow; missing external dependency orchestration.
 
 ---
 
@@ -200,7 +200,7 @@ TSG2339 (Swap Connect) required understanding of PBOC-SFC joint framework, CFETS
 **Impact**: HIGH | **Complexity**: HIGH
 
 **Missing Capability**:
-- Multi-entity coordination (DBS Singapore, DBS China, ABOC)
+- Multi-entity coordination (MBS Singapore, MBS China, ABOC)
 - Cross-border legal framework adaptation
 - Currency and jurisdiction-specific procedures
 - Multi-jurisdictional approval orchestration

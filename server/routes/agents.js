@@ -9,32 +9,36 @@ function isUnknownColumnError(err) {
     return !!err && typeof err.message === 'string' && err.message.toLowerCase().includes('unknown column');
 }
 
+// ─── Reusable session SELECT SQL (eliminates 4x duplication) ────────────────
+const SESSION_SELECT_SQL = `
+    SELECT s.id, s.project_id, s.user_id,
+           COALESCE(
+             (SELECT MAX(m.timestamp) FROM agent_messages m WHERE m.session_id = s.id),
+             s.ended_at,
+             s.started_at
+           ) as updated_at,
+           s.started_at,
+           s.agent_identity,
+           NULL as domain_agent_json,
+           s.conversation_state_json,
+           s.current_stage,
+           s.handoff_from,
+           s.ended_at,
+           COALESCE(
+             (SELECT SUBSTRING(m.content, 1, 80) FROM agent_messages m WHERE m.session_id = s.id AND m.role = 'user' ORDER BY m.timestamp ASC LIMIT 1),
+             'New Chat'
+           ) as title,
+           (SELECT SUBSTRING(m.content, 1, 255) FROM agent_messages m WHERE m.session_id = s.id AND m.role = 'user' ORDER BY m.timestamp ASC LIMIT 1) as preview,
+           (SELECT COUNT(*) FROM agent_messages m WHERE m.session_id = s.id) as message_count
+    FROM agent_sessions s`;
+
 // ─── Chat Session CRUD ─────────────────────────────────────────────────────
 
 // GET /api/agents/sessions — Get recent chat sessions (optionally filtered by project/user)
 router.get('/sessions', async (req, res) => {
     try {
         const { project_id, user_id } = req.query;
-        let sql = `SELECT s.id, s.project_id, s.user_id,
-                          COALESCE(
-                            (SELECT MAX(m.timestamp) FROM agent_messages m WHERE m.session_id = s.id),
-                            s.ended_at,
-                            s.started_at
-                          ) as updated_at,
-                          s.started_at,
-                          s.agent_identity,
-                          NULL as domain_agent_json,
-                          s.conversation_state_json,
-                          s.current_stage,
-                          s.handoff_from,
-                          s.ended_at,
-                          COALESCE(
-                            (SELECT SUBSTRING(m.content, 1, 80) FROM agent_messages m WHERE m.session_id = s.id AND m.role = 'user' ORDER BY m.timestamp ASC LIMIT 1),
-                            'New Chat'
-                          ) as title,
-                          (SELECT SUBSTRING(m.content, 1, 255) FROM agent_messages m WHERE m.session_id = s.id AND m.role = 'user' ORDER BY m.timestamp ASC LIMIT 1) as preview,
-                          (SELECT COUNT(*) FROM agent_messages m WHERE m.session_id = s.id) as message_count
-                   FROM agent_sessions s`;
+        let sql = SESSION_SELECT_SQL;
         const conditions = [];
         const params = [];
 
@@ -69,25 +73,7 @@ router.get('/sessions', async (req, res) => {
 router.get('/sessions/:id', async (req, res) => {
     try {
         const [sessionRows] = await db.query(
-            `SELECT s.id, s.project_id, s.user_id,
-                    COALESCE(
-                      (SELECT MAX(m.timestamp) FROM agent_messages m WHERE m.session_id = s.id),
-                      s.ended_at,
-                      s.started_at
-                    ) as updated_at,
-                    s.started_at,
-                    s.agent_identity,
-                    NULL as domain_agent_json,
-                    s.conversation_state_json,
-                    s.current_stage,
-                    s.handoff_from,
-                    s.ended_at,
-                    COALESCE(
-                      (SELECT SUBSTRING(m.content, 1, 80) FROM agent_messages m WHERE m.session_id = s.id AND m.role = 'user' ORDER BY m.timestamp ASC LIMIT 1),
-                      'New Chat'
-                    ) as title,
-                    (SELECT SUBSTRING(m.content, 1, 255) FROM agent_messages m WHERE m.session_id = s.id AND m.role = 'user' ORDER BY m.timestamp ASC LIMIT 1) as preview
-             FROM agent_sessions s WHERE s.id = ?`,
+            `${SESSION_SELECT_SQL} WHERE s.id = ?`,
             [req.params.id]
         );
         if (sessionRows.length === 0) {
@@ -132,29 +118,7 @@ router.post('/sessions', async (req, res) => {
             [id, agent_identity || null, sessionUserId, project_id || null, current_stage || null, handoff_from || null, ended_at || null, conversation_state_json ? JSON.stringify(conversation_state_json) : null]
         );
 
-        const [rows] = await db.query(
-            `SELECT s.id, s.project_id, s.user_id,
-                    COALESCE(
-                      (SELECT MAX(m.timestamp) FROM agent_messages m WHERE m.session_id = s.id),
-                      s.ended_at,
-                      s.started_at
-                    ) as updated_at,
-                    s.started_at,
-                    s.agent_identity,
-                    NULL as domain_agent_json,
-                    s.conversation_state_json,
-                    s.current_stage,
-                    s.handoff_from,
-                    s.ended_at,
-                    COALESCE(
-                      (SELECT SUBSTRING(m.content, 1, 80) FROM agent_messages m WHERE m.session_id = s.id AND m.role = 'user' ORDER BY m.timestamp ASC LIMIT 1),
-                      'New Chat'
-                    ) as title,
-                    (SELECT SUBSTRING(m.content, 1, 255) FROM agent_messages m WHERE m.session_id = s.id AND m.role = 'user' ORDER BY m.timestamp ASC LIMIT 1) as preview,
-                    (SELECT COUNT(*) FROM agent_messages m WHERE m.session_id = s.id) as message_count
-             FROM agent_sessions s WHERE s.id = ?`,
-            [id]
-        );
+        const [rows] = await db.query(`${SESSION_SELECT_SQL} WHERE s.id = ?`, [id]);
         res.status(201).json(rows[0]);
     } catch (err) {
         console.error('[AGENTS ERROR]', err.message);
@@ -184,29 +148,7 @@ router.put('/sessions/:id', async (req, res) => {
         params.push(req.params.id);
         await db.query(`UPDATE agent_sessions SET ${updates.join(', ')} WHERE id = ?`, params);
 
-        const [rows] = await db.query(
-            `SELECT s.id, s.project_id, s.user_id,
-                    COALESCE(
-                      (SELECT MAX(m.timestamp) FROM agent_messages m WHERE m.session_id = s.id),
-                      s.ended_at,
-                      s.started_at
-                    ) as updated_at,
-                    s.started_at,
-                    s.agent_identity,
-                    NULL as domain_agent_json,
-                    s.conversation_state_json,
-                    s.current_stage,
-                    s.handoff_from,
-                    s.ended_at,
-                    COALESCE(
-                      (SELECT SUBSTRING(m.content, 1, 80) FROM agent_messages m WHERE m.session_id = s.id AND m.role = 'user' ORDER BY m.timestamp ASC LIMIT 1),
-                      'New Chat'
-                    ) as title,
-                    (SELECT SUBSTRING(m.content, 1, 255) FROM agent_messages m WHERE m.session_id = s.id AND m.role = 'user' ORDER BY m.timestamp ASC LIMIT 1) as preview,
-                    (SELECT COUNT(*) FROM agent_messages m WHERE m.session_id = s.id) as message_count
-             FROM agent_sessions s WHERE s.id = ?`,
-            [req.params.id]
-        );
+        const [rows] = await db.query(`${SESSION_SELECT_SQL} WHERE s.id = ?`, [req.params.id]);
         if (rows.length === 0) return res.status(404).json({ error: 'Session not found' });
         res.json(rows[0]);
     } catch (err) {

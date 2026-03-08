@@ -2,7 +2,7 @@
  * NPA Template Definition — Part C + Appendices
  * ──────────────────────────────────────────────
  * Mirrors the official "NPA Template (RMG OR Version Jun 2025)" — 20-page
- * Confluence document used by DBS for New Product Approvals.
+ * Confluence document used by MBS for New Product Approvals.
  *
  * Part A (Basic Product Info) and Part B (Sign-off Parties) are handled
  * outside of this template editor.  This tree covers:
@@ -111,7 +111,7 @@ export const NPA_PART_C_TEMPLATE: TemplateNode = {
               type: 'sub_question',
               label: 'Business Model',
               numbering: 'd)',
-              guidance: 'Highlight how the product/service (including SPV/SPE if applicable) sources revenue for DBS. Include revenue streams, gross margin split, and target ROI.',
+              guidance: 'Highlight how the product/service (including SPV/SPE if applicable) sources revenue for MBS. Include revenue streams, gross margin split, and target ROI.',
               fieldKeys: ['target_roi', 'revenue_streams', 'gross_margin_split', 'cost_allocation', 'break_even_timeline']
             },
             {
@@ -203,7 +203,7 @@ export const NPA_PART_C_TEMPLATE: TemplateNode = {
               type: 'sub_question',
               label: 'Channel Availability',
               numbering: 'a)',
-              guidance: 'Specify which channels will sell this product (e.g. DBS Bank, DBSV, etc.) and, if more than one entity/location, include the rationale.',
+              guidance: 'Specify which channels will sell this product (e.g. MBS Bank, MBSV, etc.) and, if more than one entity/location, include the rationale.',
               fieldKeys: ['distribution_channels', 'channel_rationale']
             },
             {
@@ -767,10 +767,10 @@ export const NPA_APPENDICES_TEMPLATE: TemplateNode[] = [
       {
         id: 'APP.2.A',
         type: 'topic',
-        label: 'Part A — DBS IP',
+        label: 'Part A — MBS IP',
         numbering: 'A',
-        guidance: 'Does the new product/service create or incorporate the use of any IP that is owned or to be owned by DBS (whether newly created or existing)?',
-        fieldKeys: ['dbs_ip_exists', 'dbs_ip_details']
+        guidance: 'Does the new product/service create or incorporate the use of any IP that is owned or to be owned by MBS (whether newly created or existing)?',
+        fieldKeys: ['mbs_ip_exists', 'mbs_ip_details']
       },
       {
         id: 'APP.2.B',
@@ -1121,7 +1121,7 @@ export const NPA_FIELD_REGISTRY: FieldRegistryEntry[] = [
   { key: 'customer_geographic', label: 'Geographic Scope', strategy: 'RULE', ruleSource: 'npa_record', nodeId: 'PC.I.2', fieldType: 'multiselect', options: ['Singapore', 'Hong Kong', 'China', 'India', 'Indonesia', 'Taiwan', 'Rest of APAC', 'Global'] },
 
   // I.3 — Commercialization Approach
-  { key: 'distribution_channels', label: 'Distribution Channels', strategy: 'COPY', copySection: 'product_specs', nodeId: 'PC.I.3.a', fieldType: 'multiselect', options: ['DBS Bank', 'DBSV', 'DBS Treasures', 'DBS Private Bank', 'digibank', 'Third Party Distributors', 'Direct Sales'] },
+  { key: 'distribution_channels', label: 'Distribution Channels', strategy: 'COPY', copySection: 'product_specs', nodeId: 'PC.I.3.a', fieldType: 'multiselect', options: ['MBS Bank', 'MBSV', 'MBS Treasures', 'MBS Private Bank', 'digibank', 'Third Party Distributors', 'Direct Sales'] },
   { key: 'channel_rationale', label: 'Multi-Entity/Location Rationale', strategy: 'LLM', llmCategory: 'product_description', nodeId: 'PC.I.3.a', fieldType: 'textarea' },
   { key: 'sales_suitability', label: 'Sales Suitability', strategy: 'COPY', copySection: 'product_specs', nodeId: 'PC.I.3.b', fieldType: 'textarea' },
   { key: 'onboarding_process', label: 'Customer Onboarding Process', strategy: 'COPY', copySection: 'product_specs', nodeId: 'PC.I.3.b', fieldType: 'textarea' },
@@ -1332,8 +1332,8 @@ export const NPA_FIELD_REGISTRY: FieldRegistryEntry[] = [
   { key: 'counterparty', label: 'Counterparty', strategy: 'RULE', ruleSource: 'org_chart', nodeId: 'APP.1', fieldType: 'text' },
 
   // APP.2 — Intellectual Property
-  { key: 'dbs_ip_exists', label: 'DBS IP Created/Used?', strategy: 'MANUAL', nodeId: 'APP.2', fieldType: 'yesno' },
-  { key: 'dbs_ip_details', label: 'DBS IP Details', strategy: 'MANUAL', nodeId: 'APP.2', fieldType: 'textarea', dependsOn: { field: 'dbs_ip_exists', value: 'Yes' } },
+  { key: 'mbs_ip_exists', label: 'MBS IP Created/Used?', strategy: 'MANUAL', nodeId: 'APP.2', fieldType: 'yesno' },
+  { key: 'mbs_ip_details', label: 'MBS IP Details', strategy: 'MANUAL', nodeId: 'APP.2', fieldType: 'textarea', dependsOn: { field: 'mbs_ip_exists', value: 'Yes' } },
   { key: 'third_party_ip_exists', label: 'Third Party IP Used?', strategy: 'MANUAL', nodeId: 'APP.2', fieldType: 'yesno' },
   { key: 'third_party_ip_details', label: 'Third Party IP Details', strategy: 'MANUAL', nodeId: 'APP.2', fieldType: 'textarea', dependsOn: { field: 'third_party_ip_exists', value: 'Yes' } },
   { key: 'ip_licensing', label: 'IP Licensing Arrangements', strategy: 'MANUAL', nodeId: 'APP.2', fieldType: 'textarea' },

@@ -423,7 +423,7 @@ NPA_[REFERENCE]_[DATE]/
 #### Retention Requirements:
 | Document Type | Retention Period | Storage Location | Access Level |
 |---------------|------------------|------------------|--------------|
-| **NPA Submissions** | 10 years | DBS Document Archive | Restricted |
+| **NPA Submissions** | 10 years | MBS Document Archive | Restricted |
 | **Risk Assessments** | 7 years | Risk Repository | Controlled |
 | **Legal Documents** | Perpetual | Legal Archive | Restricted |
 | **Regulatory Submissions** | Per regulation | Compliance Archive | Controlled |

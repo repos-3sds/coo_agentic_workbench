@@ -598,7 +598,7 @@ These 5 real NPA case studies provide critical precedent data that the KB Search
 | **Product** | Pledged Bond Repo in China Interbank Bond Market (CIBM) |
 | **Classification** | New-to-Group (new legal framework, new market) |
 | **Track** | Full NPA |
-| **Complexity Factors** | New legal framework (NAFMII vs traditional GMRA), cross-border settlement via DBS China and ABOC, restricted currency handling (CNY/CNH), Chinese withholding tax and VAT implications |
+| **Complexity Factors** | New legal framework (NAFMII vs traditional GMRA), cross-border settlement via MBS China and ABOC, restricted currency handling (CNY/CNH), Chinese withholding tax and VAT implications |
 | **Market Context** | Daily trade volume: RMB 4 billion in a RMB 4 trillion market |
 
 **Lesson**: Products involving new jurisdictions and legal frameworks ALWAYS go Full NPA, regardless of how "vanilla" the underlying instrument might be. A repo is a standard instrument, but operating under NAFMII (instead of GMRA) in the China interbank market introduced entirely new legal, tax, and settlement risks. The jurisdiction and legal framework determine the classification, not the product type alone.
@@ -629,7 +629,7 @@ These 5 real NPA case studies provide critical precedent data that the KB Search
 | **Classification** | New-to-Group |
 | **Track** | Full NPA |
 | **Booking** | IRD|IRS|Vanilla typology with CNH 7DREPO 3M SWAPCON generator |
-| **Portfolio** | DBSSG AMM BCB1 mapped for margin requirements |
+| **Portfolio** | MBSSG AMM BCB1 mapped for margin requirements |
 | **Legal** | ISDA with novation to HKEx OTC Clear |
 
 **Lesson**: Infrastructure market access products (like Swap Connect) require Full NPA because they change the operational model fundamentally, even if the underlying instrument (IRS) is an existing product. The key NTG trigger here is not the product itself but the new execution platform and clearing infrastructure. When a product changes HOW it is traded rather than WHAT is traded, it is likely NTG.
@@ -931,7 +931,7 @@ Example: User wants FX Option -> TSG1567 Corporate Loan (0.12)
 
 ### Edge Case 1: No Similar NPAs Found
 
-**Scenario**: User's product is Credit Default Swap (DBS has never traded CDS)
+**Scenario**: User's product is Credit Default Swap (MBS has never traded CDS)
 
 **Challenge**: Semantic search returns zero results >80% similarity
 
@@ -944,7 +944,7 @@ if max_similarity_score < 0.80:
   # Broaden search
   search_related_products = ["Interest Rate Swap", "FX Option", "Credit Derivative"]
 
-  display_message = "No exact matches found (DBS has not traded CDS before). Showing most similar derivative products for reference."
+  display_message = "No exact matches found (MBS has not traded CDS before). Showing most similar derivative products for reference."
 
   suggest_escalation = "This appears to be New-to-Group. Recommend engaging PAC for guidance."
 ```

@@ -515,20 +515,20 @@ router.get('/:id/prefill', async (req, res) => {
 
         // Booking entity — from org chart (by jurisdiction)
         if (jurisdictions.includes('SG')) {
-            ruleValues['booking_entity'] = 'DBS Bank Ltd (Singapore)';
-            ruleValues['booking_legal_form'] = 'DBS Bank Ltd';
+            ruleValues['booking_entity'] = 'MBS Bank Ltd (Singapore)';
+            ruleValues['booking_legal_form'] = 'MBS Bank Ltd';
             ruleValues['counterparty'] = 'Institutional / Corporate (SG)';
         } else if (jurisdictions.includes('HK')) {
-            ruleValues['booking_entity'] = 'DBS Bank (Hong Kong) Ltd';
-            ruleValues['booking_legal_form'] = 'DBS Bank (Hong Kong) Ltd';
+            ruleValues['booking_entity'] = 'MBS Bank (Hong Kong) Ltd';
+            ruleValues['booking_legal_form'] = 'MBS Bank (Hong Kong) Ltd';
             ruleValues['counterparty'] = 'Institutional / Corporate (HK)';
         } else if (jurisdictions.includes('CN')) {
-            ruleValues['booking_entity'] = 'DBS Bank (China) Ltd';
-            ruleValues['booking_legal_form'] = 'DBS Bank (China) Ltd';
+            ruleValues['booking_entity'] = 'MBS Bank (China) Ltd';
+            ruleValues['booking_legal_form'] = 'MBS Bank (China) Ltd';
             ruleValues['counterparty'] = 'Institutional / Corporate (CN)';
         } else {
-            ruleValues['booking_entity'] = 'DBS Bank Ltd';
-            ruleValues['booking_legal_form'] = 'DBS Bank Ltd';
+            ruleValues['booking_entity'] = 'MBS Bank Ltd';
+            ruleValues['booking_legal_form'] = 'MBS Bank Ltd';
             ruleValues['counterparty'] = 'Institutional / Corporate';
         }
 

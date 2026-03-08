@@ -10,7 +10,7 @@ The **New Product Approval (NPA)** process is the critical "Gatekeeper" function
 *Before determining the approval track, the Agent must classify the product nature.*
 
 1.  **New-to-Group (NTG)**
-    *   **Definition**: Product never done before at DBS Group level.
+    *   **Definition**: Product never done before at MBS Group level.
     *   **Agent Rule**: IF `NTG` -> **HARD STOP**. Generate "PAC Submission Package". PAC Approval required *before* NPA starts.
     *   **Mandatory**: Full NPA + PIR.
 

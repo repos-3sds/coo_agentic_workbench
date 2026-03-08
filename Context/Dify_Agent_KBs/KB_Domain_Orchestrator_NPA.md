@@ -72,7 +72,7 @@ Classification is the most complex business logic in the NPA lifecycle. The Clas
 
 ```
 NEW-TO-GROUP (NTG)
-├── Completely new products/services to DBS Group
+├── Completely new products/services to MBS Group
 ├── Novel market approaches, new risk profiles, new technology
 ├── Requires PAC approval, PIR commitment
 ├── 12-16 week timeline
@@ -101,11 +101,11 @@ Each indicator is scored: **0** (not applicable), **1** (partially applicable), 
 
 | # | Indicator | Score 0 | Score 1 | Score 2 |
 |---|-----------|---------|---------|---------|
-| 1 | **Novel Product Structure** | Same as existing DBS product | Extends existing architecture significantly | Fundamentally new product architecture |
-| 2 | **New Asset Class** | Asset class already traded by DBS | Derivative of existing asset class | Entirely new asset class for DBS |
-| 3 | **Innovative Technology** | Uses existing DBS technology | Significant extension of existing tech | Requires new technology infrastructure |
+| 1 | **Novel Product Structure** | Same as existing MBS product | Extends existing architecture significantly | Fundamentally new product architecture |
+| 2 | **New Asset Class** | Asset class already traded by MBS | Derivative of existing asset class | Entirely new asset class for MBS |
+| 3 | **Innovative Technology** | Uses existing MBS technology | Significant extension of existing tech | Requires new technology infrastructure |
 | 4 | **New Revenue Model** | Same revenue streams as existing | Modified revenue approach | Entirely new revenue streams |
-| 5 | **Unique Market Position** | DBS already plays this role | Enhanced version of existing role | Creates new market-making/intermediation role |
+| 5 | **Unique Market Position** | MBS already plays this role | Enhanced version of existing role | Creates new market-making/intermediation role |
 
 **Category B — Market & Customer (4 indicators, max 8 points)**
 
@@ -121,7 +121,7 @@ Each indicator is scored: **0** (not applicable), **1** (partially applicable), 
 | # | Indicator | Score 0 | Score 1 | Score 2 |
 |---|-----------|---------|---------|---------|
 | 10 | **New Risk Categories** | Same risk types | Enhanced risk management needed | Introduces risk types not previously managed |
-| 11 | **New Regulatory Framework** | Same regulations | Extended regulatory scope | Subject to regulations DBS hasn't navigated |
+| 11 | **New Regulatory Framework** | Same regulations | Extended regulatory scope | Subject to regulations MBS hasn't navigated |
 | 12 | **New Capital Treatment** | Same capital methodology | Modified capital approach | Requires new capital allocation methodology |
 | 13 | **New Compliance Monitoring** | Same compliance framework | Enhanced monitoring needed | Needs new compliance infrastructure |
 | 14 | **New Legal Agreements** | Same legal docs | Modified agreements needed | Requires entirely new agreement types |
@@ -131,7 +131,7 @@ Each indicator is scored: **0** (not applicable), **1** (partially applicable), 
 
 | # | Indicator | Score 0 | Score 1 | Score 2 |
 |---|-----------|---------|---------|---------|
-| 16 | **New Settlement Mechanism** | Same settlement methods | Modified settlement approach | Uses settlement methods new to DBS |
+| 16 | **New Settlement Mechanism** | Same settlement methods | Modified settlement approach | Uses settlement methods new to MBS |
 | 17 | **New Currency Exposure** | Same currencies | Additional minor currency | Involves currencies not previously traded |
 | 18 | **New Counterparty Types** | Same counterparty categories | Extended counterparty scope | Engages entirely new counterparty categories |
 | 19 | **New Pricing Model** | Same pricing strategies | Modified pricing approach | Implements novel pricing strategies |
@@ -149,7 +149,7 @@ Step 3: Apply threshold:
   - Total < 10 --> EXISTING or MINOR VARIATION
 
 OVERRIDE RULE: A single indicator scored 2 with CRITICAL impact
-(e.g., "product is on no existing DBS platform whatsoever") may
+(e.g., "product is on no existing MBS platform whatsoever") may
 trigger NTG classification even if total < 20. This requires
 Group Product Head or Group COO confirmation.
 ```
@@ -266,7 +266,7 @@ Existing product launched in a new geography:
 - Same regulatory framework -> Existing (NPA Lite)
 - Similar regulatory framework -> Variation (NPA Lite)
 - Different regulatory framework -> Variation (Full NPA)
-- New market entry (DBS has no presence) -> New-to-Group
+- New market entry (MBS has no presence) -> New-to-Group
 
 ### 3.9 Classification Override and Appeals
 
@@ -426,7 +426,7 @@ STAGE 4: IMPLEMENTATION APPROVAL (Weeks 9-12)
 **NTG CEO Escalation Triggers:**
 - Revenue potential > $100M annually
 - Regulatory approval required
-- New market entry for DBS
+- New market entry for MBS
 - Strategic partnerships involved
 
 **NTG Board Escalation Triggers:**
@@ -603,7 +603,7 @@ The Risk Agent (`WF_NPA_Risk`) executes a sequential 4-layer cascade. Each layer
 
 ```
 Layer 1: INTERNAL POLICY
-  ├── DBS prohibited products list check
+  ├── MBS prohibited products list check
   ├── Internal policy violation screening
   ├── Product category restrictions
   └── HARD STOP if: Product on prohibited list
@@ -638,10 +638,10 @@ These product types ALWAYS trigger mandatory risk assessment and may result in h
 - **Cryptocurrency / digital asset / Bitcoin / Ethereum trading** — unless specifically approved by PAC
 - **Products involving sanctioned jurisdictions** — DPRK, Iran, Russia, Syria, Cuba
 - **Products involving sanctioned entities or persons** — OFAC, EU, UN lists
-- **Products explicitly on the DBS internal prohibited list** — maintained in `ref_prohibited_items` table
-- **Products requiring regulatory licenses DBS does not hold** — and cannot reasonably obtain
+- **Products explicitly on the MBS internal prohibited list** — maintained in `ref_prohibited_items` table
+- **Products requiring regulatory licenses MBS does not hold** — and cannot reasonably obtain
 - **Products with uninsurable operational risks** — no viable risk mitigation
-- **Products that could impact DBS banking license** — charter implications
+- **Products that could impact MBS banking license** — charter implications
 
 **Detection Keywords for Orchestrator:** When user mentions any of the above in ideation or creation, the orchestrator should warn: "This product type may trigger a prohibited item check. Let me route this through risk assessment to verify."
 

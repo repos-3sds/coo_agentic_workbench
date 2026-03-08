@@ -63,7 +63,7 @@ INSERT INTO agent_messages (session_id, role, agent_identity_id, content, agent_
 -- Session 6: Green Bond ETF ideation
 ('SES-006', 'agent', 'IDEATION_AGENT', 'Hello! What product would you like to create an NPA for?', NULL, NULL, NULL, '2026-01-18 11:00:05', NULL),
 ('SES-006', 'user',  NULL, 'Global Green Bond ETF - an ESG-focused fixed income ETF tracking a custom green bond index', NULL, NULL, NULL, '2026-01-18 11:01:00', NULL),
-('SES-006', 'agent', 'IDEATION_AGENT', '**Global Green Bond ETF** - interesting! This is a New-to-Group product as DBS doesn''t currently offer ETF products.\n\n**Key Questions:**\n1. What''s the target index? Custom or existing (e.g., Bloomberg MSCI Green Bond)?\n2. What listing venue(s)? SGX, HKEX?\n3. Target fund size?', 93.0, 'Classification: Clearly NTG - ETF product category is new for DBS. Requires new regulatory licenses (MAS CIS License for fund management).', NULL, '2026-01-18 11:02:00', '{"classification_preliminary": "NTG"}'),
+('SES-006', 'agent', 'IDEATION_AGENT', '**Global Green Bond ETF** - interesting! This is a New-to-Group product as MBS doesn''t currently offer ETF products.\n\n**Key Questions:**\n1. What''s the target index? Custom or existing (e.g., Bloomberg MSCI Green Bond)?\n2. What listing venue(s)? SGX, HKEX?\n3. Target fund size?', 93.0, 'Classification: Clearly NTG - ETF product category is new for MBS. Requires new regulatory licenses (MAS CIS License for fund management).', NULL, '2026-01-18 11:02:00', '{"classification_preliminary": "NTG"}'),
 ('SES-006', 'user',  NULL, 'Custom green bond index tracked by FTSE Russell. Listing on SGX with potential HKEX dual listing. Target $500M seed, growing to $2B in 3 years.', NULL, NULL, NULL, '2026-01-18 11:04:00', NULL),
 
 -- Session 7: Risk Agent for Green Bond ETF
@@ -106,9 +106,9 @@ INSERT INTO kb_documents (doc_id, filename, doc_type, embedding_id, last_synced)
 ('KB-REG-003', 'SFC_Type1_Requirements.pdf',     'REGULATORY',     'emb-rg-003', '2025-07-01 00:00:00'),
 ('KB-REG-004', 'PBOC_SFC_SwapConnect_Framework.pdf','REGULATORY', 'emb-rg-004', '2025-04-01 00:00:00'),
 ('KB-REG-005', 'EU_Taxonomy_Regulation_2024.pdf','REGULATORY',     'emb-rg-005', '2024-12-01 00:00:00'),
-('KB-POL-001', 'DBS_Prohibited_Products_2026.pdf','POLICY',        'emb-pl-001', '2026-01-01 00:00:00'),
-('KB-POL-002', 'DBS_ESG_Investment_Policy.pdf',  'POLICY',         'emb-pl-002', '2025-09-01 00:00:00'),
-('KB-POL-003', 'DBS_Digital_Assets_Policy.pdf',  'POLICY',         'emb-pl-003', '2025-11-01 00:00:00');
+('KB-POL-001', 'MBS_Prohibited_Products_2026.pdf','POLICY',        'emb-pl-001', '2026-01-01 00:00:00'),
+('KB-POL-002', 'MBS_ESG_Investment_Policy.pdf',  'POLICY',         'emb-pl-002', '2025-09-01 00:00:00'),
+('KB-POL-003', 'MBS_Digital_Assets_Policy.pdf',  'POLICY',         'emb-pl-003', '2025-11-01 00:00:00');
 
 -- ────────────────────────────────────────────────────────────
 -- 4. AGENT ROUTING DECISIONS
@@ -368,7 +368,7 @@ SELECT 'NPA-2026-003', c.id,
         ELSE 0
     END,
     CASE
-        WHEN c.criterion_code = 'NTG_PI_01' THEN 'ETF product category entirely new for DBS'
+        WHEN c.criterion_code = 'NTG_PI_01' THEN 'ETF product category entirely new for MBS'
         WHEN c.criterion_code = 'NTG_RR_01' THEN 'MAS CIS License for fund management required'
         WHEN c.criterion_code = 'NTG_FO_01' THEN 'New ETF creation/redemption booking infrastructure'
         ELSE 'Auto-assessed'

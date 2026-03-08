@@ -1,10 +1,10 @@
-# PURE / Data Management Framework — Template (DBS‑internal) (POC)
+# PURE / Data Management Framework — Template (MBS‑internal) (POC)
 **Agent:** CF_NPA_FINANCE  
 **Suggested Dify dataset:** `COO Command Center — Finance (PURE)`  
 **Last updated:** 2026-02-23
 
 ## Purpose
-DBS PURE is referenced in the NPA template and database fields (e.g., `pure_assessment_id`).
+MBS PURE is referenced in the NPA template and database fields (e.g., `pure_assessment_id`).
 If the official PURE document is internal-only, this file provides a structured template to capture the required content.
 
 ---

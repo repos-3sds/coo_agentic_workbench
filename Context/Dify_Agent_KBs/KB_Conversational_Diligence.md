@@ -944,7 +944,7 @@ Answer: No, CEO approval threshold is $100M. You need Regional Risk + Group Risk
 {
   "field_name": "Settlement Instructions",
   "guidance": "For physical delivery FX Forwards, include: (1) Bank account details for each currency, (2) SWIFT codes, (3) Cut-off times, (4) Settlement currency pair, (5) Value date calculation method",
-  "example": "Settlement: USD → SGD. USD account: HSBC New York, SWIFT: MRMDUS33, Account: 123456789. SGD account: DBS Singapore, SWIFT: DBSSSGSG, Account: 987654321. Value date: T+2 business days from trade date. Cut-off: 10:00 AM SGT.",
+  "example": "Settlement: USD → SGD. USD account: HSBC New York, SWIFT: MRMDUS33, Account: 123456789. SGD account: MBS Singapore, SWIFT: MBSSSGSG, Account: 987654321. Value date: T+2 business days from trade date. Cut-off: 10:00 AM SGT.",
   "precedent_source": "TSG2201"
 }
 ```

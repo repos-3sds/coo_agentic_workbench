@@ -155,7 +155,7 @@ User Asks -> Retrieve from Glean -> Draft NPA
 - Product Leg Decomposition: breaks a composite product (e.g., ELN = option leg + note leg) into individual legs
 - Per-leg credit risk assessment using 5 specialized sub-topics
 - Includes SACCR calculation — the Basel III standardized approach for counterparty credit risk
-- Crypto-specific assessment module (reflecting DBS crypto product initiatives)
+- Crypto-specific assessment module (reflecting MBS crypto product initiatives)
 
 #### Agent 3: FO (Front Office) Expert
 
@@ -1004,7 +1004,7 @@ STEP 7: RUN LCS ASSESSMENT TOPICS (3 parallel prompt chains)
 
   TOPIC A — MAS Engagement:
     Input: Draft NPA + Banking Act KSC references
-    Prompt: "Given this product, does DBS need to engage MAS?
+    Prompt: "Given this product, does MBS need to engage MAS?
              Consider Section 19 Banking Act, MAS Notice 656..."
     Output: MAS engagement assessment (Yes/No + reasoning)
 
@@ -1100,7 +1100,7 @@ Node 4: LLM — REGULATORY COMPLIANCE ASSESSMENT (Reg 40 + Trade Reporting combi
   Knowledge: KB_NPA_Regulatory_Matrix.md (Reg 40 + Trade Reporting sections)
 
 Node 5: LLM — GENERATE LCS DRAFT MEMO
-  Prompt: [System] You are an L&C sign-off memo author at DBS...
+  Prompt: [System] You are an L&C sign-off memo author at MBS...
           Combine the following assessments into a formal LCS sign-off memo:
           Product context: {{product_context_json}}
           MAS engagement: {{mas_assessment}}
@@ -1779,7 +1779,7 @@ Section 2: Product-to-Classification Mapping
   | ETF Subscription | FVOCI | Hold-to-collect-and-sell |
   | DCD | FVPL (embedded derivative) | Bifurcation or FVO |
 
-Section 3: GL Account Structure (DBS-specific)
+Section 3: GL Account Structure (MBS-specific)
   Account code patterns for:
   - Trading assets (FVPL)
   - Investment securities (AC / FVOCI)

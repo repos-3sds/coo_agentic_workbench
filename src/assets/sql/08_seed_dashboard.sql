@@ -257,7 +257,7 @@ INSERT INTO npa_form_data (project_id, field_key, field_value, lineage, confiden
 ('NPA-2026-002', 'risk_classification','MEDIUM',                               'AUTO',     95.00, NULL),
 ('NPA-2026-002', 'primary_regulation', 'MAS 656',                              'AUTO',     95.00, '{"source": "Policy Engine"}'),
 ('NPA-2026-002', 'sanctions_check',    'Clear - No Matches',                   'AUTO',     100.00, NULL),
-('NPA-2026-002', 'booking_entity',     'DBS Bank Ltd, Singapore',              'AUTO',     99.00, '{"source": "TSG1917"}');
+('NPA-2026-002', 'booking_entity',     'MBS Bank Ltd, Singapore',              'AUTO',     99.00, '{"source": "TSG1917"}');
 
 -- NPA #3: Green Bond ETF (selected fields)
 INSERT INTO npa_form_data (project_id, field_key, field_value, lineage, confidence_score, metadata) VALUES
@@ -317,6 +317,6 @@ INSERT INTO npa_audit_log (project_id, actor_name, actor_role, action_type, acti
 ('NPA-2026-011', 'Jessica Wu',              'Maker',              'NPA_CREATED',            'Retail Wealth App Enhancement created.', FALSE, NULL, '2026-01-25 11:00:00'),
 ('NPA-2026-011', 'System',                  'Agent',              'EVERGREEN_AUTOAPPROVED', 'Auto-approved via Evergreen track in < 1 hour.', TRUE, 'Approval Orchestrator', '2026-01-25 12:30:00'),
 ('NPA-2026-012', 'Alex Rivera',             'Maker',              'NPA_CREATED',            'Leveraged Crypto CFD Product created.', FALSE, NULL, '2026-02-01 15:00:00'),
-('NPA-2026-012', 'Prohibited List Checker', 'Agent',              'PROHIBITED_HARD_STOP',   'HARD STOP: Leveraged crypto CFDs for retail violate MAS SFA 04-N15 and DBS IP-2024-003.', TRUE, 'Prohibited List Checker', '2026-02-01 15:01:00'),
+('NPA-2026-012', 'Prohibited List Checker', 'Agent',              'PROHIBITED_HARD_STOP',   'HARD STOP: Leveraged crypto CFDs for retail violate MAS SFA 04-N15 and MBS IP-2024-003.', TRUE, 'Prohibited List Checker', '2026-02-01 15:01:00'),
 ('NPA-2026-007', 'Monitoring Agent',        'Agent',              'BREACH_DETECTED',        'Volume threshold breach detected on FX Accumulator. Daily volume $192M vs $128M cap.', TRUE, 'Monitoring Agent', '2026-02-11 06:30:00'),
 ('NPA-2026-003', 'Monitoring Agent',        'Agent',              'BREACH_DETECTED',        'Counterparty rating downgrade detected. Moody''s downgraded from A- to BBB+.', TRUE, 'Monitoring Agent', '2026-02-10 18:00:00');

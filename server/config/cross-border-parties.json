@@ -1,0 +1,10 @@
+{
+    "_comment": "Cross-border mandatory sign-off parties — forced regardless of approval track",
+    "parties": [
+        { "party_name": "Finance", "department": "Finance", "sla_hours": 72 },
+        { "party_name": "Credit Risk", "department": "Risk Management", "sla_hours": 48 },
+        { "party_name": "Compliance", "department": "Legal, Compliance & Secretariat", "sla_hours": 48 },
+        { "party_name": "Technology Architecture", "department": "Technology & Operations", "sla_hours": 48 },
+        { "party_name": "Operations", "department": "Technology & Operations", "sla_hours": 48 }
+    ]
+}

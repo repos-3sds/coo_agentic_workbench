@@ -706,14 +706,14 @@ Conversational Diligence → "Daily collateral exchange required for BBB+ (sourc
 
 ### Edge Case 1: No Similar NPAs Found
 
-**Scenario:** User's product is Credit Default Swap (DBS has never traded CDS)
+**Scenario:** User's product is Credit Default Swap (MBS has never traded CDS)
 
 **Challenge:** Semantic search returns zero results >80% similarity
 
 **Agent Handling:**
 - Lower similarity threshold: Accept matches >60% similarity
 - Broaden search: Find most similar derivative products (Interest Rate Swaps, FX Options)
-- Display message: "⚠️ No exact matches found (DBS has not traded CDS before). Showing most similar derivative products for reference."
+- Display message: "⚠️ No exact matches found (MBS has not traded CDS before). Showing most similar derivative products for reference."
 - Suggest escalation: "This appears to be New-to-Group. Recommend engaging PAC for guidance."
 
 ---

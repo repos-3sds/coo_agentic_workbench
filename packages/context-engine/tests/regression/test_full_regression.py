@@ -95,7 +95,7 @@ def npa_request():
         "agent_id": "NPA_BIZ",
         "entity_ids": ["NPA-200"],
         "query": "Evaluate viability of new derivative product",
-        "system_prompt": "You are a business analyst at DBS.",
+        "system_prompt": "You are a business analyst at MBS.",
         "conversation_history": [],
         "few_shot_examples": [],
         "tool_schemas": [],

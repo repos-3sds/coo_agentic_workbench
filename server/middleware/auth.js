@@ -6,8 +6,8 @@
  * - GET  /api/auth/me     — returns current user from JWT
  * - POST /api/auth/logout — stateless logout acknowledgement
  *
- * Demo password: DBS@2026  (or leave blank — any password accepted in demo mode)
- * In production this would integrate with DBS SSO / LDAP.
+ * Demo password: MBS@2026  (or leave blank — any password accepted in demo mode)
+ * In production this would integrate with MBS SSO / LDAP.
  */
 
 const jwt = require('jsonwebtoken');
@@ -16,36 +16,36 @@ const db = require('../db');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'coo-workbench-dev-secret-2026';
 const JWT_EXPIRY = '7d';
-const DEMO_PASSWORD = process.env.DEMO_PASSWORD || 'DBS@2026';
+const DEMO_PASSWORD = process.env.DEMO_PASSWORD || 'MBS@2026';
 
 // ─── Fallback demo users (returned when Railway DB is unavailable) ────────────
 const FALLBACK_USERS = [
     {
-        id: 'usr-001', email: 'sarah.chen@dbs.com', employee_id: 'E10001',
+        id: 'usr-001', email: 'sarah.chen@mbs.com', employee_id: 'E10001',
         full_name: 'Sarah Chen', display_name: 'Sarah',
         role: 'MAKER', department: 'Treasury & Markets',
         job_title: 'Vice President, Product Management', location: 'Singapore', is_active: 1
     },
     {
-        id: 'usr-002', email: 'james.wilson@dbs.com', employee_id: 'E10002',
+        id: 'usr-002', email: 'james.wilson@mbs.com', employee_id: 'E10002',
         full_name: 'James Wilson', display_name: 'James',
         role: 'CHECKER', department: 'Risk Management Group',
         job_title: 'Director, Risk Analytics', location: 'Singapore', is_active: 1
     },
     {
-        id: 'usr-003', email: 'maria.rodriguez@dbs.com', employee_id: 'E10003',
+        id: 'usr-003', email: 'maria.rodriguez@mbs.com', employee_id: 'E10003',
         full_name: 'Maria Rodriguez', display_name: 'Maria',
         role: 'APPROVER', department: 'Legal, Compliance & Secretariat',
         job_title: 'Managing Director, Compliance', location: 'Hong Kong', is_active: 1
     },
     {
-        id: 'usr-004', email: 'david.kim@dbs.com', employee_id: 'E10004',
+        id: 'usr-004', email: 'david.kim@mbs.com', employee_id: 'E10004',
         full_name: 'David Kim', display_name: 'David',
         role: 'COO', department: 'COO Office',
         job_title: 'Chief Operating Officer, GFM', location: 'Singapore', is_active: 1
     },
     {
-        id: 'usr-005', email: 'emily.thompson@dbs.com', employee_id: 'E10005',
+        id: 'usr-005', email: 'emily.thompson@mbs.com', employee_id: 'E10005',
         full_name: 'Emily Thompson', display_name: 'Emily',
         role: 'ADMIN', department: 'Technology & Operations',
         job_title: 'Platform Administrator', location: 'Singapore', is_active: 1

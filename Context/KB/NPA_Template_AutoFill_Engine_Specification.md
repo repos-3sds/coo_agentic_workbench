@@ -731,7 +731,7 @@ The Template Auto-Fill Engine must operate at enterprise-grade performance:
 
 ### Edge Case 5: New-to-Group Product (No Similar NPA)
 
-**Scenario:** User's product is Credit Default Swap, which DBS has never traded
+**Scenario:** User's product is Credit Default Swap, which MBS has never traded
 
 **Agent Handling:**
 - Classification Router identifies as NTG (no historical match)

@@ -51,7 +51,7 @@ import { ToastService } from '../../services/toast.service';
             </div>
 
             <button (click)="runAssessment()" [disabled]="!childId || !parentId || loading"
-                    class="px-6 py-2.5 bg-dbs-primary text-white rounded-lg text-sm font-semibold hover:bg-dbs-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                    class="px-6 py-2.5 bg-mbs-primary text-white rounded-lg text-sm font-semibold hover:bg-mbs-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
               <lucide-icon name="zap" class="w-4 h-4"></lucide-icon>
               {{ loading ? 'Evaluating...' : 'Run 8-Condition Assessment' }}
             </button>

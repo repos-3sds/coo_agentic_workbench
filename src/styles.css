@@ -17,7 +17,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Primary - DBS Blue #0077CC */
+    /* Primary - MBS Blue #0077CC */
     --primary: 204 100% 40%;
     --primary-foreground: 210 40% 98%;
 
@@ -33,7 +33,7 @@
     --accent: 220 14% 96%;
     --accent-foreground: 222 47% 11%;
 
-    /* Destructive - DBS Red #FF3E3E */
+    /* Destructive - MBS Red #FF3E3E */
     --destructive: 0 100% 62%;
     --destructive-foreground: 210 40% 98%;
 
@@ -44,8 +44,8 @@
 
     --radius: 0.5rem;
 
-    /* DBS Secondary border */
-    --dbs-border: 210 16% 87%;  /* #DDE3E7 */
+    /* MBS Secondary border */
+    --mbs-border: 210 16% 87%;  /* #DDE3E7 */
 
     /* Sidebar - #172733 with glossy effect */
     --sidebar-background: 206 38% 15%;

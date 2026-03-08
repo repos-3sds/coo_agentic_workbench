@@ -3,13 +3,13 @@
 **Scope**: Group-wide  
 **Issuer**: Cherie Chan, Head of Risk Management Group â€“ Operational Risk  
 **Related Policy**: New Product Approval Policy  
-**Global ID**: DBS_10_S_0012_GR  
+**Global ID**: MBS_10_S_0012_GR  
 **RISK MANAGEMENT GROUP**  
 **Page 1 of 14**
 
 ### 1 Purpose
 
-1.1 This Standard supplements the New Product Approval (NPA) Policy and establishes the controls and governance standards relating to the introduction of new business initiatives or changes to existing businesses (for the purposes of this Standard, this will be referred to as â€œnew product/serviceâ€) across the DBS Group (the Group).
+1.1 This Standard supplements the New Product Approval (NPA) Policy and establishes the controls and governance standards relating to the introduction of new business initiatives or changes to existing businesses (for the purposes of this Standard, this will be referred to as â€œnew product/serviceâ€) across the MBS Group (the Group).
 
 1.2 This Standard is applicable to all Business Units (BUs) and Support Units (SUs), branches and subsidiaries in all locations within the Group.
 
@@ -136,7 +136,7 @@ b. No alteration to the risk profile of the customer and/or the Bank; or
 c. No change to the operating model or the basis on which the NPA/NPA Lite was previously signed off/approved.  
 The proposing unit must obtain the unanimous consensus for the extension request from the sign-off parties who have previously signed off the NPA/NPA Lite and obtain approval from the Group BU/SU COO.
 
-â· Product/service launch can either be (i) the date the product/service is first marketed and resulted in a sale/offer or (ii) the first trade of the product. For example, an indication of DBSâ€™ interest to a customer should not be deemed as product/service launched.  
+â· Product/service launch can either be (i) the date the product/service is first marketed and resulted in a sale/offer or (ii) the first trade of the product. For example, an indication of MBSâ€™ interest to a customer should not be deemed as product/service launched.  
 â¸ Taking into consideration changes in regulations, market conditions or changes in the underlying assumptions.
 
 #### 2.8 PIR and Ongoing Review
@@ -251,7 +251,7 @@ This Standard should be reviewed at least once every two years (with a grace per
 ### Appendix 1 Glossary
 
 Please refer to the link below for the RMG Glossary:  
-https://go.mydbs.net/web/rmg-grp/useful-links
+https://go.mymbs.net/web/rmg-grp/useful-links
 
 ### Appendix 2 Related Policies and Standards
 

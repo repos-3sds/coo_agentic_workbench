@@ -137,7 +137,7 @@ type WorkspaceView = 'INBOX' | 'DRAFTS' | 'WATCHLIST';
                            <!-- MAKER -->
                            <ng-container *ngIf="userRole() === 'MAKER'">
                                <button *ngIf="item.stage === 'RETURNED_TO_MAKER' || item.stage === 'DRAFT'" (click)="submit(item)"
-                                       class="w-full px-4 py-2 bg-dbs-primary hover:bg-dbs-primary-hover text-white text-sm font-semibold rounded-lg shadow-sm transition-all flex items-center justify-center gap-2">
+                                       class="w-full px-4 py-2 bg-mbs-primary hover:bg-mbs-primary-hover text-white text-sm font-semibold rounded-lg shadow-sm transition-all flex items-center justify-center gap-2">
                                    <lucide-icon name="send" class="w-3.5 h-3.5"></lucide-icon>
                                    <span>{{ item.stage === 'DRAFT' ? 'Submit' : 'Resubmit' }}</span>
                                </button>
@@ -187,7 +187,7 @@ type WorkspaceView = 'INBOX' | 'DRAFTS' | 'WATCHLIST';
 
                        <!-- DRAFT ACTIONS -->
                        <ng-container *ngIf="currentView() === 'DRAFTS'">
-                           <button (click)="editDraft(item)" class="w-full px-4 py-2 bg-white text-slate-700 border border-dbs-border hover:bg-slate-50 text-sm font-semibold rounded-lg shadow-sm transition-all flex items-center justify-center gap-2">
+                           <button (click)="editDraft(item)" class="w-full px-4 py-2 bg-white text-slate-700 border border-mbs-border hover:bg-slate-50 text-sm font-semibold rounded-lg shadow-sm transition-all flex items-center justify-center gap-2">
                                <lucide-icon name="pencil" class="w-3.5 h-3.5"></lucide-icon> Edit Draft
                            </button>
                        </ng-container>
@@ -195,7 +195,7 @@ type WorkspaceView = 'INBOX' | 'DRAFTS' | 'WATCHLIST';
                        <!-- WATCHLIST ACTIONS -->
                        <ng-container *ngIf="currentView() === 'WATCHLIST'">
                             <!-- Status Badge is enough, maybe View Details again -->
-                           <button class="w-full px-4 py-2 bg-white text-slate-700 border border-dbs-border hover:bg-slate-50 text-sm font-semibold rounded-lg shadow-sm transition-all flex items-center justify-center gap-2">
+                           <button class="w-full px-4 py-2 bg-white text-slate-700 border border-mbs-border hover:bg-slate-50 text-sm font-semibold rounded-lg shadow-sm transition-all flex items-center justify-center gap-2">
                                <lucide-icon name="eye" class="w-3.5 h-3.5"></lucide-icon> View Status
                            </button>
                        </ng-container>
@@ -225,7 +225,7 @@ type WorkspaceView = 'INBOX' | 'DRAFTS' | 'WATCHLIST';
                  </div>
                  <h3 class="text-lg font-medium text-slate-900">{{ emptyTitle }}</h3>
                  <p class="text-slate-500 max-w-sm mx-auto mt-2">{{ emptyMessage }}</p>
-                 <button *ngIf="userRole() === 'MAKER' && currentView() === 'DRAFTS'" class="mt-6 px-4 py-2 bg-dbs-primary text-white rounded-lg hover:bg-dbs-primary-hover transition-colors text-sm font-semibold">
+                 <button *ngIf="userRole() === 'MAKER' && currentView() === 'DRAFTS'" class="mt-6 px-4 py-2 bg-mbs-primary text-white rounded-lg hover:bg-mbs-primary-hover transition-colors text-sm font-semibold">
                      Create New Proposal
                  </button>
             </div>

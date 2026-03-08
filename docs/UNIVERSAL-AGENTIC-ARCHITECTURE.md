@@ -140,7 +140,7 @@ Contractual agreements with LLM providers that customer data is never stored on 
 
 ### Anti-Patterns
 
-- Hardcoding API keys in source code (your current `DBS@2026` and JWT fallback)
+- Hardcoding API keys in source code (your current `MBS@2026` and JWT fallback)
 - Single model dependency with no fallback
 - No cost visibility until the monthly bill arrives
 - Exposing model provider details to the frontend

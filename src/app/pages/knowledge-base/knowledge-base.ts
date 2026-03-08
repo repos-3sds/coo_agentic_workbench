@@ -19,16 +19,16 @@ export class KnowledgeBaseComponent implements OnInit {
 
   // Fallback (used when DB/API is unavailable)
   private fallbackUniversalDocs = [
-    { title: 'DBS Group NPA Policy & Standard', id: 'DBS_10_S_0012_GR', desc: 'Overarching global policy (RMG-OR). Defines NTG vs Variation vs Existing classifications and standard 1-year validity.', type: 'PDF', date: 'Oct 2025', icon: 'file-text' },
+    { title: 'MBS Group NPA Policy & Standard', id: 'MBS_10_S_0012_GR', desc: 'Overarching global policy (RMG-OR). Defines NTG vs Variation vs Existing classifications and standard 1-year validity.', type: 'PDF', date: 'Oct 2025', icon: 'file-text' },
     { title: 'GFM NPA Standard Operating Procedures', id: 'GFM_SOP_v2.3', desc: 'Stricter GFM-specific rules. Dictates mandatory 5 sign-offs for cross-border deals and 3-loop-back circuit breaker.', type: 'Docs', date: 'Jan 2026', icon: 'book-open' },
     { title: 'Global Prohibited & Sanctions List', id: 'SANCTIONS_2026', desc: 'OFAC, UN, EU sanctions list plus internal prohibited products. "Hard Stop" reference for Ideation Agent.', type: 'Database', date: 'Live', icon: 'alert-triangle' },
     { title: 'Regulatory & License Mapping Matrix', id: 'REG_MATRIX_Q1', desc: 'Matrix of allowed activities per jurisdiction (MAS in SG, HKMA in HK, FCA in UK).', type: 'Sheet', date: 'Feb 2026', icon: 'map' },
     { title: 'Historical NPA Master Archive', id: 'NPA_ARCHIVE_DB', desc: 'Indexed database of all past NPA documents (1,784+ records) for similarity searches.', type: 'Database', date: 'Live', icon: 'archive' },
-    { title: 'DBS Group Holdings Liquidity Policy', id: 'DBS_LIQ_POL', desc: 'Enterprise-wide liquidity requirements affecting GFM funding and capital products.', type: 'PDF', date: 'Dec 2025', icon: 'droplet' },
+    { title: 'MBS Group Holdings Liquidity Policy', id: 'MBS_LIQ_POL', desc: 'Enterprise-wide liquidity requirements affecting GFM funding and capital products.', type: 'PDF', date: 'Dec 2025', icon: 'droplet' },
     { title: 'GFM Data Management Policy (PURE)', id: 'D4D_PURE_v1', desc: 'Design for Data (D4D) standards for ensuring Risk Data Aggregation and Reporting compliance.', type: 'Docs', date: 'Nov 2025', icon: 'database' },
     { title: 'Product Approval Committee Charter', id: 'PAC_CHARTER_26', desc: 'Group PAC mandate for approving New-To-Group (NTG) products before the NPA process begins.', type: 'PDF', date: 'Jan 2026', icon: 'users' },
     { title: 'External Platform Review Standards', id: 'EXT_PLATFORM_STDS', desc: 'Checklists and risk controls for connecting GFM product flows to third-party vendor platforms.', type: 'Sheet', date: 'Aug 2025', icon: 'monitor-speaker' },
-    { title: 'DBS Group Sustainability Framework', id: 'ESG_FRAMEWORK', desc: 'Definitions and criteria for classifying products as "Green", "Social", or "Sustainable".', type: 'PDF', date: 'May 2025', icon: 'leaf' }
+    { title: 'MBS Group Sustainability Framework', id: 'ESG_FRAMEWORK', desc: 'Definitions and criteria for classifying products as "Green", "Social", or "Sustainable".', type: 'PDF', date: 'May 2025', icon: 'leaf' }
   ];
 
   private fallbackAgentDocs = [

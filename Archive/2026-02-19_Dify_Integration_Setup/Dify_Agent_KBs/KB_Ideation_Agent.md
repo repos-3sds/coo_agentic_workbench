@@ -1363,7 +1363,7 @@ Is it currently ACTIVE?
 
 ### Key Detection Questions
 The agent must ask during Q8:
-1. "Is this product currently being actively traded at DBS?"
+1. "Is this product currently being actively traded at MBS?"
 2. If no: "When was the last trade? Less than 3 years ago, or more?"
 3. "Has anything about the product changed since it was last approved?"
 

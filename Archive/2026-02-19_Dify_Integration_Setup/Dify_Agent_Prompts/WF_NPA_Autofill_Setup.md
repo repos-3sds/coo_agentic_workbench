@@ -180,7 +180,7 @@ DIFY_KEY_AUTOFILL=app-xxxxxxxxxxxxxxxxxx
 ### Test Case 2: NTG Product (Expected Coverage: 45%)
 ```json
 {
-  "product_description": "Credit Default Swap on investment grade corporate bonds, 5-year tenor, $75M notional. First CDS product for DBS. Requires new legal framework and ISDA credit support.",
+  "product_description": "Credit Default Swap on investment grade corporate bonds, 5-year tenor, $75M notional. First CDS product for MBS. Requires new legal framework and ISDA credit support.",
   "product_category": "Derivative",
   "underlying_asset": "IG Corporate Bonds",
   "notional_amount": 75000000,

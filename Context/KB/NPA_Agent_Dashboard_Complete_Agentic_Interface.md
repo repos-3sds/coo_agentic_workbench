@@ -205,10 +205,10 @@ Sub-Agents Used:
 
 [Expanded State]
 Example: "When is Finance VP approval needed?"
-→ "For notionals >$50M per DBS Policy 4.2.1"
+→ "For notionals >$50M per MBS Policy 4.2.1"
 Knowledge Sources:
   • MAS 656, MAS 643, CFTC guidelines
-  • DBS internal policies
+  • MBS internal policies
   • Always cites source
 ```
 
@@ -722,7 +722,7 @@ Decision Logic:
 │    • Relevance: ⭐⭐⭐ Medium                          │
 │    • [View] [Download]                                │
 │                                                        │
-│ 📄 DBS Internal Risk Framework v5.1                   │
+│ 📄 MBS Internal Risk Framework v5.1                   │
 │    • Used 28 times today                              │
 │    • Relevance: ⭐⭐⭐⭐⭐ High                         │
 │    • Last updated: Nov 2025                           │
@@ -870,7 +870,7 @@ Decision Logic:
 ├─────────────────────────────────────────────────────────┤
 │                                                          │
 │ 🌐 C720 Customer API                                    │
-│    Endpoint: https://internal.dbs.com/api/c720          │
+│    Endpoint: https://internal.mbs.com/api/c720          │
 │    Status: 🟢 Healthy                                   │
 │    Latency: 120ms (avg)                                 │
 │    Purpose: Fetch customer data for NPA context         │
@@ -879,7 +879,7 @@ Decision Logic:
 │    [Test] [View API Docs] [Configure]                   │
 │                                                          │
 │ 🌐 Murex Trading API                                    │
-│    Endpoint: https://murex.dbs.com/api/trades           │
+│    Endpoint: https://murex.mbs.com/api/trades           │
 │    Status: 🟢 Healthy                                   │
 │    Latency: 85ms                                        │
 │    Purpose: Fetch trade data for product risk           │
@@ -888,7 +888,7 @@ Decision Logic:
 │    [Test] [Docs] [Configure]                            │
 │                                                          │
 │ 🌐 MINV Limit API                                       │
-│    Endpoint: https://minv.dbs.com/api/limits            │
+│    Endpoint: https://minv.mbs.com/api/limits            │
 │    Status: 🟢 Healthy                                   │
 │    Latency: 65ms                                        │
 │    Purpose: Check credit and capital limits             │
@@ -897,7 +897,7 @@ Decision Logic:
 │    [Test] [Docs] [Configure]                            │
 │                                                          │
 │ 🌐 RICO Risk Controls API                               │
-│    Endpoint: https://rico.dbs.com/api/controls          │
+│    Endpoint: https://rico.mbs.com/api/controls          │
 │    Status: 🟢 Healthy                                   │
 │    Latency: 95ms                                        │
 │    Purpose: Validate risk controls compliance           │
@@ -906,7 +906,7 @@ Decision Logic:
 │    [Test] [Docs] [Configure]                            │
 │                                                          │
 │ 🌐 NPA House Approval API                               │
-│    Endpoint: https://npahouse.dbs.com/api/approvals     │
+│    Endpoint: https://npahouse.mbs.com/api/approvals     │
 │    Status: 🟢 Healthy                                   │
 │    Latency: 110ms                                       │
 │    Purpose: Push NPA approvals to legacy system         │
@@ -915,7 +915,7 @@ Decision Logic:
 │    [Test] [Docs] [Configure]                            │
 │                                                          │
 │ 🌐 ROBO Advisor API                                     │
-│    Endpoint: https://robo.dbs.com/api/insights          │
+│    Endpoint: https://robo.mbs.com/api/insights          │
 │    Status: 🟢 Healthy                                   │
 │    Latency: 140ms                                       │
 │    Purpose: Get customer insights for product targeting │
@@ -938,7 +938,7 @@ Decision Logic:
 │ OUTBOUND WEBHOOKS (We send events to external systems)  │
 │                                                          │
 │ 🔔 NPA Approval Notification                            │
-│    URL: https://npahouse.dbs.com/webhook/approval       │
+│    URL: https://npahouse.mbs.com/webhook/approval       │
 │    Trigger: When NPA fully approved                     │
 │    Status: 🟢 Active                                    │
 │    Sent Today: 5                                        │
@@ -985,7 +985,7 @@ Decision Logic:
 │                                                          │
 │ 🗄️ NPA Historical Database (Primary)                    │
 │    Type: PostgreSQL 15 (Supabase)                       │
-│    Host: npa-db.internal.dbs.com                        │
+│    Host: npa-db.internal.mbs.com                        │
 │    Status: 🟢 Connected                                 │
 │    Purpose: Historical NPA records for ML training      │
 │    Tables: 21 tables (npas, npa_properties, etc.)       │
@@ -996,7 +996,7 @@ Decision Logic:
 │                                                          │
 │ 🗄️ Product Catalog Database                             │
 │    Type: SQL Server                                     │
-│    Host: products.dbs.com                               │
+│    Host: products.mbs.com                               │
 │    Status: 🟢 Connected                                 │
 │    Purpose: Master list of tradable products            │
 │    Records: 2,300+ products                             │
@@ -1006,7 +1006,7 @@ Decision Logic:
 │                                                          │
 │ 🗄️ Capital Management Database                          │
 │    Type: Oracle                                         │
-│    Host: capital.dbs.com                                │
+│    Host: capital.mbs.com                                │
 │    Status: 🟢 Connected                                 │
 │    Purpose: RWA calculations, capital allocation        │
 │    Queries Today: 23                                    │
@@ -1028,7 +1028,7 @@ Decision Logic:
 │ Auto-Alerts Configured: ✅ Yes                          │
 │ Alert Channels:                                         │
 │    • Slack: #coo-tech-alerts                            │
-│    • Email: vikram@dbs.com, admin@dbs.com               │
+│    • Email: vikram@mbs.com, admin@mbs.com               │
 │                                                          │
 │ Alert Triggers:                                         │
 │    • API latency >500ms for 5 consecutive calls         │
@@ -1098,7 +1098,7 @@ Decision Logic:
 │                                                                               │
 │ W-417 | Policy Q&A         | Conversational Diligence| ✅ Complete | 2 sec   │
 │       | Question: "Finance VP?" | Answer generated  |           |          │
-│       | User: Sarah Chen   | Cited: DBS Policy 4.2.1 |           |          │
+│       | User: Sarah Chen   | Cited: MBS Policy 4.2.1 |           |          │
 │       | [View Details] [Archive]                                             │
 │                                                                               │
 │ Showing 7 of 23 active work items                                            │
@@ -1114,7 +1114,7 @@ Decision Logic:
 │ WORK ITEM W-423: Create NPA                              │
 ├──────────────────────────────────────────────────────────┤
 │                                                           │
-│ User: Sarah Lim (sarah.lim@dbs.com)                      │
+│ User: Sarah Lim (sarah.lim@mbs.com)                      │
 │ Started: 12 minutes ago (09:30 AM)                       │
 │ Product Type: FX Swap (EUR/USD)                          │
 │                                                           │

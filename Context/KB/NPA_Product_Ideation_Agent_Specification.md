@@ -235,7 +235,7 @@ Alternative Products:
 • Plain-vanilla FX Options (approved for retail)
 • Structured deposits with capital protection
 
-This workflow has been terminated. Contact Compliance for guidance: compliance@dbs.com
+This workflow has been terminated. Contact Compliance for guidance: compliance@mbs.com
 ```
 
 ---
@@ -438,7 +438,7 @@ Track: NPA LITE (Fast-Track Approval)
 Expected Timeline: 4-5 days
 
 Why NPA Lite:
-✅ Product exists at DBS (FX Options actively traded)
+✅ Product exists at MBS (FX Options actively traded)
 ✅ Not New-to-Group (similar products approved recently)
 ⚠️ Variation detected but risk severity = MEDIUM (notional change)
 

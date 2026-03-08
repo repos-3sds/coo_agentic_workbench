@@ -11,7 +11,7 @@
 
 ### The Vision
 
-Transform DBS Bank's New Product Approval (NPA) process from a manual, 12-day ordeal into an intelligent, AI-powered 4-day journey that feels more like a conversation with an expert advisor than filling out bureaucratic forms.
+Transform MBS Bank's New Product Approval (NPA) process from a manual, 12-day ordeal into an intelligent, AI-powered 4-day journey that feels more like a conversation with an expert advisor than filling out bureaucratic forms.
 
 ### The Problem
 
@@ -169,7 +169,7 @@ Throughout workflow:
 
 **Profile:**
 - **Role:** Associate, Singapore FX Desk
-- **Experience:** 2 years at DBS, 5 NPAs submitted previously
+- **Experience:** 2 years at MBS, 5 NPAs submitted previously
 - **Product:** FX Option on GBP/USD, $75M notional, A- rated counterparty
 - **Urgency:** Client needs approval by Dec 20 (4 days from now)
 - **Location:** Singapore desk, counterparty in Hong Kong (cross-border)
@@ -557,7 +557,7 @@ Track: NPA LITE (Fast-Track Approval)
 Expected Timeline: 4-5 days
 
 Why NPA Lite:
-  ✅ Product exists at DBS (FX Options actively traded)
+  ✅ Product exists at MBS (FX Options actively traded)
   ✅ Not New-to-Group (similar products approved recently)
   ⚠️ Variation detected but risk = MEDIUM (manageable)
 
@@ -1042,7 +1042,7 @@ Next Steps:
 3. All 6 approvers notified simultaneously
 
 You'll receive notifications at each milestone:
-  ✉️ Email: sarah.lim@dbs.com
+  ✉️ Email: sarah.lim@mbs.com
   💬 Slack: #singapore-fx-desk
   📱 In-app: Real-time dashboard updates
 
@@ -1055,8 +1055,8 @@ Want to send that Finance VP heads-up email now?
 
 **Email sent:**
 ```
-From: sarah.lim@dbs.com
-To: jane.tan@dbs.com
+From: sarah.lim@mbs.com
+To: jane.tan@mbs.com
 Subject: Heads-up: $75M FX Option NPA Submission (TSG2025-042)
 Sent: Mon, Dec 16, 2025 09:40 AM SGT
 
@@ -1124,7 +1124,7 @@ mandatory fields complete. Approved for parallel sign-offs."
 
 Next: All 6 approvers have been notified simultaneously.
 
-View status: https://npa-workbench.dbs.com/npa/TSG2025-042
+View status: https://npa-workbench.mbs.com/npa/TSG2025-042
 
 Approval Orchestration Agent is now coordinating sign-offs.
 ```

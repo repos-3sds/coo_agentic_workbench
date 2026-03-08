@@ -399,16 +399,16 @@ ALTER TABLE npa_projects
 
 INSERT INTO ref_classification_criteria (category, criterion_code, criterion_name, description, indicator_type, weight) VALUES
 -- Product Innovation (5 criteria)
-('PRODUCT_INNOVATION', 'NTG_PI_01', 'Entirely new product category',           'Product has no existing equivalent in DBS portfolio', 'NTG', 2),
+('PRODUCT_INNOVATION', 'NTG_PI_01', 'Entirely new product category',           'Product has no existing equivalent in MBS portfolio', 'NTG', 2),
 ('PRODUCT_INNOVATION', 'NTG_PI_02', 'Novel risk profile',                      'Risk characteristics fundamentally different from existing products', 'NTG', 2),
-('PRODUCT_INNOVATION', 'NTG_PI_03', 'New underlying asset class',              'Underlying asset not previously traded or held by DBS', 'NTG', 2),
+('PRODUCT_INNOVATION', 'NTG_PI_03', 'New underlying asset class',              'Underlying asset not previously traded or held by MBS', 'NTG', 2),
 ('PRODUCT_INNOVATION', 'NTG_PI_04', 'New pricing/valuation methodology',       'Requires new models or valuation approaches', 'NTG', 1),
 ('PRODUCT_INNOVATION', 'NTG_PI_05', 'New technology platform required',        'Cannot be supported by existing systems', 'NTG', 1),
 -- Market & Customer (5 criteria)
 ('MARKET_CUSTOMER',    'NTG_MC_01', 'New customer segment',                    'Targeting customer segments not previously served', 'NTG', 2),
-('MARKET_CUSTOMER',    'NTG_MC_02', 'New market/geography',                    'Entering market where DBS has no existing presence', 'NTG', 2),
+('MARKET_CUSTOMER',    'NTG_MC_02', 'New market/geography',                    'Entering market where MBS has no existing presence', 'NTG', 2),
 ('MARKET_CUSTOMER',    'NTG_MC_03', 'New distribution channel',                'Requires fundamentally new distribution infrastructure', 'NTG', 1),
-('MARKET_CUSTOMER',    'NTG_MC_04', 'New regulatory framework',                'Subject to regulations DBS has not previously navigated', 'NTG', 2),
+('MARKET_CUSTOMER',    'NTG_MC_04', 'New regulatory framework',                'Subject to regulations MBS has not previously navigated', 'NTG', 2),
 ('MARKET_CUSTOMER',    'NTG_MC_05', 'New competitive landscape',               'Operating in market with entirely different competitive dynamics', 'NTG', 1),
 -- Risk & Regulatory (5 criteria)
 ('RISK_REGULATORY',    'NTG_RR_01', 'New regulatory license required',         'Requires new licensing or regulatory approval', 'NTG', 2),
@@ -599,9 +599,9 @@ SELECT
         ELSE 0
     END,
     CASE
-        WHEN c.criterion_code = 'NTG_PI_01' THEN 'Digital currency trading - no existing equivalent in DBS portfolio'
+        WHEN c.criterion_code = 'NTG_PI_01' THEN 'Digital currency trading - no existing equivalent in MBS portfolio'
         WHEN c.criterion_code = 'NTG_PI_02' THEN 'Crypto volatility and 24/7 trading fundamentally different risk profile'
-        WHEN c.criterion_code = 'NTG_PI_03' THEN 'BTC, ETH, ADA, SOL - new asset classes for DBS'
+        WHEN c.criterion_code = 'NTG_PI_03' THEN 'BTC, ETH, ADA, SOL - new asset classes for MBS'
         WHEN c.criterion_code = 'NTG_RR_01' THEN 'MAS Digital Payment Token Service License required'
         WHEN c.criterion_code = 'NTG_FO_01' THEN 'New CRY booking family, DGTL group, SPOT type'
         ELSE 'Auto-assessed by Classification Agent'

@@ -47,7 +47,7 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        dbs: {
+        mbs: {
           primary: '#0077CC',
           'primary-hover': '#006BB3',
           destructive: '#FF3E3E',

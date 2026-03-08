@@ -320,7 +320,7 @@ The Conversational Diligence Sub-Agent operates in five distinct modes depending
 
 **Agent (Maintains Conversation Context):**
 > **Jane Tan (Finance VP)**
-> - Email: jane.tan@dbs.com
+> - Email: jane.tan@mbs.com
 > - Office: Tower 1, Level 15
 > - Availability: Mon-Fri 9am-6pm SGT
 > - Current Workload: Moderate (12 NPAs in queue vs typical 8)
@@ -530,7 +530,7 @@ For complex concepts, the agent uses analogies and real-world examples.
 > 3. Trade anytime: Just log usage, don't need new approval
 > 4. When limits hit: Either get COO approval for increase, or submit NPA Lite
 > 
-> **Evergreen Products at DBS:**
+> **Evergreen Products at MBS:**
 > - Vanilla FX Options
 > - Standard FX Forwards
 > - Plain-vanilla Interest Rate Swaps
@@ -750,7 +750,7 @@ Conversational Diligence: Display preview with option to accept/edit
 - Detect out-of-scope question
 - Politely redirect:
 
-> I specialize in helping with the NPA approval process at DBS. Questions about Federal Reserve policy decisions are outside my area of expertise.
+> I specialize in helping with the NPA approval process at MBS. Questions about Federal Reserve policy decisions are outside my area of expertise.
 > 
 > However, I can help you with:
 > - **How interest rate changes affect your NPA:** If rates rise, how does that impact your FX Option valuation?

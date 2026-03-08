@@ -54,7 +54,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Customer segment definitions: Retail, HNW, Accredited, Institutional, Corporate
 - Geographic scope restrictions (onshore/offshore, cross-border limitations)
 - KYC/AML onboarding requirements per customer type
-- **Source:** MAS Notice FAA-N16, MAS Notice SFA 04-N12, DBS Customer Classification Policy
+- **Source:** MAS Notice FAA-N16, MAS Notice SFA 04-N12, MBS Customer Classification Policy
 
 #### KB-BIZ-04: Distribution Channel Framework
 - Channel definitions: Direct Sales (RM), Electronic Trading Platform, Private Banking, Treasury Advisory, Institutional Sales, Third-Party Distribution
@@ -63,7 +63,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Marketing plan templates and regulatory constraints
 - Staff training requirements for new product distribution
 - Sales surveillance obligations
-- **Source:** DBS Distribution Policy, MAS Notice on Fair Dealing
+- **Source:** MBS Distribution Policy, MAS Notice on Fair Dealing
 
 #### KB-BIZ-05: PAC (Product Approval Committee) Requirements
 - PAC mandate and authority
@@ -78,7 +78,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - SPV structuring considerations (arranger role, country of incorporation)
 - Regulatory implications of SPV usage
 - Tax implications of SPV structures
-- **Source:** DBS Structured Finance Policy, Legal advisory guidelines
+- **Source:** MBS Structured Finance Policy, Legal advisory guidelines
 
 #### KB-BIZ-07: Historical NPA Examples — Business Sections
 - 5-10 completed NPAs with well-written Section I and Section VII content
@@ -128,7 +128,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Third-party risk assessment for platform integrations
 - Encryption and data-at-rest/in-transit requirements
 - Access control requirements
-- **Source:** DBS ISS Policy, ISO 27001 controls mapping
+- **Source:** MBS ISS Policy, ISO 27001 controls mapping
 
 #### KB-TECH-05: Business Continuity & Disaster Recovery
 - Business Impact Analysis (BIA) template
@@ -138,7 +138,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - DR testing requirements and frequency
 - Manual fallback procedures documentation standards
 - Crisis communication procedures
-- **Source:** DBS BCP Policy, GFM DR Runbooks
+- **Source:** MBS BCP Policy, GFM DR Runbooks
 
 #### KB-TECH-06: Trade Repository & Regulatory Reporting
 - Trade reporting obligations (MAS, CFTC, EMIR, ASIC)
@@ -170,7 +170,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Validation frequency requirements
 - Model change management procedures
 - Independent Price Verification (IPV) requirements
-- **Source:** DBS Model Risk Management Policy, MAS Notice 637 (Capital Adequacy)
+- **Source:** MBS Model Risk Management Policy, MAS Notice 637 (Capital Adequacy)
 
 #### KB-FIN-02: Valuation Adjustment Framework
 - FVA (Funding Valuation Adjustment) methodology
@@ -179,7 +179,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Mark-to-market vs. mark-to-model policies
 - Fair value hierarchy (Level 1/2/3)
 - Valuation uncertainty and reserving policy
-- **Source:** IFRS 13 Fair Value Measurement, DBS Valuation Policy
+- **Source:** IFRS 13 Fair Value Measurement, MBS Valuation Policy
 
 #### KB-FIN-03: Capital & ROAE Methodology
 - Capital consumption calculation (Standardized Approach vs. IMA)
@@ -187,7 +187,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Capital allocation by product type
 - Economic capital vs. regulatory capital
 - Notional-to-capital conversion factors
-- **Source:** DBS Capital Management Policy, Basel III framework
+- **Source:** MBS Capital Management Policy, Basel III framework
 
 #### KB-FIN-04: SIMM & Margin Requirements
 - ISDA SIMM methodology overview
@@ -204,7 +204,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Data classification for financial data
 - Data quality metrics and monitoring
 - Risk Data Aggregation (RDAR) requirements per BCBS 239
-- **Source:** DBS Data Governance Policy, BCBS 239 Principles
+- **Source:** MBS Data Governance Policy, BCBS 239 Principles
 
 #### KB-FIN-06: Tax & Transfer Pricing
 - Withholding tax obligations by jurisdiction
@@ -212,7 +212,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Transfer pricing documentation requirements
 - IFRS/MAS/regulatory accounting matching rules
 - Tax clearance procedures for new products
-- **Source:** DBS Tax Policy, Transfer Pricing Guidelines
+- **Source:** MBS Tax Policy, Transfer Pricing Guidelines
 
 #### KB-FIN-07: Historical NPA Examples — Finance Sections
 - 5-10 completed NPAs with well-written Section III and Section V content
@@ -236,7 +236,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Sensitivity analysis requirements
 - P&L attribution methodology
 - Market risk limit framework
-- **Source:** DBS Market Risk Policy, MAS Notice 637 (Market Risk)
+- **Source:** MBS Market Risk Policy, MAS Notice 637 (Market Risk)
 
 #### KB-RMG-02: Credit Risk Assessment Framework
 - Counterparty credit risk assessment methodology
@@ -249,7 +249,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Country risk assessment and limits
 - Concentration risk assessment
 - Credit risk mitigation techniques
-- **Source:** DBS Credit Risk Policy, MAS Notice 637 (Credit Risk), Basel III SACCR framework
+- **Source:** MBS Credit Risk Policy, MAS Notice 637 (Credit Risk), Basel III SACCR framework
 
 #### KB-RMG-03: Liquidity & Funding Risk Framework
 - LCR (Liquidity Coverage Ratio) impact assessment methodology
@@ -260,7 +260,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - EAFL (Earnings at Risk from Liquidity) methodology
 - Funding cost assessment
 - Liquidity facility requirements
-- **Source:** DBS Liquidity Risk Policy, MAS Notice 649 (Liquidity Coverage Ratio)
+- **Source:** MBS Liquidity Risk Policy, MAS Notice 649 (Liquidity Coverage Ratio)
 
 #### KB-RMG-04: Operational & Reputational Risk Framework
 - Operational risk identification taxonomy
@@ -270,7 +270,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Step-in risk assessment
 - Country risk and regulatory exposure assessment
 - Emerging risk identification
-- **Source:** DBS Operational Risk Policy, ESG Risk Framework
+- **Source:** MBS Operational Risk Policy, ESG Risk Framework
 
 #### KB-RMG-05: Financial Crimes & Financial Security
 - AML/CFT risk assessment framework
@@ -279,7 +279,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Sanctions screening procedures
 - Financial crime red flag indicators by product type
 - Conduct risk considerations
-- **Source:** DBS AML/CFT Policy, MAS Notice 626 (AML/CFT)
+- **Source:** MBS AML/CFT Policy, MAS Notice 626 (AML/CFT)
 
 #### KB-RMG-06: Regulatory Capital Framework
 - Standardized Approach capital calculation
@@ -302,7 +302,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Product-specific risk factors and sensitivities
 - Hedging strategy templates
 - Risk appetite articulation per product class
-- **Source:** DBS Stress Testing Framework, Historical Market Events Database
+- **Source:** MBS Stress Testing Framework, Historical Market Events Database
 
 #### KB-RMG-09: Historical NPA Examples — Risk Sections
 - 5-10 completed NPAs with well-written Section IV and Section VI content
@@ -325,7 +325,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - NAFMII (China interbank market) documentation
 - Legal opinion requirements by jurisdiction
 - Netting enforceability by jurisdiction
-- **Source:** ISDA documentation library, DBS Legal Advisory
+- **Source:** ISDA documentation library, MBS Legal Advisory
 
 #### KB-LCS-02: Regulatory Compliance Matrix
 - MAS regulatory requirements by product type
@@ -335,7 +335,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Banking Act Section 47 confidentiality requirements
 - Cross-border regulatory requirements (CFTC, FCA, HKMA)
 - Regulatory change management procedures
-- **Source:** MAS Regulatory Framework, DBS Compliance Manual
+- **Source:** MAS Regulatory Framework, MBS Compliance Manual
 
 #### KB-LCS-03: AML/CFT & Financial Crime Framework
 - AML risk assessment methodology for new products
@@ -346,15 +346,15 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Bribery and corruption risk assessment
 - Fraud risk indicators
 - Conduct risk assessment framework
-- **Source:** MAS Notice 626, DBS AML/CFT Policy, FATF Recommendations
+- **Source:** MAS Notice 626, MBS AML/CFT Policy, FATF Recommendations
 
 #### KB-LCS-04: Entity & Booking Structure Guidelines
-- DBS entity structure and legal hierarchy
+- MBS entity structure and legal hierarchy
 - Booking entity selection criteria
 - Cross-border booking rules and restrictions
 - Branch vs. subsidiary considerations
 - Legal entity risk assessment
-- **Source:** DBS Entity Structure Manual, Legal Entity Governance Framework
+- **Source:** MBS Entity Structure Manual, Legal Entity Governance Framework
 
 #### KB-LCS-05: IP & Data Privacy Framework
 - Intellectual property considerations for financial products
@@ -362,7 +362,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Cross-border data transfer restrictions
 - Data residency requirements by jurisdiction
 - Third-party IP license management
-- **Source:** PDPA, DBS Data Protection Policy
+- **Source:** PDPA, MBS Data Protection Policy
 
 #### KB-LCS-06: Third-Party Platform Assessment
 - Third-party risk assessment methodology
@@ -372,7 +372,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Data privacy impact assessment for third-party platforms
 - Vendor due diligence requirements
 - Service Level Agreement (SLA) standards
-- **Source:** DBS Third-Party Risk Management Policy, NIST Cybersecurity Framework
+- **Source:** MBS Third-Party Risk Management Policy, NIST Cybersecurity Framework
 
 #### KB-LCS-07: Compliance Checklist Templates
 - Pre-trade compliance checks
@@ -381,7 +381,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Record-keeping requirements (retention periods by regulation)
 - Training and competency requirements
 - Annual review and attestation obligations
-- **Source:** DBS Compliance Standards, MAS Guidelines
+- **Source:** MBS Compliance Standards, MAS Guidelines
 
 #### KB-LCS-08: Historical NPA Examples — Appendix Sections
 - 5-10 completed NPAs with well-written Appendix 1-6 content
@@ -407,7 +407,7 @@ The existing KBs provide **process knowledge** (how the NPA works) and **templat
 - Example filled NPA showing expected content quality
 - Should be uploaded to ALL 5 Dify apps as shared KB
 
-#### KB-SHARED-04: DBS GFM Glossary
+#### KB-SHARED-04: MBS GFM Glossary
 - **Partially exists** in Deep Knowledge doc (140+ terms)
 - Expand with additional terms from each domain
 - Should be uploaded to ALL 5 Dify apps as shared KB

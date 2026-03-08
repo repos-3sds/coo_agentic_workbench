@@ -934,7 +934,7 @@ When new patterns emerge, agent flags them:
 
 ### Edge Case 1: New Product Type (No Historical Data)
 
-**Scenario**: User wants Bitcoin Options. DBS never traded crypto derivatives.
+**Scenario**: User wants Bitcoin Options. MBS never traded crypto derivatives.
 
 **Challenge**: Zero historical NPAs -> Model has no training data
 

@@ -46,7 +46,7 @@ The **Product Ideation Agent (Phase 0)** acts as the **"Intelligent Router"**, u
 ### ⚠️ CRITICAL: Classification Happens in TWO Stages
 
 **Stage 1: Product Classification** (Foundation)
-- **New-to-Group (NTG)**: Never done before at DBS Group level
+- **New-to-Group (NTG)**: Never done before at MBS Group level
 - **Variation**: Existing product with altered risk profile
 - **Existing**: Already approved elsewhere in Group
 
@@ -88,11 +88,11 @@ Result: Trade executed same day, no NPA needed (just log Evergreen usage)
 ### 3.1 New-to-Group (NTG)
 
 **Definition:**
-Products that have NEVER been approved anywhere in DBS Group.
+Products that have NEVER been approved anywhere in MBS Group.
 
 **Criteria (ANY of the following):**
 1. **New businesses, initiatives, products, financial instruments**
-   - Example: DBS has never traded Credit Default Swaps (CDS) → NTG
+   - Example: MBS has never traded Credit Default Swaps (CDS) → NTG
    
 2. **New roles within a product group**
    - Example: We've distributed FX Options, but never traded as principal → NTG
@@ -181,7 +181,7 @@ The agent must ask **follow-up questions** to assess risk severity:
 ### 3.3 Existing
 
 **Definition:**
-Products already approved elsewhere in DBS Group, now being introduced to a new location/desk/entity.
+Products already approved elsewhere in MBS Group, now being introduced to a new location/desk/entity.
 
 **Criteria (ANY of the following):**
 1. **New to location/desk/entity**
@@ -530,7 +530,7 @@ Standard, vanilla products that are **"Always On"** for 3 years, allowing immedi
 1. ✅ No significant changes since last approval (no structural variation)
 2. ✅ Back-to-Back (BTB) basis with professional counterparty
 3. ✅ Vanilla/foundational product (building block for other variants)
-4. ✅ Liquidity management product (including for DBS Group Holdings)
+4. ✅ Liquidity management product (including for MBS Group Holdings)
 5. ✅ Exchange product used as hedge against customer trades
 6. ✅ ABS (Asset-Backed Securities) origination to meet client demand
 

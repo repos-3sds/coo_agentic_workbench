@@ -5,6 +5,12 @@ const { checkProhibitedGate, checkPacGate, enforceComplianceGates } = require('.
 const { requireAuth } = require('../middleware/auth');
 const { rbac } = require('../middleware/rbac');
 
+// ─── Externalized Configs (extracted from hardcoded inline values) ───────────
+const NPA_SUBTYPES = require('../config/npa-subtypes.json');
+const CROSS_BORDER_PARTIES = require('../config/cross-border-parties.json');
+const HEAD_OFFICE_PARTIES = require('../config/head-office-parties.json');
+const NOTIONAL_THRESHOLDS = require('../config/notional-thresholds.json');
+
 function getActorName(req, bodyActorName, fallback) {
     if (req.user?.name) return String(req.user.name);
     if (req.user?.email) return String(req.user.email);
@@ -207,19 +213,10 @@ async function assignSignoffParties(conn, npa) {
     }
 
     // 1b. GAP-014: NPA Lite Sub-Type Adjustments (B1-B4)
-    //     B1 = Minor variation (2 SOPs: Compliance + Finance)
-    //     B2 = Moderate variation (3 SOPs: + Credit Risk)
-    //     B3 = Significant variation (4 SOPs: + Technology)
-    //     B4 = Complex variation (5 SOPs: all NPA Lite defaults)
+    //     Config: server/config/npa-subtypes.json
     if (track === 'NPA_LITE' && npa.approval_track_subtype) {
         const subtype = npa.approval_track_subtype;
-        const subtypeParties = {
-            'B1': ['Compliance', 'Finance'],
-            'B2': ['Compliance', 'Finance', 'Credit Risk'],
-            'B3': ['Compliance', 'Finance', 'Credit Risk', 'Technology Architecture'],
-            'B4': null // B4 = full NPA_LITE set (no filtering)
-        };
-        const allowedParties = subtypeParties[subtype];
+        const allowedParties = NPA_SUBTYPES[subtype];
         if (allowedParties) {
             // Filter down to only the allowed parties for this sub-type
             for (const [name] of partyMap) {
@@ -241,16 +238,10 @@ async function assignSignoffParties(conn, npa) {
         }
     }
 
-    // 2. Cross-border override: force 5 mandatory SOPs regardless of track
+    // 2. Cross-border override: force mandatory SOPs regardless of track
+    //    Config: server/config/cross-border-parties.json
     if (npa.is_cross_border) {
-        const crossBorderMandatory = [
-            { party_name: 'Finance', department: 'Finance', sla_hours: 72 },
-            { party_name: 'Credit Risk', department: 'Risk Management', sla_hours: 48 },
-            { party_name: 'Compliance', department: 'Legal, Compliance & Secretariat', sla_hours: 48 },
-            { party_name: 'Technology Architecture', department: 'Technology & Operations', sla_hours: 48 },
-            { party_name: 'Operations', department: 'Technology & Operations', sla_hours: 48 }
-        ];
-        for (const cb of crossBorderMandatory) {
+        for (const cb of CROSS_BORDER_PARTIES.parties) {
             if (!partyMap.has(cb.party_name)) {
                 partyMap.set(cb.party_name, {
                     party_name: cb.party_name,
@@ -272,11 +263,8 @@ async function assignSignoffParties(conn, npa) {
         const hasOverseas = jurisdictions.some(j => j.jurisdiction_code !== 'SG');
         if (hasOverseas) {
             // Ensure Head Office parties are included
-            const headOfficeParties = [
-                { party_name: 'Legal', department: 'Legal, Compliance & Secretariat', sla_hours: 48 },
-                { party_name: 'Compliance', department: 'Legal, Compliance & Secretariat', sla_hours: 48 }
-            ];
-            for (const ho of headOfficeParties) {
+            // Config: server/config/head-office-parties.json
+            for (const ho of HEAD_OFFICE_PARTIES.parties) {
                 if (!partyMap.has(ho.party_name)) {
                     partyMap.set(ho.party_name, {
                         party_name: ho.party_name,
@@ -290,37 +278,15 @@ async function assignSignoffParties(conn, npa) {
     }
 
     // 4. GAP-012: Notional amount threshold checks
-    //    >$20M  → require ROAE sign-off (Finance)
-    //    >$50M  → require Finance VP sign-off
-    //    >$100M → require CFO sign-off
+    //    Config: server/config/notional-thresholds.json
     const notional = parseFloat(npa.notional_amount) || 0;
-    if (notional > 20000000) {
-        if (!partyMap.has('ROAE')) {
-            partyMap.set('ROAE', {
-                party_name: 'ROAE',
-                party_group: 'NOTIONAL_THRESHOLD',
-                sla_hours: 72,
-                department: 'Finance'
-            });
-        }
-    }
-    if (notional > 50000000) {
-        if (!partyMap.has('Finance VP')) {
-            partyMap.set('Finance VP', {
-                party_name: 'Finance VP',
-                party_group: 'NOTIONAL_THRESHOLD',
-                sla_hours: 72,
-                department: 'Finance'
-            });
-        }
-    }
-    if (notional > 100000000) {
-        if (!partyMap.has('CFO')) {
-            partyMap.set('CFO', {
-                party_name: 'CFO',
-                party_group: 'NOTIONAL_THRESHOLD',
-                sla_hours: 96,
-                department: 'Finance'
+    for (const threshold of NOTIONAL_THRESHOLDS.thresholds) {
+        if (notional > threshold.min_amount && !partyMap.has(threshold.party_name)) {
+            partyMap.set(threshold.party_name, {
+                party_name: threshold.party_name,
+                party_group: threshold.party_group,
+                sla_hours: threshold.sla_hours,
+                department: threshold.department
             });
         }
     }
