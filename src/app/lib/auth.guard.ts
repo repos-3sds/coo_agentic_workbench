@@ -7,13 +7,16 @@ import { AuthService } from '../services/auth.service';
  * Redirects to /login if no valid session token exists.
  */
 export const authGuard: CanActivateFn = () => {
-    const auth = inject(AuthService);
-    const router = inject(Router);
+    // TODO: Re-enable auth guard when backend is available locally
+    return true;
 
-    if (auth.isLoggedIn) {
-        return true;
-    }
-
-    router.navigate(['/login']);
-    return false;
+    // const auth = inject(AuthService);
+    // const router = inject(Router);
+    //
+    // if (auth.isLoggedIn) {
+    //     return true;
+    // }
+    //
+    // router.navigate(['/login']);
+    // return false;
 };

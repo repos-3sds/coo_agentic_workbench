@@ -69,18 +69,18 @@ export class ContextQualityTabComponent implements OnInit {
 
     private normalizeQuality(rawResponse: unknown): QualitySnapshot {
         const raw = (rawResponse ?? {}) as Record<string, unknown>;
-        const stats = ((raw.quality_stats ?? raw) as Record<string, unknown>);
+        const stats = ((raw['quality_stats'] ?? raw) as Record<string, unknown>);
 
-        const grounded = Number(stats.grounded_claims ?? stats.claims_grounded ?? this.readNestedNumber(stats, ['claims', 'grounded']) ?? 0);
-        const ungrounded = Number(stats.ungrounded_claims ?? stats.claims_ungrounded ?? this.readNestedNumber(stats, ['claims', 'ungrounded']) ?? 0);
-        const checked = Number(stats.claims_checked ?? this.readNestedNumber(stats, ['claims', 'checked']) ?? grounded + ungrounded);
+        const grounded = Number(stats['grounded_claims'] ?? stats['claims_grounded'] ?? this.readNestedNumber(stats, ['claims', 'grounded']) ?? 0);
+        const ungrounded = Number(stats['ungrounded_claims'] ?? stats['claims_ungrounded'] ?? this.readNestedNumber(stats, ['claims', 'ungrounded']) ?? 0);
+        const checked = Number(stats['claims_checked'] ?? this.readNestedNumber(stats, ['claims', 'checked']) ?? grounded + ungrounded);
 
         return {
-            grounding_score: Number(stats.grounding_score ?? stats.avg_grounding_score ?? stats.score ?? 0),
+            grounding_score: Number(stats['grounding_score'] ?? stats['avg_grounding_score'] ?? stats['score'] ?? 0),
             claims_checked: checked,
             grounded_claims: grounded,
             ungrounded_claims: ungrounded,
-            per_agent_scores: this.normalizeAgentScores(stats.per_agent_scores ?? stats.by_agent)
+            per_agent_scores: this.normalizeAgentScores(stats['per_agent_scores'] ?? stats['by_agent'])
         };
     }
 
@@ -89,11 +89,11 @@ export class ContextQualityTabComponent implements OnInit {
             return rawScores.map(item => {
                 const row = item as Record<string, unknown>;
                 return {
-                    agent: String(row.agent ?? row.agent_id ?? 'unknown-agent'),
-                    grounding_score: Number(row.grounding_score ?? row.score ?? 0),
-                    claims_checked: Number(row.claims_checked ?? 0),
-                    grounded_claims: Number(row.grounded_claims ?? 0),
-                    ungrounded_claims: Number(row.ungrounded_claims ?? 0)
+                    agent: String(row['agent'] ?? row['agent_id'] ?? 'unknown-agent'),
+                    grounding_score: Number(row['grounding_score'] ?? row['score'] ?? 0),
+                    claims_checked: Number(row['claims_checked'] ?? 0),
+                    grounded_claims: Number(row['grounded_claims'] ?? 0),
+                    ungrounded_claims: Number(row['ungrounded_claims'] ?? 0)
                 };
             });
         }

@@ -5,7 +5,7 @@
 **Last Updated:** February 19, 2026
 **Purpose:** Consolidated policy reference for LLM agents covering ALL NPA policies, procedures, and governance
 **Source of Truth:** NPA Business Process Deep Knowledge Report (2026-02-18), Architecture Gap Register (44 rules R01-R44)
-**Policy Hierarchy:** NPA Policy > NPA Standard (DBS_10_S_0012_GR) > GFM NPA SOP — Where they differ, the STRICTER requirement prevails
+**Policy Hierarchy:** NPA Policy > NPA Standard (DBS_10_S_0012_GR) > GFM NPA SOP -- Where they differ, the STRICTER requirement prevails
 
 ---
 
@@ -14,14 +14,14 @@
 1. [Policy Overview & Scope](#1-policy-overview--scope)
 2. [Product Definitions & Classifications](#2-product-definitions--classifications)
 3. [Two-Stage Classification Model](#3-two-stage-classification-model)
-4. [Approval Tracks — Five Pathways](#4-approval-tracks--five-pathways)
+4. [Approval Tracks -- Five Pathways](#4-approval-tracks--five-pathways)
 5. [NPA Lifecycle (5 Stages)](#5-npa-lifecycle-5-stages)
 6. [Initiation & Kick-Off Requirements](#6-initiation--kick-off-requirements)
 7. [Maker-Checker Model & Review Process](#7-maker-checker-model--review-process)
-8. [Sign-Off Parties (SOPs) — The Seven Assessors](#8-sign-off-parties-sops--the-seven-assessors)
+8. [Sign-Off Parties (SOPs) -- The Seven Assessors](#8-sign-off-parties-sops--the-seven-assessors)
 9. [Approval Authority](#9-approval-authority)
-10. [Cross-Border Booking — The Mandatory Override](#10-cross-border-booking--the-mandatory-override)
-11. [Bundling — 8-Condition Gate](#11-bundling--8-condition-gate)
+10. [Cross-Border Booking -- The Mandatory Override](#10-cross-border-booking--the-mandatory-override)
+11. [Bundling -- 8-Condition Gate](#11-bundling--8-condition-gate)
 12. [Regulatory Clearance & UAT](#12-regulatory-clearance--uat)
 13. [Launch & Validity Period](#13-launch--validity-period)
 14. [Post-Implementation Review (PIR)](#14-post-implementation-review-pir)
@@ -62,7 +62,7 @@ NPA is governed by three layers. Where they conflict, the **stricter** requireme
 |----------|----------|-------|-------|
 | 1 (Highest) | **New Product Approval Policy** | Group | Overarching group policy |
 | 2 | **NPA Standard** (DBS_10_S_0012_GR) | RMG-OR | Detailed standard issued by Risk Management Group |
-| 3 | **GFM NPA Standard Operating Procedures** | GFM COO | GFM-specific rules — STRICTER than group standard in several areas |
+| 3 | **GFM NPA Standard Operating Procedures** | GFM COO | GFM-specific rules -- STRICTER than group standard in several areas |
 
 **Critical rule:** Where the GFM SOP and the Group Standard differ, the stricter requirement prevails.
 
@@ -75,8 +75,8 @@ NPA is governed by three layers. Where they conflict, the **stricter** requireme
 - RMG-OR (Risk Management Group - Operational Risk) must be notified
 
 **Examples:**
-- MAS requires 30-day approval timeline, DBS policy requires 20 days → Use 20 days
-- Local regulation allows 2-year validity, DBS allows 1 year → Use 1 year
+- MAS requires 30-day approval timeline, DBS policy requires 20 days -> Use 20 days
+- Local regulation allows 2-year validity, DBS allows 1 year -> Use 1 year
 
 ---
 
@@ -94,33 +94,33 @@ Any product or service DBS Group intends to offer as principal, agent, intermedi
 ### 2.1.1 New-to-Group (NTG) [R03, R11, R16]
 
 **Definition:**
-Product/service DBS Group has NEVER done before — in any entity, in any form, in any location.
+Product/service DBS Group has NEVER done before -- in any entity, in any form, in any location.
 
 **Criteria (ANY triggers NTG classification):**
 
 **Category A: New Businesses/Products**
 - New businesses, initiatives, products, financial instruments, services
-- **Example:** Credit Default Swaps (CDS) - DBS has never traded CDS → NTG
-- **Example:** Cryptocurrency derivatives - DBS has never offered crypto products → NTG
+- **Example:** Credit Default Swaps (CDS) - DBS has never traded CDS -> NTG
+- **Example:** Cryptocurrency derivatives - DBS has never offered crypto products -> NTG
 
 **Category B: New Roles**
 - New roles within business/product group
 - **Roles:** Origination, trading as principal, distribution, agency, custodian, operating an exchange, providing operations support
-- **Example:** DBS distributes FX Options, but never traded as principal → NTG (huge risk shift)
-- **Example:** First time acting as custodian for mutual funds → NTG
+- **Example:** DBS distributes FX Options, but never traded as principal -> NTG (huge risk shift)
+- **Example:** First time acting as custodian for mutual funds -> NTG
 
 **Category C: New Channels/Segments/Markets**
 - New distribution channels
 - New customer segments
 - New exchange memberships
 - New markets/geographies
-- **Example:** First mobile app distribution (previously only branch) → NTG
-- **Example:** First retail offering (previously only institutional) → NTG
-- **Example:** First Singapore Exchange (SGX) membership for futures → NTG
-- **Example:** First product in Vietnam market → NTG
+- **Example:** First mobile app distribution (previously only branch) -> NTG
+- **Example:** First retail offering (previously only institutional) -> NTG
+- **Example:** First Singapore Exchange (SGX) membership for futures -> NTG
+- **Example:** First product in Vietnam market -> NTG
 
 **NTG Mandatory Requirements:**
-1. **PAC Approval REQUIRED** (Product Approval Committee) — BEFORE NPA submission [R16]
+1. **PAC Approval REQUIRED** (Product Approval Committee) -- BEFORE NPA submission [R16]
 2. **Full NPA Process** (NEVER NPA Lite, NEVER Bundling) [R11]
 3. **All 7 Sign-Off Parties** (Credit, Finance, Legal, MLR, Operations, Technology, RMG-OR) [R20]
 4. **NTG from overseas:** Head Office function sign-offs required [R22]
@@ -139,7 +139,7 @@ Modification to existing product/service that **alters risk profile** for custom
 **Variation Type 1: Bundling/Combination**
 - Bundling or combination of existing products
 - Can be by one unit OR jointly with another unit
-- **Example:** FX Option + Deposit → Dual Currency Deposit (DCD)
+- **Example:** FX Option + Deposit -> Dual Currency Deposit (DCD)
 
 **Variation Type 2: Cross-Book Structures**
 - Product structures crossing banking vs trading books
@@ -147,7 +147,7 @@ Modification to existing product/service that **alters risk profile** for custom
 
 **Variation Type 3: Accounting Treatment Change**
 - Features/structures potentially changing accounting treatment
-- **Example:** Accrual accounting → Mark-to-market accounting
+- **Example:** Accrual accounting -> Mark-to-market accounting
 - **Action Required:** **Consult Group Finance when in doubt**
 
 **Variation Type 4: Manual Workarounds**
@@ -168,10 +168,10 @@ Modification to existing product/service that **alters risk profile** for custom
 - Channels not previously risk-assessed
 - **Example:** Social media platforms (WeChat, WhatsApp) for marketing
 
-**Variation Approval Track — Risk Severity Determines Track:**
-- **High Risk** (accounting change, cross-book, fintech, manual workarounds) → **Full NPA**
-- **Medium Risk** (minor bundling, adding settlement option) → **NPA Lite**
-- **Low Risk** (typo correction, clarification) → **NPA Lite Addendum (B4)**
+**Variation Approval Track -- Risk Severity Determines Track:**
+- **High Risk** (accounting change, cross-book, fintech, manual workarounds) -> **Full NPA**
+- **Medium Risk** (minor bundling, adding settlement option) -> **NPA Lite**
+- **Low Risk** (typo correction, clarification) -> **NPA Lite Addendum (B4)**
 
 ---
 
@@ -191,25 +191,25 @@ Products/services already approved elsewhere in DBS, but new to specific context
 - Product previously approved but **no transactions in last 12 months** [R34]
 - Considered dormant, requires reactivation
 - **Dormancy tiers matter:**
-  - Dormant <1 year → NPA Lite (simple reactivation)
-  - Dormant 1-3 years → NPA Lite (standard reactivation) or Fast-Track B3
-  - **Dormant ≥3 years → Escalate to GFM COO** (may need Full NPA)
+  - Dormant <1 year -> NPA Lite (simple reactivation)
+  - Dormant 1-3 years -> NPA Lite (standard reactivation) or Fast-Track B3
+  - **Dormant >=3 years -> Escalate to GFM COO** (may need Full NPA)
 
 **Existing Type C: Expired Products**
 - Approved products not launched within validity period
 - Validity expired, requires reactivation
-- **If no variations** → NPA Lite - Reactivation
-- **If variations exist** → Full NPA (treated as effectively NTG)
+- **If no variations** -> NPA Lite - Reactivation
+- **If variations exist** -> Full NPA (treated as effectively NTG)
 
 **Existing Product Routing Logic (Complete):**
 
 | Existing Status | Condition | Route |
 |----------------|-----------|-------|
 | Active + Evergreen list | Within limits | Evergreen (trade same day) |
-| Active + NOT Evergreen | — | NPA Lite - Reference Existing |
+| Active + NOT Evergreen | -- | NPA Lite - Reference Existing |
 | Dormant <3yr | Meets fast-track criteria (5 checks) | B3 Fast-Track (48 hours) |
 | Dormant <3yr | Variations detected | Standard NPA Lite |
-| **Dormant ≥3yr** | — | **ESCALATE to GFM COO** (may need Full NPA) |
+| **Dormant >=3yr** | -- | **ESCALATE to GFM COO** (may need Full NPA) |
 | Expired | No variations | NPA Lite - Reactivation |
 | Expired | Variations detected | Full NPA (treated as NTG) |
 
@@ -219,10 +219,10 @@ Products/services already approved elsewhere in DBS, but new to specific context
 
 **The following are EXCLUDED from NPA definition:**
 
-1. **Organizational Changes** — Change management initiatives (org structure, transfer of responsibilities), NO change to product
-2. **System Changes** — New system implementations OR enhancements with NO change to product supported
-3. **Process Re-Engineering** — Process changes NOT triggered by new product/variation
-4. **New Legal Entities** — New operating/legal entities via incorporation or acquisition (separate governance)
+1. **Organizational Changes** -- Change management initiatives (org structure, transfer of responsibilities), NO change to product
+2. **System Changes** -- New system implementations OR enhancements with NO change to product supported
+3. **Process Re-Engineering** -- Process changes NOT triggered by new product/variation
+4. **New Legal Entities** -- New operating/legal entities via incorporation or acquisition (separate governance)
 
 ---
 
@@ -235,9 +235,9 @@ Products/services already approved elsewhere in DBS, but new to specific context
 ### Stage 1: What IS This Product? (Ontology)
 
 Determine the fundamental nature of the product:
-- **New-to-Group (NTG)** — Never done before anywhere in DBS Group
-- **Variation** — Modification that alters risk profile
-- **Existing** — Already approved elsewhere, new context
+- **New-to-Group (NTG)** -- Never done before anywhere in DBS Group
+- **Variation** -- Modification that alters risk profile
+- **Existing** -- Already approved elsewhere, new context
 
 **You CANNOT proceed to Stage 2 without completing Stage 1.**
 
@@ -247,7 +247,7 @@ Determine the fundamental nature of the product:
 
 Based on Stage 1 classification + risk factors, determine the approval track:
 - **Track A:** Full NPA (all NTG, high-risk variations, expired with variations)
-- **Track B:** NPA Lite — with 4 sub-types (B1/B2/B3/B4)
+- **Track B:** NPA Lite -- with 4 sub-types (B1/B2/B3/B4)
 - **Track C:** Bundling Approval (8-condition gate)
 - **Track D:** Evergreen (auto-approved if within limits)
 - **Track E:** Hard Stop / Prohibited (immediate termination)
@@ -256,23 +256,23 @@ Based on Stage 1 classification + risk factors, determine the approval track:
 
 ---
 
-## 4. Approval Tracks — Five Pathways [R11-R19]
+## 4. Approval Tracks -- Five Pathways [R11-R19]
 
-### Track A: Full NPA — The Heavy Lifter
+### Track A: Full NPA -- The Heavy Lifter
 
 **When:** All NTG products [R11]. High-risk Variations. Expired products with variations. Significant regulatory implications.
 
-**Process:** Discovery → Review (Maker/Checker) → Sign-Off (parallel, all SOPs) → Launch Prep (system config, UAT) → Launch → PIR/Monitoring
+**Process:** Discovery -> Review (Maker/Checker) -> Sign-Off (parallel, all SOPs) -> Launch Prep (system config, UAT) -> Launch -> PIR/Monitoring
 
 **All 7 sign-off parties required:** Credit, Finance, Legal & Compliance, MLR, Operations, Technology, RMG-OR (consultative)
 
 **Timeline:** Currently averages 12 days. Target: 4 days.
 
-**ENFORCEMENT [R11]:** NTG → ALWAYS Full NPA. No exceptions. DB constraint.
+**ENFORCEMENT [R11]:** NTG -> ALWAYS Full NPA. No exceptions. DB constraint.
 
 ---
 
-### Track B: NPA Lite — The Agile Track (4 Sub-Types) [R12-R15]
+### Track B: NPA Lite -- The Agile Track (4 Sub-Types) [R12-R15]
 
 #### B1: Impending Deal (48-Hour Express) [R12]
 - **Eligibility:**
@@ -281,8 +281,8 @@ Based on Stage 1 classification + risk factors, determine the approval track:
   - Singapore-approved NPA applicable regionally on BTB basis
 - **Process:**
   - 48-hour notice period to ALL relevant SOPs
-  - If **ANY** SOP objects → Falls back to standard NPA Lite
-  - If no objections after 48 hours → **Auto-approved**
+  - If **ANY** SOP objects -> Falls back to standard NPA Lite
+  - If no objections after 48 hours -> **Auto-approved**
 - **Timeline:** 48 hours
 
 ---
@@ -299,7 +299,7 @@ Based on Stage 1 classification + risk factors, determine the approval track:
 ---
 
 #### B3: Fast-Track Dormant Reactivation (48-Hour) [R14]
-- **Eligibility — ALL 5 criteria must pass:**
+- **Eligibility -- ALL 5 criteria must pass:**
   1. Existing live trade in the past (trade history confirmed)
   2. NOT on prohibited list (sanctions/regulatory clear)
   3. PIR completed for original NPA
@@ -307,8 +307,8 @@ Based on Stage 1 classification + risk factors, determine the approval track:
   5. No change to booking model/system
 - **Process:**
   - 48-hour no-objection notice to original approvers
-  - If no objections → Auto-approved
-  - If ANY criterion fails → Route to standard NPA Lite
+  - If no objections -> Auto-approved
+  - If ANY criterion fails -> Route to standard NPA Lite
 - **Timeline:** 48 hours
 
 ---
@@ -316,7 +316,7 @@ Based on Stage 1 classification + risk factors, determine the approval track:
 #### B4: Approved NPA Addendum (Minor Changes) [R15]
 - **Eligibility:**
   - Applies to **LIVE** (not expired) NPAs only
-  - Minor/incremental updates (adding cash settlement, bilateral → tripartite, typo fixes)
+  - Minor/incremental updates (adding cash settlement, bilateral -> tripartite, typo fixes)
   - **NOT eligible** for new features, new payoffs, new risk profiles
 - **Process:**
   - Original NPA reference kept intact (same GFM ID)
@@ -326,32 +326,32 @@ Based on Stage 1 classification + risk factors, determine the approval track:
 
 ---
 
-### Track C: Bundling Approval — The LEGO Master [R08, R17]
+### Track C: Bundling Approval -- The LEGO Master [R08, R17]
 
 Combining 2+ already-approved "building blocks" into a new structure. Requires 8-condition gate to pass (see Section 11).
 
 ---
 
-### Track D: Evergreen — The Fast Pass [R09, R18, R43, R44]
+### Track D: Evergreen -- The Fast Pass [R09, R18, R43, R44]
 
 Standard vanilla products "always on" for 3 years (see Section 21).
 
 ---
 
-### Track E: Hard Stop — Prohibited [R01, R10]
+### Track E: Hard Stop -- Prohibited [R01, R10]
 
 **Products or jurisdictions explicitly banned by policy or regulation. IMMEDIATE workflow termination.**
 
 **No exceptions without Compliance/EVP review.**
 
 **Three Prohibition Layers:**
-1. **Internal bank policy** — Products DBS has decided not to offer (risk appetite, reputational)
-2. **Regulatory restrictions** — MAS, CFTC, FCA, local regulators
-3. **Sanctions/embargoes** — OFAC SDN, UN Security Council, EU, MAS (zero tolerance, criminal liability)
+1. **Internal bank policy** -- Products DBS has decided not to offer (risk appetite, reputational)
+2. **Regulatory restrictions** -- MAS, CFTC, FCA, local regulators
+3. **Sanctions/embargoes** -- OFAC SDN, UN Security Council, EU, MAS (zero tolerance, criminal liability)
 
 **ENFORCEMENT [R01]:** Prohibited check runs BEFORE classification (Step 0). Hard stop = workflow termination.
 
-**ENFORCEMENT [R10]:** If prohibited → NPA CANNOT be created. System must BLOCK all stage transitions. No workarounds.
+**ENFORCEMENT [R10]:** If prohibited -> NPA CANNOT be created. System must BLOCK all stage transitions. No workarounds.
 
 ---
 
@@ -383,7 +383,7 @@ Standard vanilla products "always on" for 3 years (see Section 21).
 - **If NTG:** Proposing unit MUST submit to Product Approval Committee (PAC)
 - **PAC Composition:** GFM COO, Group Risk Head, CFO, CRO
 - **ONLY AFTER PAC approval** can NPA process begin
-- **HARD GATE:** NPA submission BLOCKED if NTG and PAC ≠ Approved
+- **HARD GATE:** NPA submission BLOCKED if NTG and PAC != Approved
 
 ---
 
@@ -391,7 +391,7 @@ Standard vanilla products "always on" for 3 years (see Section 21).
 
 **Initiation:**
 - Proposing unit assesses product classification (NTG/Variation/Existing)
-- If in doubt → Engage Group BU/SU COO for classification decision
+- If in doubt -> Engage Group BU/SU COO for classification decision
 - Organize NPA kick-off meeting with sign-off parties
 - If cross-border: Finance, Credit, MLR, Tech, Ops sign-offs MANDATORY [R07]
 
@@ -400,7 +400,7 @@ Standard vanilla products "always on" for 3 years (see Section 21).
 - Technology requirements, data management, legal documentation
 
 **Review & Sign-Off [R25-R26]:**
-- Maker → Checker → SOPs → COO (sequential gates)
+- Maker -> Checker -> SOPs -> COO (sequential gates)
 - Parallel SOP review (all sign-off parties review simultaneously)
 - SOPs can set: permanent restrictions, product parameters, post-launch conditions [R23, R24]
 - NTG from overseas: Head Office function sign-offs required [R22]
@@ -426,7 +426,7 @@ Standard vanilla products "always on" for 3 years (see Section 21).
 
 - **Launch = first marketed sale/offer OR first trade** (not just indication of interest)
 - Must occur within validity period
-- If not launched within validity → NPA expires [R27]
+- If not launched within validity -> NPA expires [R27]
 
 ---
 
@@ -452,7 +452,7 @@ Standard vanilla products "always on" for 3 years (see Section 21).
 
 ### 6.2 Cross-Border Mandatory Sign-Offs [R07]
 
-**If NPA involves cross-border booking — NON-NEGOTIABLE:**
+**If NPA involves cross-border booking -- NON-NEGOTIABLE:**
 1. Finance (Group Product Control)
 2. RMG-Credit
 3. RMG-Market & Liquidity Risk (MLR)
@@ -492,23 +492,23 @@ Standard vanilla products "always on" for 3 years (see Section 21).
 
 ```
 MAKER (Proposing Unit Lead)
-  → Writes NPA, fills all sections, gathers documentation
-  ↓
+  -> Writes NPA, fills all sections, gathers documentation
+  |
 CHECKER (PU NPA Champion or designated reviewer)
-  → Reviews for completeness, accuracy, consistency
-  → Can: APPROVE, REJECT, or REQUEST CHANGES
-  → If REJECT → Loop-back to Maker (+3-5 days per iteration)
-  ↓
-SIGN-OFF PARTIES (SOPs) — in PARALLEL
-  → Each SOP assesses risk in their domain
-  → Can: APPROVE, APPROVE WITH CONDITIONS, REJECT
-  ↓
+  -> Reviews for completeness, accuracy, consistency
+  -> Can: APPROVE, REJECT, or REQUEST CHANGES
+  -> If REJECT -> Loop-back to Maker (+3-5 days per iteration)
+  |
+SIGN-OFF PARTIES (SOPs) -- in PARALLEL
+  -> Each SOP assesses risk in their domain
+  -> Can: APPROVE, APPROVE WITH CONDITIONS, REJECT
+  |
 COO FINAL APPROVAL
-  → Group BU/SU COO gives final approval to launch
+  -> Group BU/SU COO gives final approval to launch
 ```
 
 **State Machine [R25-R26]:**
-DRAFT → PENDING_CHECKER → PENDING_SIGN_OFFS → PENDING_FINAL_APPROVAL → APPROVED
+DRAFT -> PENDING_CHECKER -> PENDING_SIGN_OFFS -> PENDING_FINAL_APPROVAL -> APPROVED
 
 ---
 
@@ -522,9 +522,9 @@ DRAFT → PENDING_CHECKER → PENDING_SIGN_OFFS → PENDING_FINAL_APPROVAL → A
 5. Engage in loop-back discussions if clarifications needed
 
 **SOPs can set three types of conditions [R23]:**
-- **Permanent restrictions** — incorporated into product features
-- **Product parameters** — scope of permissible activity (e.g., specific client segment only)
-- **Post-launch conditions** — short-term, measurable, to be addressed after launch
+- **Permanent restrictions** -- incorporated into product features
+- **Product parameters** -- scope of permissible activity (e.g., specific client segment only)
+- **Post-launch conditions** -- short-term, measurable, to be addressed after launch
 
 ---
 
@@ -541,7 +541,7 @@ DRAFT → PENDING_CHECKER → PENDING_SIGN_OFFS → PENDING_FINAL_APPROVAL → A
 
 ---
 
-## 8. Sign-Off Parties (SOPs) — The Seven Assessors [R19-R24]
+## 8. Sign-Off Parties (SOPs) -- The Seven Assessors [R19-R24]
 
 ### 8.1 The Seven Core Sign-Off Parties
 
@@ -566,7 +566,7 @@ DRAFT → PENDING_CHECKER → PENDING_SIGN_OFFS → PENDING_FINAL_APPROVAL → A
 | NPA Lite | Reduced set (typically 2-3 based on risk areas) |
 | Bundling | Bundling Arbitration Team (6 members) |
 | Evergreen | None (auto-approved, log-only) |
-| **Cross-Border Override [R07]** | **+5 mandatory: Finance, Credit, MLR, Tech, Ops — CANNOT be waived** |
+| **Cross-Border Override [R07]** | **+5 mandatory: Finance, Credit, MLR, Tech, Ops -- CANNOT be waived** |
 
 ---
 
@@ -608,7 +608,7 @@ DRAFT → PENDING_CHECKER → PENDING_SIGN_OFFS → PENDING_FINAL_APPROVAL → A
 
 ---
 
-## 10. Cross-Border Booking — The Mandatory Override [R07]
+## 10. Cross-Border Booking -- The Mandatory Override [R07]
 
 ### 10.1 What Constitutes Cross-Border
 
@@ -637,7 +637,7 @@ Cross-border introduces:
 
 ---
 
-## 11. Bundling — 8-Condition Gate [R08, R17]
+## 11. Bundling -- 8-Condition Gate [R08, R17]
 
 ### 11.1 The Concept
 
@@ -660,8 +660,8 @@ A **bundle** is a combination of two or more individually approved products ("bu
 | 7 | No SCF (Structured Credit Financing) except structured warrant bundle |
 | 8 | Bundle facilitates correct cashflow settlement |
 
-**If ALL 8 pass** → Bundling Approval (via Arbitration Team)
-**If ANY fail** → Must go through Full NPA or NPA Lite instead [R17]
+**If ALL 8 pass** -> Bundling Approval (via Arbitration Team)
+**If ANY fail** -> Must go through Full NPA or NPA Lite instead [R17]
 
 ---
 
@@ -678,7 +678,7 @@ A **bundle** is a combination of two or more individually approved products ("bu
 
 ---
 
-### 11.4 Pre-Approved (Evergreen) Bundles — No Approval Needed
+### 11.4 Pre-Approved (Evergreen) Bundles -- No Approval Needed
 
 Certain standard bundles are pre-approved:
 - **Dual Currency Deposit/Notes** (FX Option + LNBR/Deposit/Bond)
@@ -729,9 +729,9 @@ Full list maintained in "List of approved FX Bundled products.xlsx" by GFM COO O
 
 **If not launched within validity period:**
 - NPA expires, product CANNOT be traded
-- To reactivate → Engage Group BU/SU COO [R29]
-- No variations → NPA Lite - Reactivation track
-- Variations → Full NPA (treated as new)
+- To reactivate -> Engage Group BU/SU COO [R29]
+- No variations -> NPA Lite - Reactivation track
+- Variations -> Full NPA (treated as new)
 
 ---
 
@@ -746,7 +746,7 @@ Full list maintained in "List of approved FX Bundled products.xlsx" by GFM COO O
 4. **Unanimous consensus** from ALL original sign-off parties
 5. **Group BU/SU COO approval**
 
-**If ANY SOP disagrees → extension denied.**
+**If ANY SOP disagrees -> extension denied.**
 
 **Extension Process:**
 ```
@@ -769,7 +769,7 @@ Step 5: Validity extended by +6 months
 
 ---
 
-### 13.4 GFM Deviation — Treasury & Markets
+### 13.4 GFM Deviation -- Treasury & Markets
 
 **Deviation Holder:** Treasury & Markets, Singapore and locations
 **Section:** 2.7 Launch and Validity of Approval
@@ -786,10 +786,10 @@ Step 5: Validity extended by +6 months
 
 | Trigger | Description | Sign-Off By |
 |---------|-------------|-------------|
-| **Trigger 1** [R30] | ALL New-to-Group (NTG) products — even without conditions | ALL original SOPs |
+| **Trigger 1** [R30] | ALL New-to-Group (NTG) products -- even without conditions | ALL original SOPs |
 | **Trigger 2** [R31] | ALL products with post-launch conditions imposed by SOPs | SOPs who imposed conditions |
 | **Trigger 3** [R32] | **GFM STRICTER RULE: ALL launched products** regardless of classification | Relevant SOPs |
-| **Trigger 4** | Reactivated expired NTG (no changes) — treated as extension of original | Original NPA SOPs |
+| **Trigger 4** | Reactivated expired NTG (no changes) -- treated as extension of original | Original NPA SOPs |
 | **Trigger 5** | New to location/entity referencing NTG where PIR not yet completed | As per original NTG |
 
 **Timeline:** Must be **initiated within 6 months** of product launch
@@ -810,7 +810,7 @@ Step 5: Validity extended by +6 months
 
 **PIR NOT required for:**
 1. Non-NTG Full NPA with NO conditions imposed
-2. NPA Lite with NO conditions imposed (exception: if original product was NTG → PIR still required)
+2. NPA Lite with NO conditions imposed (exception: if original product was NTG -> PIR still required)
 
 ---
 
@@ -859,24 +859,24 @@ Step 5: Validity extended by +6 months
 ### 15.1 The Four Types of Loop-Back [R36]
 
 **Type 1: Checker Rejection (Major Loop-Back)**
-- Maker submits → Checker reviews → REJECTS
+- Maker submits -> Checker reviews -> REJECTS
 - Loop-back to Maker (Draft stage)
 - **Impact:** +3-5 days per iteration
 - **Current average:** 1.4 iterations per NPA
 
 **Type 2: Approval Clarification (Smart Loop-Back)**
-- SOP reviews → needs clarification
-- If clarification requires NPA document changes → loop-back to Maker
-- If clarification answerable from existing docs → direct response (no loop-back)
+- SOP reviews -> needs clarification
+- If clarification requires NPA document changes -> loop-back to Maker
+- If clarification answerable from existing docs -> direct response (no loop-back)
 - **Time saved by smart routing:** ~2-3 days per clarification
 
 **Type 3: Launch Preparation Issues**
-- During system config/UAT → issue discovered → needs SOP re-review
+- During system config/UAT -> issue discovered -> needs SOP re-review
 - Loop-back to specific SOP only (not all)
 - Typical causes: system compatibility, regulatory changes, risk threshold breaches
 
 **Type 4: Post-Launch Corrective Action**
-- After launch → PIR identifies issue → requires NPA amendment
+- After launch -> PIR identifies issue -> requires NPA amendment
 - Loop-back to Review Stage (expedited re-approval)
 - Causes: volume below projections, unexpected issues, customer feedback, regulatory findings
 
@@ -890,7 +890,7 @@ Step 5: Validity extended by +6 months
 - Group BU/SU COO
 - NPA Governance Forum
 
-**Rationale:** 3 loop-backs indicate a fundamental problem — unclear requirements, complex edge case, or process breakdown that needs senior intervention.
+**Rationale:** 3 loop-backs indicate a fundamental problem -- unclear requirements, complex edge case, or process breakdown that needs senior intervention.
 
 **Current Metrics:**
 - Loop-backs per month: **8**
@@ -919,7 +919,7 @@ Step 5: Validity extended by +6 months
 
 ### 17.1 Official Template Structure
 
-The NPA document follows a standardized template (**RMG OR Version Jun 2025 — 47 base fields**):
+The NPA document follows a standardized template (**RMG OR Version Jun 2025 -- 47 base fields**):
 
 **Part A: Basic Product Information (6 fields)**
 - Product/Service Name
@@ -979,11 +979,11 @@ The NPA document follows a standardized template (**RMG OR Version Jun 2025 — 
 **Escalation Path:**
 ```
 Level 1: Unit NPA Champion (attempt to resolve)
-  ↓ (if unresolved)
+  | (if unresolved)
 Level 2: Group BU/SU COO
-  ↓ (if unresolved)
+  | (if unresolved)
 Level 3: Location Head (if location-specific)
-  ↓ (if unresolved)
+  | (if unresolved)
 Level 4: Relevant committees (GFM NPA Governance Forum)
 ```
 
@@ -993,7 +993,7 @@ Level 4: Relevant committees (GFM NPA Governance Forum)
 
 **Scenario:** Non-fulfillment, non-compliance, or delays in condition satisfaction/PIR
 
-**Escalation to:** Group BU/SU COO → Location Head → Risk/control committees
+**Escalation to:** Group BU/SU COO -> Location Head -> Risk/control committees
 
 ---
 
@@ -1001,7 +1001,7 @@ Level 4: Relevant committees (GFM NPA Governance Forum)
 
 **Scenario:** Issue exposes Group to higher reputational risk
 
-**Escalation:** Group BU/SU COO + Group Compliance + RMG-OR → Product Approval Committee (PAC)
+**Escalation:** Group BU/SU COO + Group Compliance + RMG-OR -> Product Approval Committee (PAC)
 
 ---
 
@@ -1071,7 +1071,7 @@ Level 4: Relevant committees (GFM NPA Governance Forum)
 |------|---------------|-------------------|
 | **PIR scope** | NTG + products with conditions | **ALL launched products** regardless of type [R32] |
 | **Evergreen validity** | 1 year | **3 years** (approved deviation) |
-| **Circuit breaker** | Not defined at Group level | **3 loop-backs → auto-escalate** [R35] |
+| **Circuit breaker** | Not defined at Group level | **3 loop-backs -> auto-escalate** [R35] |
 | **Bundling gate** | General assessment | **8-condition checklist** [R08] |
 | **NPA Lite sub-types** | Basic Lite track | **4 sub-types: B1/B2/B3/B4** [R12-R15] |
 
@@ -1118,8 +1118,8 @@ Level 4: Relevant committees (GFM NPA Governance Forum)
 
 **Limit Enforcement:**
 - ALL limits checked BEFORE trade execution
-- If ALL pass → Execute trade (Evergreen auto-approved)
-- If ANY fail → Downgrade to NPA Lite (not Evergreen)
+- If ALL pass -> Execute trade (Evergreen auto-approved)
+- If ANY fail -> Downgrade to NPA Lite (not Evergreen)
 
 **Limit Waivers [R44]:**
 - **Liquidity management products:** Notional cap and deal count cap WAIVED (exigency)
@@ -1142,20 +1142,20 @@ Level 4: Relevant committees (GFM NPA Governance Forum)
 
 **Real-time process:**
 1. Sales/Trader executes deal with client
-2. **IMMEDIATELY** (within 30 min) email GFM COD SG – COE NPA with deal details
+2. **IMMEDIATELY** (within 30 min) email GFM COD SG - COE NPA with deal details
 3. SG NPA Team updates Evergreen limits worksheet (chalk usage)
 4. Location COO Office confirms within 30 minutes (sanity check)
 5. Initiate NPA Lite reactivation in parallel
-6. When NPA Lite approved → Uplift (restore) Evergreen limits
+6. When NPA Lite approved -> Uplift (restore) Evergreen limits
 
 ---
 
 ### 21.6 Evergreen Approval Process
 
-**Step 1: Working Group Assessment** — Proposing unit requests eligibility, NPA Working Group reviews
-**Step 2: Forum Approval** — GFM NPA Governance Forum formally approves, product added to Evergreen list
-**Step 3: Location Requirements** — Locations clear local support units, GFM Head + Country Head
-**Step 4: Disagreement Resolution** — GFM COO decides; escalate to Governance Forum if needed
+**Step 1: Working Group Assessment** -- Proposing unit requests eligibility, NPA Working Group reviews
+**Step 2: Forum Approval** -- GFM NPA Governance Forum formally approves, product added to Evergreen list
+**Step 3: Location Requirements** -- Locations clear local support units, GFM Head + Country Head
+**Step 4: Disagreement Resolution** -- GFM COO decides; escalate to Governance Forum if needed
 
 ---
 
@@ -1168,7 +1168,7 @@ Level 4: Relevant committees (GFM NPA Governance Forum)
 2. Validate NPAs remain eligible
 3. Early termination if event necessitates removal
 
-**Dormancy Rule:** Products dormant >3 years at review time → REMOVED from list
+**Dormancy Rule:** Products dormant >3 years at review time -> REMOVED from list
 
 **Reactivated Products:** Maintain Evergreen status for NPA approval date + 3 years OR last transaction date during validity + 3 years
 
@@ -1180,11 +1180,11 @@ Level 4: Relevant committees (GFM NPA Governance Forum)
 
 **Composition:** GFM COO, Group Risk Head, CFO, CRO, Senior management
 
-**Purpose:** Strategic approval for **NTG products ONLY** — go/no-go decision
+**Purpose:** Strategic approval for **NTG products ONLY** -- go/no-go decision
 
 **When Required:** ALL New-to-Group products (before NPA submission)
 
-**Decision:** PAC approves → NPA can start. PAC rejects → Product cannot proceed.
+**Decision:** PAC approves -> NPA can start. PAC rejects -> Product cannot proceed.
 
 ---
 
@@ -1219,7 +1219,7 @@ Level 4: Relevant committees (GFM NPA Governance Forum)
 **Quorum:** Chairperson + 50% of members
 **Decision:** Majority vote. Chairperson has casting vote.
 **Email Approval:** Valid if majority (including Chairperson) approves via email.
-**Escalation:** Unresolved → GFM Business Control Committee (GFM BCC)
+**Escalation:** Unresolved -> GFM Business Control Committee (GFM BCC)
 
 ---
 
@@ -1251,9 +1251,9 @@ Level 4: Relevant committees (GFM NPA Governance Forum)
 
 ### 23.2 Deviation Request Process
 
-**Step 1: Justification** — Document rationale, demonstrate why standard policy insufficient, assess risks
-**Step 2: Approval** — Submit to RMG-OR (Head of RMG-OR approves deviations)
-**Step 3: Documentation** — Documented in Appendix 4 of NPA Standard, communicated to stakeholders
+**Step 1: Justification** -- Document rationale, demonstrate why standard policy insufficient, assess risks
+**Step 2: Approval** -- Submit to RMG-OR (Head of RMG-OR approves deviations)
+**Step 3: Documentation** -- Documented in Appendix 4 of NPA Standard, communicated to stakeholders
 
 ---
 
@@ -1295,20 +1295,20 @@ Level 4: Relevant committees (GFM NPA Governance Forum)
 | Review (Maker/Checker) | 2-3 days | Incomplete submissions (48% missing info) |
 | Sign-Off (parallel) | 6-8 days | Finance: 1.8d, Credit: 1.2d, Legal: 1.1d |
 | Launch Prep | 2-3 days | System config, UAT |
-| **Total** | **12 days** | — |
+| **Total** | **12 days** | -- |
 
 ---
 
 ### 24.4 Key Pain Points
 
-1. **Classification ambiguity** — Makers classify wrong → wrong track → rework
-2. **Incomplete submissions** — 48% missing information on first submission
-3. **SOP bottlenecks** — Finance and Legal have long review queues
-4. **Institutional knowledge dependency** — experienced Champions carry knowledge in their heads
-5. **Historical NPA visibility** — Makers don't know similar NPA was approved 6 months ago
-6. **Evergreen limit tracking** — done manually in Excel, risk of limit breaches
-7. **PIR follow-up** — tracked manually, easy to miss 6-month window
-8. **Loop-back frustration** — process feels adversarial, each rejection adds days
+1. **Classification ambiguity** -- Makers classify wrong -> wrong track -> rework
+2. **Incomplete submissions** -- 48% missing information on first submission
+3. **SOP bottlenecks** -- Finance and Legal have long review queues
+4. **Institutional knowledge dependency** -- experienced Champions carry knowledge in their heads
+5. **Historical NPA visibility** -- Makers don't know similar NPA was approved 6 months ago
+6. **Evergreen limit tracking** -- done manually in Excel, risk of limit breaches
+7. **PIR follow-up** -- tracked manually, easy to miss 6-month window
+8. **Loop-back frustration** -- process feels adversarial, each rejection adds days
 
 ---
 
@@ -1318,50 +1318,50 @@ Level 4: Relevant committees (GFM NPA Governance Forum)
 
 | Rule | Section | Policy Content |
 |------|---------|---------------|
-| R01 | §4 Track E | Prohibited check BEFORE classification (Step 0) |
-| R02 | §3 | Two-stage classification model |
-| R03 | §2.1.1 | NTG 6 triggers (new product/role/channel/segment/exchange/geography) |
-| R04 | §2.1.2 | Variation 7 triggers |
-| R05 | §2.1.3 | Existing sub-categories with dormancy tiers |
-| R06 | — | Classification confidence ≥75% (in Classification Agent KB) |
-| R07 | §10 | Cross-border → 5 mandatory SOPs, non-negotiable |
-| R08 | §11 | Bundling 8-condition checklist |
-| R09 | §21 | Evergreen eligibility and routing |
-| R10 | §4 Track E | Prohibited = HARD STOP, workflow termination |
-| R11 | §4 Track A | NTG → ALWAYS Full NPA, no exceptions |
-| R12 | §4 Track B1 | NPA Lite Impending Deal (48-hour express) |
-| R13 | §4 Track B2 | NPA Lite NLNOC (joint COO+MLR decision) |
-| R14 | §4 Track B3 | Fast-Track Dormant (5 criteria, 48-hour) |
-| R15 | §4 Track B4 | NPA Addendum (live NPA only, no validity extension) |
-| R16 | §5 Stage 1 | PAC approval BEFORE NPA starts for NTG |
-| R17 | §11 | Bundling: all 8 pass → Arbitration; any fail → Full NPA/Lite |
-| R18 | §21.5 | Evergreen trading workflow (30-min notification) |
-| R19 | §8.2 | Track determines SOP set (dynamic assignment) |
-| R20 | §8.2 | Full NPA → ALL 7 SOPs |
-| R21 | §10.3 | Cross-border override → 5 mandatory SOPs |
-| R22 | §8.3 | NTG overseas → Head Office sign-offs |
-| R23 | §7.2 | SOPs can set 3 types of conditions |
-| R24 | §7.2 | Approved with conditions (APPROVED_CONDITIONAL) |
-| R25 | §7.1 | Maker → Checker sequential gate |
-| R26 | §7.1 | COO final approval after all SOPs sign off |
-| R27 | §13.1 | 1-year validity (Evergreen: 3 years) |
-| R28 | §13.2 | One-time +6mo extension, unanimous SOP consent |
-| R29 | §13.1 | Expired → engage COO for reactivation |
-| R30 | §14.1 | PIR mandatory for ALL NTG (6 months) |
-| R31 | §14.1 | PIR mandatory for products with conditions |
-| R32 | §14.1 | GFM stricter: PIR mandatory for ALL launched products |
-| R33 | §13.3 | Launch = first sale/offer or first trade |
-| R34 | §2.1.3 | Dormant = no transactions in 12 months |
-| R35 | §15.2 | Circuit breaker: 3 loop-backs → auto-escalate |
-| R36 | §15.1 | 4 loop-back types tracked |
-| R37 | §7.2 | SLA: 48 hours per approver |
-| R38 | §18.2 | Escalation levels: Champion → COO → Location Head → Forum |
-| R39 | §18.2 | Unresolved → escalate to COO/Location Head/RMG-OR |
-| R40 | §16 | Notional >$20M → ROAE sensitivity required |
-| R41 | §16 | Notional >$50M → Finance VP review |
-| R42 | §16 | Notional >$100M → CFO review |
-| R43 | §21.3 | Evergreen limits: $500M, $250M, 10/20 deal caps |
-| R44 | §21.3 | Liquidity management: Evergreen caps waived |
+| R01 | Sec.4 Track E | Prohibited check BEFORE classification (Step 0) |
+| R02 | Sec.3 | Two-stage classification model |
+| R03 | Sec.2.1.1 | NTG 6 triggers (new product/role/channel/segment/exchange/geography) |
+| R04 | Sec.2.1.2 | Variation 7 triggers |
+| R05 | Sec.2.1.3 | Existing sub-categories with dormancy tiers |
+| R06 | -- | Classification confidence >=75% (in Classification Agent KB) |
+| R07 | Sec.10 | Cross-border -> 5 mandatory SOPs, non-negotiable |
+| R08 | Sec.11 | Bundling 8-condition checklist |
+| R09 | Sec.21 | Evergreen eligibility and routing |
+| R10 | Sec.4 Track E | Prohibited = HARD STOP, workflow termination |
+| R11 | Sec.4 Track A | NTG -> ALWAYS Full NPA, no exceptions |
+| R12 | Sec.4 Track B1 | NPA Lite Impending Deal (48-hour express) |
+| R13 | Sec.4 Track B2 | NPA Lite NLNOC (joint COO+MLR decision) |
+| R14 | Sec.4 Track B3 | Fast-Track Dormant (5 criteria, 48-hour) |
+| R15 | Sec.4 Track B4 | NPA Addendum (live NPA only, no validity extension) |
+| R16 | Sec.5 Stage 1 | PAC approval BEFORE NPA starts for NTG |
+| R17 | Sec.11 | Bundling: all 8 pass -> Arbitration; any fail -> Full NPA/Lite |
+| R18 | Sec.21.5 | Evergreen trading workflow (30-min notification) |
+| R19 | Sec.8.2 | Track determines SOP set (dynamic assignment) |
+| R20 | Sec.8.2 | Full NPA -> ALL 7 SOPs |
+| R21 | Sec.10.3 | Cross-border override -> 5 mandatory SOPs |
+| R22 | Sec.8.3 | NTG overseas -> Head Office sign-offs |
+| R23 | Sec.7.2 | SOPs can set 3 types of conditions |
+| R24 | Sec.7.2 | Approved with conditions (APPROVED_CONDITIONAL) |
+| R25 | Sec.7.1 | Maker -> Checker sequential gate |
+| R26 | Sec.7.1 | COO final approval after all SOPs sign off |
+| R27 | Sec.13.1 | 1-year validity (Evergreen: 3 years) |
+| R28 | Sec.13.2 | One-time +6mo extension, unanimous SOP consent |
+| R29 | Sec.13.1 | Expired -> engage COO for reactivation |
+| R30 | Sec.14.1 | PIR mandatory for ALL NTG (6 months) |
+| R31 | Sec.14.1 | PIR mandatory for products with conditions |
+| R32 | Sec.14.1 | GFM stricter: PIR mandatory for ALL launched products |
+| R33 | Sec.13.3 | Launch = first sale/offer or first trade |
+| R34 | Sec.2.1.3 | Dormant = no transactions in 12 months |
+| R35 | Sec.15.2 | Circuit breaker: 3 loop-backs -> auto-escalate |
+| R36 | Sec.15.1 | 4 loop-back types tracked |
+| R37 | Sec.7.2 | SLA: 48 hours per approver |
+| R38 | Sec.18.2 | Escalation levels: Champion -> COO -> Location Head -> Forum |
+| R39 | Sec.18.2 | Unresolved -> escalate to COO/Location Head/RMG-OR |
+| R40 | Sec.16 | Notional >$20M -> ROAE sensitivity required |
+| R41 | Sec.16 | Notional >$50M -> Finance VP review |
+| R42 | Sec.16 | Notional >$100M -> CFO review |
+| R43 | Sec.21.3 | Evergreen limits: $500M, $250M, 10/20 deal caps |
+| R44 | Sec.21.3 | Liquidity management: Evergreen caps waived |
 
 ---
 
@@ -1377,7 +1377,7 @@ Level 4: Relevant committees (GFM NPA Governance Forum)
 - Pre-approved Evergreen bundles and 28+ FX bundles
 - Maker-Checker sequential approval model
 - 7 Core SOPs table with assessment domains
-- Circuit breaker rule (3 loop-backs → auto-escalate)
+- Circuit breaker rule (3 loop-backs -> auto-escalate)
 - 4 loop-back types with definitions and metrics
 - Notional threshold escalation ($20M/$50M/$100M)
 - 47-field NPA Document Structure (Part A/B/C)

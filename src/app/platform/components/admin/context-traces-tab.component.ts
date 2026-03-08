@@ -87,15 +87,15 @@ export class ContextTracesTabComponent implements OnInit {
     }
 
     private normalizeTrace(raw: Record<string, unknown>): ContextTrace {
-        const traceId = String(raw.trace_id ?? raw.id ?? 'unknown-trace');
-        const stages = this.normalizeStages(raw.stages);
-        const explicitStageCount = Number(raw.stage_count ?? raw.stages_count ?? NaN);
+        const traceId = String(raw['trace_id'] ?? raw['id'] ?? 'unknown-trace');
+        const stages = this.normalizeStages(raw['stages']);
+        const explicitStageCount = Number(raw['stage_count'] ?? raw['stages_count'] ?? NaN);
 
         return {
             trace_id: traceId,
-            agent: String(raw.agent ?? raw.agent_id ?? raw.archetype ?? 'unknown-agent'),
-            domain: String(raw.domain ?? raw.domain_id ?? 'platform'),
-            duration_ms: Number(raw.duration_ms ?? raw.total_duration_ms ?? 0),
+            agent: String(raw['agent'] ?? raw['agent_id'] ?? raw['archetype'] ?? 'unknown-agent'),
+            domain: String(raw['domain'] ?? raw['domain_id'] ?? 'platform'),
+            duration_ms: Number(raw['duration_ms'] ?? raw['total_duration_ms'] ?? 0),
             stage_count: Number.isFinite(explicitStageCount) ? explicitStageCount : stages.length,
             stages
         };
@@ -109,13 +109,13 @@ export class ContextTracesTabComponent implements OnInit {
         return rawStages.map((stage) => {
             const item = stage as Record<string, unknown>;
             return {
-                stage_name: String(item.stage_name ?? item.name ?? item.stage ?? 'UNKNOWN'),
-                duration_ms: Number(item.duration_ms ?? 0),
-                tokens_in: Number(item.tokens_in ?? 0),
-                tokens_out: Number(item.tokens_out ?? 0),
-                items_in: Number(item.items_in ?? 0),
-                items_out: Number(item.items_out ?? 0),
-                decisions: Array.isArray(item.decisions) ? item.decisions.map(String) : []
+                stage_name: String(item['stage_name'] ?? item['name'] ?? item['stage'] ?? 'UNKNOWN'),
+                duration_ms: Number(item['duration_ms'] ?? 0),
+                tokens_in: Number(item['tokens_in'] ?? 0),
+                tokens_out: Number(item['tokens_out'] ?? 0),
+                items_in: Number(item['items_in'] ?? 0),
+                items_out: Number(item['items_out'] ?? 0),
+                decisions: Array.isArray(item['decisions']) ? (item['decisions'] as unknown[]).map(String) : []
             };
         });
     }
