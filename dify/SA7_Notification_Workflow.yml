@@ -1,0 +1,751 @@
+app:
+  description: >
+    SA-7 Notification Agent — Node N-6 (FINAL).
+    Generates Welcome Kit upon successful account opening, sends batch notifications
+    (customer, RM, compliance, operations, audit), and completes the case.
+    Also handles ad-hoc notifications (TASK_ASSIGNMENT, SLA_WARNING, etc.).
+    MCP tools are called via JSON-RPC 2.0 over HTTP on the SA-7 MCP server.
+  icon: "\U0001F514"
+  icon_background: "#E8F4E8"
+  mode: workflow
+  name: DCE-AO-SA7-Notification
+  use_icon_as_answer_icon: false
+
+kind: app
+version: 0.6.0
+
+# ────────────────────────────────────────────────────────────────────
+# IMPORTANT — Post-Import Configuration Required:
+# 1. MCP_ENDPOINT below points to SA-7 server at host.docker.internal:8005
+#    (works with Colima on macOS; update for production OCP service mesh)
+# 2. No KB needed — SA-7 is operational, not analytical
+# 3. No LLM nodes needed — Welcome Kit uses structured data
+# ────────────────────────────────────────────────────────────────────
+
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: SA-7 MCP server endpoint (local Docker host on port 8005)
+    id: env-mcp-endpoint-sa7
+    name: MCP_ENDPOINT
+    selector:
+    - env
+    - MCP_ENDPOINT
+    value: http://host.docker.internal:8005
+    value_type: string
+  features:
+    file_upload:
+      allowed_file_extensions: []
+      allowed_file_types: []
+      allowed_file_upload_methods: []
+      enabled: false
+      fileUploadConfig:
+        file_size_limit: 15
+        image_file_size_limit: 10
+    opening_statement: ""
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ""
+      voice: ""
+
+  graph:
+    edges:
+      # ── WELCOME_KIT primary path ────────────────────────
+      # START → Notification Type Router
+      - data: {isInIteration: false, sourceType: start, targetType: if-else}
+        id: e-7001-7002
+        source: "7000000001"
+        target: "7000000002"
+        type: custom
+      # Router (WELCOME_KIT) → Get Case Context
+      - data: {isInIteration: false, sourceType: if-else, targetType: code}
+        id: e-7002-7003-welcomekit
+        source: "7000000002"
+        sourceHandle: "true"
+        target: "7000000003"
+        type: custom
+      # Get Case Context → Context Validator
+      - data: {isInIteration: false, sourceType: code, targetType: if-else}
+        id: e-7003-7004
+        source: "7000000003"
+        target: "7000000004"
+        type: custom
+      # Context Validator (valid) → Generate Welcome Kit
+      - data: {isInIteration: false, sourceType: if-else, targetType: code}
+        id: e-7004-7005-valid
+        source: "7000000004"
+        sourceHandle: "true"
+        target: "7000000005"
+        type: custom
+      # Context Validator (invalid) → END_ERROR
+      - data: {isInIteration: false, sourceType: if-else, targetType: end}
+        id: e-7004-7011-error
+        source: "7000000004"
+        sourceHandle: "false"
+        target: "7000000011"
+        type: custom
+      # Generate Welcome Kit → Send Welcome Kit Batch
+      - data: {isInIteration: false, sourceType: code, targetType: code}
+        id: e-7005-7006
+        source: "7000000005"
+        target: "7000000006"
+        type: custom
+      # Send Welcome Kit Batch → Complete Case
+      - data: {isInIteration: false, sourceType: code, targetType: code}
+        id: e-7006-7007
+        source: "7000000006"
+        target: "7000000007"
+        type: custom
+      # Complete Case → END_COMPLETED
+      - data: {isInIteration: false, sourceType: code, targetType: end}
+        id: e-7007-7008
+        source: "7000000007"
+        target: "7000000008"
+        type: custom
+
+      # ── AD-HOC path ─────────────────────────────────────
+      # Router (AD_HOC / default) → Ad-Hoc Handler
+      - data: {isInIteration: false, sourceType: if-else, targetType: code}
+        id: e-7002-7009-adhoc
+        source: "7000000002"
+        sourceHandle: "false"
+        target: "7000000009"
+        type: custom
+      # Ad-Hoc Handler → END_AD_HOC
+      - data: {isInIteration: false, sourceType: code, targetType: end}
+        id: e-7009-7010
+        source: "7000000009"
+        target: "7000000010"
+        type: custom
+
+      # ── Error / unknown mode path ───────────────────────
+      # (Router false branch already covers unknown mode → Ad-Hoc Handler)
+      # If ad-hoc also fails, it returns error in its own output.
+      # Edge 11: duplicate safety — context validator false → END_ERROR
+      #          already defined above (e-7004-7011-error)
+
+    nodes:
+      # ────────────────────────────────────────────────────
+      # Node 1: START
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "Entry point for SA-7 Notification Agent. mode=WELCOME_KIT for final case completion, or AD_HOC for one-off notifications."
+          title: START
+          type: start
+          variables:
+            - label: case_id
+              max_length: 30
+              options: []
+              required: true
+              type: text-input
+              variable: case_id
+            - label: mode
+              max_length: 30
+              options: []
+              required: false
+              type: text-input
+              variable: mode
+        id: "7000000001"
+        position: {x: 50, y: 300}
+        type: start
+
+      # ────────────────────────────────────────────────────
+      # Node 2: Notification Type Router (WELCOME_KIT vs AD_HOC)
+      # ────────────────────────────────────────────────────
+      - data:
+          cases:
+            - case_id: "true"
+              conditions:
+                - comparison_operator: is
+                  id: c-mode-welcomekit
+                  value: WELCOME_KIT
+                  varType: string
+                  variable_selector: ["7000000001", mode]
+              logical_operator: and
+          desc: "Routes to Welcome Kit path (mode=WELCOME_KIT) or Ad-Hoc notification path (any other mode)"
+          title: "Notification Type Router"
+          type: if-else
+        id: "7000000002"
+        position: {x: 250, y: 300}
+        type: if-else
+
+      # ────────────────────────────────────────────────────
+      # Node 3: Get Case Context
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, mcp_endpoint: str) -> dict:
+                # Initialize MCP session
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05",
+                               "capabilities": {}, "clientInfo": {"name": "dify-sa7", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(urllib.request.Request(
+                    f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json, text/event-stream",
+                    "Mcp-Session-Id": session_id,
+                }
+                # Call sa7_get_case_context
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa7_get_case_context",
+                               "arguments": {"case_id": case_id}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    parsed = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    parsed = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    parsed["mcp_error"] = True
+
+                # Extract validation summary for router
+                status = parsed.get("status", "error")
+                svs = parsed.get("system_validation_summary", {})
+                all_passed = svs.get("all_passed", False) if isinstance(svs, dict) else False
+
+                # Flatten deeply nested context into simple string/number outputs
+                # to avoid Dify "Depth limit 5 reached, object too deep" error
+                classification = parsed.get("classification_result", {})
+                if not isinstance(classification, dict):
+                    classification = {}
+                config_spec = parsed.get("config_spec", {})
+                if not isinstance(config_spec, dict):
+                    config_spec = {}
+                credit = parsed.get("credit_decision", {})
+                if not isinstance(credit, dict):
+                    credit = {}
+                rm_hierarchy = parsed.get("rm_hierarchy", {})
+                if not isinstance(rm_hierarchy, dict):
+                    rm_hierarchy = {}
+                case_state = parsed.get("case_state", {})
+                if not isinstance(case_state, dict):
+                    case_state = {}
+
+                entity_name = classification.get("client_name", "") or case_state.get("client_name", "")
+                entity_type = classification.get("client_entity_type", "CORP")
+                jurisdiction = classification.get("jurisdiction", "") or case_state.get("jurisdiction", "SGP")
+
+                ubix_config = config_spec.get("ubix_config", {})
+                if not isinstance(ubix_config, dict):
+                    ubix_config = {}
+                account_reference = ubix_config.get("account_code", "") or config_spec.get("account_reference", "")
+
+                products = classification.get("products_requested", [])
+                if isinstance(products, str):
+                    try:
+                        products = json.loads(products)
+                    except (json.JSONDecodeError, ValueError):
+                        products = [products]
+                if not products:
+                    products = ["FUTURES"]
+
+                dce_limit_sgd = float(credit.get("approved_dce_limit_sgd", 0))
+                pce_limit_sgd = float(credit.get("approved_dce_pce_limit_sgd", 0))
+                caa_approach = credit.get("confirmed_caa_approach", "IRB")
+                conditions = credit.get("conditions", [])
+                if isinstance(conditions, str):
+                    try:
+                        conditions = json.loads(conditions)
+                    except (json.JSONDecodeError, ValueError):
+                        conditions = []
+
+                rm_name = rm_hierarchy.get("rm_name", "")
+                rm_email = rm_hierarchy.get("rm_email", "")
+                rm_id = rm_hierarchy.get("rm_id", "")
+                customer_email = classification.get("customer_email", "") or rm_hierarchy.get("rm_email", "")
+
+                return {
+                    "context_json": json.dumps(parsed),
+                    "context_status": status,
+                    "all_passed": "true" if (status == "success" and all_passed) else "false",
+                    "entity_name": str(entity_name),
+                    "entity_type": str(entity_type),
+                    "jurisdiction": str(jurisdiction),
+                    "account_reference": str(account_reference),
+                    "products_json": json.dumps(products),
+                    "dce_limit_sgd": dce_limit_sgd,
+                    "pce_limit_sgd": pce_limit_sgd,
+                    "caa_approach": str(caa_approach),
+                    "conditions_json": json.dumps(conditions),
+                    "rm_name": str(rm_name),
+                    "rm_email": str(rm_email),
+                    "rm_id": str(rm_id),
+                    "customer_email": str(customer_email),
+                }
+          code_language: python3
+          desc: "Fetch full case context and flatten into simple string/number outputs to stay within Dify depth limit 5"
+          outputs:
+            context_json: {children: null, type: string}
+            context_status: {children: null, type: string}
+            all_passed: {children: null, type: string}
+            entity_name: {children: null, type: string}
+            entity_type: {children: null, type: string}
+            jurisdiction: {children: null, type: string}
+            account_reference: {children: null, type: string}
+            products_json: {children: null, type: string}
+            dce_limit_sgd: {children: null, type: number}
+            pce_limit_sgd: {children: null, type: number}
+            caa_approach: {children: null, type: string}
+            conditions_json: {children: null, type: string}
+            rm_name: {children: null, type: string}
+            rm_email: {children: null, type: string}
+            rm_id: {children: null, type: string}
+            customer_email: {children: null, type: string}
+          title: "Get Case Context"
+          type: code
+          variables:
+            - value_selector: ["7000000001", case_id]
+              variable: case_id
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "7000000003"
+        position: {x: 500, y: 200}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 4: Context Validator
+      # ────────────────────────────────────────────────────
+      - data:
+          cases:
+            - case_id: "true"
+              conditions:
+                - comparison_operator: is
+                  id: c-context-valid
+                  value: "true"
+                  varType: string
+                  variable_selector: ["7000000003", all_passed]
+              logical_operator: and
+          desc: "Validates context retrieval succeeded and all system validations passed. Valid → Generate Welcome Kit. Invalid → END_ERROR."
+          title: "Context Validator"
+          type: if-else
+        id: "7000000004"
+        position: {x: 700, y: 200}
+        type: if-else
+
+      # ────────────────────────────────────────────────────
+      # Node 5: Generate Welcome Kit
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, entity_name: str, entity_type: str,
+                     jurisdiction: str, account_reference: str,
+                     products_json: str, dce_limit_sgd: float,
+                     pce_limit_sgd: float, caa_approach: str,
+                     conditions_json: str, rm_name: str, rm_email: str,
+                     mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa7", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+
+                # Parse JSON strings from flat Node 3 outputs
+                try:
+                    products_enabled = json.loads(products_json)
+                except (json.JSONDecodeError, ValueError):
+                    products_enabled = ["FUTURES"]
+                try:
+                    conditions = json.loads(conditions_json)
+                except (json.JSONDecodeError, ValueError):
+                    conditions = []
+
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa7_generate_welcome_kit",
+                               "arguments": {"case_id": case_id,
+                                             "entity_name": entity_name,
+                                             "entity_type": entity_type,
+                                             "jurisdiction": jurisdiction,
+                                             "account_reference": account_reference,
+                                             "products_enabled": products_enabled,
+                                             "approved_dce_limit_sgd": dce_limit_sgd,
+                                             "approved_dce_pce_limit_sgd": pce_limit_sgd,
+                                             "confirmed_caa_approach": caa_approach,
+                                             "rm_name": rm_name,
+                                             "rm_email": rm_email,
+                                             "conditions": conditions}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=60)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    parsed = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    parsed = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    parsed["mcp_error"] = True
+                return {
+                    "kit_id": parsed.get("kit_id", ""),
+                    "kit_status": parsed.get("status", "unknown"),
+                }
+          code_language: python3
+          desc: "Generate Welcome Kit document from flat case context inputs: entity details, products, limits, RM info, conditions"
+          outputs:
+            kit_id: {children: null, type: string}
+            kit_status: {children: null, type: string}
+          title: "Generate Welcome Kit"
+          type: code
+          variables:
+            - value_selector: ["7000000001", case_id]
+              variable: case_id
+            - value_selector: ["7000000003", entity_name]
+              variable: entity_name
+            - value_selector: ["7000000003", entity_type]
+              variable: entity_type
+            - value_selector: ["7000000003", jurisdiction]
+              variable: jurisdiction
+            - value_selector: ["7000000003", account_reference]
+              variable: account_reference
+            - value_selector: ["7000000003", products_json]
+              variable: products_json
+            - value_selector: ["7000000003", dce_limit_sgd]
+              variable: dce_limit_sgd
+            - value_selector: ["7000000003", pce_limit_sgd]
+              variable: pce_limit_sgd
+            - value_selector: ["7000000003", caa_approach]
+              variable: caa_approach
+            - value_selector: ["7000000003", conditions_json]
+              variable: conditions_json
+            - value_selector: ["7000000003", rm_name]
+              variable: rm_name
+            - value_selector: ["7000000003", rm_email]
+              variable: rm_email
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "7000000005"
+        position: {x: 900, y: 200}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 6: Send Welcome Kit Batch
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, kit_id: str, customer_email: str,
+                     rm_id: str, rm_email: str, entity_name: str,
+                     rm_name: str, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa7", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+
+
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa7_send_welcome_kit_batch",
+                               "arguments": {"case_id": case_id,
+                                             "kit_id": kit_id,
+                                             "entity_name": entity_name,
+                                             "rm_id": rm_id,
+                                             "rm_name": rm_name,
+                                             "rm_email": rm_email,
+                                             "customer_email": customer_email}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=60)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    parsed = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    parsed = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    parsed["mcp_error"] = True
+                return {
+                    "batch_result_json": json.dumps(parsed),
+                    "notifications_sent": parsed.get("batch_size", parsed.get("notifications_sent", 0)),
+                }
+          code_language: python3
+          desc: "Send Welcome Kit batch: customer notification, RM notification, compliance notification, operations notification, audit record"
+          outputs:
+            batch_result_json: {children: null, type: string}
+            notifications_sent: {children: null, type: number}
+          title: "Send Welcome Kit Batch"
+          type: code
+          variables:
+            - value_selector: ["7000000001", case_id]
+              variable: case_id
+            - value_selector: ["7000000005", kit_id]
+              variable: kit_id
+            - value_selector: ["7000000003", customer_email]
+              variable: customer_email
+            - value_selector: ["7000000003", rm_id]
+              variable: rm_id
+            - value_selector: ["7000000003", rm_email]
+              variable: rm_email
+            - value_selector: ["7000000003", entity_name]
+              variable: entity_name
+            - value_selector: ["7000000003", rm_name]
+              variable: rm_name
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "7000000006"
+        position: {x: 1100, y: 200}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 7: Complete Case
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, kit_id: str, batch_result_json: str,
+                     notifications_sent: int, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa7", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+
+                # Build n6_output as a dict for the MCP tool call, but serialize to string for Dify output
+                n6_output_dict = {
+                    "case_id": case_id,
+                    "kit_id": kit_id,
+                    "notifications_sent": notifications_sent,
+                    "outcome": "CASE_COMPLETED",
+                    "node": "N-6",
+                }
+
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa7_complete_case",
+                               "arguments": {"case_id": case_id,
+                                             "kit_id": kit_id,
+                                             "notifications_sent": notifications_sent}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    parsed = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    parsed = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    parsed["mcp_error"] = True
+                completed_nodes = parsed.get("completed_nodes", [])
+                return {
+                    "case_status": "DONE",
+                    "kit_id": kit_id,
+                    "notifications_sent": notifications_sent,
+                    "completed_nodes": completed_nodes,
+                    "n6_output": json.dumps(n6_output_dict),
+                }
+          code_language: python3
+          desc: "MANDATORY: write N-6 COMPLETE checkpoint, set case status=DONE, fire CASE_COMPLETED Kafka event"
+          outputs:
+            case_status: {children: null, type: string}
+            kit_id: {children: null, type: string}
+            notifications_sent: {children: null, type: number}
+            completed_nodes: {children: null, type: "array[string]"}
+            n6_output: {children: null, type: string}
+          title: "Complete Case"
+          type: code
+          variables:
+            - value_selector: ["7000000001", case_id]
+              variable: case_id
+            - value_selector: ["7000000005", kit_id]
+              variable: kit_id
+            - value_selector: ["7000000006", batch_result_json]
+              variable: batch_result_json
+            - value_selector: ["7000000006", notifications_sent]
+              variable: notifications_sent
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "7000000007"
+        position: {x: 1300, y: 200}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 8: END — COMPLETED
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "N-6 complete. Case status=DONE. Welcome Kit sent. All pipeline nodes completed successfully."
+          outputs:
+            - type: string
+              value_selector: ["7000000007", case_status]
+              variable: case_status
+            - type: string
+              value_selector: ["7000000007", kit_id]
+              variable: kit_id
+            - type: number
+              value_selector: ["7000000007", notifications_sent]
+              variable: notifications_sent
+            - type: string
+              value_selector: ["7000000007", n6_output]
+              variable: n6_output
+          title: "END: COMPLETED"
+          type: end
+        id: "7000000008"
+        position: {x: 1500, y: 200}
+        type: end
+
+      # ────────────────────────────────────────────────────
+      # Node 9: Ad-Hoc Handler
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, mode: str, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa7", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+
+                # Map mode to notification_type (TASK_ASSIGNMENT, SLA_WARNING, ESCALATION, STATUS_UPDATE, etc.)
+                notification_type = mode if mode else "STATUS_UPDATE"
+                # Default channel and subject based on notification type
+                channel = "EMAIL"
+                subject = f"DCE Account Opening - {notification_type} - Case {case_id}"
+                body = f"Notification type: {notification_type} for case {case_id}. Please review in Agentic Workbench."
+
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa7_send_notification",
+                               "arguments": {"case_id": case_id,
+                                             "notification_type": notification_type,
+                                             "channel": channel,
+                                             "subject": subject,
+                                             "body": body}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    parsed = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    parsed = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    parsed["mcp_error"] = True
+                return {
+                    "notification_id": parsed.get("notification_id", ""),
+                    "delivery_status": parsed.get("delivery_status", "UNKNOWN"),
+                }
+          code_language: python3
+          desc: "Handle ad-hoc notifications: TASK_ASSIGNMENT, SLA_WARNING, ESCALATION, STATUS_UPDATE. Sends via sa7_send_notification."
+          outputs:
+            notification_id: {children: null, type: string}
+            delivery_status: {children: null, type: string}
+          title: "Ad-Hoc Handler"
+          type: code
+          variables:
+            - value_selector: ["7000000001", case_id]
+              variable: case_id
+            - value_selector: ["7000000001", mode]
+              variable: mode
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "7000000009"
+        position: {x: 500, y: 500}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 10: END — AD_HOC_SENT
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "Ad-hoc notification sent successfully. Returns notification_id and delivery_status."
+          outputs:
+            - type: string
+              value_selector: ["7000000009", notification_id]
+              variable: notification_id
+            - type: string
+              value_selector: ["7000000009", delivery_status]
+              variable: delivery_status
+          title: "END: AD_HOC_SENT"
+          type: end
+        id: "7000000010"
+        position: {x: 700, y: 500}
+        type: end
+
+      # ────────────────────────────────────────────────────
+      # Node 11: END — ERROR
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "Context validation failed — system validations did not all pass or context retrieval error. Case cannot proceed to Welcome Kit generation."
+          outputs:
+            - type: string
+              value_selector: ["7000000003", context_status]
+              variable: error_context_status
+            - type: string
+              value_selector: ["7000000003", context_json]
+              variable: error_detail
+          title: "END: ERROR"
+          type: end
+        id: "7000000011"
+        position: {x: 900, y: 400}
+        type: end

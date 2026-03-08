@@ -5,7 +5,7 @@
 | **Document Version** | 1.0.0 |
 | **Date** | 2026-03-04 |
 | **Scope** | SA-3 Signature Verification Agent (Node N-2) |
-| **Database** | MariaDB (DBS OpenShift) |
+| **Database** | MariaDB (ABS OpenShift) |
 | **Depends On** | SA-1 tables: `dce_ao_case_state`, `dce_ao_document_staged`, `dce_ao_rm_hierarchy`; SA-2 tables: `dce_ao_completeness_assessment` (N-1 completion triggers N-2) |
 | **Status** | Draft |
 
@@ -73,7 +73,7 @@ CREATE TABLE dce_ao_signature_verification (
 
 ### 1.2 `dce_ao_signature_specimen`
 
-**Purpose:** Stores metadata for approved signature specimens after COO Desk Support approval (Phase 2 — post-HITL). One row per approved signatory. The actual signature image is stored in MongoDB GridFS via the Signature Repository API (`POST /api/signatures`). The `mongodb_specimen_ref` column is the GridFS object ID. Specimens are permanent regulatory evidence required by MAS Notice SFA 02-N13, HKMA AML/CFT Guidelines, and DBS Internal Signature Verification Policy.
+**Purpose:** Stores metadata for approved signature specimens after COO Desk Support approval (Phase 2 — post-HITL). One row per approved signatory. The actual signature image is stored in MongoDB GridFS via the Signature Repository API (`POST /api/signatures`). The `mongodb_specimen_ref` column is the GridFS object ID. Specimens are permanent regulatory evidence required by MAS Notice SFA 02-N13, HKMA AML/CFT Guidelines, and ABS Internal Signature Verification Policy.
 
 ```sql
 CREATE TABLE dce_ao_signature_specimen (

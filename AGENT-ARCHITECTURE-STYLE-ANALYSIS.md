@@ -1,4 +1,4 @@
-# Agent Architecture Style Analysis: DCE Hub, DBS Bank Singapore
+# Agent Architecture Style Analysis: DCE Hub, ABS Bank Singapore
 
 ## Derivatives Clearing & Execution — Agentic AI Architecture Style Comparison
 
@@ -182,7 +182,7 @@ Weights are calibrated for a MAS-regulated derivatives clearing operation where 
 
 4. **Cross-process coordination requires agent-to-agent communication:** When a margin call requires coordination between the Credit Copilot (limit decisions), the Client Services Copilot (client notification), and the DCE Ops Copilot (position management), you need an ad-hoc orchestration layer. This is where persona-based architectures become accidental hybrid architectures — poorly.
 
-5. **Does not scale with organizational change:** If DBS restructures DCE personas (e.g., merging COO Desk Support and Client Services, or splitting TMO into two sub-teams), the entire agent architecture must be refactored. Process-based agents are indifferent to org chart changes.
+5. **Does not scale with organizational change:** If ABS restructures DCE personas (e.g., merging COO Desk Support and Client Services, or splitting TMO into two sub-teams), the entire agent architecture must be refactored. Process-based agents are indifferent to org chart changes.
 
 6. **Token and cost inefficiency:** Each persona copilot must maintain broad context about its persona's responsibilities across multiple processes. The Sales Dealer Copilot needs context on pipeline management, trade execution, client communication, and pricing — even when the user is only asking about one thing. This inflates token consumption and model costs.
 
@@ -281,9 +281,9 @@ Weights are calibrated for a MAS-regulated derivatives clearing operation where 
 
 | **Opportunities** | **Threats** |
 |---|---|
-| 1. Early wins with single-persona copilots can build organizational buy-in for broader AI adoption at DBS | 1. MAS audit finding: "Bank cannot produce a unified audit trail for account opening decisions" — regulatory risk |
+| 1. Early wins with single-persona copilots can build organizational buy-in for broader AI adoption at ABS | 1. MAS audit finding: "Bank cannot produce a unified audit trail for account opening decisions" — regulatory risk |
 | 2. Persona copilots could evolve into training tools for new DCE staff (learning from experienced users' patterns) | 2. A production incident where two persona agents give contradictory guidance on the same process (e.g., different margin call thresholds) |
-| 3. Natural extension point for DBS's broader digital workforce strategy | 3. Privilege escalation: compromised persona copilot with broad access becomes an attack vector across multiple systems |
+| 3. Natural extension point for ABS's broader digital workforce strategy | 3. Privilege escalation: compromised persona copilot with broad access becomes an attack vector across multiple systems |
 | 4. Could serve as a prototype/learning phase before migrating to hybrid | 4. Cost escalation: 10 agents each maintaining broad context = high token consumption at 15,000-25,000 trades/day volume |
 | 5. Persona agents can capture tacit knowledge that is currently lost during staff turnover in the 24-hour rotation | 5. Architecture becomes unmaintainable as DCE processes evolve — each change requires updating multiple persona agents |
 
@@ -302,9 +302,9 @@ Weights are calibrated for a MAS-regulated derivatives clearing operation where 
 
 | **Opportunities** | **Threats** |
 |---|---|
-| 1. Process agents can be reused across DBS business units beyond DCE (other trading desks, other clearing operations) | 1. User rejection: if adoption fails among the 60 DCE staff, the entire investment is wasted |
+| 1. Process agents can be reused across ABS business units beyond DCE (other trading desks, other clearing operations) | 1. User rejection: if adoption fails among the 60 DCE staff, the entire investment is wasted |
 | 2. Clean process boundaries enable future straight-through processing (STP) — full automation of low-risk processes | 2. Process decomposition errors discovered late: wrong boundaries require expensive re-architecture |
-| 3. Process agents become the foundation for DBS's enterprise AI platform | 3. Competitors (OCBC, UOB, international banks in Singapore) deploy persona-based copilots with better UX and poach DCE talent |
+| 3. Process agents become the foundation for ABS's enterprise AI platform | 3. Competitors (OCBC, UOB, international banks in Singapore) deploy persona-based copilots with better UX and poach DCE talent |
 | 4. Regulatory changes (new MAS requirements) are implemented once per process, not once per persona | 4. Over-engineering risk: building 10 process agents when the DCE team only uses 3 regularly |
 | 5. Process agents can be instrumented for comprehensive operational metrics (processing time, error rates, SLA compliance) | 5. The "cold start" problem for cross-cutting queries may lead to shadow workarounds (staff reverting to email/Excel) |
 
@@ -323,12 +323,12 @@ Weights are calibrated for a MAS-regulated derivatives clearing operation where 
 
 | **Opportunities** | **Threats** |
 |---|---|
-| 1. Becomes the reference architecture for agentic AI across DBS — DCE as the proving ground | 1. Over-engineering: if the two-tier architecture is more complex than DCE's actual needs justify |
+| 1. Becomes the reference architecture for agentic AI across ABS — DCE as the proving ground | 1. Over-engineering: if the two-tier architecture is more complex than DCE's actual needs justify |
 | 2. Persona copilots capture institutional knowledge; process agents enforce institutional rules — knowledge preservation at scale | 2. Team skill gap: building and maintaining a two-tier agent architecture requires deep MLOps/AI engineering talent |
-| 3. The thin-copilot pattern is portable: same process agents, different persona copilots for other DBS businesses | 3. Integration testing burden may slow release velocity in a business that needs rapid response to market changes |
+| 3. The thin-copilot pattern is portable: same process agents, different persona copilots for other ABS businesses | 3. Integration testing burden may slow release velocity in a business that needs rapid response to market changes |
 | 4. Phased deployment manages risk: if process agents underperform, persona copilots still provide value | 4. Vendor lock-in risk: the orchestration layer between tiers may become dependent on specific LLM provider capabilities |
 | 5. Natural path to Level 5 autonomy: process agents can be gradually given more autonomous decision-making authority while persona copilots maintain human-in-the-loop oversight | 5. Organizational confusion about ownership: who owns the persona copilot vs. the process agent when something goes wrong? |
-| 6. Positions DBS ahead of regulatory expectations: MAS is likely to publish AI governance guidelines that favor auditable, layered architectures | 6. If the DCE team is small (60 people) and adoption is strong, the complexity of hybrid may not be justified vs. pure process-based with a good UI layer |
+| 6. Positions ABS ahead of regulatory expectations: MAS is likely to publish AI governance guidelines that favor auditable, layered architectures | 6. If the DCE team is small (60 people) and adoption is strong, the complexity of hybrid may not be justified vs. pure process-based with a good UI layer |
 
 ---
 

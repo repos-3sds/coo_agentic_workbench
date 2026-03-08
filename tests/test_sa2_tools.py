@@ -93,7 +93,7 @@ def main():
         received_at="2026-03-03 09:00:00",
         rm_employee_id="RM-0800",
         email_message_id=f"TEST-SA2-MSG-{run_ts}",
-        sender_email="annie.ng@dbs.com",
+        sender_email="annie.ng@abs.com",
         email_subject=f"AO - TestFund Capital Partners (run {run_ts})",
         email_body_text=f"Please open a multi-product account for TestFund. Run {run_ts}.",
         attachments_count=3,
@@ -110,12 +110,12 @@ def main():
         kb_chunks_used='{"KB-1":["chunk-01"],"KB-9":["chunk-01"]}',
         flagged_for_review=False,
         rm_name="Annie Ng",
-        rm_email="annie.ng@dbs.com",
+        rm_email="annie.ng@abs.com",
         rm_branch="Private Banking SGP",
         rm_desk="DCE Sales Desk SGP",
         rm_manager_id="MGR-0400",
         rm_manager_name="Robert Tan",
-        rm_manager_email="robert.tan@dbs.com",
+        rm_manager_email="robert.tan@abs.com",
         rm_resolution_source="HR_SYSTEM",
     )
     TEST_CASE_ID = case_result.get("case_id")

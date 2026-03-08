@@ -4,7 +4,7 @@
     "account_type": "INSTITUTIONAL_FUTURES",
     "entity_type": "CORP",
     "product_codes": ["SGX", "CME", "HKEX"],
-    "rule_text": "Document checklist requirements for INSTITUTIONAL_FUTURES account opening in SGP jurisdiction for CORP entity type. Mandatory core set: AO form, Board Resolution, Certificate of Incorporation/ACRA profile, Constitution (or M&A), UBO declaration, authorised signatory list, directors IDs (minimum two signatories or approved signing matrix), GTA master, Risk Disclosure, FATCA/CRS self-certification, and bank account registration for settlement. Regulatory references include MAS SFA, MAS AML/CFT notices, and DBS internal market access controls. Any mismatch between AO form legal name and incorporation records is a hard-stop exception.",
+    "rule_text": "Document checklist requirements for INSTITUTIONAL_FUTURES account opening in SGP jurisdiction for CORP entity type. Mandatory core set: AO form, Board Resolution, Certificate of Incorporation/ACRA profile, Constitution (or M&A), UBO declaration, authorised signatory list, directors IDs (minimum two signatories or approved signing matrix), GTA master, Risk Disclosure, FATCA/CRS self-certification, and bank account registration for settlement. Regulatory references include MAS SFA, MAS AML/CFT notices, and ABS internal market access controls. Any mismatch between AO form legal name and incorporation records is a hard-stop exception.",
     "mandatory_documents": [
       "AO_FORM",
       "BOARD_RES",
@@ -24,7 +24,7 @@
       "MARGIN_ADDENDUM when margin financing requested"
     ],
     "completeness_gate": "All mandatory docs present, signed, and valid. Conditional docs required only if trigger condition met.",
-    "regulatory_basis": "MAS SFA; MAS AML/CFT; DBS T&M Account Opening Standards",
+    "regulatory_basis": "MAS SFA; MAS AML/CFT; ABS T&M Account Opening Standards",
     "risk_notes": "If UBO chain has unresolved ownership >25%, set retry_recommended=true and route HITL_RM."
   },
   {
@@ -79,7 +79,7 @@
       "EMIR_OR_EQUIVALENT_REPORTING_DISCLOSURE when cross-border OTC reporting obligations apply"
     ],
     "completeness_gate": "Legal framework docs must be internally consistent across GTA/ISDA/Board resolution.",
-    "regulatory_basis": "MAS OTC derivatives framework; MAS AML/CFT; DBS legal policy",
+    "regulatory_basis": "MAS OTC derivatives framework; MAS AML/CFT; ABS legal policy",
     "risk_notes": "LEI missing for reportable OTC trades is a hard fail with escalation to RM manager on retry 2."
   },
   {
@@ -104,7 +104,7 @@
       "CROSS_BORDER_ADDENDUM when booking center differs from client domicile"
     ],
     "completeness_gate": "All mandatory docs accepted; no rejected mandatory doc outstanding.",
-    "regulatory_basis": "HKMA SPM; SFC Code of Conduct; DBS cross-border policy",
+    "regulatory_basis": "HKMA SPM; SFC Code of Conduct; ABS cross-border policy",
     "risk_notes": "If jurisdictional addendum is missing while cross-border flag=true, keep next_node=HITL_RM."
   },
   {
@@ -151,7 +151,7 @@
       "SANCTIONS_OWNER_DECL for high-risk shipping corridors"
     ],
     "completeness_gate": "Mandatory commodity controls and enforceability docs must pass before N-2.",
-    "regulatory_basis": "DBS commodities risk policy; MAS AML/CFT cross-border controls",
+    "regulatory_basis": "ABS commodities risk policy; MAS AML/CFT cross-border controls",
     "risk_notes": "If translation quality is uncertain, set flagged_for_review=true and route HITL escalation."
   },
   {
@@ -175,7 +175,7 @@
       "LOCAL_COUNSEL_OPINION when enforceability risk is high"
     ],
     "completeness_gate": "UBO and sponsor accountability controls are mandatory regardless of product mix.",
-    "regulatory_basis": "MAS AML/CFT risk-based approach; DBS jurisdictional risk framework",
+    "regulatory_basis": "MAS AML/CFT risk-based approach; ABS jurisdictional risk framework",
     "risk_notes": "Any unresolved nominee ownership structure requires manual review."
   },
   {
@@ -195,7 +195,7 @@
       "ACCREDITED_INV_DECL if client requests treatment for complex products"
     ],
     "completeness_gate": "All mandatory docs accepted and suitability control satisfied.",
-    "regulatory_basis": "MAS SFA SIP/CKA obligations; DBS retail derivatives control standard",
+    "regulatory_basis": "MAS SFA SIP/CKA obligations; ABS retail derivatives control standard",
     "risk_notes": "Suitability uncertainty requires HITL_RM, not auto-accept."
   }
 ]

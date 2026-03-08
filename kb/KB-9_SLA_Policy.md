@@ -8,7 +8,7 @@
 | **Version** | 1.0.0 |
 | **Effective Date** | 2026-03-01 |
 | **Owner** | DCE Operations — Service Level Management |
-| **Classification** | DBS Internal — Restricted |
+| **Classification** | ABS Internal — Restricted |
 | **Used By** | All nodes (N-0 through N-8), Domain Orchestrator |
 | **Chunk Size** | 500 tokens |
 | **Chunk Overlap** | 50 tokens |

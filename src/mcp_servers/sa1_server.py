@@ -670,7 +670,7 @@ def sa1_notify_stakeholders(
             "notification_type": "CASE_CREATED",
             "channel": "EMAIL",
             "recipient_id": "RM-0042",
-            "recipient_email": "rm.john@dbs.com",
+            "recipient_email": "rm.john@abs.com",
             "recipient_role": "RM",
             "subject": "[AO-2026-000101] Case Created",
             "body_summary": "Your DCE Account Opening case...",
@@ -1064,7 +1064,7 @@ def sa2_get_document_checklist(
                     case_id, attempt, account_type, jurisdiction,
                     entity_type, products_requested, "KB2-v3.1",
                     len(mandatory), len(optional),
-                    f"MAS/HKMA AML/CFT; Companies Act; DBS Internal Policy",
+                    f"MAS/HKMA AML/CFT; Companies Act; ABS Internal Policy",
                     now, SA2_AGENT_MODEL, kb_context[:2000] if kb_context else "{}",
                 ),
             )
@@ -1082,7 +1082,7 @@ def sa2_get_document_checklist(
                     (
                         checklist_id, case_id, doc_code,
                         _DOC_NAMES.get(doc_code, doc_code),
-                        "MANDATORY", "MAS/HKMA/DBS Policy",
+                        "MANDATORY", "MAS/HKMA/ABS Policy",
                         '["PDF"]', "UNMATCHED",
                     ),
                 )
@@ -1104,7 +1104,7 @@ def sa2_get_document_checklist(
                     (
                         checklist_id, case_id, doc_code,
                         _DOC_NAMES.get(doc_code, doc_code),
-                        "OPTIONAL", "DBS Policy",
+                        "OPTIONAL", "ABS Policy",
                         '["PDF"]', "UNMATCHED",
                     ),
                 )
@@ -1253,7 +1253,7 @@ def sa2_extract_document_metadata(
                 "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                 (
                     doc_id, case_id, detected, confidence,
-                    f"[Mock OCR] File: {filename}", "DBS Bank Ltd",
+                    f"[Mock OCR] File: {filename}", "ABS Bank Ltd",
                     "EN", 1, False, confidence < 0.80,
                     "azure-document-intelligence-v4", 1500, now,
                 ),
@@ -1269,7 +1269,7 @@ def sa2_extract_document_metadata(
             "detected_doc_type": detected,
             "confidence_score": confidence,
             "extracted_text": f"[Mock OCR] File: {filename}",
-            "issuing_authority": "DBS Bank Ltd",
+            "issuing_authority": "ABS Bank Ltd",
             "issue_date": None,
             "expiry_date": None,
             "signatory_names": [],

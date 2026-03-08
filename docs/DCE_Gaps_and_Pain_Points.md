@@ -2,7 +2,7 @@
 
 ## Cross-Referenced from COO Operations Perspective and AI Solution Architecture Perspective
 
-**Organisation:** DBS Bank — Treasury & Markets, Derivatives & Commodities Execution (DCE) Desk
+**Organisation:** ABS Bank — Treasury & Markets, Derivatives & Commodities Execution (DCE) Desk
 **Purpose:** Consolidated gap analysis to inform final agentic solution design
 **Sources:** DCE_COO_Agenticguide.md (COO Perspective) | DCE_TOBE_Process.md (Technical Perspective)
 **Date:** 2026-03-02
@@ -182,7 +182,7 @@ Gaps are grouped into **9 logical categories** reflecting distinct operational a
 | 9.2 | **No AI gateway or agent runtime exists** — the agentic solution requires an AI platform (proposed: Dify + Python MCP agents) that does not exist today | Technical | LLM-powered agents for document classification, signature verification, and data extraction require an AI gateway with model routing, auth, logging, and tool orchestration. This infrastructure must be established. | **P1** | **2** Account Opening *(foundation for all use cases)* |
 | 9.3 | **No event-driven infrastructure (Kafka)** — inter-agent and inter-system communication via events requires a message bus that does not exist | Technical | Without Kafka (or equivalent), there is no mechanism for real-time event publishing, subscription, or consumption between agents and downstream systems. | **P2** | **2** Account Opening *(foundation for all use cases)* |
 | 9.4 | **No centralised document repository with API** — replacing SharePoint with a structured, API-accessible document store (proposed: MongoDB) is a prerequisite | Both | The DI Agent, Signature Verification Agent, and all human workbench views require programmatic access to documents with metadata, versioning, and case linkage. | **P2** | **2** Account Opening *(foundation for all use cases)* |
-| 9.5 | **No OpenShift or private cloud deployment environment confirmed** — the solution must run entirely within DBS internal infrastructure (non-negotiable per both documents) | Technical | Infrastructure provisioning, security approvals, and deployment pipeline setup are prerequisites that carry lead time. | **P3** | **2** Account Opening *(foundation for all use cases)* |
+| 9.5 | **No OpenShift or private cloud deployment environment confirmed** — the solution must run entirely within ABS internal infrastructure (non-negotiable per both documents) | Technical | Infrastructure provisioning, security approvals, and deployment pipeline setup are prerequisites that carry lead time. | **P3** | **2** Account Opening *(foundation for all use cases)* |
 | 9.6 | **Phase numbering and agent naming differ between COO and Technical perspectives** — the COO guide defines 5 phases and 6 agents; the Technical blueprint defines 8 phases (0–7) and 7 agents | Both | Before development begins, a single unified process model must be agreed upon. The two documents are largely aligned in substance but differ in structure, which will cause confusion if not reconciled. | **P3** | **2** Account Opening |
 
 ---

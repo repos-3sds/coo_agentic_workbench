@@ -2,7 +2,7 @@
 
 ## Full-Scale End-to-End Agentic Solution Model
 
-**Organisation:** DBS Bank — Treasury & Markets, Derivatives & Commodities Execution (DCE) Desk
+**Organisation:** ABS Bank — Treasury & Markets, Derivatives & Commodities Execution (DCE) Desk
 **Document Purpose:** Future state process design for agentic AI solution
 **Foundation:** DCE_Current_Process.md (Discovery Document)
 **Last Updated:** 2026-02-28
@@ -366,7 +366,7 @@ A1 (Orchestrator Agent)
 
 CREDIT TEAM (Agentic Workbench — Credit View)
   ├─ Reviews RM recommendations
-  ├─ Customer Segment Info (DBS Related Account, Owner Code, Segment details)
+  ├─ Customer Segment Info (ABS Related Account, Owner Code, Segment details)
   ├─ Current Borrowings review (L&B)
   │
   ├─ Assigns DCE Limit + DCE-PCE Limit:
@@ -409,7 +409,7 @@ A1 (Orchestrator Agent)
 TMO STATIC (Agentic Workbench — TMO Static View)
   ├─ Reviews pre-populated account details:
   │   ├─ Entity Type, Name, NRIC/Tax ID, Job Title, Birth Date
-  │   ├─ Account Name (DBS CIN Code), Date Open, Account Type
+  │   ├─ Account Name (ABS CIN Code), Date Open, Account Type
   │   ├─ PMM, Offset Method, Default Currency (USD), Trading Platform
   │   └─ Account Holders
   │
@@ -782,7 +782,7 @@ Level 4: Dashboard-level visibility — case flagged RED across all views
 | 2 | **Single email entry point** | A2 monitors functional Outlook/Exchange inbox — auto-ingests and classifies |
 | 3 | **Architecture for extensibility** | Agent registry, MCP tools, Kafka event bus all designed to extend to all 6 business areas |
 | 4 | **Audit-ready by design** | A6 (Audit Agent) logs every action across all agents and human decisions |
-| 5 | **Private cloud only** | All components deployed on OpenShift within DBS internal environment |
+| 5 | **Private cloud only** | All components deployed on OpenShift within ABS internal environment |
 | 6 | **AI assists, human decides** | Every critical decision (signatures, approvals, limits) has human final authority |
 | 7 | **North Star driven** | Every design choice optimises for: "No customer misses a market opportunity because their account isn't open" |
 | 8 | **Zero coordination overhead** | Orchestrator Agent eliminates email chains — work is routed, tracked, and escalated automatically |

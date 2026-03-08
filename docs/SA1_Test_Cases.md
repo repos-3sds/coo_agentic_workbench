@@ -142,13 +142,13 @@ ORDER BY started_at DESC LIMIT 5;
 
 | RM ID | Name | Email | Branch | Desk | Manager ID | Manager Name | Manager Email |
 |---|---|---|---|---|---|---|---|
-| RM-0042 | John Tan | rm.john@dbs.com | Marina Bay Financial Centre | DCE Sales Desk SGP | MGR-0012 | Sarah Lim | sarah.lim@dbs.com |
-| RM-0055 | (Lee) | rm.lee@dbs.com | — | — | — | — | — |
+| RM-0042 | John Tan | rm.john@abs.com | Marina Bay Financial Centre | DCE Sales Desk SGP | MGR-0012 | Sarah Lim | sarah.lim@abs.com |
+| RM-0055 | (Lee) | rm.lee@abs.com | — | — | — | — | — |
 | RM-0073 | — | — | — | DCE Sales Desk SGP | — | — | — |
-| RM-0091 | — | rm.chan@dbs.com | — | — | — | — | — |
-| RM-0118 | David Wong | david.wong@dbs.com | Central HK Branch | DCE Sales Desk HKG | MGR-0045 | Michael Chan | michael.chan@dbs.com |
-| RM-0134 | Annie | rm.annie@dbs.com | — | — | — | — | — |
-| RM-9999 | INVALID | unknown@dbs.com | N/A — not in HR system | N/A | N/A | N/A | N/A |
+| RM-0091 | — | rm.chan@abs.com | — | — | — | — | — |
+| RM-0118 | David Wong | david.wong@abs.com | Central HK Branch | DCE Sales Desk HKG | MGR-0045 | Michael Chan | michael.chan@abs.com |
+| RM-0134 | Annie | rm.annie@abs.com | — | — | — | — | — |
+| RM-9999 | INVALID | unknown@abs.com | N/A — not in HR system | N/A | N/A | N/A | N/A |
 
 ### Existing Cases (from DB Seed — do not recreate in test)
 
@@ -223,7 +223,7 @@ These test cases validate the end-to-end success path for all five account types
 | Field | Value |
 |---|---|
 | submission_source | EMAIL |
-| raw_payload_json | `{"email_message_id":"MSG-TC001-001","sender_email":"rm.john@dbs.com","subject":"URGENT: New DCE Account Opening - XYZ Futures Trading Pte Ltd - Institutional Futures SGP","body_text":"Dear DCE Team, Please urgently initiate AO for XYZ Futures Trading Pte Ltd. Corporate entity, SGP domiciled. Client requests SGX and CME futures trading. Regulatory reporting deadline is approaching within 48h. Board resolution and corporate profile attached. Regards, John Tan RM-0042","attachments":[{"filename":"AO_Form_Signed.pdf","size_bytes":245760},{"filename":"Board_Resolution.pdf","size_bytes":102400}]}` |
+| raw_payload_json | `{"email_message_id":"MSG-TC001-001","sender_email":"rm.john@abs.com","subject":"URGENT: New DCE Account Opening - XYZ Futures Trading Pte Ltd - Institutional Futures SGP","body_text":"Dear DCE Team, Please urgently initiate AO for XYZ Futures Trading Pte Ltd. Corporate entity, SGP domiciled. Client requests SGX and CME futures trading. Regulatory reporting deadline is approaching within 48h. Board resolution and corporate profile attached. Regards, John Tan RM-0042","attachments":[{"filename":"AO_Form_Signed.pdf","size_bytes":245760},{"filename":"Board_Resolution.pdf","size_bytes":102400}]}` |
 | received_at | 2026-03-03 09:00:00 |
 | rm_employee_id | RM-0042 |
 | case_id | (empty) |
@@ -257,7 +257,7 @@ These test cases validate the end-to-end success path for all five account types
 curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
   -H "Authorization: Bearer {{API_KEY}}" \
   -H "Content-Type: application/json" \
-  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC001-001\",\"sender_email\":\"rm.john@dbs.com\",\"subject\":\"URGENT: New DCE Account Opening - XYZ Futures Trading Pte Ltd - Institutional Futures SGP\",\"body_text\":\"Dear DCE Team, Please urgently initiate AO for XYZ Futures Trading Pte Ltd. Corporate entity, SGP domiciled. Client requests SGX and CME futures trading. Regulatory reporting deadline is approaching within 48h. Board resolution and corporate profile attached. Regards, John Tan RM-0042\",\"attachments\":[{\"filename\":\"AO_Form_Signed.pdf\",\"size_bytes\":245760},{\"filename\":\"Board_Resolution.pdf\",\"size_bytes\":102400}]}","received_at":"2026-03-03 09:00:00","rm_employee_id":"RM-0042","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
+  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC001-001\",\"sender_email\":\"rm.john@abs.com\",\"subject\":\"URGENT: New DCE Account Opening - XYZ Futures Trading Pte Ltd - Institutional Futures SGP\",\"body_text\":\"Dear DCE Team, Please urgently initiate AO for XYZ Futures Trading Pte Ltd. Corporate entity, SGP domiciled. Client requests SGX and CME futures trading. Regulatory reporting deadline is approaching within 48h. Board resolution and corporate profile attached. Regards, John Tan RM-0042\",\"attachments\":[{\"filename\":\"AO_Form_Signed.pdf\",\"size_bytes\":245760},{\"filename\":\"Board_Resolution.pdf\",\"size_bytes\":102400}]}","received_at":"2026-03-03 09:00:00","rm_employee_id":"RM-0042","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
 ```
 
 ---
@@ -321,7 +321,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 **Objective:** Verify that a well-formed API submission for a Singapore corporate entity (default/else routing path in Source Router) is normalised via the API Normaliser and correctly classified as INSTITUTIONAL_FUTURES.
 
 **Preconditions:**
-- RM-0091 (rm.chan@dbs.com) is a valid RM.
+- RM-0091 (rm.chan@abs.com) is a valid RM.
 - API source triggers the `false` branch (else) of the Source Router if-else node.
 
 **Input:**
@@ -372,7 +372,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 **Objective:** Verify that an email submission for a Singapore individual retail client requesting personal futures trading is classified as RETAIL_FUTURES with STANDARD priority, and the entity type is correctly identified as INDIVIDUAL.
 
 **Preconditions:**
-- RM-0134 (rm.annie@dbs.com) is a valid RM.
+- RM-0134 (rm.annie@abs.com) is a valid RM.
 - NRIC/passport reference in email body should trigger INDIVIDUAL entity classification.
 
 **Input:**
@@ -380,7 +380,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 | Field | Value |
 |---|---|
 | submission_source | EMAIL |
-| raw_payload_json | `{"email_message_id":"MSG-TC004-001","sender_email":"rm.annie@dbs.com","subject":"New DCE Retail AO - Chen Wei Jian - Individual SGP Futures","body_text":"Dear DCE Team, Please initiate retail futures account for Chen Wei Jian, Singapore citizen (NRIC S8812345A). Individual client, personal investment account. Interested in SGX futures trading. Risk disclosure signed. AO form and NRIC copy attached.","attachments":[{"filename":"AO_Form_Individual.pdf","size_bytes":184320},{"filename":"NRIC_ChenWeiJian.pdf","size_bytes":61440}]}` |
+| raw_payload_json | `{"email_message_id":"MSG-TC004-001","sender_email":"rm.annie@abs.com","subject":"New DCE Retail AO - Chen Wei Jian - Individual SGP Futures","body_text":"Dear DCE Team, Please initiate retail futures account for Chen Wei Jian, Singapore citizen (NRIC S8812345A). Individual client, personal investment account. Interested in SGX futures trading. Risk disclosure signed. AO form and NRIC copy attached.","attachments":[{"filename":"AO_Form_Individual.pdf","size_bytes":184320},{"filename":"NRIC_ChenWeiJian.pdf","size_bytes":61440}]}` |
 | received_at | 2026-03-03 09:30:00 |
 | rm_employee_id | RM-0134 |
 | case_id | (empty) |
@@ -411,7 +411,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
   -H "Authorization: Bearer {{API_KEY}}" \
   -H "Content-Type: application/json" \
-  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC004-001\",\"sender_email\":\"rm.annie@dbs.com\",\"subject\":\"New DCE Retail AO - Chen Wei Jian - Individual SGP Futures\",\"body_text\":\"Dear DCE Team, Please initiate retail futures account for Chen Wei Jian, Singapore citizen (NRIC S8812345A). Individual client, personal investment account. Interested in SGX futures trading. Risk disclosure signed. AO form and NRIC copy attached.\",\"attachments\":[{\"filename\":\"AO_Form_Individual.pdf\",\"size_bytes\":184320},{\"filename\":\"NRIC_ChenWeiJian.pdf\",\"size_bytes\":61440}]}","received_at":"2026-03-03 09:30:00","rm_employee_id":"RM-0134","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
+  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC004-001\",\"sender_email\":\"rm.annie@abs.com\",\"subject\":\"New DCE Retail AO - Chen Wei Jian - Individual SGP Futures\",\"body_text\":\"Dear DCE Team, Please initiate retail futures account for Chen Wei Jian, Singapore citizen (NRIC S8812345A). Individual client, personal investment account. Interested in SGX futures trading. Risk disclosure signed. AO form and NRIC copy attached.\",\"attachments\":[{\"filename\":\"AO_Form_Individual.pdf\",\"size_bytes\":184320},{\"filename\":\"NRIC_ChenWeiJian.pdf\",\"size_bytes\":61440}]}","received_at":"2026-03-03 09:30:00","rm_employee_id":"RM-0134","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
 ```
 
 ---
@@ -528,7 +528,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 | Field | Value |
 |---|---|
 | submission_source | EMAIL |
-| raw_payload_json | `{"email_message_id":"MSG-TC007-001","sender_email":"rm.john@dbs.com","subject":"URGENT: OTC Derivatives AO - Northstar Capital SGP - Counterparty Deadline","body_text":"Dear DCE Team, Please initiate OTC derivatives account for Northstar Capital Pte Ltd. Corporate entity, SGP domiciled. Client requires IRS and CCS capability under ISDA Master. Counterparty (Goldman Sachs) has imposed a 24h deadline for GTA Schedule 9 execution. GTA and board docs attached. Regards, John Tan RM-0042","attachments":[{"filename":"GTA_Schedule9_Draft.pdf","size_bytes":307200},{"filename":"Board_Resolution.pdf","size_bytes":102400},{"filename":"ISDA_Master_Signed.pdf","size_bytes":450560}]}` |
+| raw_payload_json | `{"email_message_id":"MSG-TC007-001","sender_email":"rm.john@abs.com","subject":"URGENT: OTC Derivatives AO - Northstar Capital SGP - Counterparty Deadline","body_text":"Dear DCE Team, Please initiate OTC derivatives account for Northstar Capital Pte Ltd. Corporate entity, SGP domiciled. Client requires IRS and CCS capability under ISDA Master. Counterparty (Goldman Sachs) has imposed a 24h deadline for GTA Schedule 9 execution. GTA and board docs attached. Regards, John Tan RM-0042","attachments":[{"filename":"GTA_Schedule9_Draft.pdf","size_bytes":307200},{"filename":"Board_Resolution.pdf","size_bytes":102400},{"filename":"ISDA_Master_Signed.pdf","size_bytes":450560}]}` |
 | received_at | 2026-03-03 08:00:00 |
 | rm_employee_id | RM-0042 |
 | case_id | (empty) |
@@ -558,7 +558,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
   -H "Authorization: Bearer {{API_KEY}}" \
   -H "Content-Type: application/json" \
-  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC007-001\",\"sender_email\":\"rm.john@dbs.com\",\"subject\":\"URGENT: OTC Derivatives AO - Northstar Capital SGP - Counterparty Deadline\",\"body_text\":\"Dear DCE Team, Please initiate OTC derivatives account for Northstar Capital Pte Ltd. Corporate entity, SGP domiciled. Client requires IRS and CCS capability under ISDA Master. Counterparty (Goldman Sachs) has imposed a 24h deadline for GTA Schedule 9 execution. GTA and board docs attached. Regards, John Tan RM-0042\",\"attachments\":[{\"filename\":\"GTA_Schedule9_Draft.pdf\",\"size_bytes\":307200},{\"filename\":\"Board_Resolution.pdf\",\"size_bytes\":102400},{\"filename\":\"ISDA_Master_Signed.pdf\",\"size_bytes\":450560}]}","received_at":"2026-03-03 08:00:00","rm_employee_id":"RM-0042","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
+  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC007-001\",\"sender_email\":\"rm.john@abs.com\",\"subject\":\"URGENT: OTC Derivatives AO - Northstar Capital SGP - Counterparty Deadline\",\"body_text\":\"Dear DCE Team, Please initiate OTC derivatives account for Northstar Capital Pte Ltd. Corporate entity, SGP domiciled. Client requires IRS and CCS capability under ISDA Master. Counterparty (Goldman Sachs) has imposed a 24h deadline for GTA Schedule 9 execution. GTA and board docs attached. Regards, John Tan RM-0042\",\"attachments\":[{\"filename\":\"GTA_Schedule9_Draft.pdf\",\"size_bytes\":307200},{\"filename\":\"Board_Resolution.pdf\",\"size_bytes\":102400},{\"filename\":\"ISDA_Master_Signed.pdf\",\"size_bytes\":450560}]}","received_at":"2026-03-03 08:00:00","rm_employee_id":"RM-0042","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
 ```
 
 ---
@@ -570,7 +570,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 **Objective:** Verify that a PORTAL submission for an SPV entity with OTC hedging mandate in a non-standard jurisdiction (OTHER) is correctly classified as OTC_DERIVATIVES, with jurisdiction set to OTHER and enhanced due diligence flags noted in the reasoning.
 
 **Preconditions:**
-- RM-0055 (rm.lee@dbs.com) is a valid RM.
+- RM-0055 (rm.lee@abs.com) is a valid RM.
 - Payload contains SPV entity type and OTC hedging product signals.
 
 **Input:**
@@ -619,7 +619,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 **Objective:** Verify that an API submission for a Hong Kong corporate entity with explicit OTC derivatives product scope is classified correctly, exercising the API Normaliser path for OTC accounts.
 
 **Preconditions:**
-- RM-0091 (rm.chan@dbs.com) is a valid RM.
+- RM-0091 (rm.chan@abs.com) is a valid RM.
 
 **Input:**
 
@@ -666,7 +666,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 **Objective:** Verify that an email submission for a PRC corporate entity with explicit physical commodity delivery and warehouse language (matching KB-1 CHN/CORP pattern for COMMODITIES_PHYSICAL) is classified correctly with CHN jurisdiction.
 
 **Preconditions:**
-- RM-0055 (rm.lee@dbs.com) is a valid RM with Chinese client book.
+- RM-0055 (rm.lee@abs.com) is a valid RM with Chinese client book.
 - Email body contains warehouse, delivery, and physical settlement signals.
 
 **Input:**
@@ -674,7 +674,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 | Field | Value |
 |---|---|
 | submission_source | EMAIL |
-| raw_payload_json | `{"email_message_id":"MSG-TC010-001","sender_email":"rm.lee@dbs.com","subject":"New DCE AO - Huatai Energy Resources Corp - Commodities Physical CHN","body_text":"Dear DCE Team, Please initiate physical commodities account for Huatai Energy Resources Corp. PRC entity, CHN jurisdiction. Client requires physical delivery of base metals and energy commodities. Warehouse agreement attached, delivery instructions and GTA Schedule 10 to follow. English translations of PRC corporate docs attached.","attachments":[{"filename":"Cert_Incorp_Huatai_EN.pdf","size_bytes":307200},{"filename":"Warehouse_Agreement_Draft.pdf","size_bytes":204800}]}` |
+| raw_payload_json | `{"email_message_id":"MSG-TC010-001","sender_email":"rm.lee@abs.com","subject":"New DCE AO - Huatai Energy Resources Corp - Commodities Physical CHN","body_text":"Dear DCE Team, Please initiate physical commodities account for Huatai Energy Resources Corp. PRC entity, CHN jurisdiction. Client requires physical delivery of base metals and energy commodities. Warehouse agreement attached, delivery instructions and GTA Schedule 10 to follow. English translations of PRC corporate docs attached.","attachments":[{"filename":"Cert_Incorp_Huatai_EN.pdf","size_bytes":307200},{"filename":"Warehouse_Agreement_Draft.pdf","size_bytes":204800}]}` |
 | received_at | 2026-03-03 11:00:00 |
 | rm_employee_id | RM-0055 |
 | case_id | (empty) |
@@ -704,7 +704,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
   -H "Authorization: Bearer {{API_KEY}}" \
   -H "Content-Type: application/json" \
-  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC010-001\",\"sender_email\":\"rm.lee@dbs.com\",\"subject\":\"New DCE AO - Huatai Energy Resources Corp - Commodities Physical CHN\",\"body_text\":\"Dear DCE Team, Please initiate physical commodities account for Huatai Energy Resources Corp. PRC entity, CHN jurisdiction. Client requires physical delivery of base metals and energy commodities. Warehouse agreement attached, delivery instructions and GTA Schedule 10 to follow. English translations of PRC corporate docs attached.\",\"attachments\":[{\"filename\":\"Cert_Incorp_Huatai_EN.pdf\",\"size_bytes\":307200},{\"filename\":\"Warehouse_Agreement_Draft.pdf\",\"size_bytes\":204800}]}","received_at":"2026-03-03 11:00:00","rm_employee_id":"RM-0055","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
+  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC010-001\",\"sender_email\":\"rm.lee@abs.com\",\"subject\":\"New DCE AO - Huatai Energy Resources Corp - Commodities Physical CHN\",\"body_text\":\"Dear DCE Team, Please initiate physical commodities account for Huatai Energy Resources Corp. PRC entity, CHN jurisdiction. Client requires physical delivery of base metals and energy commodities. Warehouse agreement attached, delivery instructions and GTA Schedule 10 to follow. English translations of PRC corporate docs attached.\",\"attachments\":[{\"filename\":\"Cert_Incorp_Huatai_EN.pdf\",\"size_bytes\":307200},{\"filename\":\"Warehouse_Agreement_Draft.pdf\",\"size_bytes\":204800}]}","received_at":"2026-03-03 11:00:00","rm_employee_id":"RM-0055","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
 ```
 
 ---
@@ -820,7 +820,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 | Field | Value |
 |---|---|
 | submission_source | EMAIL |
-| raw_payload_json | `{"email_message_id":"MSG-TC013-001","sender_email":"rm.client@dbs.com","subject":"URGENT: Multi-Product DCE AO - Eastbourne Capital Fund LP - Strategic Go-Live Deadline","body_text":"Dear DCE Team, Please initiate multi-product account for Eastbourne Capital Fund LP. SGP-domiciled fund. Client requires: (1) SGX futures and options trading, (2) OTC derivatives including IRS and FX forwards under ISDA, (3) physical commodities with warehouse delivery. Strategic client with multiple product enablement deadline of 2026-03-05. PPM and IMA attached.","attachments":[{"filename":"Fund_PPM_Eastbourne.pdf","size_bytes":512000},{"filename":"Fund_IMA_Eastbourne.pdf","size_bytes":307200}]}` |
+| raw_payload_json | `{"email_message_id":"MSG-TC013-001","sender_email":"rm.client@abs.com","subject":"URGENT: Multi-Product DCE AO - Eastbourne Capital Fund LP - Strategic Go-Live Deadline","body_text":"Dear DCE Team, Please initiate multi-product account for Eastbourne Capital Fund LP. SGP-domiciled fund. Client requires: (1) SGX futures and options trading, (2) OTC derivatives including IRS and FX forwards under ISDA, (3) physical commodities with warehouse delivery. Strategic client with multiple product enablement deadline of 2026-03-05. PPM and IMA attached.","attachments":[{"filename":"Fund_PPM_Eastbourne.pdf","size_bytes":512000},{"filename":"Fund_IMA_Eastbourne.pdf","size_bytes":307200}]}` |
 | received_at | 2026-03-03 09:00:00 |
 | rm_employee_id | RM-0073 |
 | case_id | (empty) |
@@ -851,7 +851,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
   -H "Authorization: Bearer {{API_KEY}}" \
   -H "Content-Type: application/json" \
-  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC013-001\",\"sender_email\":\"rm.client@dbs.com\",\"subject\":\"URGENT: Multi-Product DCE AO - Eastbourne Capital Fund LP - Strategic Go-Live Deadline\",\"body_text\":\"Dear DCE Team, Please initiate multi-product account for Eastbourne Capital Fund LP. SGP-domiciled fund. Client requires: (1) SGX futures and options trading, (2) OTC derivatives including IRS and FX forwards under ISDA, (3) physical commodities with warehouse delivery. Strategic client with multiple product enablement deadline of 2026-03-05. PPM and IMA attached.\",\"attachments\":[{\"filename\":\"Fund_PPM_Eastbourne.pdf\",\"size_bytes\":512000},{\"filename\":\"Fund_IMA_Eastbourne.pdf\",\"size_bytes\":307200}]}","received_at":"2026-03-03 09:00:00","rm_employee_id":"RM-0073","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
+  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC013-001\",\"sender_email\":\"rm.client@abs.com\",\"subject\":\"URGENT: Multi-Product DCE AO - Eastbourne Capital Fund LP - Strategic Go-Live Deadline\",\"body_text\":\"Dear DCE Team, Please initiate multi-product account for Eastbourne Capital Fund LP. SGP-domiciled fund. Client requires: (1) SGX futures and options trading, (2) OTC derivatives including IRS and FX forwards under ISDA, (3) physical commodities with warehouse delivery. Strategic client with multiple product enablement deadline of 2026-03-05. PPM and IMA attached.\",\"attachments\":[{\"filename\":\"Fund_PPM_Eastbourne.pdf\",\"size_bytes\":512000},{\"filename\":\"Fund_IMA_Eastbourne.pdf\",\"size_bytes\":307200}]}","received_at":"2026-03-03 09:00:00","rm_employee_id":"RM-0073","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
 ```
 
 ---
@@ -973,7 +973,7 @@ These test cases exercise boundary conditions and exceptional input scenarios th
 | Field | Value |
 |---|---|
 | submission_source | EMAIL |
-| raw_payload_json | `{"email_message_id":"MSG-TC016-001","sender_email":"rm.john@dbs.com","subject":"AO Request - Vague Corp","body_text":"Hi, please open a derivatives trading account for Vague Corp. Thanks.","attachments":[]}` |
+| raw_payload_json | `{"email_message_id":"MSG-TC016-001","sender_email":"rm.john@abs.com","subject":"AO Request - Vague Corp","body_text":"Hi, please open a derivatives trading account for Vague Corp. Thanks.","attachments":[]}` |
 | received_at | 2026-03-03 10:00:00 |
 | rm_employee_id | RM-0042 |
 | case_id | (empty) |
@@ -999,7 +999,7 @@ These test cases exercise boundary conditions and exceptional input scenarios th
 curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
   -H "Authorization: Bearer {{API_KEY}}" \
   -H "Content-Type: application/json" \
-  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC016-001\",\"sender_email\":\"rm.john@dbs.com\",\"subject\":\"AO Request - Vague Corp\",\"body_text\":\"Hi, please open a derivatives trading account for Vague Corp. Thanks.\",\"attachments\":[]}","received_at":"2026-03-03 10:00:00","rm_employee_id":"RM-0042","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
+  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC016-001\",\"sender_email\":\"rm.john@abs.com\",\"subject\":\"AO Request - Vague Corp\",\"body_text\":\"Hi, please open a derivatives trading account for Vague Corp. Thanks.\",\"attachments\":[]}","received_at":"2026-03-03 10:00:00","rm_employee_id":"RM-0042","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
 ```
 
 ---
@@ -1019,7 +1019,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 | Field | Value |
 |---|---|
 | submission_source | EMAIL |
-| raw_payload_json | `{"sender_email":"david.wong@dbs.com","body_text":"Please open institutional futures account for Atlas Trading Corp. SGP entity. Board docs to follow."}` |
+| raw_payload_json | `{"sender_email":"david.wong@abs.com","body_text":"Please open institutional futures account for Atlas Trading Corp. SGP entity. Board docs to follow."}` |
 | received_at | 2026-03-03 11:00:00 |
 | rm_employee_id | RM-0118 |
 | case_id | (empty) |
@@ -1048,7 +1048,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
   -H "Authorization: Bearer {{API_KEY}}" \
   -H "Content-Type: application/json" \
-  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"sender_email\":\"david.wong@dbs.com\",\"body_text\":\"Please open institutional futures account for Atlas Trading Corp. SGP entity. Board docs to follow.\"}","received_at":"2026-03-03 11:00:00","rm_employee_id":"RM-0118","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
+  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"sender_email\":\"david.wong@abs.com\",\"body_text\":\"Please open institutional futures account for Atlas Trading Corp. SGP entity. Board docs to follow.\"}","received_at":"2026-03-03 11:00:00","rm_employee_id":"RM-0118","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
 ```
 
 ---
@@ -1068,7 +1068,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 | Field | Value |
 |---|---|
 | submission_source | EMAIL |
-| raw_payload_json | `{"email_message_id":"MSG-TC018-001","sender_email":"unknown@dbs.com","subject":"AO Request - New Individual Client","body_text":"Please open retail futures account for Lim Ah Kow. Individual client, Singapore resident.","attachments":[{"filename":"NRIC_LimAhKow.pdf","size_bytes":61440}]}` |
+| raw_payload_json | `{"email_message_id":"MSG-TC018-001","sender_email":"unknown@abs.com","subject":"AO Request - New Individual Client","body_text":"Please open retail futures account for Lim Ah Kow. Individual client, Singapore resident.","attachments":[{"filename":"NRIC_LimAhKow.pdf","size_bytes":61440}]}` |
 | received_at | 2026-03-03 10:00:00 |
 | rm_employee_id | RM-9999 |
 | case_id | (empty) |
@@ -1094,7 +1094,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
   -H "Authorization: Bearer {{API_KEY}}" \
   -H "Content-Type: application/json" \
-  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC018-001\",\"sender_email\":\"unknown@dbs.com\",\"subject\":\"AO Request - New Individual Client\",\"body_text\":\"Please open retail futures account for Lim Ah Kow. Individual client, Singapore resident.\",\"attachments\":[{\"filename\":\"NRIC_LimAhKow.pdf\",\"size_bytes\":61440}]}","received_at":"2026-03-03 10:00:00","rm_employee_id":"RM-9999","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
+  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC018-001\",\"sender_email\":\"unknown@abs.com\",\"subject\":\"AO Request - New Individual Client\",\"body_text\":\"Please open retail futures account for Lim Ah Kow. Individual client, Singapore resident.\",\"attachments\":[{\"filename\":\"NRIC_LimAhKow.pdf\",\"size_bytes\":61440}]}","received_at":"2026-03-03 10:00:00","rm_employee_id":"RM-9999","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
 ```
 
 ---
@@ -1229,7 +1229,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
   -H "Authorization: Bearer {{API_KEY}}" \
   -H "Content-Type: application/json" \
-  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC001-001\",\"sender_email\":\"rm.john@dbs.com\",\"subject\":\"URGENT: New DCE Account Opening - XYZ Futures Trading Pte Ltd - Institutional Futures SGP\",\"body_text\":\"Dear DCE Team, Please urgently initiate AO for XYZ Futures Trading Pte Ltd. Corporate entity, SGP domiciled. Client requests SGX and CME futures trading. Regulatory reporting deadline is approaching within 48h. Board resolution and corporate profile attached. Regards, John Tan RM-0042\",\"attachments\":[{\"filename\":\"AO_Form_Signed.pdf\",\"size_bytes\":245760},{\"filename\":\"Board_Resolution.pdf\",\"size_bytes\":102400}]}","received_at":"2026-03-03 09:00:00","rm_employee_id":"RM-0042","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
+  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC001-001\",\"sender_email\":\"rm.john@abs.com\",\"subject\":\"URGENT: New DCE Account Opening - XYZ Futures Trading Pte Ltd - Institutional Futures SGP\",\"body_text\":\"Dear DCE Team, Please urgently initiate AO for XYZ Futures Trading Pte Ltd. Corporate entity, SGP domiciled. Client requests SGX and CME futures trading. Regulatory reporting deadline is approaching within 48h. Board resolution and corporate profile attached. Regards, John Tan RM-0042\",\"attachments\":[{\"filename\":\"AO_Form_Signed.pdf\",\"size_bytes\":245760},{\"filename\":\"Board_Resolution.pdf\",\"size_bytes\":102400}]}","received_at":"2026-03-03 09:00:00","rm_employee_id":"RM-0042","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
 ```
 
 ---
@@ -1299,7 +1299,7 @@ These test cases validate the workflow's ability to handle resubmission of an ex
 | Field | Value |
 |---|---|
 | submission_source | EMAIL |
-| raw_payload_json | `{"email_message_id":"BBNkBHF3YzI1ZDk4LTk4MzItNGViOC1iNDU2LWM1ZDZlZmRmYjU4Mw","sender_email":"rm.annie@dbs.com","subject":"AO Request - Tan Wei Ming - RETRY with corrected RM","body_text":"Please open retail futures account for Tan Wei Ming. Individual client, Singapore resident. This is a corrected resubmission with valid RM assignment.","attachments":[{"filename":"NRIC_TanWeiMing.pdf","size_bytes":61440}]}` |
+| raw_payload_json | `{"email_message_id":"BBNkBHF3YzI1ZDk4LTk4MzItNGViOC1iNDU2LWM1ZDZlZmRmYjU4Mw","sender_email":"rm.annie@abs.com","subject":"AO Request - Tan Wei Ming - RETRY with corrected RM","body_text":"Please open retail futures account for Tan Wei Ming. Individual client, Singapore resident. This is a corrected resubmission with valid RM assignment.","attachments":[{"filename":"NRIC_TanWeiMing.pdf","size_bytes":61440}]}` |
 | received_at | 2026-03-03 10:00:00 |
 | rm_employee_id | RM-0134 |
 | case_id | AO-2026-000103 |
@@ -1327,7 +1327,7 @@ These test cases validate the workflow's ability to handle resubmission of an ex
 curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
   -H "Authorization: Bearer {{API_KEY}}" \
   -H "Content-Type: application/json" \
-  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"BBNkBHF3YzI1ZDk4LTk4MzItNGViOC1iNDU2LWM1ZDZlZmRmYjU4Mw\",\"sender_email\":\"rm.annie@dbs.com\",\"subject\":\"AO Request - Tan Wei Ming - RETRY with corrected RM\",\"body_text\":\"Please open retail futures account for Tan Wei Ming. Individual client, Singapore resident. This is a corrected resubmission with valid RM assignment.\",\"attachments\":[{\"filename\":\"NRIC_TanWeiMing.pdf\",\"size_bytes\":61440}]}","received_at":"2026-03-03 10:00:00","rm_employee_id":"RM-0134","case_id":"AO-2026-000103"},"response_mode":"blocking","user":"qa-tester"}'
+  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"BBNkBHF3YzI1ZDk4LTk4MzItNGViOC1iNDU2LWM1ZDZlZmRmYjU4Mw\",\"sender_email\":\"rm.annie@abs.com\",\"subject\":\"AO Request - Tan Wei Ming - RETRY with corrected RM\",\"body_text\":\"Please open retail futures account for Tan Wei Ming. Individual client, Singapore resident. This is a corrected resubmission with valid RM assignment.\",\"attachments\":[{\"filename\":\"NRIC_TanWeiMing.pdf\",\"size_bytes\":61440}]}","received_at":"2026-03-03 10:00:00","rm_employee_id":"RM-0134","case_id":"AO-2026-000103"},"response_mode":"blocking","user":"qa-tester"}'
 ```
 
 ---
@@ -1394,7 +1394,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 | Field | Value |
 |---|---|
 | submission_source | EMAIL |
-| raw_payload_json | `{"email_message_id":"MSG-TC025-001","sender_email":"unknown@dbs.com","subject":"AO","body_text":"open account","attachments":[]}` |
+| raw_payload_json | `{"email_message_id":"MSG-TC025-001","sender_email":"unknown@abs.com","subject":"AO","body_text":"open account","attachments":[]}` |
 | received_at | 2026-03-03 11:00:00 |
 | rm_employee_id | RM-9999 |
 | case_id | AO-2026-000103 |
@@ -1420,7 +1420,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
   -H "Authorization: Bearer {{API_KEY}}" \
   -H "Content-Type: application/json" \
-  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC025-001\",\"sender_email\":\"unknown@dbs.com\",\"subject\":\"AO\",\"body_text\":\"open account\",\"attachments\":[]}","received_at":"2026-03-03 11:00:00","rm_employee_id":"RM-9999","case_id":"AO-2026-000103"},"response_mode":"blocking","user":"qa-tester"}'
+  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC025-001\",\"sender_email\":\"unknown@abs.com\",\"subject\":\"AO\",\"body_text\":\"open account\",\"attachments\":[]}","received_at":"2026-03-03 11:00:00","rm_employee_id":"RM-9999","case_id":"AO-2026-000103"},"response_mode":"blocking","user":"qa-tester"}'
 ```
 
 ---
@@ -1439,7 +1439,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 | Field | Value |
 |---|---|
 | submission_source | EMAIL |
-| raw_payload_json | `{"email_message_id":"MSG-TC026-001","sender_email":"rm.john@dbs.com","subject":"Re-submit AO-2026-000101 (already complete)","body_text":"Accidentally re-submitting AO for ABC Trading Pte Ltd. Case already created.","attachments":[]}` |
+| raw_payload_json | `{"email_message_id":"MSG-TC026-001","sender_email":"rm.john@abs.com","subject":"Re-submit AO-2026-000101 (already complete)","body_text":"Accidentally re-submitting AO for ABC Trading Pte Ltd. Case already created.","attachments":[]}` |
 | received_at | 2026-03-03 12:00:00 |
 | rm_employee_id | RM-0042 |
 | case_id | AO-2026-000101 |
@@ -1465,7 +1465,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
   -H "Authorization: Bearer {{API_KEY}}" \
   -H "Content-Type: application/json" \
-  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC026-001\",\"sender_email\":\"rm.john@dbs.com\",\"subject\":\"Re-submit AO-2026-000101 (already complete)\",\"body_text\":\"Accidentally re-submitting AO for ABC Trading Pte Ltd. Case already created.\",\"attachments\":[]}","received_at":"2026-03-03 12:00:00","rm_employee_id":"RM-0042","case_id":"AO-2026-000101"},"response_mode":"blocking","user":"qa-tester"}'
+  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC026-001\",\"sender_email\":\"rm.john@abs.com\",\"subject\":\"Re-submit AO-2026-000101 (already complete)\",\"body_text\":\"Accidentally re-submitting AO for ABC Trading Pte Ltd. Case already created.\",\"attachments\":[]}","received_at":"2026-03-03 12:00:00","rm_employee_id":"RM-0042","case_id":"AO-2026-000101"},"response_mode":"blocking","user":"qa-tester"}'
 ```
 
 ---
@@ -1529,7 +1529,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 | Field | Value |
 |---|---|
 | submission_source | EMAIL |
-| raw_payload_json | `{"sender_email":"rm.john@dbs.com","subject":"Malformed Test","body_text":"test` |
+| raw_payload_json | `{"sender_email":"rm.john@abs.com","subject":"Malformed Test","body_text":"test` |
 | received_at | 2026-03-03 10:00:00 |
 | rm_employee_id | RM-0042 |
 | case_id | (empty) |
@@ -1554,7 +1554,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
   -H "Authorization: Bearer {{API_KEY}}" \
   -H "Content-Type: application/json" \
-  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"sender_email\":\"rm.john@dbs.com\",\"subject\":\"Malformed Test\",\"body_text\":\"test","received_at":"2026-03-03 10:00:00","rm_employee_id":"RM-0042","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
+  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"sender_email\":\"rm.john@abs.com\",\"subject\":\"Malformed Test\",\"body_text\":\"test","received_at":"2026-03-03 10:00:00","rm_employee_id":"RM-0042","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
 ```
 
 ---
@@ -1614,7 +1614,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 | Field | Value |
 |---|---|
 | submission_source | EMAIL |
-| raw_payload_json | `{"email_message_id":"MSG-TC030-001","sender_email":"rm.john@dbs.com","subject":"AO - Unknown Type","body_text":"Please open some kind of financial account for Mystery Holdings. Not sure what type. Maybe futures or physical or OTC? Just set it up somehow.","attachments":[]}` |
+| raw_payload_json | `{"email_message_id":"MSG-TC030-001","sender_email":"rm.john@abs.com","subject":"AO - Unknown Type","body_text":"Please open some kind of financial account for Mystery Holdings. Not sure what type. Maybe futures or physical or OTC? Just set it up somehow.","attachments":[]}` |
 | received_at | 2026-03-03 10:00:00 |
 | rm_employee_id | RM-0042 |
 | case_id | (empty) |
@@ -1642,7 +1642,7 @@ curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
 curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
   -H "Authorization: Bearer {{API_KEY}}" \
   -H "Content-Type: application/json" \
-  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC030-001\",\"sender_email\":\"rm.john@dbs.com\",\"subject\":\"AO - Unknown Type\",\"body_text\":\"Please open some kind of financial account for Mystery Holdings. Not sure what type. Maybe futures or physical or OTC? Just set it up somehow.\",\"attachments\":[]}","received_at":"2026-03-03 10:00:00","rm_employee_id":"RM-0042","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
+  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC030-001\",\"sender_email\":\"rm.john@abs.com\",\"subject\":\"AO - Unknown Type\",\"body_text\":\"Please open some kind of financial account for Mystery Holdings. Not sure what type. Maybe futures or physical or OTC? Just set it up somehow.\",\"attachments\":[]}","received_at":"2026-03-03 10:00:00","rm_employee_id":"RM-0042","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
 ```
 
 ---
@@ -1730,7 +1730,7 @@ These test cases explicitly validate the Source Router if-else node's branching 
 | Field | Value |
 |---|---|
 | submission_source | EMAIL |
-| raw_payload_json | `{"email_message_id":"MSG-TC033-ROUTE-EMAIL","sender_email":"rm.john@dbs.com","subject":"Channel Routing Test - EMAIL Path","body_text":"Testing EMAIL normaliser path. Corporate futures account for Alpha Routing Corp. SGP entity.","attachments":[{"filename":"Test_Doc.pdf","size_bytes":102400}]}` |
+| raw_payload_json | `{"email_message_id":"MSG-TC033-ROUTE-EMAIL","sender_email":"rm.john@abs.com","subject":"Channel Routing Test - EMAIL Path","body_text":"Testing EMAIL normaliser path. Corporate futures account for Alpha Routing Corp. SGP entity.","attachments":[{"filename":"Test_Doc.pdf","size_bytes":102400}]}` |
 | received_at | 2026-03-03 10:00:00 |
 | rm_employee_id | RM-0042 |
 | case_id | (empty) |
@@ -1742,14 +1742,14 @@ These test cases explicitly validate the Source Router if-else node's branching 
 | normaliser_path | Email Normaliser (source-case-email) |
 | source in normalised_intake | "EMAIL" |
 | email_message_id | "MSG-TC033-ROUTE-EMAIL" |
-| sender_email | "rm.john@dbs.com" |
+| sender_email | "rm.john@abs.com" |
 | attachments_count | 1 |
 | workflow_status | success |
 
 **Validation Criteria:**
 1. `dce_ao_submission_raw.submission_source` equals `"EMAIL"`.
 2. `dce_ao_submission_raw.email_message_id` equals `"MSG-TC033-ROUTE-EMAIL"`.
-3. `dce_ao_submission_raw.sender_email` equals `"rm.john@dbs.com"`.
+3. `dce_ao_submission_raw.sender_email` equals `"rm.john@abs.com"`.
 4. `dce_ao_submission_raw.portal_form_id` is NULL (Email Normaliser does not extract portal fields).
 5. `dce_ao_submission_raw.attachments_count` equals `1`.
 6. End: Success node is triggered.
@@ -1760,7 +1760,7 @@ These test cases explicitly validate the Source Router if-else node's branching 
 curl -s -X POST "https://api.dify.ai/v1/workflows/run" \
   -H "Authorization: Bearer {{API_KEY}}" \
   -H "Content-Type: application/json" \
-  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC033-ROUTE-EMAIL\",\"sender_email\":\"rm.john@dbs.com\",\"subject\":\"Channel Routing Test - EMAIL Path\",\"body_text\":\"Testing EMAIL normaliser path. Corporate futures account for Alpha Routing Corp. SGP entity.\",\"attachments\":[{\"filename\":\"Test_Doc.pdf\",\"size_bytes\":102400}]}","received_at":"2026-03-03 10:00:00","rm_employee_id":"RM-0042","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
+  -d '{"inputs":{"submission_source":"EMAIL","raw_payload_json":"{\"email_message_id\":\"MSG-TC033-ROUTE-EMAIL\",\"sender_email\":\"rm.john@abs.com\",\"subject\":\"Channel Routing Test - EMAIL Path\",\"body_text\":\"Testing EMAIL normaliser path. Corporate futures account for Alpha Routing Corp. SGP entity.\",\"attachments\":[{\"filename\":\"Test_Doc.pdf\",\"size_bytes\":102400}]}","received_at":"2026-03-03 10:00:00","rm_employee_id":"RM-0042","case_id":""},"response_mode":"blocking","user":"qa-tester"}'
 ```
 
 ---

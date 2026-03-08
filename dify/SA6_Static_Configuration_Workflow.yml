@@ -1,0 +1,1087 @@
+app:
+  description: >
+    SA-6 Static Configuration Agent — Node N-5.
+    Two-phase HITL workflow: Phase 1 (config spec build, TMO instruction generation,
+    park for TMO execution) and Phase 2 (TMO execution validation, system config
+    verification, checkpoint, advance to N-6).
+    MCP tools are called via JSON-RPC 2.0 over HTTP on the SA-6 MCP server.
+  icon: "\U0001F527"
+  icon_background: "#E8F0F4"
+  mode: workflow
+  name: DCE-AO-SA6-Static-Configuration
+  use_icon_as_answer_icon: false
+
+kind: app
+version: 0.6.0
+
+# ────────────────────────────────────────────────────────────────────
+# IMPORTANT — Post-Import Configuration Required:
+# 1. Open node 6000000003 (KB-6 DCE Product Reference Retrieval)
+#    → select your "KB-6 DCE Product Reference" dataset
+# 2. MCP_ENDPOINT below points to SA-6 server at host.docker.internal:8004
+#    (works with Colima on macOS; update for production OCP service mesh)
+# ────────────────────────────────────────────────────────────────────
+
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: SA-6 MCP server endpoint (local Docker host on port 8004)
+    id: env-mcp-endpoint-sa6
+    name: MCP_ENDPOINT
+    selector:
+    - env
+    - MCP_ENDPOINT
+    value: http://host.docker.internal:8004
+    value_type: string
+  features:
+    file_upload:
+      allowed_file_extensions: []
+      allowed_file_types: []
+      allowed_file_upload_methods: []
+      enabled: false
+      fileUploadConfig:
+        file_size_limit: 15
+        image_file_size_limit: 10
+    opening_statement: ""
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ""
+      voice: ""
+
+  graph:
+    edges:
+      # ── Phase 1 (TRIGGER) edges ──────────────────────────
+      # START → Phase Router
+      - data: {isInIteration: false, sourceType: start, targetType: if-else}
+        id: e-6001-6002
+        source: "6000000001"
+        target: "6000000002"
+        type: custom
+      # Phase Router → PHASE1 (TRIGGER) → KB-6 Retrieval
+      - data: {isInIteration: false, sourceType: if-else, targetType: knowledge-retrieval}
+        id: e-6002-6003-trigger
+        source: "6000000002"
+        sourceHandle: "true"
+        target: "6000000003"
+        type: custom
+      # KB-6 → Get Case Context (Phase 1)
+      - data: {isInIteration: false, sourceType: knowledge-retrieval, targetType: code}
+        id: e-6003-6004
+        source: "6000000003"
+        target: "6000000004"
+        type: custom
+      # Get Context P1 → Build Config Spec
+      - data: {isInIteration: false, sourceType: code, targetType: code}
+        id: e-6004-6005
+        source: "6000000004"
+        target: "6000000005"
+        type: custom
+      # Build Config Spec → Generate TMO Instruction LLM
+      - data: {isInIteration: false, sourceType: code, targetType: llm}
+        id: e-6005-6006
+        source: "6000000005"
+        target: "6000000006"
+        type: custom
+      # Generate TMO Instruction LLM → Persist TMO Instruction
+      - data: {isInIteration: false, sourceType: llm, targetType: code}
+        id: e-6006-6007
+        source: "6000000006"
+        target: "6000000007"
+        type: custom
+      # Persist TMO Instruction → Park for TMO Execution
+      - data: {isInIteration: false, sourceType: code, targetType: code}
+        id: e-6007-6008
+        source: "6000000007"
+        target: "6000000008"
+        type: custom
+      # Park for TMO Execution → END HITL_PENDING
+      - data: {isInIteration: false, sourceType: code, targetType: end}
+        id: e-6008-6009
+        source: "6000000008"
+        target: "6000000009"
+        type: custom
+
+      # ── Phase 2 (RESUME) edges ───────────────────────────
+      # Phase Router → PHASE2 (RESUME) → Get Context P2
+      - data: {isInIteration: false, sourceType: if-else, targetType: code}
+        id: e-6002-6010-resume
+        source: "6000000002"
+        sourceHandle: "false"
+        target: "6000000010"
+        type: custom
+      # Get Context P2 → TMO Execution Status Check
+      - data: {isInIteration: false, sourceType: code, targetType: code}
+        id: e-6010-6011
+        source: "6000000010"
+        target: "6000000011"
+        type: custom
+      # TMO Execution Status Check → TMO Status Router
+      - data: {isInIteration: false, sourceType: code, targetType: if-else}
+        id: e-6011-6012
+        source: "6000000011"
+        target: "6000000012"
+        type: custom
+      # TMO Status Router [false] → END TMO_NOT_READY
+      - data: {isInIteration: false, sourceType: if-else, targetType: end}
+        id: e-6012-6013-notready
+        source: "6000000012"
+        sourceHandle: "false"
+        target: "6000000013"
+        type: custom
+      # TMO Status Router [true] → Validate System Config
+      - data: {isInIteration: false, sourceType: if-else, targetType: code}
+        id: e-6012-6014-confirmed
+        source: "6000000012"
+        sourceHandle: "true"
+        target: "6000000014"
+        type: custom
+      # Validate System Config → Validation Outcome Router
+      - data: {isInIteration: false, sourceType: code, targetType: if-else}
+        id: e-6014-6015
+        source: "6000000014"
+        target: "6000000015"
+        type: custom
+      # Validation Outcome Router [true] → Complete Node Validated
+      - data: {isInIteration: false, sourceType: if-else, targetType: code}
+        id: e-6015-6016-pass
+        source: "6000000015"
+        sourceHandle: "true"
+        target: "6000000016"
+        type: custom
+      # Complete Node Validated → END TMO_VALIDATED
+      - data: {isInIteration: false, sourceType: code, targetType: end}
+        id: e-6016-6017
+        source: "6000000016"
+        target: "6000000017"
+        type: custom
+      # Validation Outcome Router [false] → Complete Node Discrepancy
+      - data: {isInIteration: false, sourceType: if-else, targetType: code}
+        id: e-6015-6018-fail
+        source: "6000000015"
+        sourceHandle: "false"
+        target: "6000000018"
+        type: custom
+      # Complete Node Discrepancy → END TMO_DISCREPANCY
+      - data: {isInIteration: false, sourceType: code, targetType: end}
+        id: e-6018-6019
+        source: "6000000018"
+        target: "6000000019"
+        type: custom
+
+    nodes:
+      # ────────────────────────────────────────────────────
+      # Node 1: START
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "Entry point for both TRIGGER (Phase 1) and RESUME (Phase 2) modes"
+          title: START
+          type: start
+          variables:
+            - label: case_id
+              max_length: 30
+              options: []
+              required: true
+              type: text-input
+              variable: case_id
+            - label: mode
+              max_length: 20
+              options: []
+              required: true
+              type: text-input
+              variable: mode
+            - label: hitl_task_id
+              max_length: 20
+              options: []
+              required: false
+              type: text-input
+              variable: hitl_task_id
+            - label: system_confirmations_json
+              max_length: 8000
+              options: []
+              required: false
+              type: paragraph
+              variable: system_confirmations_json
+        id: "6000000001"
+        position: {x: 50, y: 300}
+        type: start
+
+      # ────────────────────────────────────────────────────
+      # Node 2: Phase Router (TRIGGER vs RESUME)
+      # ────────────────────────────────────────────────────
+      - data:
+          cases:
+            - case_id: "true"
+              conditions:
+                - comparison_operator: is
+                  id: c-phase-trigger
+                  value: TRIGGER
+                  varType: string
+                  variable_selector: ["6000000001", mode]
+              logical_operator: and
+          desc: "Routes to Phase 1 (TRIGGER) or Phase 2 (RESUME) based on mode input"
+          title: "Phase Router"
+          type: if-else
+        id: "6000000002"
+        position: {x: 250, y: 300}
+        type: if-else
+
+      # ────────────────────────────────────────────────────
+      # Node 3: KB-6 DCE Product Reference Retrieval
+      # ────────────────────────────────────────────────────
+      - data:
+          dataset_ids: []
+          desc: "Load DCE product reference data, system configuration templates, and TMO instruction standards"
+          metadata_filtering_mode: disabled
+          multiple_retrieval_config:
+            reranking_enable: false
+            reranking_mode: weighted_score
+            top_k: 6
+          query:
+            id: q-kb6-sa6
+            value_selector: ["6000000001", case_id]
+            variable: query
+          retrieval_mode: multiple
+          single_retrieval_config:
+            model:
+              completion_params: {temperature: 0.1}
+              mode: chat
+              name: qwen2.5:32b
+              provider: langgenius/ollama/ollama
+          title: "KB-6 DCE Product Reference"
+          type: knowledge-retrieval
+        id: "6000000003"
+        position: {x: 500, y: 150}
+        type: knowledge-retrieval
+
+      # ────────────────────────────────────────────────────
+      # Node 4: Get Case Context (Phase 1)
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, mcp_endpoint: str) -> dict:
+                # Initialize MCP session
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05",
+                               "capabilities": {}, "clientInfo": {"name": "dify-sa6", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(urllib.request.Request(
+                    f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json, text/event-stream",
+                    "Mcp-Session-Id": session_id,
+                }
+                # Call sa6_get_case_context (Phase 1)
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa6_get_case_context",
+                               "arguments": {"case_id": case_id, "phase": "PHASE1"}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    parsed = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    parsed = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    parsed["mcp_error"] = True
+                return {"result": parsed}
+          code_language: python3
+          desc: "Fetch case state, entity data, credit decisions, N-4 output, trader list, and product config for Phase 1"
+          outputs:
+            result: {children: null, type: object}
+          title: "Get Case Context (Phase 1)"
+          type: code
+          variables:
+            - value_selector: ["6000000001", case_id]
+              variable: case_id
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "6000000004"
+        position: {x: 700, y: 150}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 5: Build Config Spec
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, context_result: dict, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa6", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                # Extract individual fields from context_result
+                classification = context_result.get("classification_result", {})
+                credit = context_result.get("credit_decisions", {})
+                traders = context_result.get("authorised_traders", [])
+                extracted = context_result.get("extracted_data", {})
+                case_state = context_result.get("case_state", {})
+                entity_name = classification.get("client_name", "") or case_state.get("client_name", "")
+                entity_type = classification.get("client_entity_type", "CORP")
+                jurisdiction = classification.get("jurisdiction", "") or case_state.get("jurisdiction", "SGP")
+                lei_number = extracted.get("lei_number", "") or extracted.get("lei", "") or "PENDING"
+                products = classification.get("products_requested", [])
+                if isinstance(products, str):
+                    try:
+                        products = json.loads(products)
+                    except (json.JSONDecodeError, ValueError):
+                        products = [products]
+                if not products:
+                    products = ["FUTURES"]
+                credit_outcome = credit.get("credit_outcome", "APPROVED")
+                approved_limit = float(credit.get("approved_dce_limit_sgd", 0))
+                approved_pce = float(credit.get("approved_dce_pce_limit_sgd", 0))
+                caa_approach = credit.get("confirmed_caa_approach", "IRB")
+                conditions = credit.get("conditions", [])
+                if isinstance(conditions, str):
+                    try:
+                        conditions = json.loads(conditions)
+                    except (json.JSONDecodeError, ValueError):
+                        conditions = []
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa6_build_config_spec",
+                               "arguments": {"case_id": case_id,
+                                             "entity_name": entity_name,
+                                             "entity_type": entity_type,
+                                             "jurisdiction": jurisdiction,
+                                             "lei_number": lei_number,
+                                             "products_requested": products,
+                                             "credit_outcome": credit_outcome,
+                                             "approved_dce_limit_sgd": approved_limit,
+                                             "approved_dce_pce_limit_sgd": approved_pce,
+                                             "confirmed_caa_approach": caa_approach,
+                                             "authorised_traders": traders,
+                                             "conditions": conditions}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=60)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    parsed = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    parsed = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    parsed["mcp_error"] = True
+                return {"result": parsed}
+          code_language: python3
+          desc: "Build configuration specification from entity data, credit decisions, and trader list via MCP"
+          outputs:
+            result: {children: null, type: object}
+          title: "Build Config Spec"
+          type: code
+          variables:
+            - value_selector: ["6000000001", case_id]
+              variable: case_id
+            - value_selector: ["6000000004", result]
+              variable: context_result
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "6000000005"
+        position: {x: 900, y: 150}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 6: Generate TMO Instruction (LLM — Qwen/Ollama)
+      # ────────────────────────────────────────────────────
+      - data:
+          context:
+            enabled: true
+            variable_selector: ["6000000003", result]
+          desc: "Generate structured TMO instruction document from config spec using LLM"
+          model:
+            completion_params:
+              max_tokens: 4096
+              temperature: 0.3
+            mode: chat
+            name: qwen2.5:32b
+            provider: langgenius/ollama/ollama
+          variables:
+            - variable: kb6_result
+              value_selector: ["6000000003", result]
+            - variable: case_id_val
+              value_selector: ["6000000001", case_id]
+            - variable: config_spec
+              value_selector: ["6000000005", result]
+            - variable: context_result
+              value_selector: ["6000000004", result]
+          prompt_template:
+            - id: sys-sa6
+              role: system
+              text: |
+                You are the DCE Static Configuration Specialist at ABS Bank.
+                Generate a complete TMO (Technology & Market Operations) instruction document
+                for system configuration based on the config spec for this new account opening case.
+
+                MANDATORY RULES:
+                1. Produce structured JSON output with the exact keys specified below.
+                2. Each system section must include step-by-step instructions for TMO operators.
+                3. Include all trader setup details with user IDs and permission levels.
+                4. Generate a validation checklist for post-configuration verification.
+                5. Reference KB-6 product data for system-specific configuration parameters.
+
+                DCE PRODUCT REFERENCE DATA (KB-6):
+                {{kb6_result}}
+
+                OUTPUT FORMAT (JSON with these exact keys):
+                {
+                  "ubix_instructions": "Step-by-step UBIX system configuration instructions",
+                  "sic_instructions": "Step-by-step SIC system configuration instructions",
+                  "cv_instructions": "Step-by-step CV (Client View) system configuration instructions",
+                  "trader_setup": "Trader access provisioning instructions with user IDs and permissions",
+                  "validation_checklist": "Post-configuration validation checklist items"
+                }
+            - id: user-sa6
+              role: user
+              text: |
+                Case ID: {{case_id_val}}
+
+                Case Context & Entity Data:
+                {{context_result}}
+
+                Configuration Specification (entity, credit decisions, traders):
+                {{config_spec}}
+
+                Please generate the complete TMO instruction document now.
+                Output must be valid JSON with keys: ubix_instructions, sic_instructions, cv_instructions, trader_setup, validation_checklist.
+                Each value should contain detailed step-by-step instructions for TMO operators.
+          title: "Generate TMO Instruction (LLM)"
+          type: llm
+          vision:
+            configs:
+              detail: high
+            enabled: false
+        id: "6000000006"
+        position: {x: 1100, y: 150}
+        type: llm
+
+      # ────────────────────────────────────────────────────
+      # Node 7: Persist TMO Instruction
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, config_spec: dict, llm_instruction: str,
+                     mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa6", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                # Parse LLM output as JSON instruction document
+                try:
+                    instruction_doc = json.loads(llm_instruction) if isinstance(llm_instruction, str) else llm_instruction
+                except (json.JSONDecodeError, ValueError):
+                    instruction_doc = {"raw_instruction": llm_instruction}
+                # Get spec_id from config_spec result
+                spec_id = config_spec.get("spec_id", "")
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa6_generate_tmo_instruction",
+                               "arguments": {"case_id": case_id,
+                                             "spec_id": spec_id,
+                                             "instruction_document": instruction_doc,
+                                             "generated_by_model": "qwen2.5:32b"}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    parsed = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    parsed = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    parsed["mcp_error"] = True
+                return {
+                    "result": parsed,
+                    "instruction_id": parsed.get("instruction_id", ""),
+                    "instruction_url": parsed.get("instruction_url", ""),
+                }
+          code_language: python3
+          desc: "Persist TMO instruction document to database; return instruction_id and instruction_url"
+          outputs:
+            result: {children: null, type: object}
+            instruction_id: {children: null, type: string}
+            instruction_url: {children: null, type: string}
+          title: "Persist TMO Instruction"
+          type: code
+          variables:
+            - value_selector: ["6000000001", case_id]
+              variable: case_id
+            - value_selector: ["6000000005", result]
+              variable: config_spec
+            - value_selector: ["6000000006", text]
+              variable: llm_instruction
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "6000000007"
+        position: {x: 1300, y: 150}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 8: Park for TMO Execution
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json, datetime
+
+            def main(case_id: str, context_result: dict, instruction_result: dict,
+                     config_spec_result: dict, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa6", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                instruction_id = instruction_result.get("instruction_id", "")
+                instruction_url = instruction_result.get("instruction_url", "")
+                spec_id = config_spec_result.get("spec_id", "")
+                rm_hierarchy = context_result.get("rm_hierarchy", {})
+                rm_id = rm_hierarchy.get("rm_id", "RM-DEFAULT")
+                case_state = context_result.get("case_state", {})
+                priority = case_state.get("priority", "STANDARD")
+                # SLA: 2 biz days (48h) for URGENT, 5 biz days (120h) for STANDARD
+                sla_hours = 48 if priority == "URGENT" else 120
+                deadline_dt = datetime.datetime.now() + datetime.timedelta(hours=sla_hours)
+                hitl_deadline = deadline_dt.strftime("%Y-%m-%d %H:%M:%S")
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa6_park_for_tmo_execution",
+                               "arguments": {"case_id": case_id,
+                                             "spec_id": spec_id,
+                                             "instruction_id": instruction_id,
+                                             "instruction_url": instruction_url,
+                                             "rm_id": rm_id,
+                                             "priority": priority,
+                                             "hitl_deadline": hitl_deadline}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    parsed = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    parsed = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    parsed["mcp_error"] = True
+                return {"result": parsed}
+          code_language: python3
+          desc: "Atomic: create HITL task for TMO Team + HITL_PENDING checkpoint + event log + update case state"
+          outputs:
+            result: {children: null, type: object}
+          title: "Park for TMO Execution"
+          type: code
+          variables:
+            - value_selector: ["6000000001", case_id]
+              variable: case_id
+            - value_selector: ["6000000004", result]
+              variable: context_result
+            - value_selector: ["6000000007", result]
+              variable: instruction_result
+            - value_selector: ["6000000005", result]
+              variable: config_spec_result
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "6000000008"
+        position: {x: 1500, y: 150}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 9: END — HITL_PENDING
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "Workflow parks here. TMO Team executes configuration in Agentic Workbench. SA-6 resumes via Kafka TMO_EXECUTION_COMPLETED."
+          outputs:
+            - type: string
+              value_selector: ["6000000008", result]
+              variable: hitl_pending_result
+          title: "END: HITL_PENDING"
+          type: end
+        id: "6000000009"
+        position: {x: 1700, y: 150}
+        type: end
+
+      # ────────────────────────────────────────────────────
+      # Node 10: Get Case Context (Phase 2 Resume)
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05",
+                               "capabilities": {}, "clientInfo": {"name": "dify-sa6", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(urllib.request.Request(
+                    f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json, text/event-stream",
+                    "Mcp-Session-Id": session_id,
+                }
+                # Call sa6_get_case_context (Phase 2)
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa6_get_case_context",
+                               "arguments": {"case_id": case_id, "phase": "PHASE2"}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    ctx = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    ctx = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    ctx["mcp_error"] = True
+                return {"result": ctx}
+          code_language: python3
+          desc: "Phase 2: fetch case context including config spec, TMO instruction, and execution status for validation"
+          outputs:
+            result: {children: null, type: object}
+          title: "Get Case Context (Phase 2)"
+          type: code
+          variables:
+            - value_selector: ["6000000001", case_id]
+              variable: case_id
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "6000000010"
+        position: {x: 500, y: 500}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 11: TMO Execution Status Check
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import json
+
+            def main(context_result: dict, case_id: str) -> dict:
+                # Check if config spec has instruction and is past INSTRUCTION_GENERATED status
+                config_spec = context_result.get("config_spec", {})
+                tmo_instruction = context_result.get("tmo_instruction", {})
+                case_state = context_result.get("case_state", {})
+                current_status = case_state.get("node_status", "")
+                instruction_id = tmo_instruction.get("instruction_id", "")
+                has_instruction = bool(instruction_id)
+                # TMO execution is confirmed if we have an instruction AND status is past INSTRUCTION_GENERATED
+                ready_statuses = [
+                    "TMO_EXECUTION_COMPLETED", "TMO_EXECUTION_CONFIRMED",
+                    "VALIDATION_PENDING", "VALIDATING"
+                ]
+                is_past_instruction = current_status in ready_statuses
+                tmo_confirmed = has_instruction and is_past_instruction
+                return {
+                    "result": {
+                        "has_instruction": has_instruction,
+                        "instruction_id": instruction_id,
+                        "current_status": current_status,
+                        "is_past_instruction": is_past_instruction,
+                        "tmo_confirmed": tmo_confirmed,
+                    },
+                    "tmo_confirmed": "true" if tmo_confirmed else "false",
+                }
+          code_language: python3
+          desc: "Verify TMO execution status: instruction exists and status is past INSTRUCTION_GENERATED"
+          outputs:
+            result: {children: null, type: object}
+            tmo_confirmed: {children: null, type: string}
+          title: "TMO Execution Status Check"
+          type: code
+          variables:
+            - value_selector: ["6000000010", result]
+              variable: context_result
+            - value_selector: ["6000000001", case_id]
+              variable: case_id
+        id: "6000000011"
+        position: {x: 700, y: 500}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 12: TMO Status Router
+      # ────────────────────────────────────────────────────
+      - data:
+          cases:
+            - case_id: "true"
+              conditions:
+                - comparison_operator: is
+                  id: c-tmo-confirmed
+                  value: "true"
+                  varType: string
+                  variable_selector: ["6000000011", tmo_confirmed]
+              logical_operator: and
+          desc: "TMO execution confirmed → proceed to validation. Not ready → exit with TMO_NOT_READY."
+          title: "TMO Status Router"
+          type: if-else
+        id: "6000000012"
+        position: {x: 900, y: 500}
+        type: if-else
+
+      # ────────────────────────────────────────────────────
+      # Node 13: END — TMO_NOT_READY
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "TMO execution not yet completed — return to workbench. SA-6 will be resumed when TMO confirms execution."
+          outputs:
+            - type: string
+              value_selector: ["6000000011", result]
+              variable: tmo_status_result
+          title: "END: TMO_NOT_READY"
+          type: end
+        id: "6000000013"
+        position: {x: 1100, y: 420}
+        type: end
+
+      # ────────────────────────────────────────────────────
+      # Node 14: Validate System Config
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, context_result: dict, system_confirmations_raw: str,
+                     mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa6", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                # Parse system_confirmations_json if provided
+                system_confirmations = {}
+                if system_confirmations_raw:
+                    try:
+                        system_confirmations = json.loads(system_confirmations_raw) if isinstance(system_confirmations_raw, str) else system_confirmations_raw
+                    except (json.JSONDecodeError, TypeError):
+                        system_confirmations = {}
+                config_spec = context_result.get("config_spec", {})
+                tmo_instruction = context_result.get("tmo_instruction", {})
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa6_validate_system_config",
+                               "arguments": {"case_id": case_id,
+                                             "config_spec": config_spec,
+                                             "tmo_instruction": tmo_instruction,
+                                             "system_confirmations": system_confirmations}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=60)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    parsed = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    parsed = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    parsed["mcp_error"] = True
+                all_pass = parsed.get("all_systems_pass", False)
+                return {
+                    "result": parsed,
+                    "all_systems_pass": "true" if all_pass else "false",
+                }
+          code_language: python3
+          desc: "Validate system configuration against config spec; check UBIX, SIC, CV systems; pass system_confirmations_json if provided"
+          outputs:
+            result: {children: null, type: object}
+            all_systems_pass: {children: null, type: string}
+          title: "Validate System Config"
+          type: code
+          variables:
+            - value_selector: ["6000000001", case_id]
+              variable: case_id
+            - value_selector: ["6000000010", result]
+              variable: context_result
+            - value_selector: ["6000000001", system_confirmations_json]
+              variable: system_confirmations_raw
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "6000000014"
+        position: {x: 1100, y: 580}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 15: Validation Outcome Router
+      # ────────────────────────────────────────────────────
+      - data:
+          cases:
+            - case_id: "true"
+              conditions:
+                - comparison_operator: is
+                  id: c-all-systems-pass
+                  value: "true"
+                  varType: string
+                  variable_selector: ["6000000014", all_systems_pass]
+              logical_operator: and
+          desc: "All systems validated → TMO_VALIDATED. Discrepancy found → TMO_DISCREPANCY_FOUND."
+          title: "Validation Outcome Router"
+          type: if-else
+        id: "6000000015"
+        position: {x: 1300, y: 580}
+        type: if-else
+
+      # ────────────────────────────────────────────────────
+      # Node 16: Complete Node — TMO Validated
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, validation_result: dict, context_result: dict,
+                     hitl_task_id: str, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa6", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                config_spec = context_result.get("config_spec", {})
+                tmo_instruction = context_result.get("tmo_instruction", {})
+                instruction_id = tmo_instruction.get("instruction_id", "")
+                n5_output = {
+                    "case_id": case_id,
+                    "instruction_id": instruction_id,
+                    "outcome": "TMO_VALIDATED",
+                    "systems_validated": validation_result.get("systems_validated", []),
+                    "validation_summary": validation_result.get("validation_summary", {}),
+                    "next_node": "N-6",
+                }
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa6_complete_node",
+                               "arguments": {"case_id": case_id,
+                                             "outcome": "TMO_VALIDATED",
+                                             "instruction_id": instruction_id,
+                                             "validation_result": validation_result,
+                                             "n5_output": n5_output,
+                                             "hitl_task_id": hitl_task_id}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    parsed = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    parsed = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    parsed["mcp_error"] = True
+                return {"result": parsed, "n5_output": n5_output}
+          code_language: python3
+          desc: "MANDATORY: write N-5 COMPLETE checkpoint, advance to N-6, fire TMO_VALIDATED Kafka event"
+          outputs:
+            result: {children: null, type: object}
+            n5_output: {children: null, type: object}
+          title: "Complete Node (TMO Validated)"
+          type: code
+          variables:
+            - value_selector: ["6000000001", case_id]
+              variable: case_id
+            - value_selector: ["6000000014", result]
+              variable: validation_result
+            - value_selector: ["6000000010", result]
+              variable: context_result
+            - value_selector: ["6000000001", hitl_task_id]
+              variable: hitl_task_id
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "6000000016"
+        position: {x: 1500, y: 500}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 17: END — TMO_VALIDATED
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "N-5 complete. All systems validated. SA-7 triggered via Kafka TMO_VALIDATED event."
+          outputs:
+            - type: object
+              value_selector: ["6000000016", n5_output]
+              variable: n5_output
+          title: "END: TMO_VALIDATED"
+          type: end
+        id: "6000000017"
+        position: {x: 1700, y: 500}
+        type: end
+
+      # ────────────────────────────────────────────────────
+      # Node 18: Complete Node — TMO Discrepancy
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, validation_result: dict, context_result: dict,
+                     hitl_task_id: str, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa6", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                config_spec = context_result.get("config_spec", {})
+                tmo_instruction = context_result.get("tmo_instruction", {})
+                instruction_id = tmo_instruction.get("instruction_id", "")
+                discrepancies = validation_result.get("discrepancies", [])
+                failed_systems = validation_result.get("failed_systems", [])
+                n5_output = {
+                    "case_id": case_id,
+                    "instruction_id": instruction_id,
+                    "outcome": "TMO_DISCREPANCY_FOUND",
+                    "discrepancies": discrepancies,
+                    "failed_systems": failed_systems,
+                    "next_node": "REMEDIATION",
+                }
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa6_complete_node",
+                               "arguments": {"case_id": case_id,
+                                             "outcome": "TMO_DISCREPANCY_FOUND",
+                                             "instruction_id": instruction_id,
+                                             "validation_result": validation_result,
+                                             "n5_output": n5_output,
+                                             "hitl_task_id": hitl_task_id,
+                                             "failure_reason": "System configuration discrepancy detected"}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    parsed = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    parsed = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    parsed["mcp_error"] = True
+                return {"result": parsed, "n5_output": n5_output}
+          code_language: python3
+          desc: "MANDATORY: write N-5 FAILED checkpoint, case → REMEDIATION, fire TMO_DISCREPANCY Kafka event"
+          outputs:
+            result: {children: null, type: object}
+            n5_output: {children: null, type: object}
+          title: "Complete Node (TMO Discrepancy)"
+          type: code
+          variables:
+            - value_selector: ["6000000001", case_id]
+              variable: case_id
+            - value_selector: ["6000000014", result]
+              variable: validation_result
+            - value_selector: ["6000000010", result]
+              variable: context_result
+            - value_selector: ["6000000001", hitl_task_id]
+              variable: hitl_task_id
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "6000000018"
+        position: {x: 1500, y: 680}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 19: END — TMO_DISCREPANCY
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "N-5 terminated — system configuration discrepancy detected. TMO Team and RM notified via Kafka TMO_DISCREPANCY event."
+          outputs:
+            - type: object
+              value_selector: ["6000000018", n5_output]
+              variable: n5_output
+          title: "END: TMO_DISCREPANCY"
+          type: end
+        id: "6000000019"
+        position: {x: 1700, y: 680}
+        type: end

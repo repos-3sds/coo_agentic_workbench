@@ -110,36 +110,36 @@ INSERT INTO dce_ao_document_checklist_item
      requirement, regulatory_ref, max_age_days, accepted_formats,
      matched_doc_id, match_status, match_confidence, notes)
 VALUES
-    (1,  1, 'AO-2026-000101', 'AO_FORM',           'Account Opening Application Form',     'MANDATORY', 'DBS Internal Policy',       NULL, '["PDF"]',      'DOC-000001', 'MATCHED', 0.980, NULL),
+    (1,  1, 'AO-2026-000101', 'AO_FORM',           'Account Opening Application Form',     'MANDATORY', 'ABS Internal Policy',       NULL, '["PDF"]',      'DOC-000001', 'MATCHED', 0.980, NULL),
     (2,  1, 'AO-2026-000101', 'CERT_INCORP',       'Certificate of Incorporation',         'MANDATORY', 'Companies Act Cap 50',       NULL, '["PDF"]',      'DOC-000002', 'MATCHED', 0.920, 'Extracted from Corporate Profile'),
-    (3,  1, 'AO-2026-000101', 'BOARD_RES',         'Board Resolution for AO',              'MANDATORY', 'DBS Internal Policy',        NULL, '["PDF"]',      'DOC-000002', 'MATCHED', 0.870, 'Found within Corporate Profile PDF'),
+    (3,  1, 'AO-2026-000101', 'BOARD_RES',         'Board Resolution for AO',              'MANDATORY', 'ABS Internal Policy',        NULL, '["PDF"]',      'DOC-000002', 'MATCHED', 0.870, 'Found within Corporate Profile PDF'),
     (4,  1, 'AO-2026-000101', 'MEM_ARTICLES',      'Memorandum & Articles of Association',  'MANDATORY', 'Companies Act Cap 50',       NULL, '["PDF"]',      'DOC-000002', 'MATCHED', 0.850, 'Found within Corporate Profile PDF'),
     (5,  1, 'AO-2026-000101', 'UBO_DECLARATION',   'Ultimate Beneficial Owner Declaration', 'MANDATORY', 'MAS AML/CFT 01 Para 6.2',   NULL, '["PDF"]',      'DOC-000001', 'MATCHED', 0.910, 'Section in AO Form'),
     (6,  1, 'AO-2026-000101', 'ID_DIRECTORS',      'Directors ID Copies',                  'MANDATORY', 'MAS AML/CFT 01',            NULL, '["PDF","JPG"]','DOC-000002', 'MATCHED', 0.890, NULL),
-    (7,  1, 'AO-2026-000101', 'GTA_SIGNED',        'General Terms Agreement (Signed)',      'MANDATORY', 'DBS Legal',                  NULL, '["PDF"]',      'DOC-000001', 'MATCHED', 0.950, 'GTA v4.2 detected'),
-    (8,  1, 'AO-2026-000101', 'AUTH_SIGNATORY',    'Authorised Signatory List',            'MANDATORY', 'DBS Internal Policy',        NULL, '["PDF"]',      'DOC-000001', 'MATCHED', 0.940, 'Section in AO Form'),
+    (7,  1, 'AO-2026-000101', 'GTA_SIGNED',        'General Terms Agreement (Signed)',      'MANDATORY', 'ABS Legal',                  NULL, '["PDF"]',      'DOC-000001', 'MATCHED', 0.950, 'GTA v4.2 detected'),
+    (8,  1, 'AO-2026-000101', 'AUTH_SIGNATORY',    'Authorised Signatory List',            'MANDATORY', 'ABS Internal Policy',        NULL, '["PDF"]',      'DOC-000001', 'MATCHED', 0.940, 'Section in AO Form'),
     (9,  1, 'AO-2026-000101', 'FIN_STATEMENTS',    'Audited Financial Statements',         'OPTIONAL',  'Credit Assessment input',    365, '["PDF","XLSX"]', NULL,        'UNMATCHED', NULL, 'Not submitted -- optional for intake'),
     (10, 1, 'AO-2026-000101', 'TAX_CERT',          'Tax Residency Certificate',            'OPTIONAL',  'CRS Requirements',           365, '["PDF"]',      NULL,         'UNMATCHED', NULL, NULL),
     (11, 1, 'AO-2026-000101', 'ORG_CHART',         'Organisational Structure Chart',       'OPTIONAL',  'MAS AML/CFT 01',            NULL, '["PDF","PNG"]', NULL,        'UNMATCHED', NULL, NULL),
 
     -- CASE 108 Attempt 1: 6 mandatory + 2 optional = 8 items
-    (12, 5, 'AO-2026-000108', 'AO_FORM_INDIV',     'Individual Account Opening Form',      'MANDATORY', 'DBS Internal Policy',        NULL, '["PDF"]',      'DOC-000022', 'MATCHED', 0.960, NULL),
+    (12, 5, 'AO-2026-000108', 'AO_FORM_INDIV',     'Individual Account Opening Form',      'MANDATORY', 'ABS Internal Policy',        NULL, '["PDF"]',      'DOC-000022', 'MATCHED', 0.960, NULL),
     (13, 5, 'AO-2026-000108', 'HKID_COPY',         'Hong Kong ID Card Copy',               'MANDATORY', 'HKMA SPM AML/CFT',          NULL, '["PDF","JPG"]','DOC-000023', 'MATCHED', 0.990, NULL),
     (14, 5, 'AO-2026-000108', 'ADDR_PROOF',        'Proof of Address (< 3 months)',        'MANDATORY', 'HKMA SPM AML/CFT',           90, '["PDF","JPG"]', NULL,        'UNMATCHED', NULL, 'MISSING -- not submitted'),
     (15, 5, 'AO-2026-000108', 'INCOME_PROOF',      'Proof of Income / Employment Letter',  'MANDATORY', 'SFC Suitability',            180, '["PDF"]',      NULL,         'UNMATCHED', NULL, 'MISSING -- not submitted'),
     (16, 5, 'AO-2026-000108', 'RISK_DISCLOSURE',   'Risk Disclosure Acknowledgement',      'MANDATORY', 'SFC Code of Conduct',        NULL, '["PDF"]',      NULL,         'UNMATCHED', NULL, 'MISSING -- not submitted'),
-    (17, 5, 'AO-2026-000108', 'GTA_SIGNED',        'General Terms Agreement (Signed)',      'MANDATORY', 'DBS Legal',                  NULL, '["PDF"]',      NULL,         'UNMATCHED', NULL, 'MISSING -- not submitted'),
-    (18, 5, 'AO-2026-000108', 'BANK_REF',          'Bank Reference Letter',                'OPTIONAL',  'DBS Internal Policy',        180, '["PDF"]',      NULL,         'UNMATCHED', NULL, NULL),
+    (17, 5, 'AO-2026-000108', 'GTA_SIGNED',        'General Terms Agreement (Signed)',      'MANDATORY', 'ABS Legal',                  NULL, '["PDF"]',      NULL,         'UNMATCHED', NULL, 'MISSING -- not submitted'),
+    (18, 5, 'AO-2026-000108', 'BANK_REF',          'Bank Reference Letter',                'OPTIONAL',  'ABS Internal Policy',        180, '["PDF"]',      NULL,         'UNMATCHED', NULL, NULL),
     (19, 5, 'AO-2026-000108', 'INVEST_EXP_DECL',   'Investment Experience Declaration',    'OPTIONAL',  'SFC Suitability',            NULL, '["PDF"]',      NULL,         'UNMATCHED', NULL, NULL),
 
     -- CASE 108 Attempt 2: Same 8 items — now all mandatory matched
-    (20, 6, 'AO-2026-000108', 'AO_FORM_INDIV',     'Individual Account Opening Form',      'MANDATORY', 'DBS Internal Policy',        NULL, '["PDF"]',      'DOC-000022', 'MATCHED', 0.960, NULL),
+    (20, 6, 'AO-2026-000108', 'AO_FORM_INDIV',     'Individual Account Opening Form',      'MANDATORY', 'ABS Internal Policy',        NULL, '["PDF"]',      'DOC-000022', 'MATCHED', 0.960, NULL),
     (21, 6, 'AO-2026-000108', 'HKID_COPY',         'Hong Kong ID Card Copy',               'MANDATORY', 'HKMA SPM AML/CFT',          NULL, '["PDF","JPG"]','DOC-000023', 'MATCHED', 0.990, NULL),
     (22, 6, 'AO-2026-000108', 'ADDR_PROOF',        'Proof of Address (< 3 months)',        'MANDATORY', 'HKMA SPM AML/CFT',           90, '["PDF","JPG"]','DOC-000029', 'MATCHED', 0.940, 'Utility bill dated 2026-01-15'),
     (23, 6, 'AO-2026-000108', 'INCOME_PROOF',      'Proof of Income / Employment Letter',  'MANDATORY', 'SFC Suitability',            180, '["PDF"]',     'DOC-000030', 'MATCHED', 0.920, NULL),
     (24, 6, 'AO-2026-000108', 'RISK_DISCLOSURE',   'Risk Disclosure Acknowledgement',      'MANDATORY', 'SFC Code of Conduct',        NULL, '["PDF"]',     'DOC-000031', 'MATCHED', 0.970, NULL),
-    (25, 6, 'AO-2026-000108', 'GTA_SIGNED',        'General Terms Agreement (Signed)',      'MANDATORY', 'DBS Legal',                  NULL, '["PDF"]',     'DOC-000032', 'MATCHED', 0.950, 'GTA v4.2 detected'),
-    (26, 6, 'AO-2026-000108', 'BANK_REF',          'Bank Reference Letter',                'OPTIONAL',  'DBS Internal Policy',        180, '["PDF"]',      NULL,         'UNMATCHED', NULL, NULL),
+    (25, 6, 'AO-2026-000108', 'GTA_SIGNED',        'General Terms Agreement (Signed)',      'MANDATORY', 'ABS Legal',                  NULL, '["PDF"]',     'DOC-000032', 'MATCHED', 0.950, 'GTA v4.2 detected'),
+    (26, 6, 'AO-2026-000108', 'BANK_REF',          'Bank Reference Letter',                'OPTIONAL',  'ABS Internal Policy',        180, '["PDF"]',      NULL,         'UNMATCHED', NULL, NULL),
     (27, 6, 'AO-2026-000108', 'INVEST_EXP_DECL',   'Investment Experience Declaration',    'OPTIONAL',  'SFC Suitability',            NULL, '["PDF"]',      NULL,         'UNMATCHED', NULL, NULL);
 
 -- --------------------------------------------------------------------------
@@ -155,15 +155,15 @@ INSERT INTO dce_ao_document_ocr_result
 VALUES
     -- CASE 101: 2 documents
     (1, 'DOC-000001', 'AO-2026-000101', 'AO_FORM', 0.960,
-     'DBS BANK LTD\nACCOUNT OPENING APPLICATION FORM\n\nEntity Name: ABC Trading Pte Ltd\nUEN: 201012345A\nRegistered Address: 1 Raffles Place #30-01 One Raffles Place Singapore 048616\n\nAccount Type: Institutional Futures & Options\nProducts Requested: Exchange-Traded Futures, Listed Options\n\nUltimate Beneficial Owners:\n1. John Tan Wei Ming (55%)\n2. Sarah Lim (30%)\n\nAuthorised Signatories:\n1. John Tan Wei Ming - Director\n2. Sarah Lim - Director\n\nGENERAL TERMS AGREEMENT v4.2\nI/We have read and agree to the General Terms Agreement...\n\nSigned: [signature present]\nDate: 2026-03-01',
-     'DBS Bank Ltd', '2026-03-01', NULL,
+     'ABS BANK LTD\nACCOUNT OPENING APPLICATION FORM\n\nEntity Name: ABC Trading Pte Ltd\nUEN: 201012345A\nRegistered Address: 1 Raffles Place #30-01 One Raffles Place Singapore 048616\n\nAccount Type: Institutional Futures & Options\nProducts Requested: Exchange-Traded Futures, Listed Options\n\nUltimate Beneficial Owners:\n1. John Tan Wei Ming (55%)\n2. Sarah Lim (30%)\n\nAuthorised Signatories:\n1. John Tan Wei Ming - Director\n2. Sarah Lim - Director\n\nGENERAL TERMS AGREEMENT v4.2\nI/We have read and agree to the General Terms Agreement...\n\nSigned: [signature present]\nDate: 2026-03-01',
+     'ABS Bank Ltd', '2026-03-01', NULL,
      '["John Tan Wei Ming","Sarah Lim"]', 'EN', 12,
      TRUE, TRUE, FALSE,
      'azure-document-intelligence-v4', 3200,
      '2026-03-02 09:33:30'),
 
     (2, 'DOC-000002', 'AO-2026-000101', 'CORPORATE_PROFILE', 0.930,
-     'CORPORATE PROFILE\nABC Trading Pte Ltd\n\nCERTIFICATE OF INCORPORATION\nCompany Registration No: 201012345A\nDate of Incorporation: 15 June 2010\nIssued by: ACRA\n\nBOARD RESOLUTION\nResolved that the Company shall open an account with DBS Bank Ltd...\nResolved on: 28 February 2026\n\nMEMORANDUM AND ARTICLES OF ASSOCIATION\n[Full M&A text...]\n\nDIRECTORS:\n1. John Tan Wei Ming - Appointed 2010\n2. Sarah Lim - Appointed 2015\n3. Ahmad bin Hassan - Appointed 2020',
+     'CORPORATE PROFILE\nABC Trading Pte Ltd\n\nCERTIFICATE OF INCORPORATION\nCompany Registration No: 201012345A\nDate of Incorporation: 15 June 2010\nIssued by: ACRA\n\nBOARD RESOLUTION\nResolved that the Company shall open an account with ABS Bank Ltd...\nResolved on: 28 February 2026\n\nMEMORANDUM AND ARTICLES OF ASSOCIATION\n[Full M&A text...]\n\nDIRECTORS:\n1. John Tan Wei Ming - Appointed 2010\n2. Sarah Lim - Appointed 2015\n3. Ahmad bin Hassan - Appointed 2020',
      'ACRA', '2010-06-15', NULL,
      '["John Tan Wei Ming","Sarah Lim","Ahmad bin Hassan"]', 'EN', 28,
      TRUE, TRUE, FALSE,
@@ -172,8 +172,8 @@ VALUES
 
     -- CASE 108 Attempt 1: 2 documents
     (3, 'DOC-000022', 'AO-2026-000108', 'AO_FORM_INDIV', 0.950,
-     'DBS BANK LTD\nINDIVIDUAL ACCOUNT OPENING FORM\n\nFull Name: Li Mei Ling\nHKID: A1234567\nDate of Birth: 22 August 1985\nNationality: Hong Kong SAR\nResidential Address: Flat 12B, Tower 3, Taikoo Shing, Hong Kong\n\nAccount Type: Retail Futures\nProducts: Exchange-Traded Futures\n\nEmployment: Li & Partners Consulting Ltd\nAnnual Income: HKD 1,200,000\nNet Worth: HKD 8,000,000\nInvestment Experience: 5 years',
-     'DBS Bank Ltd', '2026-03-01', NULL,
+     'ABS BANK LTD\nINDIVIDUAL ACCOUNT OPENING FORM\n\nFull Name: Li Mei Ling\nHKID: A1234567\nDate of Birth: 22 August 1985\nNationality: Hong Kong SAR\nResidential Address: Flat 12B, Tower 3, Taikoo Shing, Hong Kong\n\nAccount Type: Retail Futures\nProducts: Exchange-Traded Futures\n\nEmployment: Li & Partners Consulting Ltd\nAnnual Income: HKD 1,200,000\nNet Worth: HKD 8,000,000\nInvestment Experience: 5 years',
+     'ABS Bank Ltd', '2026-03-01', NULL,
      '["Li Mei Ling"]', 'EN', 6,
      TRUE, FALSE, FALSE,
      'azure-document-intelligence-v4', 1800,
@@ -205,16 +205,16 @@ VALUES
      '2026-03-03 10:16:10'),
 
     (7, 'DOC-000031', 'AO-2026-000108', 'RISK_DISCLOSURE', 0.940,
-     'DBS BANK LTD\nRISK DISCLOSURE STATEMENT\nFUTURES TRADING\n\nI, Li Mei Ling, acknowledge that I have read and understood the risks associated with futures trading...\n\nSigned: [signature]\nDate: 2 March 2026',
-     'DBS Bank Ltd', '2026-03-02', NULL,
+     'ABS BANK LTD\nRISK DISCLOSURE STATEMENT\nFUTURES TRADING\n\nI, Li Mei Ling, acknowledge that I have read and understood the risks associated with futures trading...\n\nSigned: [signature]\nDate: 2 March 2026',
+     'ABS Bank Ltd', '2026-03-02', NULL,
      '["Li Mei Ling"]', 'EN', 3,
      TRUE, FALSE, FALSE,
      'azure-document-intelligence-v4', 1000,
      '2026-03-03 10:16:15'),
 
     (8, 'DOC-000032', 'AO-2026-000108', 'GTA_SIGNED', 0.920,
-     'DBS BANK LTD\nGENERAL TERMS AGREEMENT\nVersion 4.2\n\nI, Li Mei Ling, have read and agree to the General Terms Agreement v4.2...\n\nSchedule 7A - Futures Trading Terms: SIGNED\n\nSigned: [signature]\nDate: 2 March 2026',
-     'DBS Bank Ltd', '2026-03-02', NULL,
+     'ABS BANK LTD\nGENERAL TERMS AGREEMENT\nVersion 4.2\n\nI, Li Mei Ling, have read and agree to the General Terms Agreement v4.2...\n\nSchedule 7A - Futures Trading Terms: SIGNED\n\nSigned: [signature]\nDate: 2 March 2026',
+     'ABS Bank Ltd', '2026-03-02', NULL,
      '["Li Mei Ling"]', 'EN', 8,
      TRUE, FALSE, FALSE,
      'azure-document-intelligence-v4', 2200,
@@ -361,7 +361,7 @@ VALUES
      'HITL_RM',
      'Only 2 of 6 mandatory documents submitted (AO Form and HKID). 4 mandatory documents missing: Proof of Address, Income Proof, Risk Disclosure, GTA. Retry recommended -- composing RM chase notification.',
      TRUE, 2.10,
-     'Dear Annie,\n\nRegarding case AO-2026-000108 for client Li Mei Ling, the following mandatory documents are still required:\n\n1. Proof of Address -- Utility bill, bank statement, or government letter dated within the last 3 months\n2. Proof of Income -- Employment letter or tax assessment notice (within 6 months)\n3. Risk Disclosure Statement -- DBS futures trading risk disclosure form (must be signed by client)\n4. General Terms Agreement -- GTA v4.2 (must be signed by client)\n\nPlease submit these documents within 24 hours to meet the SLA deadline.\n\nRegards,\nDCE Document Processing',
+     'Dear Annie,\n\nRegarding case AO-2026-000108 for client Li Mei Ling, the following mandatory documents are still required:\n\n1. Proof of Address -- Utility bill, bank statement, or government letter dated within the last 3 months\n2. Proof of Income -- Employment letter or tax assessment notice (within 6 months)\n3. Risk Disclosure Statement -- ABS futures trading risk disclosure form (must be signed by client)\n4. General Terms Agreement -- GTA v4.2 (must be signed by client)\n\nPlease submit these documents within 24 hours to meet the SLA deadline.\n\nRegards,\nDCE Document Processing',
      '2026-03-02 08:52:00',
      'claude-sonnet-4-6', 'claude-sonnet-4-6',
      '2026-03-02 08:51:00'),

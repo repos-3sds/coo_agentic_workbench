@@ -1,0 +1,1090 @@
+app:
+  description: >
+    SA-5 Credit Preparation Agent — Node N-4.
+    Two-phase HITL workflow: Phase 1 (financial data extraction, credit brief compilation,
+    park for Credit Team review) and Phase 2 (credit decision validation, capture,
+    checkpoint, advance to N-5).
+    MCP tools are called via JSON-RPC 2.0 over HTTP on the SA-5 MCP server.
+  icon: "\U0001F4B3"
+  icon_background: "#F0F4E8"
+  mode: workflow
+  name: DCE-AO-SA5-Credit-Preparation
+  use_icon_as_answer_icon: false
+
+kind: app
+version: 0.6.0
+
+# ────────────────────────────────────────────────────────────────────
+# IMPORTANT — Post-Import Configuration Required:
+# 1. Open node 5000000003 (KB-6 DCE Product Reference Retrieval)
+#    → select your "KB-6 DCE Product Reference" dataset
+# 2. MCP_ENDPOINT below points to SA-5 server at host.docker.internal:8003
+#    (works with Colima on macOS; update for production OCP service mesh)
+# ────────────────────────────────────────────────────────────────────
+
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: SA-5 MCP server endpoint (local Docker host on port 8003)
+    id: env-mcp-endpoint-sa5
+    name: MCP_ENDPOINT
+    selector:
+    - env
+    - MCP_ENDPOINT
+    value: http://host.docker.internal:8003
+    value_type: string
+  features:
+    file_upload:
+      allowed_file_extensions: []
+      allowed_file_types: []
+      allowed_file_upload_methods: []
+      enabled: false
+      fileUploadConfig:
+        file_size_limit: 15
+        image_file_size_limit: 10
+    opening_statement: ""
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ""
+      voice: ""
+
+  graph:
+    edges:
+      # START → Phase Router
+      - data: {isInIteration: false, sourceType: start, targetType: if-else}
+        id: e-5001-5002
+        source: "5000000001"
+        target: "5000000002"
+        type: custom
+      # Phase Router → PHASE1 (TRIGGER) → KB-6 Retrieval
+      - data: {isInIteration: false, sourceType: if-else, targetType: knowledge-retrieval}
+        id: e-5002-5003-trigger
+        source: "5000000002"
+        sourceHandle: "true"
+        target: "5000000003"
+        type: custom
+      # Phase Router → PHASE2 (RESUME) → Get Context P2
+      - data: {isInIteration: false, sourceType: if-else, targetType: code}
+        id: e-5002-5010-resume
+        source: "5000000002"
+        sourceHandle: "false"
+        target: "5000000010"
+        type: custom
+      # KB-6 → Get Case Context (Phase 1)
+      - data: {isInIteration: false, sourceType: knowledge-retrieval, targetType: code}
+        id: e-5003-5004
+        source: "5000000003"
+        target: "5000000004"
+        type: custom
+      # Get Context P1 → Extract Financial Data
+      - data: {isInIteration: false, sourceType: code, targetType: code}
+        id: e-5004-5005
+        source: "5000000004"
+        target: "5000000005"
+        type: custom
+      # Extract Financial Data → Compile Credit Brief (LLM)
+      - data: {isInIteration: false, sourceType: code, targetType: llm}
+        id: e-5005-5006
+        source: "5000000005"
+        target: "5000000006"
+        type: custom
+      # Compile Credit Brief LLM → Compile Credit Brief (MCP)
+      - data: {isInIteration: false, sourceType: llm, targetType: code}
+        id: e-5006-5007
+        source: "5000000006"
+        target: "5000000007"
+        type: custom
+      # Compile Credit Brief MCP → Park for Credit Review
+      - data: {isInIteration: false, sourceType: code, targetType: code}
+        id: e-5007-5008
+        source: "5000000007"
+        target: "5000000008"
+        type: custom
+      # Park for Credit Review → END HITL_PENDING
+      - data: {isInIteration: false, sourceType: code, targetType: end}
+        id: e-5008-5009
+        source: "5000000008"
+        target: "5000000009"
+        type: custom
+      # Get Context P2 → Credit Decision Validator
+      - data: {isInIteration: false, sourceType: code, targetType: code}
+        id: e-5010-5011
+        source: "5000000010"
+        target: "5000000011"
+        type: custom
+      # Credit Decision Validator → Fields Complete Router
+      - data: {isInIteration: false, sourceType: code, targetType: if-else}
+        id: e-5011-5012
+        source: "5000000011"
+        target: "5000000012"
+        type: custom
+      # Fields Incomplete → END Incomplete
+      - data: {isInIteration: false, sourceType: if-else, targetType: end}
+        id: e-5012-5013-incomplete
+        source: "5000000012"
+        sourceHandle: "false"
+        target: "5000000013"
+        type: custom
+      # Fields Complete → Capture Credit Decisions
+      - data: {isInIteration: false, sourceType: if-else, targetType: code}
+        id: e-5012-5014-complete
+        source: "5000000012"
+        sourceHandle: "true"
+        target: "5000000014"
+        type: custom
+      # Capture Credit Decisions → Credit Outcome Router
+      - data: {isInIteration: false, sourceType: code, targetType: if-else}
+        id: e-5014-5015
+        source: "5000000014"
+        target: "5000000015"
+        type: custom
+      # Credit Outcome DECLINED (true) → Complete Node Declined
+      - data: {isInIteration: false, sourceType: if-else, targetType: code}
+        id: e-5015-5018-declined
+        source: "5000000015"
+        sourceHandle: "true"
+        target: "5000000018"
+        type: custom
+      # Credit Outcome APPROVED (false) → Complete Node Approved
+      - data: {isInIteration: false, sourceType: if-else, targetType: code}
+        id: e-5015-5016-approved
+        source: "5000000015"
+        sourceHandle: "false"
+        target: "5000000016"
+        type: custom
+      # Complete Node Approved → END CREDIT_APPROVED
+      - data: {isInIteration: false, sourceType: code, targetType: end}
+        id: e-5016-5017
+        source: "5000000016"
+        target: "5000000017"
+        type: custom
+      # Complete Node Declined → END CREDIT_DECLINED
+      - data: {isInIteration: false, sourceType: code, targetType: end}
+        id: e-5018-5019
+        source: "5000000018"
+        target: "5000000019"
+        type: custom
+
+    nodes:
+      # ────────────────────────────────────────────────────
+      # Node 1: START
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "Entry point for both TRIGGER (Phase 1) and RESUME (Phase 2) modes"
+          title: START
+          type: start
+          variables:
+            - label: case_id
+              max_length: 30
+              options: []
+              required: true
+              type: text-input
+              variable: case_id
+            - label: mode
+              max_length: 20
+              options: []
+              required: true
+              type: text-input
+              variable: mode
+            - label: hitl_task_id
+              max_length: 20
+              options: []
+              required: false
+              type: text-input
+              variable: hitl_task_id
+            - label: credit_decisions
+              max_length: 4000
+              options: []
+              required: false
+              type: paragraph
+              variable: credit_decisions
+        id: "5000000001"
+        position: {x: 50, y: 300}
+        type: start
+
+      # ────────────────────────────────────────────────────
+      # Node 2: Phase Router (TRIGGER vs RESUME)
+      # ────────────────────────────────────────────────────
+      - data:
+          cases:
+            - case_id: "true"
+              conditions:
+                - comparison_operator: is
+                  id: c-phase-trigger
+                  value: TRIGGER
+                  varType: string
+                  variable_selector: ["5000000001", mode]
+              logical_operator: and
+          desc: "Routes to Phase 1 (TRIGGER) or Phase 2 (RESUME) based on mode input"
+          title: "Phase Router"
+          type: if-else
+        id: "5000000002"
+        position: {x: 250, y: 300}
+        type: if-else
+
+      # ────────────────────────────────────────────────────
+      # Node 3: KB-6 DCE Product Reference Retrieval
+      # ────────────────────────────────────────────────────
+      - data:
+          dataset_ids: []
+          desc: "Load DCE product risk profiles, margin requirements and credit benchmarks"
+          metadata_filtering_mode: disabled
+          multiple_retrieval_config:
+            reranking_enable: false
+            reranking_mode: weighted_score
+            top_k: 6
+          query:
+            id: q-kb6-sa5
+            value_selector: ["5000000001", case_id]
+            variable: query
+          retrieval_mode: multiple
+          single_retrieval_config:
+            model:
+              completion_params: {temperature: 0.1}
+              mode: chat
+              name: qwen2.5:32b
+              provider: langgenius/ollama/ollama
+          title: "KB-6 DCE Product Reference"
+          type: knowledge-retrieval
+        id: "5000000003"
+        position: {x: 500, y: 150}
+        type: knowledge-retrieval
+
+      # ────────────────────────────────────────────────────
+      # Node 4: Get Case Context (Phase 1)
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, mcp_endpoint: str) -> dict:
+                # Initialize MCP session
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05",
+                               "capabilities": {}, "clientInfo": {"name": "dify-sa5", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(urllib.request.Request(
+                    f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json, text/event-stream",
+                    "Mcp-Session-Id": session_id,
+                }
+                # Call sa5_get_case_context (Phase 1)
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa5_get_case_context",
+                               "arguments": {"case_id": case_id, "phase": "PHASE1"}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    parsed = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    parsed = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    parsed["mcp_error"] = True
+                return {"result": parsed}
+          code_language: python3
+          desc: "Fetch case state, RM hierarchy, classification, RM KYC decisions, N-3 output, financial doc IDs"
+          outputs:
+            result: {children: null, type: object}
+          title: "Get Case Context (Phase 1)"
+          type: code
+          variables:
+            - value_selector: ["5000000001", case_id]
+              variable: case_id
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "5000000004"
+        position: {x: 700, y: 150}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 5: Extract Financial Data
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, context_result: dict, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa5", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                financial_doc_ids = context_result.get("financial_doc_ids", [])
+                case_state = context_result.get("case_state", {})
+                extracted_data = context_result.get("extracted_data", {})
+                entity_name = extracted_data.get("entity_name", case_state.get("entity_name", ""))
+                jurisdiction = case_state.get("jurisdiction", "SGP")
+                # Use a temp brief ID for financial extract linkage (compile_credit_brief generates the real one)
+                temp_brief_id = f"TEMP-{case_id}"
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa5_extract_financial_data",
+                               "arguments": {"case_id": case_id,
+                                             "credit_brief_id": temp_brief_id,
+                                             "financial_doc_ids": financial_doc_ids,
+                                             "entity_name": entity_name,
+                                             "jurisdiction": jurisdiction}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=60)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    data = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    data = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    data["mcp_error"] = True
+                financial_summary = data.get("financial_summary", {})
+                return {"result": data, "financial_summary": financial_summary}
+          code_language: python3
+          desc: "Extract credit metrics from financial statement docs; calculate leverage and liquidity ratios; write financial_extract rows"
+          outputs:
+            result: {children: null, type: object}
+            financial_summary: {children: null, type: object}
+          title: "Extract Financial Data"
+          type: code
+          variables:
+            - value_selector: ["5000000001", case_id]
+              variable: case_id
+            - value_selector: ["5000000004", result]
+              variable: context_result
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "5000000005"
+        position: {x: 900, y: 150}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 6: Compile Credit Brief (LLM — Qwen/Ollama)
+      # ────────────────────────────────────────────────────
+      - data:
+          context:
+            enabled: true
+            variable_selector: ["5000000003", result]
+          desc: "Synthesise case context and financial data into the 10-section Credit Brief"
+          model:
+            completion_params:
+              max_tokens: 4096
+              temperature: 0.2
+            mode: chat
+            name: qwen2.5:32b
+            provider: langgenius/ollama/ollama
+          variables:
+            - variable: kb6_result
+              value_selector: ["5000000003", result]
+            - variable: case_id_val
+              value_selector: ["5000000001", case_id]
+            - variable: context_result
+              value_selector: ["5000000004", result]
+            - variable: financial_summary
+              value_selector: ["5000000005", financial_summary]
+          prompt_template:
+            - id: sys-sa5
+              role: system
+              text: |
+                You are the DCE Credit Preparation Specialist at ABS Bank.
+                Compile a complete 10-section Credit Brief for the Credit Team's review of this new account opening case.
+
+                MANDATORY RULES:
+                1. Present factual financial data — you do NOT approve or decline credit.
+                2. Include all financial metrics with YoY comparisons where available.
+                3. Highlight material observations and open questions for Credit Team.
+                4. Format each section with a clear numbered heading.
+                5. Estimated initial limit is advisory only — Credit Team makes the final determination.
+
+                DCE PRODUCT REFERENCE DATA (KB-6):
+                {{kb6_result}}
+
+                CREDIT BRIEF STRUCTURE (10 Sections):
+                1. ENTITY SUMMARY — Legal name, entity type, jurisdiction, key principals, business activities
+                2. RM RECOMMENDATIONS — CAA approach, recommended DCE limit (SGD), recommended DCE-PCE limit (SGD), OSCA reference, KYC risk rating
+                3. PRODUCTS REQUESTED — Products with margin profiles and GTA schedule references from KB-6
+                4. FINANCIAL HIGHLIGHTS — Total equity, NAV, leverage ratio, liquidity ratio per year
+                5. REVENUE & PROFITABILITY — Revenue, net profit, YoY trends (%)
+                6. ESTIMATED INITIAL LIMIT — Conservative estimate (10% of equity) vs RM recommendation with variance analysis
+                7. COMPARABLE BENCHMARKS — Peer group analysis using KB-6 reference benchmarks
+                8. RISK OBSERVATIONS — Key credit risks, concentration risks, material weaknesses
+                9. OPEN QUESTIONS — Unresolved items, clarifications needed, data gaps
+                10. RECOMMENDED NEXT STEPS — Suggested Credit Team actions with rationale
+            - id: user-sa5
+              role: user
+              text: |
+                Case ID: {{case_id_val}}
+
+                Case Context & Entity Data:
+                {{context_result}}
+
+                Financial Summary (Extracted from Financial Statements):
+                {{financial_summary}}
+
+                Please compile the complete 10-section Credit Brief now.
+                Include the estimated initial limit calculation and all open questions.
+                Format each section with a clear heading.
+          title: "Compile Credit Brief (LLM)"
+          type: llm
+          vision:
+            configs:
+              detail: high
+            enabled: false
+        id: "5000000006"
+        position: {x: 1100, y: 150}
+        type: llm
+
+      # ────────────────────────────────────────────────────
+      # Node 7: Compile Credit Brief (MCP — persist to DB)
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, context_result: dict, extract_result: dict,
+                     llm_brief: str, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa5", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                case_state = context_result.get("case_state", {})
+                classification = context_result.get("classification_result", {})
+                rm_kyc_decisions = context_result.get("rm_kyc_decisions", {})
+                extracted_data = context_result.get("extracted_data", {})
+                financial_summary = extract_result.get("financial_summary", {})
+                entity_name = extracted_data.get("entity_name", case_state.get("entity_name", ""))
+                entity_type = classification.get("entity_type", "CORP")
+                jurisdiction = case_state.get("jurisdiction", "SGP")
+                products_requested = classification.get("products_requested", [])
+                if isinstance(products_requested, str):
+                    try:
+                        products_requested = json.loads(products_requested)
+                    except Exception:
+                        products_requested = [products_requested]
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa5_compile_credit_brief",
+                               "arguments": {
+                                   "case_id": case_id,
+                                   "entity_name": entity_name,
+                                   "entity_type": entity_type,
+                                   "jurisdiction": jurisdiction,
+                                   "products_requested": products_requested,
+                                   "rm_decisions": rm_kyc_decisions,
+                                   "financial_summary": financial_summary,
+                                   "open_questions": ["See full credit brief for Credit Team review items"],
+                                   "comparable_benchmarks": {},
+                                   "kb_chunks_used": ["KB-6"],
+                                   "compiled_by_model": "qwen2.5:32b"
+                               }}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    data = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    data = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    data["mcp_error"] = True
+                return {
+                    "result": data,
+                    "credit_brief_id": data.get("credit_brief_id", ""),
+                    "brief_url": data.get("brief_url", ""),
+                }
+          code_language: python3
+          desc: "Persist credit brief to dce_ao_credit_brief; post to Credit Team workbench queue; return credit_brief_id"
+          outputs:
+            result: {children: null, type: object}
+            credit_brief_id: {children: null, type: string}
+            brief_url: {children: null, type: string}
+          title: "Compile Credit Brief (MCP)"
+          type: code
+          variables:
+            - value_selector: ["5000000001", case_id]
+              variable: case_id
+            - value_selector: ["5000000004", result]
+              variable: context_result
+            - value_selector: ["5000000005", result]
+              variable: extract_result
+            - value_selector: ["5000000006", text]
+              variable: llm_brief
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "5000000007"
+        position: {x: 1300, y: 150}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 8: Park for Credit Review
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json, datetime
+
+            def main(case_id: str, context_result: dict, brief_result: dict, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa5", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                credit_brief_id = brief_result.get("credit_brief_id", "")
+                brief_url = brief_result.get("brief_url", "")
+                rm_hierarchy = context_result.get("rm_hierarchy", {})
+                rm_id = rm_hierarchy.get("rm_id", "RM-UNKNOWN")
+                case_state = context_result.get("case_state", {})
+                priority = case_state.get("priority", "STANDARD")
+                # SLA: 1 biz day (24h) for URGENT, 5 biz days (120h) for STANDARD
+                sla_hours = 24 if priority == "URGENT" else 120
+                deadline_dt = datetime.datetime.now() + datetime.timedelta(hours=sla_hours)
+                hitl_deadline = deadline_dt.strftime("%Y-%m-%d %H:%M:%S")
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa5_park_for_credit_review",
+                               "arguments": {"case_id": case_id,
+                                             "credit_brief_id": credit_brief_id,
+                                             "rm_id": rm_id,
+                                             "priority": priority,
+                                             "brief_url": brief_url,
+                                             "hitl_deadline": hitl_deadline}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    parsed = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    parsed = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    parsed["mcp_error"] = True
+                return {"result": parsed}
+          code_language: python3
+          desc: "Atomic: create HITL task for Credit Team + HITL_PENDING checkpoint + event log + update case state"
+          outputs:
+            result: {children: null, type: object}
+          title: "Park for Credit Review"
+          type: code
+          variables:
+            - value_selector: ["5000000001", case_id]
+              variable: case_id
+            - value_selector: ["5000000004", result]
+              variable: context_result
+            - value_selector: ["5000000007", result]
+              variable: brief_result
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "5000000008"
+        position: {x: 1500, y: 150}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 9: END — HITL_PENDING
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "Workflow parks here. Credit Team reviews brief in Agentic Workbench. SA-5 resumes via Kafka CREDIT_DECISION_SUBMITTED."
+          outputs:
+            - type: string
+              value_selector: ["5000000008", result]
+              variable: hitl_pending_result
+          title: "END: HITL_PENDING"
+          type: end
+        id: "5000000009"
+        position: {x: 1700, y: 150}
+        type: end
+
+      # ────────────────────────────────────────────────────
+      # Node 10: Get Case Context (Phase 2 Resume)
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05",
+                               "capabilities": {}, "clientInfo": {"name": "dify-sa5", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(urllib.request.Request(
+                    f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json, text/event-stream",
+                    "Mcp-Session-Id": session_id,
+                }
+                # Call sa5_get_case_context (Phase 2)
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa5_get_case_context",
+                               "arguments": {"case_id": case_id, "phase": "PHASE2"}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    ctx = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    ctx = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    ctx["mcp_error"] = True
+                return {"result": ctx}
+          code_language: python3
+          desc: "Phase 2: fetch case context including RM KYC decisions and N-3 output for credit decision capture"
+          outputs:
+            result: {children: null, type: object}
+          title: "Get Case Context (Phase 2)"
+          type: code
+          variables:
+            - value_selector: ["5000000001", case_id]
+              variable: case_id
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "5000000010"
+        position: {x: 500, y: 500}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 11: Credit Decision Validator
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import json
+
+            def main(credit_decisions_raw: str, case_id: str) -> dict:
+                try:
+                    decisions = json.loads(credit_decisions_raw) if isinstance(credit_decisions_raw, str) else credit_decisions_raw
+                except (json.JSONDecodeError, TypeError):
+                    return {
+                        "result": {"validation_status": "INCOMPLETE",
+                                   "missing_fields": ["credit_decisions_parse_error"],
+                                   "is_complete": False, "credit_decisions": {},
+                                   "credit_outcome": "", "credit_brief_id": ""},
+                        "fields_complete": "false",
+                        "credit_outcome_str": "",
+                        "credit_brief_id": "",
+                    }
+                mandatory = [
+                    "credit_outcome", "approved_dce_limit_sgd", "approved_dce_pce_limit_sgd",
+                    "confirmed_caa_approach", "conditions", "credit_team_id",
+                    "credit_team_name", "decided_at",
+                ]
+                missing = [
+                    f for f in mandatory
+                    if f not in decisions or (f not in ("conditions",) and decisions[f] is None)
+                ]
+                credit_outcome = str(decisions.get("credit_outcome", "")).upper()
+                credit_brief_id = decisions.get("credit_brief_id", "")
+                return {
+                    "result": {
+                        "validation_status": "COMPLETE" if not missing else "INCOMPLETE",
+                        "missing_fields": missing,
+                        "is_complete": len(missing) == 0,
+                        "credit_decisions": decisions,
+                        "credit_outcome": credit_outcome,
+                        "credit_brief_id": credit_brief_id,
+                    },
+                    "fields_complete": "true" if not missing else "false",
+                    "credit_outcome_str": credit_outcome,
+                    "credit_brief_id": credit_brief_id,
+                }
+          code_language: python3
+          desc: "Validate all 8 mandatory Credit Team decision fields; extract credit_outcome and credit_brief_id for routing"
+          outputs:
+            result: {children: null, type: object}
+            fields_complete: {children: null, type: string}
+            credit_outcome_str: {children: null, type: string}
+            credit_brief_id: {children: null, type: string}
+          title: "Credit Decision Validator"
+          type: code
+          variables:
+            - value_selector: ["5000000001", credit_decisions]
+              variable: credit_decisions_raw
+            - value_selector: ["5000000001", case_id]
+              variable: case_id
+        id: "5000000011"
+        position: {x: 700, y: 500}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 12: Fields Complete Router
+      # ────────────────────────────────────────────────────
+      - data:
+          cases:
+            - case_id: "true"
+              conditions:
+                - comparison_operator: is
+                  id: c-fields-complete
+                  value: "true"
+                  varType: string
+                  variable_selector: ["5000000011", fields_complete]
+              logical_operator: and
+          desc: "All 8 mandatory Credit Team decision fields present?"
+          title: "All Fields Present?"
+          type: if-else
+        id: "5000000012"
+        position: {x: 900, y: 500}
+        type: if-else
+
+      # ────────────────────────────────────────────────────
+      # Node 13: END — Incomplete Submission
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "Credit Team submission incomplete — return to workbench with list of missing fields"
+          outputs:
+            - type: string
+              value_selector: ["5000000011", result]
+              variable: validation_result
+          title: "END: Incomplete — Return to Credit Team"
+          type: end
+        id: "5000000013"
+        position: {x: 1100, y: 420}
+        type: end
+
+      # ────────────────────────────────────────────────────
+      # Node 14: Capture Credit Decisions
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, validation_result: dict, context_result: dict,
+                     credit_brief_id_ref: str, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa5", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                credit_decisions = validation_result.get("credit_decisions", {})
+                # credit_brief_id priority: from decisions JSON > from validator output ref
+                credit_brief_id = validation_result.get("credit_brief_id", "") or credit_brief_id_ref or ""
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa5_capture_credit_decisions",
+                               "arguments": {"case_id": case_id,
+                                             "credit_brief_id": credit_brief_id,
+                                             "credit_decisions": credit_decisions}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    data = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    data = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    data["mcp_error"] = True
+                return {"result": data, "credit_brief_id": credit_brief_id}
+          code_language: python3
+          desc: "Persist all validated Credit Team decisions atomically to dce_ao_credit_decision"
+          outputs:
+            result: {children: null, type: object}
+            credit_brief_id: {children: null, type: string}
+          title: "Capture Credit Decisions"
+          type: code
+          variables:
+            - value_selector: ["5000000001", case_id]
+              variable: case_id
+            - value_selector: ["5000000011", result]
+              variable: validation_result
+            - value_selector: ["5000000010", result]
+              variable: context_result
+            - value_selector: ["5000000011", credit_brief_id]
+              variable: credit_brief_id_ref
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "5000000014"
+        position: {x: 1100, y: 580}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 15: Credit Outcome Router
+      # ────────────────────────────────────────────────────
+      - data:
+          cases:
+            - case_id: "true"
+              conditions:
+                - comparison_operator: is
+                  id: c-credit-declined
+                  value: DECLINED
+                  varType: string
+                  variable_selector: ["5000000011", credit_outcome_str]
+              logical_operator: and
+          desc: "DECLINED → terminate (case ESCALATED/DEAD). APPROVED / APPROVED_WITH_CONDITIONS → advance to N-5."
+          title: "Credit Outcome Router"
+          type: if-else
+        id: "5000000015"
+        position: {x: 1300, y: 580}
+        type: if-else
+
+      # ────────────────────────────────────────────────────
+      # Node 16: Complete Node — Credit Approved
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, validation_result: dict, capture_result: dict,
+                     hitl_task_id: str, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa5", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                credit_decisions = validation_result.get("credit_decisions", {})
+                credit_brief_id = (
+                    capture_result.get("credit_brief_id", "")
+                    or validation_result.get("credit_brief_id", "")
+                )
+                credit_outcome_raw = str(credit_decisions.get("credit_outcome", "APPROVED")).upper()
+                outcome = (
+                    "CREDIT_APPROVED_WITH_CONDITIONS"
+                    if credit_outcome_raw == "APPROVED_WITH_CONDITIONS"
+                    else "CREDIT_APPROVED"
+                )
+                decision_id = capture_result.get("decision_id", 0)
+                n4_output = {
+                    "case_id": case_id,
+                    "credit_brief_id": credit_brief_id,
+                    "credit_outcome": outcome,
+                    "approved_dce_limit_sgd": credit_decisions.get("approved_dce_limit_sgd"),
+                    "approved_dce_pce_limit_sgd": credit_decisions.get("approved_dce_pce_limit_sgd"),
+                    "confirmed_caa_approach": credit_decisions.get("confirmed_caa_approach"),
+                    "has_conditions": bool(credit_decisions.get("conditions")),
+                    "decision_id": decision_id,
+                    "next_node": "N-5",
+                }
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa5_complete_node",
+                               "arguments": {"case_id": case_id,
+                                             "outcome": outcome,
+                                             "credit_brief_id": credit_brief_id,
+                                             "credit_decisions": credit_decisions,
+                                             "n4_output": n4_output,
+                                             "hitl_task_id": hitl_task_id}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    parsed = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    parsed = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    parsed["mcp_error"] = True
+                return {"result": parsed, "n4_output": n4_output}
+          code_language: python3
+          desc: "MANDATORY: write N-4 COMPLETE checkpoint, advance to N-5, fire CREDIT_APPROVED Kafka event"
+          outputs:
+            result: {children: null, type: object}
+            n4_output: {children: null, type: object}
+          title: "Complete Node (Credit Approved)"
+          type: code
+          variables:
+            - value_selector: ["5000000001", case_id]
+              variable: case_id
+            - value_selector: ["5000000011", result]
+              variable: validation_result
+            - value_selector: ["5000000014", result]
+              variable: capture_result
+            - value_selector: ["5000000001", hitl_task_id]
+              variable: hitl_task_id
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "5000000016"
+        position: {x: 1500, y: 500}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 17: END — Credit Approved
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "N-4 complete. Credit approved. SA-6 Document Prep triggered via Kafka CREDIT_APPROVED event."
+          outputs:
+            - type: object
+              value_selector: ["5000000016", n4_output]
+              variable: n4_output
+          title: "END: CREDIT_APPROVED"
+          type: end
+        id: "5000000017"
+        position: {x: 1700, y: 500}
+        type: end
+
+      # ────────────────────────────────────────────────────
+      # Node 18: Complete Node — Credit Declined
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, validation_result: dict, capture_result: dict,
+                     hitl_task_id: str, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa5", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                credit_decisions = validation_result.get("credit_decisions", {})
+                credit_brief_id = (
+                    capture_result.get("credit_brief_id", "")
+                    or validation_result.get("credit_brief_id", "")
+                )
+                decline_reason = credit_decisions.get("decline_reason", "CREDIT_DECLINED_BY_CREDIT_TEAM")
+                n4_output = {
+                    "case_id": case_id,
+                    "credit_brief_id": credit_brief_id,
+                    "credit_outcome": "CREDIT_DECLINED",
+                    "decline_reason": decline_reason,
+                    "next_node": "DEAD",
+                }
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa5_complete_node",
+                               "arguments": {"case_id": case_id,
+                                             "outcome": "CREDIT_DECLINED",
+                                             "credit_brief_id": credit_brief_id,
+                                             "credit_decisions": credit_decisions,
+                                             "n4_output": n4_output,
+                                             "hitl_task_id": hitl_task_id,
+                                             "failure_reason": decline_reason}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                is_error = result.get("result", {}).get("isError", False)
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                try:
+                    parsed = json.loads(text)
+                except (json.JSONDecodeError, ValueError):
+                    parsed = {"raw_text": text, "parse_error": True}
+                if is_error:
+                    parsed["mcp_error"] = True
+                return {"result": parsed, "n4_output": n4_output}
+          code_language: python3
+          desc: "MANDATORY: write N-4 FAILED checkpoint, case → ESCALATED/DEAD, fire CREDIT_DECLINED Kafka event"
+          outputs:
+            result: {children: null, type: object}
+            n4_output: {children: null, type: object}
+          title: "Complete Node (Credit Declined)"
+          type: code
+          variables:
+            - value_selector: ["5000000001", case_id]
+              variable: case_id
+            - value_selector: ["5000000011", result]
+              variable: validation_result
+            - value_selector: ["5000000014", result]
+              variable: capture_result
+            - value_selector: ["5000000001", hitl_task_id]
+              variable: hitl_task_id
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "5000000018"
+        position: {x: 1500, y: 680}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 19: END — Credit Declined
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "N-4 terminated — credit declined by Credit Team. RM and Sales Dealer notified via Kafka CREDIT_DECLINED event."
+          outputs:
+            - type: object
+              value_selector: ["5000000018", n4_output]
+              variable: n4_output
+          title: "END: CREDIT_DECLINED"
+          type: end
+        id: "5000000019"
+        position: {x: 1700, y: 680}
+        type: end

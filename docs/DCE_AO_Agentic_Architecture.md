@@ -1,8 +1,8 @@
 # DCE Account Opening — Enterprise Agentic Architecture Blueprint
 
-**Organisation:** DBS Bank — Treasury & Markets, Derivatives & Commodities Execution (DCE) Desk
+**Organisation:** ABS Bank — Treasury & Markets, Derivatives & Commodities Execution (DCE) Desk
 **Use Case:** Account Opening (Use Case 2)
-**Agent Platform:** Dify (hosted on OpenShift — DBS Private Cloud)
+**Agent Platform:** Dify (hosted on OpenShift — ABS Private Cloud)
 **Backend:** Java Spring Boot · MariaDB · MongoDB · Kafka
 **Frontend:** Angular (Agentic Workbench)
 **Document Version:** 1.0
@@ -44,7 +44,7 @@
 | 3 | **Agent boundaries follow functional accountability** | Each sub-agent maps to one functional owner (Desk Support, RM, Credit Team, TMO Static). No agent crosses ownership boundaries. |
 | 4 | **Every action is an audit event** | SA-9 (Audit Agent) fires on every agent output and every human decision. No action — agent or human — escapes the audit trail. |
 | 5 | **Fail safe, not fail silent** | If any agent cannot execute, it logs the failure, escalates to the responsible human team, and the manual fallback path is activated. The workflow never stalls silently. |
-| 6 | **Private cloud only** | All Dify agents, knowledge bases, LLM model calls, and APIs run within DBS OpenShift. No data leaves the DBS private cloud boundary. |
+| 6 | **Private cloud only** | All Dify agents, knowledge bases, LLM model calls, and APIs run within ABS OpenShift. No data leaves the ABS private cloud boundary. |
 | 7 | **Single case identity** | Every event, agent call, document, decision, and notification is bound to a unique `case_id` (Account Opening Reference — AOR). All agents share this as the primary key. |
 
 ---
@@ -65,7 +65,7 @@
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────┐
-│                          DBS PRIVATE CLOUD (OpenShift)                           │
+│                          ABS PRIVATE CLOUD (OpenShift)                           │
 │                                                                                  │
 │  ┌─────────────────────────────────────────────────────────────────────────┐    │
 │  │                    AGENTIC WORKBENCH (Angular SPA)                       │    │
@@ -1428,7 +1428,7 @@ END NODE
 ---
 
 *Document prepared for: DCE Agentic Transformation Programme*
-*Platform: Dify on OpenShift (DBS Private Cloud)*
+*Platform: Dify on OpenShift (ABS Private Cloud)*
 *Review cycle: Before each implementation stage*
 *Classification: Internal — Restricted*
 

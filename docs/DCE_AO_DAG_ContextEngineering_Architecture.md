@@ -10,7 +10,7 @@
 | **Author** | Ranga Bodavalla |
 | **Use Case** | DCE Account Opening (AO) |
 | **Platform** | Dify (Workflow / Agent / Chatflow) |
-| **Deployment** | DBS OpenShift Private Cloud |
+| **Deployment** | ABS OpenShift Private Cloud |
 | **Regulatory Scope** | MAS (SGP) · HKMA (HKG) |
 | **Status** | Draft — Architecture Review |
 
@@ -82,7 +82,7 @@
 
 ## 1. Executive Summary
 
-This document provides the **definitive enhanced architecture guide** for the DCE Account Opening (AO) agentic system at DBS Bank. It combines two complementary and mutually reinforcing architectural layers:
+This document provides the **definitive enhanced architecture guide** for the DCE Account Opening (AO) agentic system at ABS Bank. It combines two complementary and mutually reinforcing architectural layers:
 
 | Layer | Purpose | Guarantee Type |
 |---|---|---|
@@ -94,7 +94,7 @@ The DAG layer provides the **rails** — structural guarantees that the system c
 Both layers together satisfy:
 - **MAS Technology Risk Management Guidelines** — deterministic audit trail, human oversight
 - **HKMA Supervisory Policy Manual** — documented controls, escalation procedures
-- **DBS Internal Risk Framework** — HITL at all critical decision points, retry ceilings, SLA monitoring
+- **ABS Internal Risk Framework** — HITL at all critical decision points, retry ceilings, SLA monitoring
 
 ---
 
@@ -308,7 +308,7 @@ When a downstream node detects a problem that originated in an upstream node, th
 {
   "submission_source": "EMAIL | PORTAL | API",
   "raw_payload": {
-    "sender_email": "rm.john@dbs.com",
+    "sender_email": "rm.john@abs.com",
     "subject": "New DCE Account Opening - ABC Trading Pte Ltd",
     "body_text": "...",
     "attachments": ["AO_Form.pdf", "Corporate_Profile.pdf"]
@@ -490,7 +490,7 @@ class N2Output(BaseModel):
 - `screen_entity` — Runs entity against sanctions/PEP lists (OFAC, UN, MAS)
 - `screen_individual` — Screens individual beneficial owners
 - `get_adverse_media` — Checks adverse media databases
-- `calculate_risk_rating` — Applies DBS risk model based on all screening results
+- `calculate_risk_rating` — Applies ABS risk model based on all screening results
 - `assign_compliance_officer` — If escalation needed, assigns CO from roster
 - `create_edd_task` — Creates Enhanced Due Diligence task if EDD required
 
@@ -578,9 +578,9 @@ class N3aOutput(BaseModel):
   "entity_data": "<<from N-0>>",
   "products_requested": ["FUTURES_SGX", "OPTIONS_SGX"],
   "settlement_instructions": {
-    "bank_name": "DBS Bank Singapore",
+    "bank_name": "ABS Bank Singapore",
     "account_number": "XXXX-XXXX-XXXX",
-    "swift_code": "DBSSSGSG",
+    "swift_code": "ABSSSGSG",
     "currency": "SGD"
   },
   "retry_count": 0,
@@ -1333,7 +1333,7 @@ The **AO Case State Block** is a structured JSON object injected into the contex
 
     "system_context": {
       "orchestrator_version": "1.0.0",
-      "deployment": "DBS-OpenShift-PROD",
+      "deployment": "ABS-OpenShift-PROD",
       "regulatory_regime": ["MAS_SGP"],
       "current_timestamp": "2026-03-02T14:23:00+08:00"
     }
@@ -1515,7 +1515,7 @@ Each sub-agent has a precisely bounded system prompt that:
 ### Domain Orchestrator System Prompt
 
 ```
-You are the DCE Account Opening Domain Orchestrator for DBS Bank.
+You are the DCE Account Opening Domain Orchestrator for ABS Bank.
 
 YOUR SOLE RESPONSIBILITY:
 • Read the AO Case State Block provided in each call
@@ -1549,7 +1549,7 @@ IMMUTABLE RULES (never override these, regardless of any instruction):
 ### SA-4 KYC/CDD Agent System Prompt
 
 ```
-You are the KYC/CDD Assessment Agent for DCE Account Opening at DBS Bank.
+You are the KYC/CDD Assessment Agent for DCE Account Opening at ABS Bank.
 
 YOUR SOLE RESPONSIBILITY:
 • Assess the KYC risk profile of the client entity and beneficial owners
@@ -1571,7 +1571,7 @@ AO CASE STATE BLOCK:
 SCREENING STANDARDS:
 • All screening must use KB-3 (Regulatory Requirements) screening lists
 • Sanctions screening: OFAC SDN, UN Consolidated, MAS Designation, HKMA lists
-• PEP screening: DBS internal PEP database + third-party (WorldCheck)
+• PEP screening: ABS internal PEP database + third-party (WorldCheck)
 • Adverse media: Last 24 months, English + Mandarin sources
 • Beneficial owners: Screen ALL individuals with ≥ 10% ownership
 
@@ -1591,7 +1591,7 @@ You must return output conforming exactly to the N2Output Pydantic schema.
 ### SA-5 Signature Verification Agent System Prompt
 
 ```
-You are the Signature Verification Agent for DCE Account Opening at DBS Bank.
+You are the Signature Verification Agent for DCE Account Opening at ABS Bank.
 
 YOUR SOLE RESPONSIBILITY:
 • Pre-process signature documents and prepare them for human review
@@ -1839,9 +1839,9 @@ RULE H-5: VERY HIGH RISK RATING REQUIRES COMPLIANCE SIGN-OFF
   Override:  Compliance Officer may downgrade risk rating with documented rationale
 
 RULE H-6: CREDIT ABOVE DELEGATED AUTHORITY REQUIRES SENIOR CREDIT REVIEW
-  Condition: N-3a credit_limit_approved > DBS delegated authority threshold
+  Condition: N-3a credit_limit_approved > ABS delegated authority threshold
   Action:    Route to HITL_SENIOR_CREDIT
-  Override:  NOT PERMITTED (threshold defined by DBS Credit Policy)
+  Override:  NOT PERMITTED (threshold defined by ABS Credit Policy)
 
 RULE H-7: ENTITY MERGE IN UBIX REQUIRES HUMAN CONFIRMATION
   Condition: N-3b returns entity_merge_required = True
@@ -2306,8 +2306,8 @@ ORDER BY hours_over_sla DESC;
 | MAS TRM: System controls | Retry ceilings + Pydantic validation | All nodes | ao_node_checkpoint records |
 | MAS TRM: Human oversight | 4-eyes at N-5, N-7; HITL gates throughout | N-5, N-7, conditional HITL | HITL decision records |
 | HKMA SPM: Account opening controls | DAG prevents out-of-sequence steps | All nodes | Topological ordering enforced |
-| DBS Credit Policy: Delegated authority | Constitutional Rule H-6 (credit HITL above threshold) | N-3a | Credit approval record |
-| DBS Risk Framework: 4-eyes | N-7 mandatory senior management approval | N-7 | Activation HITL record |
+| ABS Credit Policy: Delegated authority | Constitutional Rule H-6 (credit HITL above threshold) | N-3a | Credit approval record |
+| ABS Risk Framework: 4-eyes | N-7 mandatory senior management approval | N-7 | Activation HITL record |
 
 ---
 
@@ -2678,7 +2678,7 @@ Regulatory Basis   : MAS/HKMA rule reference (if applicable)
 | **Skill ID** | SA1.SKL-01 |
 | **Category** | Tool |
 | **Dify Node** | HTTP Request Node (Microsoft Graph API) |
-| **Description** | Monitors the DCE AO shared Outlook inbox (`dce.accountopening@dbs.com`), retrieves new emails, extracts body text and all attachments |
+| **Description** | Monitors the DCE AO shared Outlook inbox (`dce.accountopening@abs.com`), retrieves new emails, extracts body text and all attachments |
 | **Input** | Graph API webhook event: `{message_id, sender, received_at}` |
 | **Output** | `{subject, body_text, sender_email, received_at, attachments: [{filename, content_base64, mime_type}]}` |
 | **Trigger** | MS Graph API webhook → new email in monitored mailbox |
@@ -2742,7 +2742,7 @@ Regulatory Basis   : MAS/HKMA rule reference (if applicable)
 | **Skill ID** | SA1.SKL-05 |
 | **Category** | Tool |
 | **Dify Node** | HTTP Request Node (Case Management API) |
-| **Description** | Links the submitting RM and their manager to the case record. Resolves RM Manager from DBS HR system if not provided |
+| **Description** | Links the submitting RM and their manager to the case record. Resolves RM Manager from ABS HR system if not provided |
 | **Input** | `{case_id, rm_id}` |
 | **Output** | `{rm_id, rm_name, rm_manager_id, rm_manager_name, rm_branch}` |
 | **Trigger** | After SA1.SKL-04 completes |
@@ -2985,7 +2985,7 @@ Regulatory Basis   : MAS/HKMA rule reference (if applicable)
 | **Skill ID** | SA4.SKL-02 |
 | **Category** | Tool |
 | **Dify Node** | Tool Call (AG type — iterated for each individual) |
-| **Description** | Screens all beneficial owners (≥10% ownership), directors, and authorised signatories against sanctions lists, PEP databases (DBS internal + WorldCheck), and close associate lists |
+| **Description** | Screens all beneficial owners (≥10% ownership), directors, and authorised signatories against sanctions lists, PEP databases (ABS internal + WorldCheck), and close associate lists |
 | **Input** | `{name, id_type, id_number, dob, nationality, role, ownership_pct}` (per individual) |
 | **Output** | `{individual_results: [{name, pep_flag, pep_category, sanctions_flag, screening_refs}]}` |
 | **Trigger** | After SA4.SKL-01, for each individual in the UBO/director list |
@@ -3035,7 +3035,7 @@ Regulatory Basis   : MAS/HKMA rule reference (if applicable)
 | **Skill ID** | SA4.SKL-05 |
 | **Category** | Cognitive + Tool |
 | **Dify Node** | HTTP Request Node (Risk Scoring API) + LLM Node (reasoning) |
-| **Description** | Applies DBS's internal risk scoring model to produce a composite risk rating (LOW / MEDIUM / HIGH / VERY_HIGH) based on: entity type, jurisdiction risk, product risk, PEP exposure, adverse media, sanctions proximity |
+| **Description** | Applies ABS's internal risk scoring model to produce a composite risk rating (LOW / MEDIUM / HIGH / VERY_HIGH) based on: entity type, jurisdiction risk, product risk, PEP exposure, adverse media, sanctions proximity |
 | **Input** | `{entity_type, jurisdiction, products, pep_flags, sanctions_results, adverse_media, cdd_factors}` |
 | **Output** | `{risk_rating, risk_score_components: {entity: N, jurisdiction: N, product: N, pep: N, adverse_media: N}, aggregate_score}` |
 | **Trigger** | After all screening (SKL-01 to SKL-03) and rule lookup (SKL-04) complete |
@@ -3125,7 +3125,7 @@ Regulatory Basis   : MAS/HKMA rule reference (if applicable)
 | **Skill ID** | SA6.SKL-01 |
 | **Category** | Knowledge |
 | **Dify Node** | Knowledge Retrieval Node (KB-4) |
-| **Description** | Identifies the correct DBS credit assessment model to apply based on entity type, account type, and product set. Different models apply to institutional vs retail clients, futures vs OTC |
+| **Description** | Identifies the correct ABS credit assessment model to apply based on entity type, account type, and product set. Different models apply to institutional vs retail clients, futures vs OTC |
 | **Input** | `{entity_type, account_type, products_requested, jurisdiction}` |
 | **Output** | `{credit_model_id, credit_model_name, model_version, applicable_factors[], weight_schema}` |
 | **Trigger** | First step in N-3a execution |
@@ -3148,7 +3148,7 @@ Regulatory Basis   : MAS/HKMA rule reference (if applicable)
 | **Trigger** | After SA6.SKL-01 selects the model |
 | **Error Handling** | Scoring API failure → retry 2× → fallback to manual scoring HITL |
 | **MCP Tool** | `run_credit_scoring` |
-| **Regulatory Basis** | DBS Credit Policy: Standardised scoring for consistency |
+| **Regulatory Basis** | ABS Credit Policy: Standardised scoring for consistency |
 
 ---
 
@@ -3159,7 +3159,7 @@ Regulatory Basis   : MAS/HKMA rule reference (if applicable)
 | **Skill ID** | SA6.SKL-03 |
 | **Category** | Knowledge |
 | **Dify Node** | Knowledge Retrieval Node (KB-5) + Code Node (eligibility matrix) |
-| **Description** | Maps the credit grade to the set of products the client is eligible to trade. Applies DBS product eligibility matrix — lower credit grades have access to fewer/simpler products |
+| **Description** | Maps the credit grade to the set of products the client is eligible to trade. Applies ABS product eligibility matrix — lower credit grades have access to fewer/simpler products |
 | **Input** | `{credit_grade, products_requested, entity_type, jurisdiction}` |
 | **Output** | `{products_approved: [...], products_declined: [...], decline_reasons: {...}, eligibility_matrix_version}` |
 | **Trigger** | After SA6.SKL-02 completes |
@@ -3176,12 +3176,12 @@ Regulatory Basis   : MAS/HKMA rule reference (if applicable)
 | **Skill ID** | SA6.SKL-04 |
 | **Category** | Cognitive |
 | **Dify Node** | LLM Node (Claude Sonnet) + HTTP Request Node |
-| **Description** | Determines the appropriate credit limit given the credit grade, client's net assets, product types, and DBS credit policy constraints. Compares against requested limit and applies any haircuts |
+| **Description** | Determines the appropriate credit limit given the credit grade, client's net assets, product types, and ABS credit policy constraints. Compares against requested limit and applies any haircuts |
 | **Input** | `{credit_grade, credit_score, net_assets, products_approved, credit_limit_requested, kyc_risk_rating}` |
 | **Output** | `{credit_limit_approved, credit_limit_requested, limit_rationale, credit_conditions[]}` |
 | **Trigger** | After SA6.SKL-03 completes |
 | **Error Handling** | Limit determination ambiguity → route to Senior Credit Officer HITL |
-| **Regulatory Basis** | DBS Credit Policy: Credit limit authority matrix |
+| **Regulatory Basis** | ABS Credit Policy: Credit limit authority matrix |
 
 ---
 
@@ -3192,7 +3192,7 @@ Regulatory Basis   : MAS/HKMA rule reference (if applicable)
 | **Skill ID** | SA6.SKL-05 |
 | **Category** | Tool |
 | **Dify Node** | HTTP Request Node (Margin Calculation API) |
-| **Description** | Calculates initial margin and variation margin requirements for each approved product. Applies exchange-mandated minimums (SGX, HKEx) plus DBS house margin |
+| **Description** | Calculates initial margin and variation margin requirements for each approved product. Applies exchange-mandated minimums (SGX, HKEx) plus ABS house margin |
 | **Input** | `{products_approved, credit_grade, credit_limit_approved, jurisdiction}` |
 | **Output** | `{margin_schedule: [{product, initial_margin_pct, variation_margin_pct, margin_call_threshold}]}` |
 | **Trigger** | After SA6.SKL-04 completes |
@@ -3209,7 +3209,7 @@ Regulatory Basis   : MAS/HKMA rule reference (if applicable)
 | **Skill ID** | SA6.SKL-06 |
 | **Category** | Tool |
 | **Dify Node** | HTTP Request Node (Credit System API) |
-| **Description** | Records the credit decision in the DBS credit system with full audit trail: model used, score, grade, limit, approver, conditions, validity period |
+| **Description** | Records the credit decision in the ABS credit system with full audit trail: model used, score, grade, limit, approver, conditions, validity period |
 | **Input** | `{case_id, credit_grade, credit_limit_approved, products_approved, margin_schedule, credit_conditions}` |
 | **Output** | `{credit_reference, recorded_at, valid_until, credit_system_url}` |
 | **Trigger** | After all credit determinations complete |
@@ -3387,13 +3387,13 @@ Regulatory Basis   : MAS/HKMA rule reference (if applicable)
 | **Skill ID** | SA5.SKL-02 |
 | **Category** | Tool |
 | **Dify Node** | HTTP Request Node (Signature Repository API) |
-| **Description** | Retrieves the authorised specimen signatures for all required signatories from the DBS Signature Repository. Matches by signatory name, role, and entity. Returns specimen images and authority level |
+| **Description** | Retrieves the authorised specimen signatures for all required signatories from the ABS Signature Repository. Matches by signatory name, role, and entity. Returns specimen images and authority level |
 | **Input** | `{authorised_signatory_list: [{name, role, entity}]}` |
 | **Output** | `{specimens: [{signatory_id, name, role, specimen_image_url, authority_level, valid_from, valid_until}]}` |
 | **Trigger** | Concurrent with SA5.SKL-01 |
 | **Error Handling** | Specimen not found → flag as NEW_SIGNATORY (requires additional verification); do not block process |
 | **MCP Tool** | `retrieve_specimen_signatures` |
-| **Regulatory Basis** | DBS Signature Authority Policy: Only pre-registered signatories are valid |
+| **Regulatory Basis** | ABS Signature Authority Policy: Only pre-registered signatories are valid |
 
 ---
 
@@ -3494,7 +3494,7 @@ Regulatory Basis   : MAS/HKMA rule reference (if applicable)
 | **Skill ID** | SA8.SKL-01 |
 | **Category** | Knowledge |
 | **Dify Node** | Knowledge Retrieval Node (KB-3, KB-5) + LLM Node |
-| **Description** | Retrieves and applies all regulatory rules applicable to this account: MAS SFA rules, MAS Notice requirements, HKMA requirements (for HKG), product-specific regulations (MAS FCA for futures, SFA for OTC), and DBS internal policies |
+| **Description** | Retrieves and applies all regulatory rules applicable to this account: MAS SFA rules, MAS Notice requirements, HKMA requirements (for HKG), product-specific regulations (MAS FCA for futures, SFA for OTC), and ABS internal policies |
 | **Input** | `{account_type, jurisdiction, products_approved, entity_type, cdd_level, risk_rating}` |
 | **Output** | `{applicable_rules: [{rule_id, rule_name, regulatory_basis, parameters_required, obligation_type}]}` |
 | **Trigger** | First step in N-6 |
@@ -3562,7 +3562,7 @@ Regulatory Basis   : MAS/HKMA rule reference (if applicable)
 | **Skill ID** | SA8.SKL-05 |
 | **Category** | Tool |
 | **Dify Node** | HTTP Request Node (Risk System API) |
-| **Description** | Sets regulatory and DBS-internal position limits on the account for each product: single contract limits, net position limits, concentration limits, large trader reporting thresholds |
+| **Description** | Sets regulatory and ABS-internal position limits on the account for each product: single contract limits, net position limits, concentration limits, large trader reporting thresholds |
 | **Input** | `{ubix_entity_id, products_approved, credit_limit_approved, regulatory_rules, client_classification}` |
 | **Output** | `{position_limits: [{product, single_contract_limit, net_position_limit, concentration_limit, large_trader_threshold}]}` |
 | **Trigger** | After SA8.SKL-01 |
@@ -3683,13 +3683,13 @@ Regulatory Basis   : MAS/HKMA rule reference (if applicable)
 | **Skill ID** | SA9.SKL-04 |
 | **Category** | Tool |
 | **Dify Node** | HTTP Request Node (HR + Governance API) |
-| **Description** | Determines the appropriate approver role based on credit limit, risk rating, and DBS delegated authority matrix. Validates that the assigned approver has the requisite authority level. Prevents under-authority approvals |
+| **Description** | Determines the appropriate approver role based on credit limit, risk rating, and ABS delegated authority matrix. Validates that the assigned approver has the requisite authority level. Prevents under-authority approvals |
 | **Input** | `{credit_limit_approved, aggregate_risk_score, account_type, jurisdiction}` |
 | **Output** | `{required_approver_role, required_authority_level, authority_matrix_reference}` |
 | **Trigger** | After SA9.SKL-03 |
 | **Error Handling** | Authority lookup failure → default to DCE COO (highest authority) |
 | **MCP Tool** | `check_approval_authority` |
-| **Regulatory Basis** | DBS Governance Framework: Delegated authority matrix |
+| **Regulatory Basis** | ABS Governance Framework: Delegated authority matrix |
 
 ---
 
@@ -4535,7 +4535,7 @@ class NotificationOutput(BaseModel):
 | SLA_WARNING | "[DCE] SLA Warning — {client_name} at {sla_pct}%" | case_id, client_name, current_phase, blocking_team, elapsed_hours, remaining_hours | INAPP + EMAIL |
 | SLA_BREACH | "[DCE] SLA BREACHED — {client_name}" | Same as warning + escalation_level, management_notification | INAPP + EMAIL + SMS |
 | GAP_NOTICE_TO_CUSTOMER | "Documents Required — {case_ref}" | case_ref, missing_items[], document_instructions, resolution_deadline, contact_details | EMAIL (to customer) |
-| WELCOME_KIT | "Welcome to DBS DCE — {client_name}" | account_ref, products_enabled, cqg_credentials, client_services_contact, statement_schedule | EMAIL (to customer) |
+| WELCOME_KIT | "Welcome to ABS DCE — {client_name}" | account_ref, products_enabled, cqg_credentials, client_services_contact, statement_schedule | EMAIL (to customer) |
 | SANCTIONS_ESCALATION | "[URGENT] Sanctions Alert — {case_id}" | case_id, entity_name, screening_detail, sanctions_list_source, immediate_action_required | INAPP + EMAIL + SMS |
 
 ---
@@ -4967,6 +4967,6 @@ Additions to the checklist in Section 27:
 
 *Document End*
 
-*Classification: DBS Internal — Restricted*
+*Classification: ABS Internal — Restricted*
 *Review Cycle: Quarterly or on significant architectural change*
 *Approved By: [DCE COO signature required before production deployment]*

@@ -5,7 +5,7 @@
 | **Document Version** | 1.0.0 |
 | **Date** | 2026-03-02 |
 | **Scope** | SA-2 Document Collection & Completeness Agent (Node N-1) |
-| **Database** | MariaDB (DBS OpenShift) |
+| **Database** | MariaDB (ABS OpenShift) |
 | **Depends On** | SA-1 tables: `dce_ao_case_state`, `dce_ao_document_staged`, `dce_ao_classification_result` |
 | **Status** | Draft |
 

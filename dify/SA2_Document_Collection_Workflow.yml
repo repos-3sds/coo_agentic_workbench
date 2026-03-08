@@ -26,7 +26,7 @@ workflow:
     selector:
     - env
     - MCP_ENDPOINT
-    value: https://dcemcptools-production.up.railway.app
+    value: http://host.docker.internal:8000
     value_type: string
   features:
     file_upload:
@@ -642,7 +642,7 @@ workflow:
           \ Exception:\n                return data_str\n    return raw\n\n\ndef main(case_id:\
           \ str, account_type: str, jurisdiction: str,\n         kb_chunks: str, submitted_documents_parsed:\
           \ str,\n         mcp_endpoint: str) -> dict:\n    MCP_URL = mcp_endpoint\
-          \ + \"/mcp\" if mcp_endpoint else \"https://dcemcptools-production.up.railway.app/mcp\"\
+          \ + \"/mcp\" if mcp_endpoint else \"http://host.docker.internal:8000/mcp\"\
           \n    try:\n        args = {\n            \"case_id\": case_id,\n       \
           \     \"account_type\": account_type,\n            \"jurisdiction\": jurisdiction,\n\
           \            \"kb_context\": (kb_chunks or \"\")[:2000]\n        }\n   \
@@ -821,7 +821,7 @@ workflow:
           text\"):\n                    return content[0][\"text\"]\n            except\
           \ Exception:\n                return data_str\n    return raw\n\n\ndef main(checklist_output:\
           \ str, submitted_documents_parsed: str,\n         mcp_endpoint: str) -> dict:\n\
-          \    MCP_URL = mcp_endpoint + \"/mcp\" if mcp_endpoint else \"https://dcemcptools-production.up.railway.app/mcp\"\
+          \    MCP_URL = mcp_endpoint + \"/mcp\" if mcp_endpoint else \"http://host.docker.internal:8000/mcp\"\
           \n    ocr_results = []\n    ocr_errors = []\n    try:\n        docs = json.loads(submitted_documents_parsed)\
           \ if submitted_documents_parsed else []\n    except Exception:\n        docs\
           \ = []\n    for i, doc in enumerate(docs):\n        doc_id = doc.get(\"doc_id\"\
@@ -989,7 +989,7 @@ workflow:
         - id: sa2-sys-completeness
           role: system
           text: 'You are SA-2, the DCE Document Collection & Completeness Agent at
-            DBS Bank. Assess whether submitted documents satisfy mandatory and optional
+            ABS Bank. Assess whether submitted documents satisfy mandatory and optional
             requirements for this account opening case.
 
             ASSESSMENT RULES: - ACCEPTED: detected doc type matches checklist item,
@@ -1078,7 +1078,7 @@ workflow:
           text\"):\n                    return content[0][\"text\"]\n            except\
           \ Exception:\n                return data_str\n    return raw\n\n\ndef main(ocr_results_json:\
           \ str, mcp_endpoint: str) -> dict:\n    MCP_URL = mcp_endpoint + \"/mcp\"\
-          \ if mcp_endpoint else \"https://dcemcptools-production.up.railway.app/mcp\"\
+          \ if mcp_endpoint else \"http://host.docker.internal:8000/mcp\"\
           \n    validity_results = []\n    try:\n        ocr_results = json.loads(ocr_results_json)\
           \ if ocr_results_json else []\n    except Exception:\n        ocr_results\
           \ = []\n    for i, doc in enumerate(ocr_results):\n        doc_id = doc.get(\"\
@@ -1210,7 +1210,7 @@ workflow:
         prompt_template:
         - id: sa2-sys-rejection
           role: system
-          text: 'You are the Document Rejection Reasoner for SA-2 at DBS Bank. For
+          text: 'You are the Document Rejection Reasoner for SA-2 at ABS Bank. For
             each rejected or requires-resubmission document, generate a concise, actionable
             message for the Relationship Manager.
 
@@ -1280,7 +1280,7 @@ workflow:
           text\"):\n                    return content[0][\"text\"]\n            except\
           \ Exception:\n                return data_str\n    return raw\n\n\ndef main(completeness_json:\
           \ str, rejection_llm_text: str, mcp_endpoint: str) -> dict:\n    MCP_URL\
-          \ = mcp_endpoint + \"/mcp\" if mcp_endpoint else \"https://dcemcptools-production.up.railway.app/mcp\"\
+          \ = mcp_endpoint + \"/mcp\" if mcp_endpoint else \"http://host.docker.internal:8000/mcp\"\
           \n    flagged = []\n    errors = []\n    try:\n        comp = json.loads(completeness_json)\
           \ if completeness_json else {}\n    except Exception:\n        comp = {}\n    try:\n        m = re.search(r'\\{[\\\
           s\\S]*\\}', rejection_llm_text)\n        rej = json.loads(m.group()) if\
@@ -1466,7 +1466,7 @@ workflow:
         prompt_template:
         - id: sa2-sys-decision
           role: system
-          text: 'You are the Routing Decision Maker for SA-2 at DBS Bank. Make the
+          text: 'You are the Routing Decision Maker for SA-2 at ABS Bank. Make the
             final routing decision for this account opening case based on document
             completeness.
 
@@ -1607,7 +1607,7 @@ workflow:
         prompt_template:
         - id: sa2-sys-chase
           role: system
-          text: 'You are the RM Chase Notification Composer for SA-2 at DBS Bank.
+          text: 'You are the RM Chase Notification Composer for SA-2 at ABS Bank.
             Compose a professional, actionable notification for the Relationship Manager
             requesting missing or corrected documents.
 
@@ -1681,7 +1681,7 @@ workflow:
           \                return data_str\n    return raw\n\n\ndef main(validated_completeness_json:\
           \ str, decision_json: str,\n         chase_llm_text: str, case_id: str, retry_count_int:\
           \ str,\n         mcp_endpoint: str) -> dict:\n    MCP_URL = mcp_endpoint\
-          \ + \"/mcp\" if mcp_endpoint else \"https://dcemcptools-production.up.railway.app/mcp\"\
+          \ + \"/mcp\" if mcp_endpoint else \"http://host.docker.internal:8000/mcp\"\
           \n    try:\n        comp = json.loads(validated_completeness_json) if validated_completeness_json\
           \ else {}\n    except Exception:\n        comp = {}\n    try:\n        m\
           \ = re.search(r'\\{[\\s\\S]*\\}', decision_json)\n        dec = json.loads(m.group())\

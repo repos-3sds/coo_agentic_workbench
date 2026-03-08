@@ -1,6 +1,6 @@
 # DCE Account Opening — Current Process & Discovery Document
 
-**Organisation:** DBS Bank — Treasury & Markets, Derivatives & Commodities Execution (DCE) Desk
+**Organisation:** ABS Bank — Treasury & Markets, Derivatives & Commodities Execution (DCE) Desk
 **Document Purpose:** Discovery foundation for agentic AI solution design
 **Status:** Discovery COMPLETE — all 8 themes explored
 **Last Updated:** 2026-02-28
@@ -11,7 +11,7 @@
 
 | Item | Detail |
 |---|---|
-| Organisation | DBS Bank — Treasury & Markets |
+| Organisation | ABS Bank — Treasury & Markets |
 | Desk | Derivatives & Commodities Execution (DCE) |
 | Primary Focus | DCE Account Opening (initial build scope) |
 | Design Awareness | Full 6-area scope — architecture must be extensible from day one |
@@ -229,7 +229,7 @@ Both channels converge at the SAME functional email inbox.
 ### Verification Requirements for Physical Copies
 
 **Signatures must be witnessed/verified by:**
-- DBS/POSB staff
+- ABS/POSB staff
 - Advocate & Solicitor
 - Notary Public
 - Commissioner for Oaths
@@ -310,10 +310,10 @@ Both channels converge at the SAME functional email inbox.
 | Document | Key Details |
 |---|---|
 | **GTA** (General Trading Agreement) | Updated 16 Nov 2021, 30 pages. 4 sections: A (General Terms), B (Futures/OTC), C (Electronic Services), D (Definitions) + Risk Disclosure Schedule. Governs all clearing & execution services. |
-| **Schedule 7A** | Exchange-listed contract clearing via DBS or IDB. Customer must be ECP for US exchanges. IDB is customer's appointed agent. |
+| **Schedule 7A** | Exchange-listed contract clearing via ABS or IDB. Customer must be ECP for US exchanges. IDB is customer's appointed agent. |
 | **Schedule 8A** | LME-specific. Requires LEI code, account category classification, email for LME position notifications. Customer must be Accredited Investor (MAS definition). |
 | **Schedule 9** | Deliverable contracts. Customer principally liable for physical delivery obligations. |
-| **Schedule 11A** | Authorises DBS to act on electronic instructions (fax, email, etc.) from customer. |
+| **Schedule 11A** | Authorises ABS to act on electronic instructions (fax, email, etc.) from customer. |
 | **DCE Corporate Account Opening Form** | Version 02.20/09.19, Updated Nov 2021. Inline notes per schedule indicate applicability conditions. |
 
 ---
@@ -350,7 +350,7 @@ Both channels converge at the SAME functional email inbox.
 | **Document retention** | No specific MAS requirements on retention duration or format (physical vs digital) |
 | **Audit trail** | Required — full evidence chain for internal and external audit readiness. Must capture: action + actor + timestamp + evidence (document version, signature confidence score, AI outputs) + outcome. Every step must produce an immutable, auditable record. |
 | **Data residency** | Private cloud only — sensitive customer data. No public cloud. |
-| **LLM usage** | Claude family + Gemini family deployed within DBS internal environment. Not calling external APIs. |
+| **LLM usage** | Claude family + Gemini family deployed within ABS internal environment. Not calling external APIs. |
 
 ---
 
@@ -400,7 +400,7 @@ Both channels converge at the SAME functional email inbox.
 | **Backend APIs** | Java + Spring Boot | All backend API services |
 | **MCP Tools** | Python | Model Context Protocol tools for AI agents |
 | **AI Platform** | Dify (on-premises) | Handles LLM access, auth, rate limiting, logging. Active use for other solutions. No established patterns/standards yet. No AI gateway — solution should address. |
-| **LLMs** | Claude family + Gemini family | All models available. Deployed within DBS internal environment. |
+| **LLMs** | Claude family + Gemini family | All models available. Deployed within ABS internal environment. |
 | **Structured Data** | MariaDB | Case management, status, approvals, audit trail |
 | **Document Storage** | MongoDB | Scanned docs, signatures, PDFs |
 | **Container Orchestration** | OpenShift | Deployment platform |
@@ -430,7 +430,7 @@ Both channels converge at the SAME functional email inbox.
 | 4 | **UX screens are reference only** | Solution design will be shaped by discovery, not by replicating existing UX mockups. |
 | 5 | **Pipeline Management handoff** | Account Opening receives a pre-built document checklist from Pipeline Management. Future auto-generation is a design goal. |
 | 6 | **Audit-ready by design** | Every action, decision, and approval must be traceable with full evidence chain — not an afterthought. |
-| 7 | **Private cloud only** | All data and AI processing stays within DBS internal environment. No external API calls. |
+| 7 | **Private cloud only** | All data and AI processing stays within ABS internal environment. No external API calls. |
 | 8 | **AI assists, human decides** | For all critical decisions (signatures, approvals), AI provides analysis and confidence — human makes the final call. |
 
 ---

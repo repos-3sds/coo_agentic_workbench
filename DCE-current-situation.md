@@ -1,6 +1,6 @@
 # DCE Account Opening & Operations — Current Situation Document
 
-**Organisation:** DBS Bank — Treasury & Markets, Derivatives & Commodities Execution (DCE) Desk
+**Organisation:** ABS Bank — Treasury & Markets, Derivatives & Commodities Execution (DCE) Desk
 **Document Purpose:** Discovery foundation for agentic AI solution design
 **Status:** Discovery in progress — Pain Points, Compliance, Success Criteria, and Tech Landscape themes pending
 **Last Updated:** 2026-02-28
@@ -11,7 +11,7 @@
 
 | Item | Detail |
 |---|---|
-| Organisation | DBS Bank — Treasury & Markets |
+| Organisation | ABS Bank — Treasury & Markets |
 | Desk | Derivatives & Commodities Execution (DCE) |
 | Primary Focus | DCE Account Opening + Account Maintenance |
 | Secondary Areas | Pipeline Management, Product Registry, Trade Management, Back Office Operations |
@@ -204,7 +204,7 @@ Account Opening begins (checklist already defined)
 ### Verification Requirements for Physical Copies
 
 Signatures must be witnessed/verified by:
-- DBS/POSB staff
+- ABS/POSB staff
 - Advocate & Solicitor
 - Notary Public
 - Commissioner for Oaths
@@ -276,10 +276,10 @@ Supporting documents must be certified as true copy on first page by:
 | Document | Key Details |
 |---|---|
 | **GTA** (General Trading Agreement) | Updated 16 Nov 2021, 30 pages. 4 sections: A (General Terms), B (Futures/OTC), C (Electronic Services), D (Definitions) + Risk Disclosure Schedule. Governs all clearing & execution services. |
-| **Schedule 7A** | Exchange-listed contract clearing via DBS or IDB. Customer must be ECP for US exchanges. IDB is customer's appointed agent. |
+| **Schedule 7A** | Exchange-listed contract clearing via ABS or IDB. Customer must be ECP for US exchanges. IDB is customer's appointed agent. |
 | **Schedule 8A** | LME-specific. Requires LEI code, account category classification, email for LME position notifications. Customer must be Accredited Investor (MAS definition). |
 | **Schedule 9** | Deliverable contracts. Customer principally liable for physical delivery obligations. |
-| **Schedule 11A** | Authorises DBS to act on electronic instructions (fax, email, etc.) from customer. |
+| **Schedule 11A** | Authorises ABS to act on electronic instructions (fax, email, etc.) from customer. |
 | **DCE Corporate Account Opening Form** | Version 02.20/09.19, Updated Nov 2021. Inline notes per schedule indicate applicability conditions. |
 
 ---

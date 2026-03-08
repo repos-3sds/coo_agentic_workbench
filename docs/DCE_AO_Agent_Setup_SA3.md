@@ -27,7 +27,7 @@ SA-3 is the **signature validation gate** that ensures all execution documents a
 
 **Phase 2 — Post-HITL (Human-Resumed):** Upon Desk Support submission of decisions (APPROVE / REJECT / CLARIFY per signatory), the workflow resumes via Spring Boot's Dify resume endpoint. Approved signatures are stored as verified specimens in MongoDB — serving as the permanent regulatory evidence chain. Rejections route the case to `SIGNATURE_REJECTED`. CLARIFY decisions trigger SA-7 customer communication and park the workflow again pending resubmission.
 
-Signature specimens stored by SA-3 are required audit evidence under MAS Notice SFA 02-N13, HKMA's AML/CFT guidelines, and DBS's internal signature verification policy.
+Signature specimens stored by SA-3 are required audit evidence under MAS Notice SFA 02-N13, HKMA's AML/CFT guidelines, and ABS's internal signature verification policy.
 
 ---
 
@@ -566,4 +566,4 @@ class N2Output(BaseModel):
 | **Audit Events** | SIGNATURE_ANALYSED, HITL_DECISION_RECEIVED, SIGNATURE_APPROVED, SIGNATURE_REJECTED, NODE_COMPLETED, NODE_FAILED |
 | **Variable Prefix** | `sa3_` |
 | **Output Schema** | N2Output (Pydantic validated) |
-| **Compliance References** | MAS Notice SFA 02-N13, HKMA AML/CFT Guidelines, DBS Signature Verification Policy |
+| **Compliance References** | MAS Notice SFA 02-N13, HKMA AML/CFT Guidelines, ABS Signature Verification Policy |

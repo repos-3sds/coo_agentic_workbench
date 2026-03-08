@@ -5,7 +5,7 @@
 | **Document Version** | 1.0.0 |
 | **Date** | 2026-03-02 |
 | **Scope** | SA-1 Intake & Triage Agent (Node N-0) + Shared Orchestrator Tables |
-| **Database** | MariaDB (DBS OpenShift) |
+| **Database** | MariaDB (ABS OpenShift) |
 | **Status** | Draft |
 
 ---
@@ -97,9 +97,9 @@ CREATE TABLE dce_ao_node_checkpoint (
 
 | checkpoint_id | case_id | node_id | attempt_number | status | input_snapshot | output_json | context_block_hash | started_at | completed_at | duration_seconds | next_node | failure_reason | retry_count | agent_model | token_usage |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | AO-2026-000101 | N-0 | 1 | COMPLETE | {"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.john@dbs.com","subject":"New DCE AO - ABC Trading"}} | {"case_id":"AO-2026-000101","account_type":"INSTITUTIONAL_FUTURES","priority":"URGENT","client_name":"ABC Trading Pte Ltd","jurisdiction":"SGP","confidence":0.94} | a1b2c3d4e5f6... | 2026-03-02T09:30:00 | 2026-03-02T09:32:15 | 135.200 | N-1 | null | 0 | claude-sonnet-4-6 | {"input":1240,"output":380,"total":1620} |
+| 1 | AO-2026-000101 | N-0 | 1 | COMPLETE | {"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.john@abs.com","subject":"New DCE AO - ABC Trading"}} | {"case_id":"AO-2026-000101","account_type":"INSTITUTIONAL_FUTURES","priority":"URGENT","client_name":"ABC Trading Pte Ltd","jurisdiction":"SGP","confidence":0.94} | a1b2c3d4e5f6... | 2026-03-02T09:30:00 | 2026-03-02T09:32:15 | 135.200 | N-1 | null | 0 | claude-sonnet-4-6 | {"input":1240,"output":380,"total":1620} |
 | 2 | AO-2026-000102 | N-0 | 1 | IN_PROGRESS | {"submission_source":"PORTAL","raw_payload":{"form_data_json":{"client_name":"Global Commodities HK Ltd"}}} | null | b2c3d4e5f6a1... | 2026-03-02T14:00:00 | null | null | null | null | 0 | claude-sonnet-4-6 | null |
-| 3 | AO-2026-000103 | N-0 | 1 | FAILED | {"submission_source":"EMAIL","raw_payload":{"sender_email":"unknown@dbs.com"}} | null | c3d4e5f6a1b2... | 2026-03-02T10:00:00 | 2026-03-02T10:05:30 | 330.000 | null | RM-9999 not found in HR system — manual assignment required | 1 | claude-sonnet-4-6 | {"input":980,"output":120,"total":1100} |
+| 3 | AO-2026-000103 | N-0 | 1 | FAILED | {"submission_source":"EMAIL","raw_payload":{"sender_email":"unknown@abs.com"}} | null | c3d4e5f6a1b2... | 2026-03-02T10:00:00 | 2026-03-02T10:05:30 | 330.000 | null | RM-9999 not found in HR system — manual assignment required | 1 | claude-sonnet-4-6 | {"input":980,"output":120,"total":1100} |
 
 ---
 
@@ -127,7 +127,7 @@ CREATE TABLE dce_ao_event_log (
 
 | event_id | case_id | event_type | from_state | to_state | event_payload | triggered_by | triggered_at | kafka_offset |
 |---|---|---|---|---|---|---|---|---|
-| 1 | AO-2026-000101 | SUBMISSION_RECEIVED | null | N-0:IN_PROGRESS | {"source":"EMAIL","sender":"rm.john@dbs.com","attachments_count":2} | AGENT | 2026-03-02T09:30:00 | 10001 |
+| 1 | AO-2026-000101 | SUBMISSION_RECEIVED | null | N-0:IN_PROGRESS | {"source":"EMAIL","sender":"rm.john@abs.com","attachments_count":2} | AGENT | 2026-03-02T09:30:00 | 10001 |
 | 2 | AO-2026-000101 | CASE_CLASSIFIED | N-0:IN_PROGRESS | N-0:IN_PROGRESS | {"account_type":"INSTITUTIONAL_FUTURES","confidence":0.94,"priority":"URGENT"} | AGENT | 2026-03-02T09:31:05 | 10002 |
 | 3 | AO-2026-000101 | CASE_CREATED | N-0:IN_PROGRESS | N-0:IN_PROGRESS | {"case_id":"AO-2026-000101","rm_id":"RM-0042","rm_manager_id":"MGR-0012"} | AGENT | 2026-03-02T09:31:30 | 10003 |
 | 4 | AO-2026-000101 | NODE_COMPLETED | N-0:IN_PROGRESS | N-0:COMPLETE | {"next_node":"N-1","documents_staged":2,"notification_sent":true} | AGENT | 2026-03-02T09:32:15 | 10004 |
@@ -175,9 +175,9 @@ CREATE TABLE dce_ao_submission_raw (
 
 | submission_id | case_id | submission_source | email_message_id | sender_email | email_subject | email_body_text | portal_form_id | portal_form_data | rm_employee_id | received_at | processed_at | processing_status | failure_reason | raw_payload_hash | attachments_count | created_at |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | AO-2026-000101 | EMAIL | AAMkAGE2... | rm.john@dbs.com | New DCE Account Opening - ABC Trading Pte Ltd | Dear DCE Team, Please initiate AO for ABC Trading Pte Ltd. Institutional futures account... | null | null | RM-0042 | 2026-03-02T09:30:00 | 2026-03-02T09:30:45 | PROCESSED | null | f8e7d6c5b4a3... | 2 | 2026-03-02T09:30:00 |
+| 1 | AO-2026-000101 | EMAIL | AAMkAGE2... | rm.john@abs.com | New DCE Account Opening - ABC Trading Pte Ltd | Dear DCE Team, Please initiate AO for ABC Trading Pte Ltd. Institutional futures account... | null | null | RM-0042 | 2026-03-02T09:30:00 | 2026-03-02T09:30:45 | PROCESSED | null | f8e7d6c5b4a3... | 2 | 2026-03-02T09:30:00 |
 | 2 | AO-2026-000102 | PORTAL | null | null | null | null | PF-20260302-007 | {"client_name":"Global Commodities HK Ltd","entity_type":"CORP","products":["OTC_DERIVATIVES"],"jurisdiction":"HKG"} | RM-0118 | 2026-03-02T14:00:00 | null | PROCESSING | null | a3b4c5d6e7f8... | 3 | 2026-03-02T14:00:00 |
-| 3 | null | EMAIL | BBNkBHF3... | unknown@dbs.com | AO Request - Tan Wei Ming | Please open retail futures account for Tan Wei Ming... | null | null | RM-9999 | 2026-03-02T10:00:00 | 2026-03-02T10:05:30 | FAILED | RM-9999 not found in HR system | d6e7f8a3b4c5... | 1 | 2026-03-02T10:00:00 |
+| 3 | null | EMAIL | BBNkBHF3... | unknown@abs.com | AO Request - Tan Wei Ming | Please open retail futures account for Tan Wei Ming... | null | null | RM-9999 | 2026-03-02T10:00:00 | 2026-03-02T10:05:30 | FAILED | RM-9999 not found in HR system | d6e7f8a3b4c5... | 1 | 2026-03-02T10:00:00 |
 
 ---
 
@@ -275,7 +275,7 @@ CREATE TABLE dce_ao_document_staged (
 
 ### 2.4 `dce_ao_rm_hierarchy`
 
-**Purpose:** Stores RM-to-case assignment and resolved manager hierarchy from SA1.SKL-05 (RM & Manager Linker). Resolved from DBS HR system at case creation time.
+**Purpose:** Stores RM-to-case assignment and resolved manager hierarchy from SA1.SKL-05 (RM & Manager Linker). Resolved from ABS HR system at case creation time.
 
 ```sql
 CREATE TABLE dce_ao_rm_hierarchy (
@@ -302,8 +302,8 @@ CREATE TABLE dce_ao_rm_hierarchy (
 
 | assignment_id | case_id | rm_id | rm_name | rm_email | rm_branch | rm_desk | rm_manager_id | rm_manager_name | rm_manager_email | resolution_source | resolved_at |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | AO-2026-000101 | RM-0042 | John Tan | rm.john@dbs.com | Marina Bay Financial Centre | DCE Sales Desk SGP | MGR-0012 | Sarah Lim | sarah.lim@dbs.com | HR_SYSTEM | 2026-03-02T09:31:25 |
-| 2 | AO-2026-000102 | RM-0118 | David Wong | david.wong@dbs.com | Central HK Branch | DCE Sales Desk HKG | MGR-0045 | Michael Chan | michael.chan@dbs.com | PORTAL_PROVIDED | 2026-03-02T14:01:10 |
+| 1 | AO-2026-000101 | RM-0042 | John Tan | rm.john@abs.com | Marina Bay Financial Centre | DCE Sales Desk SGP | MGR-0012 | Sarah Lim | sarah.lim@abs.com | HR_SYSTEM | 2026-03-02T09:31:25 |
+| 2 | AO-2026-000102 | RM-0118 | David Wong | david.wong@abs.com | Central HK Branch | DCE Sales Desk HKG | MGR-0045 | Michael Chan | michael.chan@abs.com | PORTAL_PROVIDED | 2026-03-02T14:01:10 |
 
 ---
 
@@ -342,8 +342,8 @@ CREATE TABLE dce_ao_notification_log (
 
 | notification_id | case_id | node_id | notification_type | channel | recipient_id | recipient_email | recipient_role | subject | body_summary | template_id | delivery_status | failure_reason | retry_count | sent_at | delivered_at | created_at |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | AO-2026-000101 | N-0 | CASE_CREATED | EMAIL | RM-0042 | rm.john@dbs.com | RM | [AO-2026-000101] Case Created — ABC Trading Pte Ltd | Your DCE Account Opening case has been created. Case ID: AO-2026-000101. Priority: URGENT. SLA Deadline: 2026-03-02 11:30 SGT. View in Workbench... | TPL-INTAKE-01 | DELIVERED | null | 0 | 2026-03-02T09:32:10 | 2026-03-02T09:32:12 | 2026-03-02T09:32:08 |
-| 2 | AO-2026-000101 | N-0 | CASE_CREATED | EMAIL | MGR-0012 | sarah.lim@dbs.com | RM_MANAGER | [AO-2026-000101] New AO Case — ABC Trading Pte Ltd (URGENT) | A new URGENT DCE Account Opening case has been created by RM John Tan. Case ID: AO-2026-000101. Client: ABC Trading Pte Ltd... | TPL-INTAKE-02 | DELIVERED | null | 0 | 2026-03-02T09:32:10 | 2026-03-02T09:32:14 | 2026-03-02T09:32:08 |
+| 1 | AO-2026-000101 | N-0 | CASE_CREATED | EMAIL | RM-0042 | rm.john@abs.com | RM | [AO-2026-000101] Case Created — ABC Trading Pte Ltd | Your DCE Account Opening case has been created. Case ID: AO-2026-000101. Priority: URGENT. SLA Deadline: 2026-03-02 11:30 SGT. View in Workbench... | TPL-INTAKE-01 | DELIVERED | null | 0 | 2026-03-02T09:32:10 | 2026-03-02T09:32:12 | 2026-03-02T09:32:08 |
+| 2 | AO-2026-000101 | N-0 | CASE_CREATED | EMAIL | MGR-0012 | sarah.lim@abs.com | RM_MANAGER | [AO-2026-000101] New AO Case — ABC Trading Pte Ltd (URGENT) | A new URGENT DCE Account Opening case has been created by RM John Tan. Case ID: AO-2026-000101. Client: ABC Trading Pte Ltd... | TPL-INTAKE-02 | DELIVERED | null | 0 | 2026-03-02T09:32:10 | 2026-03-02T09:32:14 | 2026-03-02T09:32:08 |
 | 3 | AO-2026-000101 | N-0 | CASE_CREATED | IN_APP_TOAST | RM-0042 | null | RM | New case AO-2026-000101 created | URGENT — ABC Trading Pte Ltd — Institutional Futures. SLA: 2h. | TPL-TOAST-01 | DELIVERED | null | 0 | 2026-03-02T09:32:10 | 2026-03-02T09:32:10 | 2026-03-02T09:32:08 |
 | 4 | AO-2026-000101 | N-0 | CASE_CREATED | KAFKA_EVENT | null | null | SYSTEM | ao.case.created | {"case_id":"AO-2026-000101","account_type":"INSTITUTIONAL_FUTURES","priority":"URGENT","rm_id":"RM-0042"} | null | SENT | null | 0 | 2026-03-02T09:32:11 | null | 2026-03-02T09:32:08 |
 

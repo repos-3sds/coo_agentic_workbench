@@ -71,7 +71,7 @@ SA-4 is the **KYC/CDD intelligence engine** of the account opening pipeline. It 
 
   System Prompt (SA-4 Role Scope Template):
   ┌─────────────────────────────────────────────────────────────────────┐
-  │ "You are the DCE KYC/CDD Preparation Specialist at DBS Bank.        │
+  │ "You are the DCE KYC/CDD Preparation Specialist at ABS Bank.        │
   │  Your task is to prepare a COMPLETE, ACCURATE, and AUDITABLE        │
   │  KYC/CDD/BCAP review brief for the Relationship Manager.            │
   │                                                                      │
@@ -289,7 +289,7 @@ SA-4 is the **KYC/CDD intelligence engine** of the account opening pipeline. It 
 | 5 | `sa4_compile_and_submit_kyc_brief` | Tool | SKL-07 | **Highest-value output.** The KYC/CDD/BCAP brief is the primary regulatory deliverable of this node. Quality directly determines RM decision quality and the defensibility of the account opening audit trail. | Retry 1x → if still fails, email RM directly with raw screening data |
 | 6 | `sa4_park_for_hitl` | Tool | SKL-08 | Creates HITL task record for RM and writes HITL_PENDING checkpoint. Atomic operation — ensures HITL task and checkpoint are consistent. | Checkpoint failure → case stuck at N-2 state |
 | 7 | RM Decision Validator | Code Node | SKL-09 | Validates ALL mandatory RM decision fields. Catches incomplete submissions before they reach the DB. Prevents downstream Credit/Static Config from processing with incomplete KYC data. | Incomplete submission → return to RM with highlighted missing fields |
-| 8 | KYC UNACCEPTABLE Router | IF/ELSE | — | Hard gate. UNACCEPTABLE KYC risk rating = case terminated (DEAD). No credit assessment proceeds for unacceptable risk profiles. Protects DBS from onboarding high-risk entities. | N/A — deterministic |
+| 8 | KYC UNACCEPTABLE Router | IF/ELSE | — | Hard gate. UNACCEPTABLE KYC risk rating = case terminated (DEAD). No credit assessment proceeds for unacceptable risk profiles. Protects ABS from onboarding high-risk entities. | N/A — deterministic |
 | 9 | `sa4_capture_rm_decisions` | Tool | SKL-08 | Stores all RM decisions atomically. These are the regulatory-required human approvals that must be immutably recorded for MAS/HKMA audit. | DB failure → retry 3x → hard block (decisions must be persisted) |
 | 10 | `sa4_complete_node` | Tool | — | **MANDATORY.** Advances case to N-4, fires RM_DECISION_CAPTURED Kafka event that triggers parallel SA-5 (Credit) and SA-6 (Static Config spec prep). | Checkpoint failure → case stuck at N-3 state |
 
@@ -620,7 +620,7 @@ class N3Output(BaseModel):
     "decided_at": "2026-03-03T14:30:00+08:00"
   },
   "next_node": "N-4",
-  "brief_url": "https://workbench.dbs.internal/kyc-briefs/BRIEF-000101",
+  "brief_url": "https://workbench.abs.internal/kyc-briefs/BRIEF-000101",
   "notes": "4 names screened (entity + 2 directors + 1 UBO entity). All clear. Medium risk — OSCA linked. SA-5 and SA-6 now triggered in parallel."
 }
 ```
@@ -669,5 +669,5 @@ class N3Output(BaseModel):
 | **Audit Events** | KYC_SCREENING_INITIATED, SANCTIONS_SCREENING_COMPLETE, KYC_BRIEF_SUBMITTED, HITL_DECISION_RECEIVED, RM_DECISION_CAPTURED, KYC_DECLINED, SANCTIONS_HIT (emergency), NODE_COMPLETED, NODE_FAILED |
 | **Variable Prefix** | `sa4_` |
 | **Output Schema** | N3Output (Pydantic validated) |
-| **Compliance References** | MAS Notice SFA 02-N13 (CDD/KYC), MAS Notice 626 (AML/CFT), HKMA AML/CFT Guidelines, DBS KYC Policy |
+| **Compliance References** | MAS Notice SFA 02-N13 (CDD/KYC), MAS Notice 626 (AML/CFT), HKMA AML/CFT Guidelines, ABS KYC Policy |
 | **Downstream Triggered** | SA-5 Credit Preparation (N-4) + SA-6 Static Config spec prep (N-4b) — both start in parallel on `RM_DECISION_CAPTURED` Kafka event |

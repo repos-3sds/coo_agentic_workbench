@@ -1,0 +1,309 @@
+# DCE Account Opening — Local Development Stack
+# ================================================
+# Services:
+#   db        — MariaDB 11.3 on port 3307 (auto-runs all db/ migrations on first start)
+#   mcp-sa1-sa2 — FastMCP server for SA-1 + SA-2 tools on port 8000
+#   mcp-sa3   — FastMCP server for SA-3 tools on port 8001
+#
+# Usage:
+#   docker compose up -d --build    (first time)
+#   docker compose up -d            (subsequent starts)
+#   docker compose down             (stop)
+#   docker compose down -v          (stop + wipe DB data)
+#
+# After first start, DB is auto-seeded with:
+#   001_create_tables.sql        — SA-1 base tables
+#   002_seed_data.sql            — SA-1 seed (cases 101-103)
+#   003_create_sa2_tables.sql    — SA-2 tables
+#   004_sa1_prerequisites_for_sa2.sql
+#   005_sa2_seed_reordered.sql   — SA-2 seed
+#   006_create_sa3_tables.sql    — SA-3 tables (+ seed via sa3_seed if present)
+#   007_sa4_tables.sql           — SA-4 tables (kyc_brief, screening_result, rm_kyc_decision)
+#   008_sa4_seed.sql             — SA-4 seed (cases 201-202 at N-3)
+
+services:
+
+  # ─────────────────────────────────────────────
+  # MariaDB 11.3 — primary data store
+  # ─────────────────────────────────────────────
+  db:
+    image: mariadb:11.3
+    container_name: dce_mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_dce_2026}
+      MYSQL_DATABASE: ${DCE_DB_NAME:-dce_agent}
+      MYSQL_USER: ${DCE_DB_USER:-dce_user}
+      MYSQL_PASSWORD: ${DCE_DB_PASSWORD:-dce_pass_2026}
+    ports:
+      - "${DCE_DB_PORT:-3307}:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      # Auto-runs all *.sql files in alphabetical order on first startup
+      # Our files 001-006 run in the correct migration order
+      - ./db:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "healthcheck.sh --connect --innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks:
+      - dce_net
+
+  # ─────────────────────────────────────────────
+  # MCP Server — SA-1 (Intake & Triage) +
+  #              SA-2 (Document Collection)
+  # Port 8000 | Health: GET /health
+  # MCP endpoint: POST /mcp
+  # ─────────────────────────────────────────────
+  mcp-sa1-sa2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dce_mcp_sa1_sa2
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Override DB host to point at the db service (not localhost)
+      DCE_DB_HOST: db
+      DCE_DB_PORT: 3306
+      PORT: 8000
+      MCP_TRANSPORT: streamable-http
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - dce_net
+
+  # ─────────────────────────────────────────────
+  # MCP Server — SA-3 (Signature Verification)
+  # Port 8001 | Health: GET /health
+  # MCP endpoint: POST /mcp
+  # ─────────────────────────────────────────────
+  mcp-sa3:
+    build:
+      context: .
+      dockerfile: Dockerfile.sa3
+    container_name: dce_mcp_sa3
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DCE_DB_HOST: db
+      DCE_DB_PORT: 3306
+      PORT: 8001
+      MCP_TRANSPORT: streamable-http
+    ports:
+      - "8001:8001"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - dce_net
+
+  # ─────────────────────────────────────────────
+  # MCP Server — SA-4 (KYC/CDD Preparation)
+  # Port 8002 | Health: GET /health
+  # MCP endpoint: POST /mcp
+  # ─────────────────────────────────────────────
+  mcp-sa4:
+    build:
+      context: .
+      dockerfile: Dockerfile.sa4
+    container_name: dce_mcp_sa4
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DCE_DB_HOST: db
+      DCE_DB_PORT: 3306
+      PORT: 8002
+      MCP_TRANSPORT: streamable-http
+    ports:
+      - "8002:8002"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - dce_net
+
+  # ─────────────────────────────────────────────
+  # MCP Server — SA-5 (Credit Preparation)
+  # Port 8003 | Health: GET /health
+  # MCP endpoint: POST /mcp
+  # ─────────────────────────────────────────────
+  mcp-sa5:
+    build:
+      context: .
+      dockerfile: Dockerfile.sa5
+    container_name: dce_mcp_sa5
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DCE_DB_HOST: db
+      DCE_DB_PORT: 3306
+      PORT: 8003
+      MCP_TRANSPORT: streamable-http
+    ports:
+      - "8003:8003"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8003/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - dce_net
+
+  # ─────────────────────────────────────────────
+  # MCP Server — SA-6 (Static Configuration)
+  # Port 8004 | Health: GET /health
+  # MCP endpoint: POST /mcp
+  # ─────────────────────────────────────────────
+  mcp-sa6:
+    build:
+      context: .
+      dockerfile: Dockerfile.sa6
+    container_name: dce_mcp_sa6
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DCE_DB_HOST: db
+      DCE_DB_PORT: 3306
+      PORT: 8004
+      MCP_TRANSPORT: streamable-http
+    ports:
+      - "8004:8004"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8004/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - dce_net
+
+  # ─────────────────────────────────────────────
+  # MCP Server — SA-7 (Notification Agent)
+  # Port 8005 | Health: GET /health
+  # MCP endpoint: POST /mcp
+  # ─────────────────────────────────────────────
+  mcp-sa7:
+    build:
+      context: .
+      dockerfile: Dockerfile.sa7
+    container_name: dce_mcp_sa7
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DCE_DB_HOST: db
+      DCE_DB_PORT: 3306
+      PORT: 8005
+      MCP_TRANSPORT: streamable-http
+    ports:
+      - "8005:8005"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8005/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - dce_net
+
+  # ─────────────────────────────────────────────
+  # MCP Server — Domain Orchestrator
+  # Port 8006 | Health: GET /health
+  # MCP endpoint: POST /mcp
+  # Drives E2E pipeline: N-0 → N-6 → DONE
+  # ─────────────────────────────────────────────
+  mcp-orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.orchestrator
+    container_name: dce_mcp_orchestrator
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DCE_DB_HOST: db
+      DCE_DB_PORT: 3306
+      PORT: 8006
+      MCP_TRANSPORT: streamable-http
+      # Inside Docker, use container names for MCP calls
+      MCP_HOST_MODE: docker
+    ports:
+      - "8006:8006"
+    depends_on:
+      db:
+        condition: service_healthy
+      mcp-sa1-sa2:
+        condition: service_healthy
+      mcp-sa3:
+        condition: service_healthy
+      mcp-sa4:
+        condition: service_healthy
+      mcp-sa5:
+        condition: service_healthy
+      mcp-sa6:
+        condition: service_healthy
+      mcp-sa7:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8006/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - dce_net
+
+volumes:
+  mariadb_data:
+    name: dce_mariadb_data
+
+networks:
+  dce_net:
+    name: dce_network
+    driver: bridge

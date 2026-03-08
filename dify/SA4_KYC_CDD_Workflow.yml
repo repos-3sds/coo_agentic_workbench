@@ -1,0 +1,1302 @@
+app:
+  description: >
+    SA-4 KYC/CDD Preparation Agent — Node N-3.
+    Two-phase HITL workflow: Phase 1 (entity structure extraction, screening batch,
+    optional registry lookup, KYC brief compilation, park for RM review) and Phase 2
+    (RM decision validation, capture, checkpoint, advance to N-4).
+    MCP tools are called via JSON-RPC 2.0 over HTTP on the SA-4 MCP server.
+  icon: "\U0001F50D"
+  icon_background: "#E8F4FD"
+  mode: workflow
+  name: DCE-AO-SA4-KYC-CDD-Preparation
+  use_icon_as_answer_icon: false
+
+kind: app
+version: 0.6.0
+
+# ────────────────────────────────────────────────────────────────────
+# IMPORTANT — Post-Import Configuration Required:
+# 1. Open node 4000000004 (KB-4 Regulatory Requirements Retrieval)
+#    → select your "KB-4 Regulatory Requirements" dataset
+# 2. Open node 4000000005 (KB-3 GTA & Schedule Reference Retrieval)
+#    → select your "KB-3/KB-12 GTA Reference" dataset
+# 3. Open node 4000000006 (KB-6 DCE Product Reference Retrieval)
+#    → select your "KB-6 DCE Product Reference" dataset
+# 4. MCP_ENDPOINT below points to SA-4 server at host.docker.internal:8002
+#    (works with Colima on macOS; update for production OCP service mesh)
+# ────────────────────────────────────────────────────────────────────
+
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: SA-4 MCP server endpoint (local Docker host on port 8002)
+    id: env-mcp-endpoint-sa4
+    name: MCP_ENDPOINT
+    selector:
+    - env
+    - MCP_ENDPOINT
+    value: http://host.docker.internal:8002
+    value_type: string
+  features:
+    file_upload:
+      allowed_file_extensions: []
+      allowed_file_types: []
+      allowed_file_upload_methods: []
+      enabled: false
+      fileUploadConfig:
+        file_size_limit: 15
+        image_file_size_limit: 10
+    opening_statement: ""
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ""
+      voice: ""
+
+  graph:
+    edges:
+      # START → Phase Router
+      - data: {isInIteration: false, sourceType: start, targetType: if-else}
+        id: e-4000-4002
+        source: "4000000001"
+        target: "4000000002"
+        type: custom
+      # Phase Router → PHASE1 branch → KB-4 Retrieval
+      - data: {isInIteration: false, sourceType: if-else, targetType: knowledge-retrieval}
+        id: e-4002-4004-trigger
+        source: "4000000002"
+        sourceHandle: "true"
+        target: "4000000004"
+        type: custom
+      # Phase Router → PHASE2 branch → Phase 2 Context
+      - data: {isInIteration: false, sourceType: if-else, targetType: code}
+        id: e-4002-4013-resume
+        source: "4000000002"
+        sourceHandle: "false"
+        target: "4000000013"
+        type: custom
+      # KB-4 → KB-3
+      - data: {isInIteration: false, sourceType: knowledge-retrieval, targetType: knowledge-retrieval}
+        id: e-4004-4005
+        source: "4000000004"
+        target: "4000000005"
+        type: custom
+      # KB-3 → KB-6
+      - data: {isInIteration: false, sourceType: knowledge-retrieval, targetType: knowledge-retrieval}
+        id: e-4005-4006
+        source: "4000000005"
+        target: "4000000006"
+        type: custom
+      # KB-6 → Get Context (Phase 1)
+      - data: {isInIteration: false, sourceType: knowledge-retrieval, targetType: code}
+        id: e-4006-4007
+        source: "4000000006"
+        target: "4000000007"
+        type: custom
+      # Get Context → Extract Entity Structure
+      - data: {isInIteration: false, sourceType: code, targetType: code}
+        id: e-4007-4008
+        source: "4000000007"
+        target: "4000000008"
+        type: custom
+      # Extract Entity → Run Screening Batch
+      - data: {isInIteration: false, sourceType: code, targetType: code}
+        id: e-4008-4009
+        source: "4000000008"
+        target: "4000000009"
+        type: custom
+      # Screening Batch → Sanctions Router
+      - data: {isInIteration: false, sourceType: code, targetType: if-else}
+        id: e-4009-4010
+        source: "4000000009"
+        target: "4000000010"
+        type: custom
+      # Sanctions Router YES (confirmed hit) → Escalate
+      - data: {isInIteration: false, sourceType: if-else, targetType: code}
+        id: e-4010-4011-hit
+        source: "4000000010"
+        sourceHandle: "true"
+        target: "4000000011"
+        type: custom
+      # Escalate → END Escalation
+      - data: {isInIteration: false, sourceType: code, targetType: end}
+        id: e-4011-4012
+        source: "4000000011"
+        target: "4000000012"
+        type: custom
+      # Sanctions Router NO (clear/potential) → Registry Lookup
+      - data: {isInIteration: false, sourceType: if-else, targetType: code}
+        id: e-4010-4014-clear
+        source: "4000000010"
+        sourceHandle: "false"
+        target: "4000000014"
+        type: custom
+      # Registry Lookup → Compile KYC Brief (LLM)
+      - data: {isInIteration: false, sourceType: code, targetType: llm}
+        id: e-4014-4015
+        source: "4000000014"
+        target: "4000000015"
+        type: custom
+      # Compile Brief LLM → Submit Brief (MCP)
+      - data: {isInIteration: false, sourceType: llm, targetType: code}
+        id: e-4015-4016
+        source: "4000000015"
+        target: "4000000016"
+        type: custom
+      # Submit Brief → Park HITL
+      - data: {isInIteration: false, sourceType: code, targetType: code}
+        id: e-4016-4017
+        source: "4000000016"
+        target: "4000000017"
+        type: custom
+      # Park HITL → END HITL_PENDING
+      - data: {isInIteration: false, sourceType: code, targetType: end}
+        id: e-4017-4018
+        source: "4000000017"
+        target: "4000000018"
+        type: custom
+      # Phase 2 Context → Decision Validator
+      - data: {isInIteration: false, sourceType: code, targetType: code}
+        id: e-4013-4019
+        source: "4000000013"
+        target: "4000000019"
+        type: custom
+      # Decision Validator → Fields Complete Router
+      - data: {isInIteration: false, sourceType: code, targetType: if-else}
+        id: e-4019-4020
+        source: "4000000019"
+        target: "4000000020"
+        type: custom
+      # Fields incomplete → END Incomplete
+      - data: {isInIteration: false, sourceType: if-else, targetType: end}
+        id: e-4020-4021-incomplete
+        source: "4000000020"
+        sourceHandle: "false"
+        target: "4000000021"
+        type: custom
+      # Fields complete → KYC Risk Router
+      - data: {isInIteration: false, sourceType: if-else, targetType: if-else}
+        id: e-4020-4022-complete
+        source: "4000000020"
+        sourceHandle: "true"
+        target: "4000000022"
+        type: custom
+      # KYC Risk UNACCEPTABLE → KYC Declined
+      - data: {isInIteration: false, sourceType: if-else, targetType: code}
+        id: e-4022-4023-unacceptable
+        source: "4000000022"
+        sourceHandle: "true"
+        target: "4000000023"
+        type: custom
+      # KYC Declined → END Declined
+      - data: {isInIteration: false, sourceType: code, targetType: end}
+        id: e-4023-4024
+        source: "4000000023"
+        target: "4000000024"
+        type: custom
+      # KYC Risk acceptable → Capture RM Decisions
+      - data: {isInIteration: false, sourceType: if-else, targetType: code}
+        id: e-4022-4025-ok
+        source: "4000000022"
+        sourceHandle: "false"
+        target: "4000000025"
+        type: custom
+      # Capture RM Decisions → Complete Node
+      - data: {isInIteration: false, sourceType: code, targetType: code}
+        id: e-4025-4026
+        source: "4000000025"
+        target: "4000000026"
+        type: custom
+      # Complete Node → END Success
+      - data: {isInIteration: false, sourceType: code, targetType: end}
+        id: e-4026-4027
+        source: "4000000026"
+        target: "4000000027"
+        type: custom
+
+    nodes:
+      # ────────────────────────────────────────────────────
+      # Node 1: START
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "Entry point for both TRIGGER (Phase 1) and RESUME (Phase 2) modes"
+          title: START
+          type: start
+          variables:
+            - label: case_id
+              max_length: 30
+              options: []
+              required: true
+              type: text-input
+              variable: case_id
+            - label: mode
+              max_length: 20
+              options: []
+              required: true
+              type: text-input
+              variable: mode
+            - label: hitl_task_id
+              max_length: 20
+              options: []
+              required: false
+              type: text-input
+              variable: hitl_task_id
+            - label: rm_decisions
+              max_length: 2000
+              options: []
+              required: false
+              type: paragraph
+              variable: rm_decisions
+        id: "4000000001"
+        position: {x: 50, y: 300}
+        type: start
+
+      # ────────────────────────────────────────────────────
+      # Node 2: Phase Router (TRIGGER vs RESUME)
+      # ────────────────────────────────────────────────────
+      - data:
+          cases:
+            - case_id: "true"
+              conditions:
+                - comparison_operator: is
+                  id: c-phase-trigger
+                  value: TRIGGER
+                  varType: string
+                  variable_selector: ["4000000001", mode]
+              logical_operator: and
+          desc: "Routes to Phase 1 (TRIGGER) or Phase 2 (RESUME) based on mode input"
+          title: "Phase Router"
+          type: if-else
+        id: "4000000002"
+        position: {x: 250, y: 300}
+        type: if-else
+
+      # ────────────────────────────────────────────────────
+      # Node 4: KB-4 Regulatory Requirements Retrieval
+      # (Note: node 3 is the phase router false path, 4 is first KB)
+      # ────────────────────────────────────────────────────
+      - data:
+          dataset_ids: []
+          desc: "Load KYC/CDD regulatory requirements for this entity type and jurisdiction"
+          metadata_filtering_mode: disabled
+          multiple_retrieval_config:
+            reranking_enable: false
+            reranking_mode: weighted_score
+            top_k: 6
+          query:
+            id: q-kb4
+            value_selector: ["4000000001", case_id]
+            variable: query
+          retrieval_mode: multiple
+          single_retrieval_config:
+            model:
+              completion_params: {temperature: 0.1}
+              mode: chat
+              name: qwen2.5:32b
+              provider: langgenius/ollama/ollama
+          title: "KB-4 Regulatory Requirements"
+          type: knowledge-retrieval
+        id: "4000000004"
+        position: {x: 500, y: 150}
+        type: knowledge-retrieval
+
+      # ────────────────────────────────────────────────────
+      # Node 5: KB-3 GTA & Schedule Reference Retrieval
+      # ────────────────────────────────────────────────────
+      - data:
+          dataset_ids: []
+          desc: "Load GTA schedules and product regulatory classification"
+          metadata_filtering_mode: disabled
+          multiple_retrieval_config:
+            reranking_enable: false
+            reranking_mode: weighted_score
+            top_k: 4
+          query:
+            id: q-kb3
+            value_selector: ["4000000001", case_id]
+            variable: query
+          retrieval_mode: multiple
+          single_retrieval_config:
+            model:
+              completion_params: {temperature: 0.1}
+              mode: chat
+              name: qwen2.5:32b
+              provider: langgenius/ollama/ollama
+          title: "KB-3 GTA & Schedule Reference"
+          type: knowledge-retrieval
+        id: "4000000005"
+        position: {x: 700, y: 150}
+        type: knowledge-retrieval
+
+      # ────────────────────────────────────────────────────
+      # Node 6: KB-6 DCE Product Reference Retrieval
+      # ────────────────────────────────────────────────────
+      - data:
+          dataset_ids: []
+          desc: "Load product risk profiles and margin requirements"
+          metadata_filtering_mode: disabled
+          multiple_retrieval_config:
+            reranking_enable: false
+            reranking_mode: weighted_score
+            top_k: 3
+          query:
+            id: q-kb6
+            value_selector: ["4000000001", case_id]
+            variable: query
+          retrieval_mode: multiple
+          single_retrieval_config:
+            model:
+              completion_params: {temperature: 0.1}
+              mode: chat
+              name: qwen2.5:32b
+              provider: langgenius/ollama/ollama
+          title: "KB-6 DCE Product Reference"
+          type: knowledge-retrieval
+        id: "4000000006"
+        position: {x: 900, y: 150}
+        type: knowledge-retrieval
+
+      # ────────────────────────────────────────────────────
+      # Node 7: Get Case Context (Phase 1)
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json, uuid
+
+            def main(case_id: str, mcp_endpoint: str) -> dict:
+                # Initialize MCP session
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05",
+                               "capabilities": {}, "clientInfo": {"name": "dify-sa4", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(urllib.request.Request(
+                    f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json, text/event-stream",
+                    "Mcp-Session-Id": session_id,
+                }
+                # Call sa4_get_case_context
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa4_get_case_context",
+                               "arguments": {"case_id": case_id, "phase": "PHASE1"}}
+                }).encode()
+                req2 = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req2, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                return {"result": json.loads(text)}
+          code_language: python3
+          desc: "Fetch case state, classification, OCR entity data, N-2 output, RM hierarchy"
+          outputs:
+            result: {children: null, type: object}
+          title: "Get Case Context (Phase 1)"
+          type: code
+          variables:
+            - value_selector: ["4000000001", case_id]
+              variable: case_id
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "4000000007"
+        position: {x: 1100, y: 150}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 8: Extract Entity Structure
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json, uuid
+
+            def main(case_id: str, context_result: dict, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa4", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                extracted_data = context_result.get("extracted_data", {})
+                n2_output = context_result.get("n2_output", {})
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa4_extract_entity_structure",
+                               "arguments": {"case_id": case_id,
+                                             "extracted_data": extracted_data,
+                                             "n2_output": n2_output}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                return {"result": json.loads(text)}
+          code_language: python3
+          desc: "Parse extracted doc data, build ownership chain, identify individuals to screen"
+          outputs:
+            result: {children: null, type: object}
+          title: "Extract Entity Structure"
+          type: code
+          variables:
+            - value_selector: ["4000000001", case_id]
+              variable: case_id
+            - value_selector: ["4000000007", result]
+              variable: context_result
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "4000000008"
+        position: {x: 1300, y: 150}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 9: Run Screening Batch
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json, uuid
+
+            def main(case_id: str, entity_result: dict, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa4", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=60)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json, text/event-stream",
+                    "Mcp-Session-Id": session_id,
+                }
+                brief_id = entity_result.get("brief_id", "")
+                individuals = entity_result.get("individuals_to_screen", [])
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa4_run_screening_batch",
+                               "arguments": {"case_id": case_id,
+                                             "brief_id": brief_id,
+                                             "individuals_to_screen": individuals}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=60)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                data = json.loads(text)
+                # Derive sanctions_hit flag for router node (must be string "true"/"false")
+                sanctions_results = data.get("sanctions_results", [])
+                hit = any(r.get("sanctions_status") == "HIT_CONFIRMED" for r in sanctions_results)
+                return {"result": data, "sanctions_hit": "true" if hit else "false"}
+          code_language: python3
+          desc: "Batch screen all names: sanctions (Refinitiv) + PEP (Dow Jones) + adverse media (Factiva)"
+          outputs:
+            result: {children: null, type: object}
+            sanctions_hit: {children: null, type: string}
+          title: "Run Screening Batch"
+          type: code
+          variables:
+            - value_selector: ["4000000001", case_id]
+              variable: case_id
+            - value_selector: ["4000000008", result]
+              variable: entity_result
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "4000000009"
+        position: {x: 1500, y: 150}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 10: Sanctions Hit Router
+      # ────────────────────────────────────────────────────
+      - data:
+          cases:
+            - case_id: "true"
+              conditions:
+                - comparison_operator: is
+                  id: c-sanctions-hit
+                  value: "true"
+                  varType: string
+                  variable_selector: ["4000000009", sanctions_hit]
+              logical_operator: and
+          desc: "If HIT_CONFIRMED → escalate immediately. Otherwise continue to brief."
+          title: "Sanctions Hit Router"
+          type: if-else
+        id: "4000000010"
+        position: {x: 1700, y: 150}
+        type: if-else
+
+      # ────────────────────────────────────────────────────
+      # Node 11: Escalate Sanctions Hit
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json, uuid
+
+            def main(case_id: str, entity_result: dict, screening_result: dict, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa4", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                brief_id = entity_result.get("brief_id", "")
+                sanctions_results = screening_result.get("sanctions_results", [])
+                hit_details = [r for r in sanctions_results if r.get("sanctions_status") == "HIT_CONFIRMED"]
+                names_hit = [r.get("name", "") for r in hit_details]
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa4_escalate_sanctions_hit",
+                               "arguments": {"case_id": case_id,
+                                             "brief_id": brief_id,
+                                             "hit_details": hit_details,
+                                             "names_hit": names_hit}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                return {"result": json.loads(text)}
+          code_language: python3
+          desc: "EMERGENCY: confirmed sanctions hit → suspend case, escalate to Compliance"
+          outputs:
+            result: {children: null, type: object}
+          title: "Escalate Sanctions Hit"
+          type: code
+          variables:
+            - value_selector: ["4000000001", case_id]
+              variable: case_id
+            - value_selector: ["4000000008", result]
+              variable: entity_result
+            - value_selector: ["4000000009", result]
+              variable: screening_result
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "4000000011"
+        position: {x: 1900, y: 50}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 12: END — Sanctions Escalation
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "Case suspended — confirmed sanctions hit. Compliance notified."
+          outputs:
+            - type: string
+              value_selector: ["4000000011", result]
+              variable: escalation_result
+          title: "END: SUSPENDED_SANCTIONS"
+          type: end
+        id: "4000000012"
+        position: {x: 2100, y: 50}
+        type: end
+
+      # ────────────────────────────────────────────────────
+      # Node 13: Get Case Context (Phase 2 Resume)
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json, uuid
+
+            def main(case_id: str, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa4", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa4_get_case_context",
+                               "arguments": {"case_id": case_id, "phase": "PHASE2"}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                return {"result": json.loads(text)}
+          code_language: python3
+          desc: "Phase 2: fetch case context including prior brief and HITL task details"
+          outputs:
+            result: {children: null, type: object}
+          title: "Get Case Context (Phase 2)"
+          type: code
+          variables:
+            - value_selector: ["4000000001", case_id]
+              variable: case_id
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "4000000013"
+        position: {x: 250, y: 500}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 14: Corporate Registry Lookup (Conditional)
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json, uuid
+
+            def main(case_id: str, context_result: dict, entity_result: dict, mcp_endpoint: str) -> dict:
+                entity_structure = entity_result.get("entity_structure", {})
+                entity_type = entity_structure.get("entity_type", "")
+                jurisdiction = entity_structure.get("jurisdiction", "")
+                # Only run for CORP or FI entities in SGP or HKG
+                if entity_type not in ("CORP", "FI") or jurisdiction not in ("SGP", "HKG"):
+                    return {"result": {"status": "skipped", "reason": "Registry lookup not applicable",
+                                       "registry_data": {}, "discrepancies": []}}
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa4", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                extracted_data = context_result.get("extracted_data", {})
+                registry_id = extracted_data.get("uen") or extracted_data.get("company_number", "")
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa4_lookup_corporate_registry",
+                               "arguments": {"case_id": case_id,
+                                             "entity_name": entity_structure.get("entity_name", ""),
+                                             "jurisdiction": jurisdiction,
+                                             "registry_identifier": registry_id}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                return {"result": json.loads(text)}
+          code_language: python3
+          desc: "Conditional: ACRA (SGP) or HK CoR (HKG) for CORP/FI entities — validate registry vs submitted docs"
+          outputs:
+            result: {children: null, type: object}
+          title: "Corporate Registry Lookup"
+          type: code
+          variables:
+            - value_selector: ["4000000001", case_id]
+              variable: case_id
+            - value_selector: ["4000000007", result]
+              variable: context_result
+            - value_selector: ["4000000008", result]
+              variable: entity_result
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "4000000014"
+        position: {x: 1900, y: 250}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 15: Compile KYC Brief (LLM — Qwen/Ollama)
+      # ────────────────────────────────────────────────────
+      - data:
+          context:
+            enabled: true
+            variable_selector: ["4000000004", result]
+          desc: "Synthesise all gathered data into the 11-section KYC/CDD/BCAP brief"
+          model:
+            completion_params:
+              max_tokens: 4096
+              temperature: 0.2
+            mode: chat
+            name: qwen2.5:32b
+            provider: langgenius/ollama/ollama
+          variables:
+            - variable: kb4_result
+              value_selector: ["4000000004", result]
+            - variable: kb3_result
+              value_selector: ["4000000005", result]
+            - variable: kb6_result
+              value_selector: ["4000000006", result]
+            - variable: case_id_val
+              value_selector: ["4000000001", case_id]
+            - variable: entity_result
+              value_selector: ["4000000008", result]
+            - variable: screening_result
+              value_selector: ["4000000009", result]
+            - variable: registry_result
+              value_selector: ["4000000014", result]
+          prompt_template:
+            - id: sys-sa4
+              role: system
+              text: |
+                You are the DCE KYC/CDD Preparation Specialist at ABS Bank.
+                Your task is to compile a complete KYC/CDD/BCAP review brief for the Relationship Manager.
+
+                MANDATORY RULES:
+                1. You surface FINDINGS for RM review — you do NOT make KYC determinations.
+                2. Distinguish CONFIRMED hits vs POTENTIAL MATCH clearly in the brief.
+                3. Brief must cover all 11 sections listed below.
+                4. Suggested risk rating range is advisory only — RM makes final determination.
+                5. Open questions must be specific and actionable for RM investigation.
+
+                BRIEF SECTIONS TO COMPILE:
+                1. Entity Summary (legal name, type, jurisdiction, LEI, incorporation date, addresses)
+                2. Ownership Structure (tabular chain with % ownership and jurisdiction per level)
+                3. ACRA/CoI Summary (directors, shareholders, discrepancies if any)
+                4. Directors Identification (min 2 key directors — name, ID type, ID number, nationality, role)
+                5. UBO/Guarantor Identification (each UBO/guarantor with ID details and % ownership)
+                6. Screening Results (sanctions status, PEP flags, adverse media summary)
+                7. Source of Wealth Indicators (revenue, equity, business nature from financial documents)
+                8. Risk Factors Identified (jurisdiction, entity complexity, PEP, product risk, client tier)
+                9. Retail Investor Flag (is_retail_investor + MAS risk disclosure if applicable)
+                10. Open Questions for RM (specific gaps, unresolved discrepancies, items requiring RM investigation)
+                11. Suggested Risk Rating Range (LOW/MEDIUM/HIGH — advisory, RM decides)
+
+                Context (KB-4 Regulatory Requirements):
+                {{kb4_result}}
+                Context (KB-3 GTA Reference):
+                {{kb3_result}}
+                Context (KB-6 Product Reference):
+                {{kb6_result}}
+            - id: user-sa4
+              role: user
+              text: |
+                Case ID: {{case_id_val}}
+
+                Entity Structure:
+                {{entity_result}}
+
+                Screening Results:
+                {{screening_result}}
+
+                Registry Data:
+                {{registry_result}}
+
+                Please compile the complete 11-section KYC/CDD/BCAP brief now.
+                Include suggested risk range and all open questions.
+                Format each section with a clear heading.
+          title: "Compile KYC Brief (LLM)"
+          type: llm
+          vision:
+            configs:
+              detail: high
+            enabled: false
+        id: "4000000015"
+        position: {x: 2100, y: 250}
+        type: llm
+
+      # ────────────────────────────────────────────────────
+      # Node 16: Submit KYC Brief (MCP)
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json, uuid, re
+
+            def main(case_id: str, entity_result: dict, screening_result: dict,
+                     registry_result: dict, llm_brief: str, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa4", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                brief_id = entity_result.get("brief_id", "")
+                # Extract suggested risk range from LLM output
+                risk_match = re.search(r"(?i)(LOW|MEDIUM|HIGH)", llm_brief[-500:])
+                suggested_risk = risk_match.group(1).upper() if risk_match else "MEDIUM"
+                open_questions = ["See detailed brief for RM review items"]
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa4_compile_and_submit_kyc_brief",
+                               "arguments": {
+                                   "case_id": case_id,
+                                   "brief_id": brief_id,
+                                   "entity_structure": entity_result.get("entity_structure", {}),
+                                   "screening_summary": {
+                                       "overall_sanctions_status": screening_result.get("overall_sanctions_status", "CLEAR"),
+                                       "pep_flag_count": screening_result.get("pep_flag_count", 0),
+                                       "adverse_media_found": screening_result.get("adverse_media_found", False),
+                                       "names_screened": screening_result.get("names_screened", 0),
+                                   },
+                                   "registry_data": registry_result.get("registry_data", {}),
+                                   "open_questions": open_questions,
+                                   "suggested_risk_range": suggested_risk,
+                                   "is_retail_investor": False,
+                                   "kb_chunks_used": ["KB-4", "KB-3", "KB-6"]
+                               }}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                return {"result": json.loads(text)}
+          code_language: python3
+          desc: "Update KYC brief with full compilation; post to RM workbench queue"
+          outputs:
+            result: {children: null, type: object}
+          title: "Submit KYC Brief"
+          type: code
+          variables:
+            - value_selector: ["4000000001", case_id]
+              variable: case_id
+            - value_selector: ["4000000008", result]
+              variable: entity_result
+            - value_selector: ["4000000009", result]
+              variable: screening_result
+            - value_selector: ["4000000014", result]
+              variable: registry_result
+            - value_selector: ["4000000015", text]
+              variable: llm_brief
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "4000000016"
+        position: {x: 2300, y: 250}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 17: Park for HITL
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json, uuid, datetime
+
+            def main(case_id: str, brief_result: dict, context_result: dict, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa4", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                brief_id = brief_result.get("brief_id", "")
+                brief_url = brief_result.get("brief_url", "")
+                rm_hierarchy = context_result.get("rm_hierarchy", {})
+                rm_id = rm_hierarchy.get("rm_id", "RM-UNKNOWN")
+                case_state = context_result.get("case_state", {})
+                priority = case_state.get("priority", "STANDARD")
+                sla_hours = 4 if priority == "URGENT" else 48
+                deadline_dt = datetime.datetime.now() + datetime.timedelta(hours=sla_hours * 5)  # 2 biz days
+                hitl_deadline = deadline_dt.strftime("%Y-%m-%d %H:%M:%S")
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa4_park_for_hitl",
+                               "arguments": {"case_id": case_id, "brief_id": brief_id,
+                                             "rm_id": rm_id, "priority": priority,
+                                             "hitl_deadline": hitl_deadline, "brief_url": brief_url}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                return {"result": json.loads(text)}
+          code_language: python3
+          desc: "Atomic park: HITL task + HITL_PENDING checkpoint + event log"
+          outputs:
+            result: {children: null, type: object}
+          title: "Park for HITL"
+          type: code
+          variables:
+            - value_selector: ["4000000001", case_id]
+              variable: case_id
+            - value_selector: ["4000000016", result]
+              variable: brief_result
+            - value_selector: ["4000000007", result]
+              variable: context_result
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "4000000017"
+        position: {x: 2500, y: 250}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 18: END — HITL_PENDING
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "Workflow parks here. RM reviews KYC brief in Agentic Workbench."
+          outputs:
+            - type: string
+              value_selector: ["4000000017", result]
+              variable: hitl_pending_result
+          title: "END: HITL_PENDING"
+          type: end
+        id: "4000000018"
+        position: {x: 2700, y: 250}
+        type: end
+
+      # ────────────────────────────────────────────────────
+      # Node 19: RM Decision Validator
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import json
+
+            def main(rm_decisions_raw: str, case_id: str) -> dict:
+                try:
+                    decisions = json.loads(rm_decisions_raw) if isinstance(rm_decisions_raw, str) else rm_decisions_raw
+                except (json.JSONDecodeError, TypeError):
+                    return {"result": {"validation_status": "INCOMPLETE",
+                                       "missing_fields": ["rm_decisions_parse_error"],
+                                       "is_complete": False, "rm_decisions": {}},
+                            "fields_complete": "false",
+                            "kyc_risk_rating_str": ""}
+                mandatory = ["kyc_risk_rating", "cdd_clearance", "bcap_clearance",
+                             "caa_approach", "recommended_dce_limit_sgd",
+                             "recommended_dce_pce_limit_sgd", "osca_case_number",
+                             "limit_exposure_indication", "rm_id", "decided_at"]
+                missing = [f for f in mandatory if f not in decisions or decisions[f] is None or decisions[f] == ""]
+                kyc_rating = decisions.get("kyc_risk_rating", "")
+                return {"result": {
+                    "validation_status": "COMPLETE" if not missing else "INCOMPLETE",
+                    "missing_fields": missing,
+                    "is_complete": len(missing) == 0,
+                    "rm_decisions": decisions,
+                    "kyc_risk_rating": kyc_rating,
+                },
+                "fields_complete": "true" if not missing else "false",
+                "kyc_risk_rating_str": kyc_rating}
+          code_language: python3
+          desc: "Validate all mandatory RM KYC/CDD decision fields are present and valid"
+          outputs:
+            result: {children: null, type: object}
+            fields_complete: {children: null, type: string}
+            kyc_risk_rating_str: {children: null, type: string}
+          title: "RM Decision Validator"
+          type: code
+          variables:
+            - value_selector: ["4000000001", rm_decisions]
+              variable: rm_decisions_raw
+            - value_selector: ["4000000001", case_id]
+              variable: case_id
+        id: "4000000019"
+        position: {x: 500, y: 500}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 20: Fields Complete Router
+      # ────────────────────────────────────────────────────
+      - data:
+          cases:
+            - case_id: "true"
+              conditions:
+                - comparison_operator: is
+                  id: c-complete
+                  value: "true"
+                  varType: string
+                  variable_selector: ["4000000019", fields_complete]
+              logical_operator: and
+          desc: "Check all mandatory RM fields present"
+          title: "All Fields Present?"
+          type: if-else
+        id: "4000000020"
+        position: {x: 700, y: 500}
+        type: if-else
+
+      # ────────────────────────────────────────────────────
+      # Node 21: END — Incomplete Submission
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "RM submission incomplete — return to workbench with missing fields"
+          outputs:
+            - type: string
+              value_selector: ["4000000019", result]
+              variable: validation_result
+          title: "END: Incomplete — Return to RM"
+          type: end
+        id: "4000000021"
+        position: {x: 900, y: 420}
+        type: end
+
+      # ────────────────────────────────────────────────────
+      # Node 22: KYC Risk UNACCEPTABLE Router
+      # ────────────────────────────────────────────────────
+      - data:
+          cases:
+            - case_id: "true"
+              conditions:
+                - comparison_operator: is
+                  id: c-unacceptable
+                  value: UNACCEPTABLE
+                  varType: string
+                  variable_selector: ["4000000019", kyc_risk_rating_str]
+              logical_operator: and
+          desc: "UNACCEPTABLE KYC rating → case DEAD. Otherwise proceed to capture."
+          title: "KYC Rating UNACCEPTABLE?"
+          type: if-else
+        id: "4000000022"
+        position: {x: 900, y: 580}
+        type: if-else
+
+      # ────────────────────────────────────────────────────
+      # Node 23: KYC Declined (Complete Node)
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json, uuid
+
+            def main(case_id: str, context_result: dict, validation_result: dict, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa4", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                prior_brief = context_result.get("prior_brief") or {}
+                brief_id = prior_brief.get("brief_id", "")
+                rm_decisions = validation_result.get("rm_decisions", {})
+                n3_output = {"case_id": case_id, "outcome": "KYC_DECLINED",
+                             "kyc_risk_rating": "UNACCEPTABLE", "next_node": "DEAD"}
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa4_complete_node",
+                               "arguments": {"case_id": case_id, "outcome": "KYC_DECLINED",
+                                             "brief_id": brief_id, "rm_decisions": rm_decisions,
+                                             "n3_output": n3_output, "failure_reason": "KYC_DECLINED_BY_RM"}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                return {"result": json.loads(text)}
+          code_language: python3
+          desc: "KYC DECLINED — case terminated (DEAD). Notify Sales Dealer + RM."
+          outputs:
+            result: {children: null, type: object}
+          title: "KYC Declined"
+          type: code
+          variables:
+            - value_selector: ["4000000001", case_id]
+              variable: case_id
+            - value_selector: ["4000000013", result]
+              variable: context_result
+            - value_selector: ["4000000019", result]
+              variable: validation_result
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "4000000023"
+        position: {x: 1100, y: 480}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 24: END — KYC Declined
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "Case terminated — KYC declined by RM. Sales Dealer and RM notified."
+          outputs:
+            - type: string
+              value_selector: ["4000000023", result]
+              variable: declined_result
+          title: "END: KYC_DECLINED"
+          type: end
+        id: "4000000024"
+        position: {x: 1300, y: 480}
+        type: end
+
+      # ────────────────────────────────────────────────────
+      # Node 25: Capture RM Decisions
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json, uuid
+
+            def main(case_id: str, context_result: dict, validation_result: dict, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa4", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                prior_brief = context_result.get("prior_brief") or {}
+                brief_id = prior_brief.get("brief_id", "")
+                rm_decisions = validation_result.get("rm_decisions", {})
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa4_capture_rm_decisions",
+                               "arguments": {"case_id": case_id,
+                                             "brief_id": brief_id,
+                                             "rm_decisions": rm_decisions}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                return {"result": json.loads(text)}
+          code_language: python3
+          desc: "Persist all validated RM decisions atomically"
+          outputs:
+            result: {children: null, type: object}
+          title: "Capture RM Decisions"
+          type: code
+          variables:
+            - value_selector: ["4000000001", case_id]
+              variable: case_id
+            - value_selector: ["4000000013", result]
+              variable: context_result
+            - value_selector: ["4000000019", result]
+              variable: validation_result
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "4000000025"
+        position: {x: 1100, y: 620}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 26: Complete Node (Checkpoint Writer)
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json, uuid
+
+            def main(case_id: str, context_result: dict, validation_result: dict,
+                     capture_result: dict, hitl_task_id: str, mcp_endpoint: str) -> dict:
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {},
+                               "clientInfo": {"name": "dify-sa4", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(
+                    urllib.request.Request(f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("mcp-session-id", "")
+                headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Mcp-Session-Id": session_id}
+                prior_brief = context_result.get("prior_brief") or {}
+                brief_id = prior_brief.get("brief_id", "")
+                rm_decisions = validation_result.get("rm_decisions", {})
+                decision_id = capture_result.get("decision_id", 0)
+                n3_output = {
+                    "case_id": case_id,
+                    "kyc_brief_id": brief_id,
+                    "brief_url": prior_brief.get("brief_url", ""),
+                    "sanctions_status": prior_brief.get("sanctions_status", "CLEAR"),
+                    "pep_flags_count": prior_brief.get("pep_flag_count", 0),
+                    "adverse_media_found": prior_brief.get("adverse_media_found", False),
+                    "names_screened_count": prior_brief.get("names_screened_count", 0),
+                    "rm_decisions": rm_decisions,
+                    "decision_id": decision_id,
+                    "next_node": "N-4",
+                }
+                tool_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "sa4_complete_node",
+                               "arguments": {"case_id": case_id, "outcome": "RM_DECISION_CAPTURED",
+                                             "brief_id": brief_id, "rm_decisions": rm_decisions,
+                                             "n3_output": n3_output,
+                                             "hitl_task_id": hitl_task_id}}
+                }).encode()
+                req = urllib.request.Request(f"{mcp_endpoint}/mcp", data=tool_payload, headers=headers, method="POST")
+                resp = urllib.request.urlopen(req, timeout=30)
+                raw = resp.read().decode()
+                result = next((json.loads(l[6:]) for l in raw.split('\n') if l.startswith('data: ')), {})
+                content = result.get("result", {}).get("content", [{}])
+                text = content[0].get("text", "{}") if content else "{}"
+                return {"result": json.loads(text), "n3_output": n3_output}
+          code_language: python3
+          desc: "MANDATORY: write N-3 COMPLETE checkpoint, advance to N-4, fire RM_DECISION_CAPTURED Kafka event"
+          outputs:
+            result: {children: null, type: object}
+            n3_output: {children: null, type: object}
+          title: "Complete Node (Checkpoint)"
+          type: code
+          variables:
+            - value_selector: ["4000000001", case_id]
+              variable: case_id
+            - value_selector: ["4000000013", result]
+              variable: context_result
+            - value_selector: ["4000000019", result]
+              variable: validation_result
+            - value_selector: ["4000000025", result]
+              variable: capture_result
+            - value_selector: ["4000000001", hitl_task_id]
+              variable: hitl_task_id
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "4000000026"
+        position: {x: 1300, y: 620}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 27: END — Success
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "N-3 complete. RM decisions captured. SA-5 and SA-6 triggered in parallel via Kafka."
+          outputs:
+            - type: object
+              value_selector: ["4000000026", n3_output]
+              variable: n3_output
+          title: "END: RM_DECISION_CAPTURED"
+          type: end
+        id: "4000000027"
+        position: {x: 1500, y: 620}
+        type: end

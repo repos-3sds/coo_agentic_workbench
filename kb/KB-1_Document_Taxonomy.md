@@ -8,7 +8,7 @@
 | **Version** | 1.0.0 |
 | **Effective Date** | 2026-03-01 |
 | **Owner** | DCE Operations — Document Management |
-| **Classification** | DBS Internal — Restricted |
+| **Classification** | ABS Internal — Restricted |
 | **Used By** | N-0 (SA-1 Intake & Triage), N-1 (SA-2 Document Collection) |
 | **Chunk Size** | 500 tokens |
 | **Chunk Overlap** | 50 tokens |

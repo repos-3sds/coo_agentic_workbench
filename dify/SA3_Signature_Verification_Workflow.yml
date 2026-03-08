@@ -1,0 +1,2257 @@
+app:
+  description: SA-3 Signature Verification Agent (N-2). Two-Phase HITL workflow — Phase
+    1 extracts signatures, runs authority checks and confidence scoring, parks for
+    COO Desk Support review. Phase 2 resumes after human decisions, stores approved
+    specimens as regulatory evidence, advances to N-3 on SIGNATURE_APPROVED.
+  icon: "\U0001F50D"
+  icon_background: '#FDE8D8'
+  mode: workflow
+  name: DCE-AO-SA3-Signature-Verification
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/anthropic:0.3.4@cadfd7b0cb7dcb1640cb6d168b1b98f4fafd22ccffdf29be44bdc791aaa16a86
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: SA-3 MCP server endpoint (local Docker host on port 8001)
+    id: env-mcp-endpoint-sa3
+    name: MCP_ENDPOINT
+    selector:
+    - env
+    - MCP_ENDPOINT
+    value: http://host.docker.internal:8001
+    value_type: string
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 50
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    # START → Mode Router
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: if-else
+      id: '300000000001'
+      source: '3000000001'
+      sourceHandle: source
+      target: '3000000002'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # Mode Router → Phase1 Context (TRIGGER path)
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: code
+      id: '300000000002'
+      source: '3000000002'
+      sourceHandle: trigger-case
+      target: '3000000003'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # Mode Router → Phase2 Context (RESUME path)
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: code
+      id: '300000000003'
+      source: '3000000002'
+      sourceHandle: 'false'
+      target: '3000000013'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # Phase1 Context → KB-5 Retrieval
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: knowledge-retrieval
+      id: '300000000004'
+      source: '3000000003'
+      sourceHandle: source
+      target: '3000000004'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # KB-5 → Signature Analysis Batch
+    - data:
+        isInIteration: false
+        sourceType: knowledge-retrieval
+        targetType: code
+      id: '300000000005'
+      source: '3000000004'
+      sourceHandle: source
+      target: '3000000005'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # Signature Analysis → Confidence Tier Classifier
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: code
+      id: '300000000006'
+      source: '3000000005'
+      sourceHandle: source
+      target: '3000000006'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # Confidence Classifier → LOW Confidence Router
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: if-else
+      id: '300000000007'
+      source: '3000000006'
+      sourceHandle: source
+      target: '3000000007'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # LOW Confidence Router → Escalate Code (YES — has LOW)
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: code
+      id: '300000000008'
+      source: '3000000007'
+      sourceHandle: has-low-case
+      target: '3000000008'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # Escalate Code → END Escalation
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: end
+      id: '300000000009'
+      source: '3000000008'
+      sourceHandle: source
+      target: '3000000009'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # LOW Confidence Router → LLM Verification Summary (NO — all ≥ 60%)
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: llm
+      id: '300000000010'
+      source: '3000000007'
+      sourceHandle: 'false'
+      target: '3000000010'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # LLM Verification Summary → Park for HITL
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: code
+      id: '300000000011'
+      source: '3000000010'
+      sourceHandle: source
+      target: '3000000011'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # Park HITL → END HITL_PENDING
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: end
+      id: '300000000012'
+      source: '3000000011'
+      sourceHandle: source
+      target: '3000000012'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # Phase2 Context → Decision Validator
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: code
+      id: '300000000013'
+      source: '3000000013'
+      sourceHandle: source
+      target: '3000000014'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # Decision Validator → Rejection Router
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: if-else
+      id: '300000000014'
+      source: '3000000014'
+      sourceHandle: source
+      target: '3000000015'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # Rejection Router → Rejection Code (YES — has rejections)
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: code
+      id: '300000000015'
+      source: '3000000015'
+      sourceHandle: has-rejection-case
+      target: '3000000016'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # Rejection Code → END Rejected
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: end
+      id: '300000000016'
+      source: '3000000016'
+      sourceHandle: source
+      target: '3000000017'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # Rejection Router → Clarify Router (NO — no rejections)
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: if-else
+      id: '300000000017'
+      source: '3000000015'
+      sourceHandle: 'false'
+      target: '3000000018'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # Clarify Router → Clarify Code (YES — has clarify)
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: code
+      id: '300000000018'
+      source: '3000000018'
+      sourceHandle: has-clarify-case
+      target: '3000000019'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # Clarify Code → END Clarify Pending
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: end
+      id: '300000000019'
+      source: '3000000019'
+      sourceHandle: source
+      target: '3000000020'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # Clarify Router → Store Specimens (NO — all approved)
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: code
+      id: '300000000020'
+      source: '3000000018'
+      sourceHandle: 'false'
+      target: '3000000021'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # Store Specimens → Complete Node
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: code
+      id: '300000000021'
+      source: '3000000021'
+      sourceHandle: source
+      target: '3000000022'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    # Complete Node → END Success
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: end
+      id: '300000000022'
+      source: '3000000022'
+      sourceHandle: source
+      target: '3000000023'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+
+    # ─────────────────────────────────────────────
+    # Node 1: START
+    # ─────────────────────────────────────────────
+    - data:
+        desc: >-
+          Phase 1 (TRIGGER): case_id, document_ids (JSON array), company_mandate_id, mode="TRIGGER".
+          Phase 2 (RESUME): case_id, mode="RESUME", hitl_task_id, decisions (JSON array of signatory decisions).
+        selected: false
+        title: Start
+        type: start
+        variables:
+        - label: case_id
+          max_length: 48
+          options: []
+          required: true
+          type: text-input
+          variable: case_id
+        - label: mode
+          max_length: 20
+          options: []
+          required: true
+          type: text-input
+          variable: mode
+        - label: document_ids
+          max_length: 2000
+          options: []
+          required: false
+          type: paragraph
+          variable: document_ids
+        - label: company_mandate_id
+          max_length: 50
+          options: []
+          required: false
+          type: text-input
+          variable: company_mandate_id
+        - label: hitl_task_id
+          max_length: 50
+          options: []
+          required: false
+          type: text-input
+          variable: hitl_task_id
+        - label: decisions
+          max_length: 8000
+          options: []
+          required: false
+          type: paragraph
+          variable: decisions
+        - label: reviewed_by_id
+          max_length: 50
+          options: []
+          required: false
+          type: text-input
+          variable: reviewed_by_id
+      height: 360
+      id: '3000000001'
+      position:
+        x: 60
+        y: 280
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 2: IF/ELSE — Mode Router (TRIGGER vs RESUME)
+    # ─────────────────────────────────────────────
+    - data:
+        cases:
+        - case_id: trigger-case
+          conditions:
+          - comparison_operator: is
+            id: cond-mode-trigger
+            value: TRIGGER
+            variable_selector:
+            - '3000000001'
+            - mode
+          logical_operator: and
+        desc: Routes TRIGGER (Phase 1 pre-HITL) vs RESUME (Phase 2 post-HITL).
+        selected: false
+        title: Phase Router
+        type: if-else
+      height: 184
+      id: '3000000002'
+      position:
+        x: 350
+        y: 280
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 3: CODE — Phase 1 Context Injector (sa3_get_case_context TRIGGER)
+    # ─────────────────────────────────────────────
+    - data:
+        code: |
+          import json
+          import ssl
+          import urllib.request
+
+          HEADERS = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream"}
+          CTX = ssl.create_default_context()
+          CTX.check_hostname = False
+          CTX.verify_mode = ssl.CERT_NONE
+
+          def mcp_call(mcp_url, method_name, arguments, req_id=1):
+              body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id,
+                  "method": "initialize",
+                  "params": {"protocolVersion": "2025-03-26", "capabilities": {},
+                             "clientInfo": {"name": "dify-sa3", "version": "1.0"}}
+              }).encode()
+              req = urllib.request.Request(mcp_url, data=body, headers=HEADERS, method="POST")
+              resp = urllib.request.urlopen(req, timeout=30, context=CTX)
+              resp.read()
+              session_id = resp.headers.get("Mcp-Session-Id", "")
+              h = dict(HEADERS)
+              h["Mcp-Session-Id"] = session_id
+              tool_body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id + 1,
+                  "method": "tools/call",
+                  "params": {"name": method_name, "arguments": arguments}
+              }).encode()
+              req2 = urllib.request.Request(mcp_url, data=tool_body, headers=h, method="POST")
+              resp2 = urllib.request.urlopen(req2, timeout=60, context=CTX)
+              raw = resp2.read().decode()
+              for line in raw.split("\n"):
+                  line = line.strip()
+                  if line.startswith("data:"):
+                      data_str = line[5:].strip()
+                      try:
+                          rpc = json.loads(data_str)
+                          content = rpc.get("result", {}).get("content", [])
+                          if content and content[0].get("text"):
+                              return content[0]["text"]
+                      except Exception:
+                          return data_str
+              return raw
+
+          def main(case_id: str, mcp_endpoint: str) -> dict:
+              MCP_URL = (mcp_endpoint or "http://host.docker.internal:8001") + "/mcp"
+              try:
+                  result_str = mcp_call(MCP_URL, "sa3_get_case_context",
+                                        {"case_id": case_id, "mode": "PHASE1"}, 1)
+                  ctx = json.loads(result_str) if isinstance(result_str, str) else result_str
+                  case_state = ctx.get("case_state", {})
+                  return {
+                      "case_id_ctx": case_id,
+                      "jurisdiction_ctx": case_state.get("jurisdiction", "SGP"),
+                      "account_type_ctx": case_state.get("account_type", "CORPORATE"),
+                      "priority_ctx": case_state.get("priority", "STANDARD"),
+                      "n1_output_json": json.dumps(ctx.get("n1_output", {})),
+                      "staged_docs_json": json.dumps(ctx.get("staged_docs", [])),
+                      "rm_name_ctx": ctx.get("rm_hierarchy", {}).get("rm_name", ""),
+                      "context_error": ""
+                  }
+              except Exception as e:
+                  return {
+                      "case_id_ctx": case_id,
+                      "jurisdiction_ctx": "SGP",
+                      "account_type_ctx": "CORPORATE",
+                      "priority_ctx": "STANDARD",
+                      "n1_output_json": "{}",
+                      "staged_docs_json": "[]",
+                      "rm_name_ctx": "",
+                      "context_error": str(e)[:300]
+                  }
+        code_language: python3
+        desc: 'Phase 1: Calls sa3_get_case_context (PHASE1 mode) — loads case state,
+          N-1 output, staged documents, RM hierarchy for notification routing.'
+        outputs:
+          account_type_ctx:
+            children: null
+            type: string
+          case_id_ctx:
+            children: null
+            type: string
+          context_error:
+            children: null
+            type: string
+          jurisdiction_ctx:
+            children: null
+            type: string
+          n1_output_json:
+            children: null
+            type: string
+          priority_ctx:
+            children: null
+            type: string
+          rm_name_ctx:
+            children: null
+            type: string
+          staged_docs_json:
+            children: null
+            type: string
+        selected: false
+        title: 'P1: Context Injector'
+        type: code
+        variables:
+        - value_selector:
+          - '3000000001'
+          - case_id
+          variable: case_id
+        - value_selector:
+          - env
+          - MCP_ENDPOINT
+          variable: mcp_endpoint
+      height: 144
+      id: '3000000003'
+      position:
+        x: 660
+        y: 100
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 4: KNOWLEDGE RETRIEVAL — KB-5 Signature Verification Guidelines
+    # NOTE: After importing, open this node in Dify and select your KB-5 dataset.
+    # ─────────────────────────────────────────────
+    - data:
+        dataset_configs:
+          datasets:
+            datasets: []
+          retrieval_model: single
+          score_threshold: 0.75
+          score_threshold_enabled: true
+          top_k: 3
+        dataset_ids: []
+        desc: >-
+          Retrieves KB-5 confidence threshold definitions and evidence packaging
+          requirements. Query: jurisdiction + entity type. Max 3 chunks, relevance > 0.75.
+          IMPORTANT: After import, edit this node and select the KB-5 dataset you created.
+        query_attachment_selector: []
+        query_variable_selector:
+        - '3000000003'
+        - jurisdiction_ctx
+        retrieval_mode: single
+        selected: false
+        single_retrieval_config:
+          model:
+            completion_params:
+              temperature: 0.1
+            mode: chat
+            name: qwen2.5:7b
+            provider: langgenius/ollama/ollama
+          score_threshold: 0.75
+          score_threshold_enabled: true
+        title: 'KB-5: Signature Verification Guidelines'
+        type: knowledge-retrieval
+      height: 182
+      id: '3000000004'
+      position:
+        x: 960
+        y: 100
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 5: CODE — Signature Analysis Batch (sa3_run_signature_analysis_batch)
+    # ─────────────────────────────────────────────
+    - data:
+        code: |
+          import json
+          import ssl
+          import urllib.request
+
+          HEADERS = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream"}
+          CTX = ssl.create_default_context()
+          CTX.check_hostname = False
+          CTX.verify_mode = ssl.CERT_NONE
+
+          def mcp_call(mcp_url, method_name, arguments, req_id=1):
+              body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id,
+                  "method": "initialize",
+                  "params": {"protocolVersion": "2025-03-26", "capabilities": {},
+                             "clientInfo": {"name": "dify-sa3", "version": "1.0"}}
+              }).encode()
+              req = urllib.request.Request(mcp_url, data=body, headers=HEADERS, method="POST")
+              resp = urllib.request.urlopen(req, timeout=30, context=CTX)
+              resp.read()
+              session_id = resp.headers.get("Mcp-Session-Id", "")
+              h = dict(HEADERS)
+              h["Mcp-Session-Id"] = session_id
+              tool_body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id + 1,
+                  "method": "tools/call",
+                  "params": {"name": method_name, "arguments": arguments}
+              }).encode()
+              req2 = urllib.request.Request(mcp_url, data=tool_body, headers=h, method="POST")
+              resp2 = urllib.request.urlopen(req2, timeout=90, context=CTX)
+              raw = resp2.read().decode()
+              for line in raw.split("\n"):
+                  line = line.strip()
+                  if line.startswith("data:"):
+                      data_str = line[5:].strip()
+                      try:
+                          rpc = json.loads(data_str)
+                          content = rpc.get("result", {}).get("content", [])
+                          if content and content[0].get("text"):
+                              return content[0]["text"]
+                      except Exception:
+                          return data_str
+              return raw
+
+          def build_mock_analysis(staged_docs):
+              """
+              Build simulated analysis results from staged documents.
+              In production, this is replaced by actual signature extraction model (API-7).
+              Simulates extraction of signatories from staged documents.
+              """
+              docs = staged_docs if isinstance(staged_docs, list) else []
+              signatories = []
+              for i, doc in enumerate(docs[:3]):
+                  doc_id = doc.get("document_id", f"DOC-{i+1:06d}") if isinstance(doc, dict) else f"DOC-{i+1:06d}"
+                  sig_id = f"SIG-{i+1:03d}"
+                  signatories.append({
+                      "signatory_id": sig_id,
+                      "signatory_name": f"Signatory {i+1}",
+                      "authority_status": "AUTHORISED",
+                      "role_in_mandate": "Director" if i == 0 else "Authorised Signatory",
+                      "confidence_score": 88.5 - (i * 10),
+                      "source_doc_ids": [doc_id],
+                      "id_doc_ref": f"ID-{i+1:06d}",
+                      "comparison_overlay_ref": f"mongo://overlays/{sig_id}-overlay.png",
+                      "signature_crop_refs": [f"mongo://crops/{sig_id}-crop-1.png"]
+                  })
+              if not signatories:
+                  signatories.append({
+                      "signatory_id": "SIG-001",
+                      "signatory_name": "Primary Signatory",
+                      "authority_status": "AUTHORISED",
+                      "role_in_mandate": "Director",
+                      "confidence_score": 88.5,
+                      "source_doc_ids": ["DOC-000001"],
+                      "id_doc_ref": "ID-000001",
+                      "comparison_overlay_ref": "mongo://overlays/SIG-001-overlay.png",
+                      "signature_crop_refs": ["mongo://crops/SIG-001-crop-1.png"]
+                  })
+              return signatories
+
+          def main(case_id: str, staged_docs_json: str, mcp_endpoint: str) -> dict:
+              MCP_URL = (mcp_endpoint or "http://host.docker.internal:8001") + "/mcp"
+              try:
+                  staged_docs = json.loads(staged_docs_json or "[]")
+                  analysis_results = build_mock_analysis(staged_docs)
+                  result_str = mcp_call(MCP_URL, "sa3_run_signature_analysis_batch", {
+                      "case_id": case_id,
+                      "attempt_number": 1,
+                      "analysis_results_json": json.dumps(analysis_results)
+                  }, 1)
+                  result = json.loads(result_str) if isinstance(result_str, str) else result_str
+                  return {
+                      "analysis_results_json": json.dumps(result.get("results", analysis_results)),
+                      "overall_status": result.get("overall_status", "MIXED_FLAGS"),
+                      "signatory_count": str(len(analysis_results)),
+                      "analysis_error": ""
+                  }
+              except Exception as e:
+                  return {
+                      "analysis_results_json": "[]",
+                      "overall_status": "ERROR",
+                      "signatory_count": "0",
+                      "analysis_error": str(e)[:300]
+                  }
+        code_language: python3
+        desc: >-
+          Calls sa3_run_signature_analysis_batch — runs signature extraction (API-7),
+          authority check, and confidence-scored comparison for all signatories.
+          Returns per-signatory results and overall_status (ALL_HIGH/MIXED_FLAGS/HAS_ESCALATIONS).
+        outputs:
+          analysis_error:
+            children: null
+            type: string
+          analysis_results_json:
+            children: null
+            type: string
+          overall_status:
+            children: null
+            type: string
+          signatory_count:
+            children: null
+            type: string
+        selected: false
+        title: 'P1: Signature Analysis Batch'
+        type: code
+        variables:
+        - value_selector:
+          - '3000000003'
+          - case_id_ctx
+          variable: case_id
+        - value_selector:
+          - '3000000003'
+          - staged_docs_json
+          variable: staged_docs_json
+        - value_selector:
+          - env
+          - MCP_ENDPOINT
+          variable: mcp_endpoint
+      height: 144
+      id: '3000000005'
+      position:
+        x: 1260
+        y: 100
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 6: CODE — Confidence Tier Classifier (Deterministic)
+    # ─────────────────────────────────────────────
+    - data:
+        code: |
+          import json
+
+          HIGH_THRESHOLD = 85.0
+          MEDIUM_THRESHOLD = 60.0
+
+          def classify_tier(score):
+              if score >= HIGH_THRESHOLD:
+                  return "HIGH"
+              elif score >= MEDIUM_THRESHOLD:
+                  return "MEDIUM"
+              else:
+                  return "LOW"
+
+          def main(analysis_results_json: str, overall_status: str) -> dict:
+              try:
+                  results = json.loads(analysis_results_json or "[]")
+                  classified = []
+                  has_low = False
+                  has_medium = False
+                  flag_count = 0
+
+                  for r in results:
+                      score = float(r.get("confidence_score", 0))
+                      tier = classify_tier(score)
+                      flag_for_review = (tier == "MEDIUM")
+                      escalate = (tier == "LOW")
+
+                      if tier == "LOW":
+                          has_low = True
+                          flag_count += 1
+                      elif tier == "MEDIUM":
+                          has_medium = True
+                          flag_count += 1
+
+                      classified.append({
+                          **r,
+                          "confidence_tier": tier,
+                          "flag_for_review": flag_for_review,
+                          "escalate_immediate": escalate
+                      })
+
+                  if has_low:
+                      computed_status = "HAS_ESCALATIONS"
+                  elif has_medium:
+                      computed_status = "MIXED_FLAGS"
+                  else:
+                      computed_status = "ALL_HIGH"
+
+                  return {
+                      "classified_results_json": json.dumps(classified),
+                      "has_low_confidence": "true" if has_low else "false",
+                      "has_medium_confidence": "true" if has_medium else "false",
+                      "computed_overall_status": computed_status,
+                      "flag_count": str(flag_count),
+                      "total_signatories": str(len(classified))
+                  }
+              except Exception as e:
+                  return {
+                      "classified_results_json": analysis_results_json or "[]",
+                      "has_low_confidence": "false",
+                      "has_medium_confidence": "false",
+                      "computed_overall_status": overall_status or "MIXED_FLAGS",
+                      "flag_count": "0",
+                      "total_signatories": "0"
+                  }
+        code_language: python3
+        desc: >-
+          Deterministic KB-5 threshold application per signatory:
+          HIGH (>=85%), MEDIUM (60-84.99%), LOW (<60%).
+          Computes overall_status: ALL_HIGH / MIXED_FLAGS / HAS_ESCALATIONS.
+        outputs:
+          classified_results_json:
+            children: null
+            type: string
+          computed_overall_status:
+            children: null
+            type: string
+          flag_count:
+            children: null
+            type: string
+          has_low_confidence:
+            children: null
+            type: string
+          has_medium_confidence:
+            children: null
+            type: string
+          total_signatories:
+            children: null
+            type: string
+        selected: false
+        title: 'P1: Confidence Tier Classifier'
+        type: code
+        variables:
+        - value_selector:
+          - '3000000005'
+          - analysis_results_json
+          variable: analysis_results_json
+        - value_selector:
+          - '3000000005'
+          - overall_status
+          variable: overall_status
+      height: 144
+      id: '3000000006'
+      position:
+        x: 1560
+        y: 100
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 7: IF/ELSE — LOW Confidence Hard Gate
+    # ─────────────────────────────────────────────
+    - data:
+        cases:
+        - case_id: has-low-case
+          conditions:
+          - comparison_operator: is
+            id: cond-has-low
+            value: 'true'
+            variable_selector:
+            - '3000000006'
+            - has_low_confidence
+          logical_operator: and
+        desc: >-
+          Hard gate — any signatory confidence < 60% blocks Desk Support review
+          and routes immediately to ESCALATE_COMPLIANCE.
+        selected: false
+        title: 'P1: LOW Confidence Router'
+        type: if-else
+      height: 184
+      id: '3000000007'
+      position:
+        x: 1860
+        y: 100
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 8: CODE — ESCALATE_COMPLIANCE Path (sa3_complete_node)
+    # ─────────────────────────────────────────────
+    - data:
+        code: |
+          import json
+          import ssl
+          import urllib.request
+
+          HEADERS = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream"}
+          CTX = ssl.create_default_context()
+          CTX.check_hostname = False
+          CTX.verify_mode = ssl.CERT_NONE
+
+          def mcp_call(mcp_url, method_name, arguments, req_id=1):
+              body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id,
+                  "method": "initialize",
+                  "params": {"protocolVersion": "2025-03-26", "capabilities": {},
+                             "clientInfo": {"name": "dify-sa3", "version": "1.0"}}
+              }).encode()
+              req = urllib.request.Request(mcp_url, data=body, headers=HEADERS, method="POST")
+              resp = urllib.request.urlopen(req, timeout=30, context=CTX)
+              resp.read()
+              session_id = resp.headers.get("Mcp-Session-Id", "")
+              h = dict(HEADERS)
+              h["Mcp-Session-Id"] = session_id
+              tool_body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id + 1,
+                  "method": "tools/call",
+                  "params": {"name": method_name, "arguments": arguments}
+              }).encode()
+              req2 = urllib.request.Request(mcp_url, data=tool_body, headers=h, method="POST")
+              resp2 = urllib.request.urlopen(req2, timeout=60, context=CTX)
+              raw = resp2.read().decode()
+              for line in raw.split("\n"):
+                  line = line.strip()
+                  if line.startswith("data:"):
+                      data_str = line[5:].strip()
+                      try:
+                          rpc = json.loads(data_str)
+                          content = rpc.get("result", {}).get("content", [])
+                          if content and content[0].get("text"):
+                              return content[0]["text"]
+                      except Exception:
+                          return data_str
+              return raw
+
+          def main(case_id: str, classified_results_json: str, mcp_endpoint: str) -> dict:
+              MCP_URL = (mcp_endpoint or "http://host.docker.internal:8001") + "/mcp"
+              try:
+                  classified = json.loads(classified_results_json or "[]")
+                  escalated = [r for r in classified if r.get("confidence_tier") == "LOW"]
+                  result_str = mcp_call(MCP_URL, "sa3_complete_node", {
+                      "case_id": case_id,
+                      "outcome": "ESCALATE_COMPLIANCE",
+                      "escalation_reason": "Signature confidence below 60% threshold — mandatory compliance review",
+                      "escalated_signatories_json": json.dumps(escalated)
+                  }, 1)
+                  return {
+                      "next_node": "ESCALATE_COMPLIANCE",
+                      "escalated_count": str(len(escalated)),
+                      "result_json": json.dumps({
+                          "case_id": case_id,
+                          "next_node": "ESCALATE_COMPLIANCE",
+                          "escalated_signatories": escalated,
+                          "reason": "Signature confidence below 60% threshold"
+                      })
+                  }
+              except Exception as e:
+                  return {
+                      "next_node": "ESCALATE_COMPLIANCE",
+                      "escalated_count": "0",
+                      "result_json": json.dumps({"case_id": case_id, "error": str(e)[:200]})
+                  }
+        code_language: python3
+        desc: >-
+          LOW confidence gate triggered. Calls sa3_complete_node(ESCALATE_COMPLIANCE).
+          Writes ESCALATED checkpoint. Notifies Compliance + COO Desk Management.
+        outputs:
+          escalated_count:
+            children: null
+            type: string
+          next_node:
+            children: null
+            type: string
+          result_json:
+            children: null
+            type: string
+        selected: false
+        title: 'P1: Escalate Compliance'
+        type: code
+        variables:
+        - value_selector:
+          - '3000000003'
+          - case_id_ctx
+          variable: case_id
+        - value_selector:
+          - '3000000006'
+          - classified_results_json
+          variable: classified_results_json
+        - value_selector:
+          - env
+          - MCP_ENDPOINT
+          variable: mcp_endpoint
+      height: 144
+      id: '3000000008'
+      position:
+        x: 2160
+        y: -80
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 9: END — Escalation
+    # ─────────────────────────────────────────────
+    - data:
+        desc: Returns ESCALATE_COMPLIANCE to Orchestrator. Compliance review required.
+        outputs:
+        - value_selector:
+          - '3000000003'
+          - case_id_ctx
+          variable: case_id
+        - value_selector:
+          - '3000000008'
+          - next_node
+          variable: next_node
+        - value_selector:
+          - '3000000008'
+          - result_json
+          variable: result_json
+        - value_selector:
+          - '3000000008'
+          - escalated_count
+          variable: escalated_count
+        selected: false
+        title: 'End: Escalation'
+        type: end
+      height: 232
+      id: '3000000009'
+      position:
+        x: 2460
+        y: -80
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 10: LLM — Verification Summary (Qwen via Ollama)
+    # ─────────────────────────────────────────────
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '3000000004'
+          - result
+        desc: >-
+          Synthesises all per-signatory results into a readable workbench report
+          for COO Desk Support. Provides reviewer guidance for MEDIUM confidence cases.
+          Temperature 0.1 — factual, precise output only.
+        model:
+          completion_params:
+            max_tokens: 2048
+            temperature: 0.1
+          mode: chat
+          name: qwen2.5:7b
+          provider: langgenius/ollama/ollama
+        prompt_template:
+        - id: sa3-sys-summary
+          role: system
+          text: |
+            You are SA-3, the DCE Signature Verification Agent at ABS Bank.
+            Your task is to produce a structured verification summary report for the
+            COO Desk Support workbench. This report will be used by Desk Support
+            officers to make APPROVE / REJECT / CLARIFY decisions per signatory.
+
+            REPORT REQUIREMENTS:
+            1. Overall status banner: ALL_HIGH / MIXED_FLAGS / HAS_ESCALATIONS
+            2. Per-signatory review card with:
+               - Signatory name and role in mandate
+               - Authority status (AUTHORISED / UNAUTHORISED / NOT_IN_MANDATE)
+               - Confidence score and tier (HIGH/MEDIUM/LOW)
+               - Comparison overlay reference (document URL for side-by-side)
+               - Flag reason if MEDIUM tier
+               - Reviewer guidance (what to check in the overlay image)
+            3. HITL priority and deadline recommendation
+            4. Summary: total signatories, HIGH/MEDIUM counts
+
+            REVIEWER GUIDANCE RULES:
+            - HIGH (>=85%): "Automated comparison high-confidence. Visual spot-check recommended."
+            - MEDIUM (60-84%): "Review letter formation, pressure, proportions. Check: [specific concern from score range]"
+
+            Respond ONLY with valid JSON in this exact structure:
+            {
+              "overall_status": "...",
+              "summary": "...",
+              "flag_count": 0,
+              "total_signatories": 0,
+              "signatory_cards": [...],
+              "reviewer_guidance": "...",
+              "priority_recommendation": "URGENT|STANDARD|DEFERRED",
+              "hitl_deadline_hours": 24
+            }
+        - id: sa3-usr-summary
+          role: user
+          text: |
+            Generate a Desk Support verification report for this case.
+
+            CASE ID: {{#3000000003.case_id_ctx#}}
+            JURISDICTION: {{#3000000003.jurisdiction_ctx#}}
+            ACCOUNT TYPE: {{#3000000003.account_type_ctx#}}
+            PRIORITY: {{#3000000003.priority_ctx#}}
+            OVERALL STATUS: {{#3000000006.computed_overall_status#}}
+            TOTAL SIGNATORIES: {{#3000000006.total_signatories#}}
+            FLAG COUNT: {{#3000000006.flag_count#}}
+
+            CLASSIFIED RESULTS (per signatory with confidence scores and tiers):
+            {{#3000000006.classified_results_json#}}
+
+            KB-5 VERIFICATION GUIDELINES (confidence thresholds and evidence standards):
+            {{#context#}}
+
+            Produce the JSON verification report. Be precise and factual.
+        selected: false
+        title: 'P1: Verification Summary LLM'
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 196
+      id: '3000000010'
+      position:
+        x: 2160
+        y: 280
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 11: CODE — Park for HITL (sa3_park_for_hitl)
+    # ─────────────────────────────────────────────
+    - data:
+        code: |
+          import json
+          import ssl
+          import urllib.request
+          from datetime import datetime, timedelta
+
+          HEADERS = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream"}
+          CTX = ssl.create_default_context()
+          CTX.check_hostname = False
+          CTX.verify_mode = ssl.CERT_NONE
+
+          SLA_HOURS = {"URGENT": 4, "STANDARD": 24, "DEFERRED": 48}
+
+          def mcp_call(mcp_url, method_name, arguments, req_id=1):
+              body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id,
+                  "method": "initialize",
+                  "params": {"protocolVersion": "2025-03-26", "capabilities": {},
+                             "clientInfo": {"name": "dify-sa3", "version": "1.0"}}
+              }).encode()
+              req = urllib.request.Request(mcp_url, data=body, headers=HEADERS, method="POST")
+              resp = urllib.request.urlopen(req, timeout=30, context=CTX)
+              resp.read()
+              session_id = resp.headers.get("Mcp-Session-Id", "")
+              h = dict(HEADERS)
+              h["Mcp-Session-Id"] = session_id
+              tool_body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id + 1,
+                  "method": "tools/call",
+                  "params": {"name": method_name, "arguments": arguments}
+              }).encode()
+              req2 = urllib.request.Request(mcp_url, data=tool_body, headers=h, method="POST")
+              resp2 = urllib.request.urlopen(req2, timeout=60, context=CTX)
+              raw = resp2.read().decode()
+              for line in raw.split("\n"):
+                  line = line.strip()
+                  if line.startswith("data:"):
+                      data_str = line[5:].strip()
+                      try:
+                          rpc = json.loads(data_str)
+                          content = rpc.get("result", {}).get("content", [])
+                          if content and content[0].get("text"):
+                              return content[0]["text"]
+                      except Exception:
+                          return data_str
+              return raw
+
+          def main(case_id: str, verification_summary_text: str, classified_results_json: str,
+                   priority_ctx: str, rm_name_ctx: str, mcp_endpoint: str) -> dict:
+              MCP_URL = (mcp_endpoint or "http://host.docker.internal:8001") + "/mcp"
+              try:
+                  priority = priority_ctx or "STANDARD"
+                  sla_hours = SLA_HOURS.get(priority, 24)
+                  deadline = (datetime.utcnow() + timedelta(hours=sla_hours)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+                  try:
+                      summary = json.loads(verification_summary_text)
+                  except Exception:
+                      summary = {"report": verification_summary_text[:2000]}
+
+                  task_payload = {
+                      "case_id": case_id,
+                      "verification_report": summary,
+                      "classified_results": json.loads(classified_results_json or "[]"),
+                      "rm_name": rm_name_ctx,
+                      "priority": priority,
+                      "deadline": deadline
+                  }
+
+                  result_str = mcp_call(MCP_URL, "sa3_park_for_hitl", {
+                      "case_id": case_id,
+                      "attempt_number": 1,
+                      "task_payload_json": json.dumps(task_payload),
+                      "priority": priority,
+                      "deadline": deadline,
+                      "assigned_to_id": None
+                  }, 1)
+                  result = json.loads(result_str) if isinstance(result_str, str) else result_str
+                  return {
+                      "hitl_task_id": result.get("hitl_task_id", ""),
+                      "next_node": "HITL_PENDING",
+                      "sla_deadline": deadline,
+                      "result_json": json.dumps({
+                          "case_id": case_id,
+                          "status": "HITL_PENDING",
+                          "hitl_task_id": result.get("hitl_task_id", ""),
+                          "next_action": "DESK_SUPPORT_REVIEW",
+                          "sla_deadline": deadline,
+                          "next_node": "HITL_PENDING"
+                      })
+                  }
+              except Exception as e:
+                  return {
+                      "hitl_task_id": "",
+                      "next_node": "HITL_PENDING",
+                      "sla_deadline": "",
+                      "result_json": json.dumps({"case_id": case_id, "error": str(e)[:200],
+                                                  "next_node": "HITL_PENDING"})
+                  }
+        code_language: python3
+        desc: >-
+          Atomic HITL parking: posts verification report to workbench queue, sends
+          in-app notification to Desk Support, writes HITL_PENDING checkpoint to DB.
+          Calls sa3_park_for_hitl MCP tool.
+        outputs:
+          hitl_task_id:
+            children: null
+            type: string
+          next_node:
+            children: null
+            type: string
+          result_json:
+            children: null
+            type: string
+          sla_deadline:
+            children: null
+            type: string
+        selected: false
+        title: 'P1: Park for HITL'
+        type: code
+        variables:
+        - value_selector:
+          - '3000000003'
+          - case_id_ctx
+          variable: case_id
+        - value_selector:
+          - '3000000010'
+          - text
+          variable: verification_summary_text
+        - value_selector:
+          - '3000000006'
+          - classified_results_json
+          variable: classified_results_json
+        - value_selector:
+          - '3000000003'
+          - priority_ctx
+          variable: priority_ctx
+        - value_selector:
+          - '3000000003'
+          - rm_name_ctx
+          variable: rm_name_ctx
+        - value_selector:
+          - env
+          - MCP_ENDPOINT
+          variable: mcp_endpoint
+      height: 144
+      id: '3000000011'
+      position:
+        x: 2460
+        y: 280
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 12: END — HITL Pending (Phase 1 Complete)
+    # ─────────────────────────────────────────────
+    - data:
+        desc: >-
+          Phase 1 complete. Returns HITL_PENDING to Orchestrator. Execution parks here.
+          Spring Boot holds workflow state in dce_ao_node_checkpoint.
+          COO Desk Support reviews verification report in Agentic Workbench.
+        outputs:
+        - value_selector:
+          - '3000000003'
+          - case_id_ctx
+          variable: case_id
+        - value_selector:
+          - '3000000011'
+          - next_node
+          variable: next_node
+        - value_selector:
+          - '3000000011'
+          - hitl_task_id
+          variable: hitl_task_id
+        - value_selector:
+          - '3000000011'
+          - sla_deadline
+          variable: sla_deadline
+        - value_selector:
+          - '3000000011'
+          - result_json
+          variable: result_json
+        selected: false
+        title: 'End: HITL Pending'
+        type: end
+      height: 264
+      id: '3000000012'
+      position:
+        x: 2760
+        y: 280
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 13: CODE — Phase 2 Context Injector (sa3_get_case_context RESUME)
+    # ─────────────────────────────────────────────
+    - data:
+        code: |
+          import json
+          import ssl
+          import urllib.request
+
+          HEADERS = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream"}
+          CTX = ssl.create_default_context()
+          CTX.check_hostname = False
+          CTX.verify_mode = ssl.CERT_NONE
+
+          def mcp_call(mcp_url, method_name, arguments, req_id=1):
+              body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id,
+                  "method": "initialize",
+                  "params": {"protocolVersion": "2025-03-26", "capabilities": {},
+                             "clientInfo": {"name": "dify-sa3", "version": "1.0"}}
+              }).encode()
+              req = urllib.request.Request(mcp_url, data=body, headers=HEADERS, method="POST")
+              resp = urllib.request.urlopen(req, timeout=30, context=CTX)
+              resp.read()
+              session_id = resp.headers.get("Mcp-Session-Id", "")
+              h = dict(HEADERS)
+              h["Mcp-Session-Id"] = session_id
+              tool_body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id + 1,
+                  "method": "tools/call",
+                  "params": {"name": method_name, "arguments": arguments}
+              }).encode()
+              req2 = urllib.request.Request(mcp_url, data=tool_body, headers=h, method="POST")
+              resp2 = urllib.request.urlopen(req2, timeout=60, context=CTX)
+              raw = resp2.read().decode()
+              for line in raw.split("\n"):
+                  line = line.strip()
+                  if line.startswith("data:"):
+                      data_str = line[5:].strip()
+                      try:
+                          rpc = json.loads(data_str)
+                          content = rpc.get("result", {}).get("content", [])
+                          if content and content[0].get("text"):
+                              return content[0]["text"]
+                      except Exception:
+                          return data_str
+              return raw
+
+          def main(case_id: str, hitl_task_id: str, decisions: str, mcp_endpoint: str) -> dict:
+              MCP_URL = (mcp_endpoint or "http://host.docker.internal:8001") + "/mcp"
+              try:
+                  result_str = mcp_call(MCP_URL, "sa3_get_case_context",
+                                        {"case_id": case_id, "mode": "PHASE2"}, 1)
+                  ctx = json.loads(result_str) if isinstance(result_str, str) else result_str
+                  case_state = ctx.get("case_state", {})
+                  phase1_results = ctx.get("phase1_results", [])
+                  hitl_task = ctx.get("hitl_task", {})
+                  return {
+                      "case_id_p2": case_id,
+                      "hitl_task_id_p2": hitl_task_id or hitl_task.get("task_id", ""),
+                      "decisions_json": decisions or "[]",
+                      "phase1_results_json": json.dumps(phase1_results),
+                      "jurisdiction_p2": case_state.get("jurisdiction", "SGP"),
+                      "priority_p2": case_state.get("priority", "STANDARD"),
+                      "context_error": ""
+                  }
+              except Exception as e:
+                  return {
+                      "case_id_p2": case_id,
+                      "hitl_task_id_p2": hitl_task_id or "",
+                      "decisions_json": decisions or "[]",
+                      "phase1_results_json": "[]",
+                      "jurisdiction_p2": "SGP",
+                      "priority_p2": "STANDARD",
+                      "context_error": str(e)[:300]
+                  }
+        code_language: python3
+        desc: >-
+          Phase 2: Calls sa3_get_case_context (PHASE2 mode) — fetches Phase 1 analysis
+          results, HITL task record, and current case state. Injects HITL decision
+          payload from Spring Boot resume call.
+        outputs:
+          case_id_p2:
+            children: null
+            type: string
+          context_error:
+            children: null
+            type: string
+          decisions_json:
+            children: null
+            type: string
+          hitl_task_id_p2:
+            children: null
+            type: string
+          jurisdiction_p2:
+            children: null
+            type: string
+          phase1_results_json:
+            children: null
+            type: string
+          priority_p2:
+            children: null
+            type: string
+        selected: false
+        title: 'P2: Context Injector'
+        type: code
+        variables:
+        - value_selector:
+          - '3000000001'
+          - case_id
+          variable: case_id
+        - value_selector:
+          - '3000000001'
+          - hitl_task_id
+          variable: hitl_task_id
+        - value_selector:
+          - '3000000001'
+          - decisions
+          variable: decisions
+        - value_selector:
+          - env
+          - MCP_ENDPOINT
+          variable: mcp_endpoint
+      height: 144
+      id: '3000000013'
+      position:
+        x: 660
+        y: 520
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 14: CODE — Decision Validator + Batch Processor
+    # ─────────────────────────────────────────────
+    - data:
+        code: |
+          import json
+
+          def main(decisions_json: str, phase1_results_json: str) -> dict:
+              try:
+                  decisions = json.loads(decisions_json or "[]")
+                  phase1 = json.loads(phase1_results_json or "[]")
+
+                  # Build lookup by signatory_id
+                  decision_map = {d.get("signatory_id"): d for d in decisions if isinstance(d, dict)}
+
+                  approved = []
+                  rejected = []
+                  clarify = []
+                  missing = []
+
+                  for sig in phase1:
+                      sig_id = sig.get("signatory_id")
+                      decision = decision_map.get(sig_id)
+                      if not decision:
+                          missing.append(sig_id)
+                          continue
+                      outcome = decision.get("outcome", "").upper()
+                      record = {
+                          **sig,
+                          "outcome": outcome,
+                          "notes": decision.get("notes", ""),
+                          "approving_officer_id": decision.get("approving_officer_id", ""),
+                          "decided_at": decision.get("decided_at", "")
+                      }
+                      if outcome == "APPROVED":
+                          approved.append(record)
+                      elif outcome == "REJECTED":
+                          rejected.append(record)
+                      elif outcome == "CLARIFY":
+                          clarify.append(record)
+                      else:
+                          missing.append(sig_id)
+
+                  all_decided = len(missing) == 0
+                  has_rejections = len(rejected) > 0
+                  has_clarify = len(clarify) > 0
+
+                  return {
+                      "approved_json": json.dumps(approved),
+                      "rejected_json": json.dumps(rejected),
+                      "clarify_json": json.dumps(clarify),
+                      "missing_json": json.dumps(missing),
+                      "all_decided": "true" if all_decided else "false",
+                      "has_rejections": "true" if has_rejections else "false",
+                      "has_clarify": "true" if has_clarify else "false",
+                      "approved_count": str(len(approved)),
+                      "rejected_count": str(len(rejected)),
+                      "clarify_count": str(len(clarify))
+                  }
+              except Exception as e:
+                  return {
+                      "approved_json": "[]",
+                      "rejected_json": "[]",
+                      "clarify_json": "[]",
+                      "missing_json": "[]",
+                      "all_decided": "false",
+                      "has_rejections": "false",
+                      "has_clarify": "false",
+                      "approved_count": "0",
+                      "rejected_count": "0",
+                      "clarify_count": "0"
+                  }
+        code_language: python3
+        desc: >-
+          Validates completeness of HITL decisions — every Phase 1 signatory must
+          have a decision. Segregates: approved[], rejected[], clarify[].
+          Incomplete submissions return missing_signatories[] highlighted.
+        outputs:
+          all_decided:
+            children: null
+            type: string
+          approved_count:
+            children: null
+            type: string
+          approved_json:
+            children: null
+            type: string
+          clarify_count:
+            children: null
+            type: string
+          clarify_json:
+            children: null
+            type: string
+          has_clarify:
+            children: null
+            type: string
+          has_rejections:
+            children: null
+            type: string
+          missing_json:
+            children: null
+            type: string
+          rejected_count:
+            children: null
+            type: string
+          rejected_json:
+            children: null
+            type: string
+        selected: false
+        title: 'P2: Decision Validator'
+        type: code
+        variables:
+        - value_selector:
+          - '3000000013'
+          - decisions_json
+          variable: decisions_json
+        - value_selector:
+          - '3000000013'
+          - phase1_results_json
+          variable: phase1_results_json
+      height: 144
+      id: '3000000014'
+      position:
+        x: 960
+        y: 520
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 15: IF/ELSE — Rejection Router
+    # ─────────────────────────────────────────────
+    - data:
+        cases:
+        - case_id: has-rejection-case
+          conditions:
+          - comparison_operator: is
+            id: cond-has-rejection
+            value: 'true'
+            variable_selector:
+            - '3000000014'
+            - has_rejections
+          logical_operator: and
+        desc: >-
+          Hard gate — any REJECTED signatory terminates signature verification.
+          Full document re-execution required.
+        selected: false
+        title: 'P2: Rejection Router'
+        type: if-else
+      height: 184
+      id: '3000000015'
+      position:
+        x: 1260
+        y: 520
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 16: CODE — SIGNATURE_REJECTED Path (sa3_complete_node)
+    # ─────────────────────────────────────────────
+    - data:
+        code: |
+          import json
+          import ssl
+          import urllib.request
+
+          HEADERS = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream"}
+          CTX = ssl.create_default_context()
+          CTX.check_hostname = False
+          CTX.verify_mode = ssl.CERT_NONE
+
+          def mcp_call(mcp_url, method_name, arguments, req_id=1):
+              body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id,
+                  "method": "initialize",
+                  "params": {"protocolVersion": "2025-03-26", "capabilities": {},
+                             "clientInfo": {"name": "dify-sa3", "version": "1.0"}}
+              }).encode()
+              req = urllib.request.Request(mcp_url, data=body, headers=HEADERS, method="POST")
+              resp = urllib.request.urlopen(req, timeout=30, context=CTX)
+              resp.read()
+              session_id = resp.headers.get("Mcp-Session-Id", "")
+              h = dict(HEADERS)
+              h["Mcp-Session-Id"] = session_id
+              tool_body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id + 1,
+                  "method": "tools/call",
+                  "params": {"name": method_name, "arguments": arguments}
+              }).encode()
+              req2 = urllib.request.Request(mcp_url, data=tool_body, headers=h, method="POST")
+              resp2 = urllib.request.urlopen(req2, timeout=60, context=CTX)
+              raw = resp2.read().decode()
+              for line in raw.split("\n"):
+                  line = line.strip()
+                  if line.startswith("data:"):
+                      data_str = line[5:].strip()
+                      try:
+                          rpc = json.loads(data_str)
+                          content = rpc.get("result", {}).get("content", [])
+                          if content and content[0].get("text"):
+                              return content[0]["text"]
+                      except Exception:
+                          return data_str
+              return raw
+
+          def main(case_id: str, rejected_json: str, hitl_task_id_p2: str,
+                   reviewed_by_id: str, mcp_endpoint: str) -> dict:
+              MCP_URL = (mcp_endpoint or "http://host.docker.internal:8001") + "/mcp"
+              try:
+                  rejected = json.loads(rejected_json or "[]")
+                  result_str = mcp_call(MCP_URL, "sa3_complete_node", {
+                      "case_id": case_id,
+                      "outcome": "SIGNATURE_REJECTED",
+                      "rejection_reasons_json": json.dumps([
+                          {"signatory_id": r.get("signatory_id"), "reason": r.get("notes", "Rejected by Desk Support")}
+                          for r in rejected
+                      ]),
+                      "hitl_task_id": hitl_task_id_p2,
+                      "reviewed_by_id": reviewed_by_id or ""
+                  }, 1)
+                  return {
+                      "next_node": "SIGNATURE_REJECTED",
+                      "rejected_count": str(len(rejected)),
+                      "result_json": json.dumps({
+                          "case_id": case_id,
+                          "next_node": "SIGNATURE_REJECTED",
+                          "rejected_signatories": rejected,
+                          "total_rejected": len(rejected)
+                      })
+                  }
+              except Exception as e:
+                  return {
+                      "next_node": "SIGNATURE_REJECTED",
+                      "rejected_count": str(len(json.loads(rejected_json or "[]"))),
+                      "result_json": json.dumps({"case_id": case_id, "error": str(e)[:200]})
+                  }
+        code_language: python3
+        desc: >-
+          Calls sa3_complete_node(SIGNATURE_REJECTED). Writes FAILED checkpoint.
+          Notifies Orchestrator. Full re-execution required.
+        outputs:
+          next_node:
+            children: null
+            type: string
+          rejected_count:
+            children: null
+            type: string
+          result_json:
+            children: null
+            type: string
+        selected: false
+        title: 'P2: Signature Rejected'
+        type: code
+        variables:
+        - value_selector:
+          - '3000000013'
+          - case_id_p2
+          variable: case_id
+        - value_selector:
+          - '3000000014'
+          - rejected_json
+          variable: rejected_json
+        - value_selector:
+          - '3000000013'
+          - hitl_task_id_p2
+          variable: hitl_task_id_p2
+        - value_selector:
+          - '3000000001'
+          - reviewed_by_id
+          variable: reviewed_by_id
+        - value_selector:
+          - env
+          - MCP_ENDPOINT
+          variable: mcp_endpoint
+      height: 144
+      id: '3000000016'
+      position:
+        x: 1560
+        y: 380
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 17: END — Rejected
+    # ─────────────────────────────────────────────
+    - data:
+        desc: Returns SIGNATURE_REJECTED to Orchestrator. Full re-execution required.
+        outputs:
+        - value_selector:
+          - '3000000013'
+          - case_id_p2
+          variable: case_id
+        - value_selector:
+          - '3000000016'
+          - next_node
+          variable: next_node
+        - value_selector:
+          - '3000000016'
+          - result_json
+          variable: result_json
+        - value_selector:
+          - '3000000016'
+          - rejected_count
+          variable: rejected_count
+        selected: false
+        title: 'End: Rejected'
+        type: end
+      height: 232
+      id: '3000000017'
+      position:
+        x: 1860
+        y: 380
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 18: IF/ELSE — Clarify Router
+    # ─────────────────────────────────────────────
+    - data:
+        cases:
+        - case_id: has-clarify-case
+          conditions:
+          - comparison_operator: is
+            id: cond-has-clarify
+            value: 'true'
+            variable_selector:
+            - '3000000014'
+            - has_clarify
+          logical_operator: and
+        desc: >-
+          Routes CLARIFY decisions to SA-7 customer communication and parks workflow
+          again pending resubmission of signed documents.
+        selected: false
+        title: 'P2: Clarify Router'
+        type: if-else
+      height: 184
+      id: '3000000018'
+      position:
+        x: 1560
+        y: 600
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 19: CODE — CLARIFY Path → HITL_PENDING (sa3_complete_node)
+    # ─────────────────────────────────────────────
+    - data:
+        code: |
+          import json
+          import ssl
+          import urllib.request
+
+          HEADERS = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream"}
+          CTX = ssl.create_default_context()
+          CTX.check_hostname = False
+          CTX.verify_mode = ssl.CERT_NONE
+
+          def mcp_call(mcp_url, method_name, arguments, req_id=1):
+              body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id,
+                  "method": "initialize",
+                  "params": {"protocolVersion": "2025-03-26", "capabilities": {},
+                             "clientInfo": {"name": "dify-sa3", "version": "1.0"}}
+              }).encode()
+              req = urllib.request.Request(mcp_url, data=body, headers=HEADERS, method="POST")
+              resp = urllib.request.urlopen(req, timeout=30, context=CTX)
+              resp.read()
+              session_id = resp.headers.get("Mcp-Session-Id", "")
+              h = dict(HEADERS)
+              h["Mcp-Session-Id"] = session_id
+              tool_body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id + 1,
+                  "method": "tools/call",
+                  "params": {"name": method_name, "arguments": arguments}
+              }).encode()
+              req2 = urllib.request.Request(mcp_url, data=tool_body, headers=h, method="POST")
+              resp2 = urllib.request.urlopen(req2, timeout=60, context=CTX)
+              raw = resp2.read().decode()
+              for line in raw.split("\n"):
+                  line = line.strip()
+                  if line.startswith("data:"):
+                      data_str = line[5:].strip()
+                      try:
+                          rpc = json.loads(data_str)
+                          content = rpc.get("result", {}).get("content", [])
+                          if content and content[0].get("text"):
+                              return content[0]["text"]
+                      except Exception:
+                          return data_str
+              return raw
+
+          def main(case_id: str, clarify_json: str, hitl_task_id_p2: str, mcp_endpoint: str) -> dict:
+              MCP_URL = (mcp_endpoint or "http://host.docker.internal:8001") + "/mcp"
+              try:
+                  clarify_list = json.loads(clarify_json or "[]")
+                  result_str = mcp_call(MCP_URL, "sa3_complete_node", {
+                      "case_id": case_id,
+                      "outcome": "HITL_PENDING",
+                      "clarification_signatories_json": json.dumps(clarify_list),
+                      "hitl_task_id": hitl_task_id_p2
+                  }, 1)
+                  return {
+                      "next_node": "HITL_PENDING",
+                      "clarify_count": str(len(clarify_list)),
+                      "result_json": json.dumps({
+                          "case_id": case_id,
+                          "next_node": "HITL_PENDING",
+                          "pending_clarifications": clarify_list,
+                          "clarification_sent": True
+                      })
+                  }
+              except Exception as e:
+                  return {
+                      "next_node": "HITL_PENDING",
+                      "clarify_count": "0",
+                      "result_json": json.dumps({"case_id": case_id, "error": str(e)[:200]})
+                  }
+        code_language: python3
+        desc: >-
+          CLARIFY path: calls sa3_complete_node(HITL_PENDING). Triggers SA-7 customer
+          communication email. Parks workflow pending customer resubmission.
+        outputs:
+          clarify_count:
+            children: null
+            type: string
+          next_node:
+            children: null
+            type: string
+          result_json:
+            children: null
+            type: string
+        selected: false
+        title: 'P2: Clarify Pending'
+        type: code
+        variables:
+        - value_selector:
+          - '3000000013'
+          - case_id_p2
+          variable: case_id
+        - value_selector:
+          - '3000000014'
+          - clarify_json
+          variable: clarify_json
+        - value_selector:
+          - '3000000013'
+          - hitl_task_id_p2
+          variable: hitl_task_id_p2
+        - value_selector:
+          - env
+          - MCP_ENDPOINT
+          variable: mcp_endpoint
+      height: 144
+      id: '3000000019'
+      position:
+        x: 1860
+        y: 600
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 20: END — Clarify Pending
+    # ─────────────────────────────────────────────
+    - data:
+        desc: >-
+          Returns HITL_PENDING to Orchestrator (clarification loop).
+          Customer will resubmit signed documents via SA-7 clarification email.
+        outputs:
+        - value_selector:
+          - '3000000013'
+          - case_id_p2
+          variable: case_id
+        - value_selector:
+          - '3000000019'
+          - next_node
+          variable: next_node
+        - value_selector:
+          - '3000000019'
+          - result_json
+          variable: result_json
+        - value_selector:
+          - '3000000019'
+          - clarify_count
+          variable: clarify_count
+        selected: false
+        title: 'End: Clarify Pending'
+        type: end
+      height: 232
+      id: '3000000020'
+      position:
+        x: 2160
+        y: 600
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 21: CODE — Store Approved Specimens (sa3_store_approved_specimens)
+    # ─────────────────────────────────────────────
+    - data:
+        code: |
+          import json
+          import ssl
+          import urllib.request
+
+          HEADERS = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream"}
+          CTX = ssl.create_default_context()
+          CTX.check_hostname = False
+          CTX.verify_mode = ssl.CERT_NONE
+
+          def mcp_call(mcp_url, method_name, arguments, req_id=1):
+              body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id,
+                  "method": "initialize",
+                  "params": {"protocolVersion": "2025-03-26", "capabilities": {},
+                             "clientInfo": {"name": "dify-sa3", "version": "1.0"}}
+              }).encode()
+              req = urllib.request.Request(mcp_url, data=body, headers=HEADERS, method="POST")
+              resp = urllib.request.urlopen(req, timeout=30, context=CTX)
+              resp.read()
+              session_id = resp.headers.get("Mcp-Session-Id", "")
+              h = dict(HEADERS)
+              h["Mcp-Session-Id"] = session_id
+              tool_body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id + 1,
+                  "method": "tools/call",
+                  "params": {"name": method_name, "arguments": arguments}
+              }).encode()
+              req2 = urllib.request.Request(mcp_url, data=tool_body, headers=h, method="POST")
+              resp2 = urllib.request.urlopen(req2, timeout=90, context=CTX)
+              raw = resp2.read().decode()
+              for line in raw.split("\n"):
+                  line = line.strip()
+                  if line.startswith("data:"):
+                      data_str = line[5:].strip()
+                      try:
+                          rpc = json.loads(data_str)
+                          content = rpc.get("result", {}).get("content", [])
+                          if content and content[0].get("text"):
+                              return content[0]["text"]
+                      except Exception:
+                          return data_str
+              return raw
+
+          def main(case_id: str, approved_json: str, mcp_endpoint: str) -> dict:
+              MCP_URL = (mcp_endpoint or "http://host.docker.internal:8001") + "/mcp"
+              try:
+                  approved = json.loads(approved_json or "[]")
+                  result_str = mcp_call(MCP_URL, "sa3_store_approved_specimens", {
+                      "case_id": case_id,
+                      "approved_signatories_json": json.dumps(approved)
+                  }, 1)
+                  result = json.loads(result_str) if isinstance(result_str, str) else result_str
+                  specimen_ids = result.get("specimen_ids", [])
+                  return {
+                      "specimen_ids_json": json.dumps(specimen_ids),
+                      "specimens_stored_count": str(len(specimen_ids)),
+                      "storage_error": ""
+                  }
+              except Exception as e:
+                  return {
+                      "specimen_ids_json": "[]",
+                      "specimens_stored_count": "0",
+                      "storage_error": str(e)[:300]
+                  }
+        code_language: python3
+        desc: >-
+          AUDIT-CRITICAL: Calls sa3_store_approved_specimens — batch stores all approved
+          signature specimens in MongoDB GridFS via Signature Repository API.
+          Each specimen gets SPEC-XXXXXX ID. MAS/HKMA regulatory evidence.
+          Failure MUST block N-3 advance — retry 3x before alerting Operations.
+        outputs:
+          specimens_stored_count:
+            children: null
+            type: string
+          specimen_ids_json:
+            children: null
+            type: string
+          storage_error:
+            children: null
+            type: string
+        selected: false
+        title: 'P2: Store Approved Specimens'
+        type: code
+        variables:
+        - value_selector:
+          - '3000000013'
+          - case_id_p2
+          variable: case_id
+        - value_selector:
+          - '3000000014'
+          - approved_json
+          variable: approved_json
+        - value_selector:
+          - env
+          - MCP_ENDPOINT
+          variable: mcp_endpoint
+      height: 144
+      id: '3000000021'
+      position:
+        x: 1860
+        y: 800
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 22: CODE — Complete Node SIGNATURE_APPROVED (sa3_complete_node)
+    # ─────────────────────────────────────────────
+    - data:
+        code: |
+          import json
+          import ssl
+          import urllib.request
+
+          HEADERS = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream"}
+          CTX = ssl.create_default_context()
+          CTX.check_hostname = False
+          CTX.verify_mode = ssl.CERT_NONE
+
+          def mcp_call(mcp_url, method_name, arguments, req_id=1):
+              body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id,
+                  "method": "initialize",
+                  "params": {"protocolVersion": "2025-03-26", "capabilities": {},
+                             "clientInfo": {"name": "dify-sa3", "version": "1.0"}}
+              }).encode()
+              req = urllib.request.Request(mcp_url, data=body, headers=HEADERS, method="POST")
+              resp = urllib.request.urlopen(req, timeout=30, context=CTX)
+              resp.read()
+              session_id = resp.headers.get("Mcp-Session-Id", "")
+              h = dict(HEADERS)
+              h["Mcp-Session-Id"] = session_id
+              tool_body = json.dumps({
+                  "jsonrpc": "2.0", "id": req_id + 1,
+                  "method": "tools/call",
+                  "params": {"name": method_name, "arguments": arguments}
+              }).encode()
+              req2 = urllib.request.Request(mcp_url, data=tool_body, headers=h, method="POST")
+              resp2 = urllib.request.urlopen(req2, timeout=60, context=CTX)
+              raw = resp2.read().decode()
+              for line in raw.split("\n"):
+                  line = line.strip()
+                  if line.startswith("data:"):
+                      data_str = line[5:].strip()
+                      try:
+                          rpc = json.loads(data_str)
+                          content = rpc.get("result", {}).get("content", [])
+                          if content and content[0].get("text"):
+                              return content[0]["text"]
+                      except Exception:
+                          return data_str
+              return raw
+
+          def main(case_id: str, approved_json: str, rejected_json: str,
+                   specimen_ids_json: str, approved_count: str, rejected_count: str,
+                   clarify_count: str, hitl_task_id_p2: str, reviewed_by_id: str,
+                   mcp_endpoint: str) -> dict:
+              MCP_URL = (mcp_endpoint or "http://host.docker.internal:8001") + "/mcp"
+              try:
+                  approved = json.loads(approved_json or "[]")
+                  specimen_ids = json.loads(specimen_ids_json or "[]")
+
+                  n2_output = {
+                      "case_id": case_id,
+                      "verification_status": "ALL_APPROVED",
+                      "total_signatories": len(approved),
+                      "approved_count": int(approved_count or 0),
+                      "rejected_count": int(rejected_count or 0),
+                      "clarify_count": int(clarify_count or 0),
+                      "signatories": approved,
+                      "specimens_stored": specimen_ids,
+                      "reviewed_by_officer_id": reviewed_by_id or "",
+                      "next_node": "N-3",
+                      "verification_notes": f"{len(approved)} signatory(ies) verified and approved. All specimens stored."
+                  }
+
+                  result_str = mcp_call(MCP_URL, "sa3_complete_node", {
+                      "case_id": case_id,
+                      "outcome": "SIGNATURE_APPROVED",
+                      "n2_output_json": json.dumps(n2_output),
+                      "specimen_ids_json": json.dumps(specimen_ids),
+                      "hitl_task_id": hitl_task_id_p2,
+                      "reviewed_by_id": reviewed_by_id or ""
+                  }, 1)
+
+                  return {
+                      "next_node": "N-3",
+                      "result_json": json.dumps(n2_output),
+                      "specimens_stored_count": str(len(specimen_ids)),
+                      "checkpoint_error": ""
+                  }
+              except Exception as e:
+                  return {
+                      "next_node": "N-3",
+                      "result_json": json.dumps({"case_id": case_id, "error": str(e)[:200]}),
+                      "specimens_stored_count": "0",
+                      "checkpoint_error": str(e)[:300]
+                  }
+        code_language: python3
+        desc: >-
+          MANDATORY checkpoint writer. Calls sa3_complete_node(SIGNATURE_APPROVED):
+          writes N-2 COMPLETE to dce_ao_node_checkpoint, advances case to N-3,
+          fires Kafka event dce.signature.approved. Triggers SA-4 (KYC/CDD).
+        outputs:
+          checkpoint_error:
+            children: null
+            type: string
+          next_node:
+            children: null
+            type: string
+          result_json:
+            children: null
+            type: string
+          specimens_stored_count:
+            children: null
+            type: string
+        selected: false
+        title: 'P2: Complete Node (APPROVED)'
+        type: code
+        variables:
+        - value_selector:
+          - '3000000013'
+          - case_id_p2
+          variable: case_id
+        - value_selector:
+          - '3000000014'
+          - approved_json
+          variable: approved_json
+        - value_selector:
+          - '3000000014'
+          - rejected_json
+          variable: rejected_json
+        - value_selector:
+          - '3000000021'
+          - specimen_ids_json
+          variable: specimen_ids_json
+        - value_selector:
+          - '3000000014'
+          - approved_count
+          variable: approved_count
+        - value_selector:
+          - '3000000014'
+          - rejected_count
+          variable: rejected_count
+        - value_selector:
+          - '3000000014'
+          - clarify_count
+          variable: clarify_count
+        - value_selector:
+          - '3000000013'
+          - hitl_task_id_p2
+          variable: hitl_task_id_p2
+        - value_selector:
+          - '3000000001'
+          - reviewed_by_id
+          variable: reviewed_by_id
+        - value_selector:
+          - env
+          - MCP_ENDPOINT
+          variable: mcp_endpoint
+      height: 144
+      id: '3000000022'
+      position:
+        x: 2160
+        y: 800
+      type: custom
+      width: 242
+
+    # ─────────────────────────────────────────────
+    # Node 23: END — Success (SIGNATURE_APPROVED → N-3)
+    # ─────────────────────────────────────────────
+    - data:
+        desc: >-
+          Returns N2Output JSON to Orchestrator. N-3 (SA-4 KYC/CDD Preparation)
+          triggered on SIGNATURE_APPROVED. All regulatory evidence stored.
+        outputs:
+        - value_selector:
+          - '3000000013'
+          - case_id_p2
+          variable: case_id
+        - value_selector:
+          - '3000000022'
+          - next_node
+          variable: next_node
+        - value_selector:
+          - '3000000022'
+          - result_json
+          variable: n2_output
+        - value_selector:
+          - '3000000022'
+          - specimens_stored_count
+          variable: specimens_stored_count
+        selected: false
+        title: 'End: Signature Approved'
+        type: end
+      height: 232
+      id: '3000000023'
+      position:
+        x: 2460
+        y: 800
+      type: custom
+      width: 242
+
+    viewport:
+      x: -40
+      y: -60
+      zoom: 0.45

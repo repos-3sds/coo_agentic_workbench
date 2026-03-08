@@ -82,15 +82,15 @@ INSERT INTO dce_ao_rm_hierarchy
      resolution_source, resolved_at)
 VALUES
     (3, 'AO-2026-000105', 'RM-0073',
-     'Marcus Loh Wei Jie', 'rm.marcus@dbs.com',
+     'Marcus Loh Wei Jie', 'rm.marcus@abs.com',
      'Marina Bay Financial Centre', 'DCE Sales Desk SGP',
-     'MGR-0028', 'Victoria Chen Shu Wen', 'victoria.chen@dbs.com',
+     'MGR-0028', 'Victoria Chen Shu Wen', 'victoria.chen@abs.com',
      'HR_SYSTEM', '2026-03-02 09:18:30'),
 
     (4, 'AO-2026-000108', 'RM-0134',
-     'Annie Ho Mei Shan', 'rm.annie@dbs.com',
+     'Annie Ho Mei Shan', 'rm.annie@abs.com',
      'Central HK Branch', 'DCE Sales Desk HKG',
-     'MGR-0038', 'Gary Yip Kin Wah', 'gary.yip@dbs.com',
+     'MGR-0038', 'Gary Yip Kin Wah', 'gary.yip@abs.com',
      'HR_SYSTEM', '2026-03-02 08:48:30');
 
 -- 0c. N-1 COMPLETE checkpoints for cases advancing to N-2
@@ -525,7 +525,7 @@ VALUES
 
     -- CASE 105: Compliance escalation notification (no Desk Support review)
     ('AO-2026-000105', 'N-2', 'SIGNATURE_ESCALATED', 'EMAIL',
-     NULL, 'compliance.dce@dbs.com', 'COMPLIANCE',
+     NULL, 'compliance.dce@abs.com', 'COMPLIANCE',
      '[ESCALATION] Signature Verification — AO-2026-000105 — LOW Confidence',
      'Case AO-2026-000105 (Asiatic Growth Fund LP) escalated. Signatory Kenneth Goh Wee Liang confidence 42.10% below 60% threshold. Immediate compliance review required.',
      'TPL-SIG-ESCALATE-01',

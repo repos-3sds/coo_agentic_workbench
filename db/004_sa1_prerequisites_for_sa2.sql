@@ -38,7 +38,7 @@ INSERT INTO dce_ao_submission_raw
 VALUES
     (4, 'AO-2026-000104', 'EMAIL',
      'CCMkCIF4YzM2ZDk4LTk4MzItNGViOC1iNDU2LWM1ZDZlZmRmYjU4NA',
-     'rm.lee@dbs.com',
+     'rm.lee@abs.com',
      'New DCE AO - Zhonghua Resources Trading Co Ltd - Commodities Physical',
      'Dear DCE Team, Please initiate AO for Zhonghua Resources Trading Co Ltd. Physical commodities and futures. PRC entity. Docs attached with certified English translations.',
      NULL, NULL, 'RM-0055',
@@ -55,7 +55,7 @@ VALUES
 
     (6, 'AO-2026-000106', 'EMAIL',
      'DDNkDIG5ZDQ3ZTk4LTk4MzItNGViOC1iNDU2LWM1ZDZlZmRmYjU4NQ',
-     'rm.chan@dbs.com',
+     'rm.chan@abs.com',
      'DCE Account Opening - Pacific Securities Ltd - Institutional Futures HKG',
      'Dear DCE Team, Please open institutional futures account for Pacific Securities Ltd. SFC-licensed FI, HKG jurisdiction. All regulatory docs attached.',
      NULL, NULL, 'RM-0091',
@@ -64,7 +64,7 @@ VALUES
 
     (7, 'AO-2026-000108', 'EMAIL',
      'FFNkFIH7ZDY5ZTk4LTk4MzItNGViOC1iNDU2LWM1ZDZlZmRmYjU4Nw',
-     'rm.annie@dbs.com',
+     'rm.annie@abs.com',
      'New AO - Li Mei Ling - Retail Futures HKG',
      'Dear DCE Team, Please initiate retail futures AO for Li Mei Ling. Individual HKG client. Partial docs attached, remaining to follow.',
      NULL, NULL, 'RM-0134',
@@ -106,7 +106,7 @@ INSERT INTO dce_ao_node_checkpoint
     (case_id, node_id, attempt_number, status, input_snapshot, output_json, context_block_hash, started_at, completed_at, duration_seconds, next_node, failure_reason, retry_count, agent_model, token_usage)
 VALUES
     ('AO-2026-000104', 'N-0', 1, 'COMPLETE',
-     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.lee@dbs.com","subject":"New DCE AO - Zhonghua Resources"}}',
+     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.lee@abs.com","subject":"New DCE AO - Zhonghua Resources"}}',
      '{"case_id":"AO-2026-000104","account_type":"COMMODITIES_PHYSICAL","priority":"STANDARD","client_name":"Zhonghua Resources Trading Co Ltd","jurisdiction":"CHN","confidence":0.91}',
      'd4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5',
      '2026-03-02 11:00:00', '2026-03-02 11:03:45', 225.000, 'N-1', NULL, 0, 'claude-sonnet-4-6',
@@ -120,14 +120,14 @@ VALUES
      '{"input":1650,"output":510,"total":2160}'),
 
     ('AO-2026-000106', 'N-0', 1, 'COMPLETE',
-     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.chan@dbs.com","subject":"DCE AO - Pacific Securities Ltd"}}',
+     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.chan@abs.com","subject":"DCE AO - Pacific Securities Ltd"}}',
      '{"case_id":"AO-2026-000106","account_type":"INSTITUTIONAL_FUTURES","priority":"STANDARD","client_name":"Pacific Securities Ltd","jurisdiction":"HKG","confidence":0.93}',
      'f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1',
      '2026-03-02 15:00:00', '2026-03-02 15:01:45', 105.000, 'N-1', NULL, 0, 'claude-sonnet-4-6',
      '{"input":1310,"output":390,"total":1700}'),
 
     ('AO-2026-000108', 'N-0', 1, 'COMPLETE',
-     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.annie@dbs.com","subject":"New AO - Li Mei Ling"}}',
+     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.annie@abs.com","subject":"New AO - Li Mei Ling"}}',
      '{"case_id":"AO-2026-000108","account_type":"RETAIL_FUTURES","priority":"STANDARD","client_name":"Li Mei Ling","jurisdiction":"HKG","confidence":0.88}',
      'a8b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1',
      '2026-03-02 08:45:00', '2026-03-02 08:48:30', 210.000, 'N-1', NULL, 0, 'claude-sonnet-4-6',

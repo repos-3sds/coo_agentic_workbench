@@ -1,0 +1,470 @@
+app:
+  description: >
+    DCE Account Opening Domain Orchestrator.
+    Drives cases through the complete pipeline: N-0 → N-6 → DONE.
+    Calls all 7 sub-agent MCP servers (SA-1 through SA-7) in sequence.
+    Auto-resolves HITL gates for end-to-end testing.
+    MCP tools are called via JSON-RPC 2.0 over HTTP on the Orchestrator MCP server (port 8006).
+  icon: "\U0001F3AF"
+  icon_background: "#1E3A5F"
+  mode: workflow
+  name: DCE-AO-Orchestrator
+  use_icon_as_answer_icon: false
+
+kind: app
+version: 0.6.0
+
+# ────────────────────────────────────────────────────────────────────
+# IMPORTANT — Post-Import Configuration Required:
+# 1. MCP_ENDPOINT below points to Orchestrator server at host.docker.internal:8006
+# 2. No KB or LLM nodes needed — Orchestrator is purely operational
+# ────────────────────────────────────────────────────────────────────
+
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: Orchestrator MCP server endpoint (local Docker host on port 8006)
+    id: env-mcp-endpoint-orch
+    name: MCP_ENDPOINT
+    selector:
+    - env
+    - MCP_ENDPOINT
+    value: http://host.docker.internal:8006
+    value_type: string
+  features:
+    file_upload:
+      allowed_file_extensions: []
+      allowed_file_types: []
+      allowed_file_upload_methods: []
+      enabled: false
+      fileUploadConfig:
+        file_size_limit: 15
+        image_file_size_limit: 10
+    opening_statement: ""
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ""
+      voice: ""
+
+  graph:
+    edges:
+      # START → Reset Test Case
+      - data: {isInIteration: false, sourceType: start, targetType: code}
+        id: e-8001-8002
+        source: "8000000001"
+        target: "8000000002"
+        type: custom
+      # Reset → Run Full Pipeline
+      - data: {isInIteration: false, sourceType: code, targetType: code}
+        id: e-8002-8003
+        source: "8000000002"
+        target: "8000000003"
+        type: custom
+      # Run Full Pipeline → Result Check
+      - data: {isInIteration: false, sourceType: code, targetType: if-else}
+        id: e-8003-8004
+        source: "8000000003"
+        target: "8000000004"
+        type: custom
+      # Result Check (DONE) → Get Completion Registry
+      - data: {isInIteration: false, sourceType: if-else, targetType: code}
+        id: e-8004-8005-done
+        source: "8000000004"
+        sourceHandle: "true"
+        target: "8000000005"
+        type: custom
+      # Get Completion Registry → END_SUCCESS
+      - data: {isInIteration: false, sourceType: code, targetType: end}
+        id: e-8005-8006
+        source: "8000000005"
+        target: "8000000006"
+        type: custom
+      # Result Check (NOT DONE) → END_INCOMPLETE
+      - data: {isInIteration: false, sourceType: if-else, targetType: end}
+        id: e-8004-8007-incomplete
+        source: "8000000004"
+        sourceHandle: "false"
+        target: "8000000007"
+        type: custom
+
+    nodes:
+      # ────────────────────────────────────────────────────
+      # Node 1: START
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "Entry point for Domain Orchestrator. Provide case_id to run the full pipeline."
+          title: START
+          type: start
+          variables:
+            - label: case_id
+              max_length: 30
+              options: []
+              required: true
+              type: text-input
+              variable: case_id
+            - label: auto_hitl
+              max_length: 10
+              options: []
+              required: false
+              type: text-input
+              variable: auto_hitl
+        id: "8000000001"
+        position: {x: 50, y: 300}
+        type: start
+
+      # ────────────────────────────────────────────────────
+      # Node 2: Reset Test Case
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, mcp_endpoint: str) -> dict:
+                # Initialize MCP session
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2025-03-26",
+                               "capabilities": {}, "clientInfo": {"name": "dify-orch", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(urllib.request.Request(
+                    f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("Mcp-Session-Id", "")
+                init_resp.read()
+
+                # Call orch_reset_test_case
+                call_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "orch_reset_test_case",
+                               "arguments": {"case_id": case_id}}
+                }).encode()
+                headers = {"Content-Type": "application/json",
+                           "Accept": "application/json, text/event-stream"}
+                if session_id:
+                    headers["Mcp-Session-Id"] = session_id
+                resp = urllib.request.urlopen(urllib.request.Request(
+                    f"{mcp_endpoint}/mcp", data=call_payload, headers=headers,
+                    method="POST"), timeout=60)
+                raw = resp.read().decode("utf-8", errors="replace")
+
+                for line in raw.split("\n"):
+                    line = line.strip()
+                    if line.startswith("data: "):
+                        try:
+                            parsed = json.loads(line[6:])
+                            if "result" in parsed:
+                                content = parsed["result"].get("content", [])
+                                for item in content:
+                                    if item.get("type") == "text":
+                                        result = json.loads(item["text"])
+                                        return {
+                                            "reset_status": result.get("status", "unknown"),
+                                            "rows_deleted": result.get("total_rows_deleted", 0),
+                                        }
+                        except Exception:
+                            continue
+                return {"reset_status": "ok", "rows_deleted": 0}
+          code_language: python3
+          desc: "Reset the test case to ensure a clean pipeline run."
+          outputs:
+            reset_status:
+              children: null
+              type: string
+            rows_deleted:
+              children: null
+              type: number
+          title: "Reset Test Case"
+          type: code
+          variables:
+            - value_selector: ["8000000001", case_id]
+              variable: case_id
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "8000000002"
+        position: {x: 300, y: 300}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 3: Run Full Pipeline
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, auto_hitl: str, mcp_endpoint: str) -> dict:
+                auto_hitl_bool = auto_hitl.lower() != "false" if auto_hitl else True
+
+                # Initialize MCP session
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2025-03-26",
+                               "capabilities": {}, "clientInfo": {"name": "dify-orch", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(urllib.request.Request(
+                    f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("Mcp-Session-Id", "")
+                init_resp.read()
+
+                # Call orch_run_full_pipeline
+                call_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "orch_run_full_pipeline",
+                               "arguments": {"case_id": case_id, "auto_hitl": auto_hitl_bool}}
+                }).encode()
+                headers = {"Content-Type": "application/json",
+                           "Accept": "application/json, text/event-stream"}
+                if session_id:
+                    headers["Mcp-Session-Id"] = session_id
+                resp = urllib.request.urlopen(urllib.request.Request(
+                    f"{mcp_endpoint}/mcp", data=call_payload, headers=headers,
+                    method="POST"), timeout=300)
+                raw = resp.read().decode("utf-8", errors="replace")
+
+                for line in raw.split("\n"):
+                    line = line.strip()
+                    if line.startswith("data: "):
+                        try:
+                            parsed = json.loads(line[6:])
+                            if "result" in parsed:
+                                content = parsed["result"].get("content", [])
+                                for item in content:
+                                    if item.get("type") == "text":
+                                        result = json.loads(item["text"])
+                                        return {
+                                            "pipeline_case_id": result.get("case_id", case_id),
+                                            "final_status": result.get("final_status", "UNKNOWN"),
+                                            "nodes_executed": json.dumps(result.get("nodes_executed", [])),
+                                            "nodes_count": len(result.get("nodes_executed", [])),
+                                            "tools_called_total": result.get("tools_called_total", 0),
+                                            "hitl_auto_resolved": result.get("hitl_auto_resolved", 0),
+                                            "duration_seconds": result.get("total_duration_seconds", 0),
+                                            "errors": json.dumps(result.get("errors")) if result.get("errors") else "",
+                                        }
+                        except Exception:
+                            continue
+                return {
+                    "pipeline_case_id": case_id,
+                    "final_status": "ERROR",
+                    "nodes_executed": "[]",
+                    "nodes_count": 0,
+                    "tools_called_total": 0,
+                    "hitl_auto_resolved": 0,
+                    "duration_seconds": 0,
+                    "errors": "Failed to parse pipeline response",
+                }
+          code_language: python3
+          desc: "Execute the full pipeline from N-0 through N-6 to DONE."
+          outputs:
+            pipeline_case_id:
+              children: null
+              type: string
+            final_status:
+              children: null
+              type: string
+            nodes_executed:
+              children: null
+              type: string
+            nodes_count:
+              children: null
+              type: number
+            tools_called_total:
+              children: null
+              type: number
+            hitl_auto_resolved:
+              children: null
+              type: number
+            duration_seconds:
+              children: null
+              type: number
+            errors:
+              children: null
+              type: string
+          title: "Run Full Pipeline"
+          type: code
+          variables:
+            - value_selector: ["8000000001", case_id]
+              variable: case_id
+            - value_selector: ["8000000001", auto_hitl]
+              variable: auto_hitl
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "8000000003"
+        position: {x: 550, y: 300}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 4: Result Check (DONE?)
+      # ────────────────────────────────────────────────────
+      - data:
+          cases:
+            - case_id: "true"
+              conditions:
+                - comparison_operator: is
+                  id: c-status-done
+                  value: DONE
+                  varType: string
+                  variable_selector: ["8000000003", final_status]
+              logical_operator: and
+          desc: "Check if the pipeline completed successfully (status=DONE)"
+          title: "Pipeline DONE?"
+          type: if-else
+        id: "8000000004"
+        position: {x: 800, y: 300}
+        type: if-else
+
+      # ────────────────────────────────────────────────────
+      # Node 5: Get Completion Registry
+      # ────────────────────────────────────────────────────
+      - data:
+          code: |
+            import urllib.request, json
+
+            def main(case_id: str, mcp_endpoint: str) -> dict:
+                # Initialize MCP session
+                init_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2025-03-26",
+                               "capabilities": {}, "clientInfo": {"name": "dify-orch", "version": "1.0"}}
+                }).encode()
+                init_resp = urllib.request.urlopen(urllib.request.Request(
+                    f"{mcp_endpoint}/mcp", data=init_payload, headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json, text/event-stream"
+                    }, method="POST"), timeout=30)
+                session_id = init_resp.headers.get("Mcp-Session-Id", "")
+                init_resp.read()
+
+                # Call orch_get_completion_registry
+                call_payload = json.dumps({
+                    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                    "params": {"name": "orch_get_completion_registry",
+                               "arguments": {"case_id": case_id}}
+                }).encode()
+                headers = {"Content-Type": "application/json",
+                           "Accept": "application/json, text/event-stream"}
+                if session_id:
+                    headers["Mcp-Session-Id"] = session_id
+                resp = urllib.request.urlopen(urllib.request.Request(
+                    f"{mcp_endpoint}/mcp", data=call_payload, headers=headers,
+                    method="POST"), timeout=60)
+                raw = resp.read().decode("utf-8", errors="replace")
+
+                for line in raw.split("\n"):
+                    line = line.strip()
+                    if line.startswith("data: "):
+                        try:
+                            parsed = json.loads(line[6:])
+                            if "result" in parsed:
+                                content = parsed["result"].get("content", [])
+                                for item in content:
+                                    if item.get("type") == "text":
+                                        result = json.loads(item["text"])
+                                        return {
+                                            "completion_registry": result.get("completion_registry", ""),
+                                            "completed_nodes": json.dumps(result.get("completed_nodes", [])),
+                                            "checkpoint_count": result.get("checkpoint_count", 0),
+                                            "event_count": result.get("event_count", 0),
+                                        }
+                        except Exception:
+                            continue
+                return {
+                    "completion_registry": "Unable to fetch registry",
+                    "completed_nodes": "[]",
+                    "checkpoint_count": 0,
+                    "event_count": 0,
+                }
+          code_language: python3
+          desc: "Fetch the final completion registry showing all node statuses."
+          outputs:
+            completion_registry:
+              children: null
+              type: string
+            completed_nodes:
+              children: null
+              type: string
+            checkpoint_count:
+              children: null
+              type: number
+            event_count:
+              children: null
+              type: number
+          title: "Get Completion Registry"
+          type: code
+          variables:
+            - value_selector: ["8000000003", pipeline_case_id]
+              variable: case_id
+            - value_selector: [env, MCP_ENDPOINT]
+              variable: mcp_endpoint
+        id: "8000000005"
+        position: {x: 1050, y: 250}
+        type: code
+
+      # ────────────────────────────────────────────────────
+      # Node 6: END_SUCCESS
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "Pipeline completed successfully — case is DONE."
+          outputs:
+            - value_selector: ["8000000003", pipeline_case_id]
+              variable: case_id
+            - value_selector: ["8000000003", final_status]
+              variable: final_status
+            - value_selector: ["8000000003", nodes_executed]
+              variable: nodes_executed
+            - value_selector: ["8000000003", nodes_count]
+              variable: nodes_count
+            - value_selector: ["8000000003", tools_called_total]
+              variable: tools_called_total
+            - value_selector: ["8000000003", hitl_auto_resolved]
+              variable: hitl_auto_resolved
+            - value_selector: ["8000000003", duration_seconds]
+              variable: duration_seconds
+            - value_selector: ["8000000005", completion_registry]
+              variable: completion_registry
+            - value_selector: ["8000000005", checkpoint_count]
+              variable: checkpoint_count
+            - value_selector: ["8000000005", event_count]
+              variable: event_count
+          title: "END: PIPELINE COMPLETE"
+          type: end
+        id: "8000000006"
+        position: {x: 1300, y: 250}
+        type: end
+
+      # ────────────────────────────────────────────────────
+      # Node 7: END_INCOMPLETE
+      # ────────────────────────────────────────────────────
+      - data:
+          desc: "Pipeline did not reach DONE — stopped at HITL, error, or other state."
+          outputs:
+            - value_selector: ["8000000003", pipeline_case_id]
+              variable: case_id
+            - value_selector: ["8000000003", final_status]
+              variable: final_status
+            - value_selector: ["8000000003", nodes_executed]
+              variable: nodes_executed
+            - value_selector: ["8000000003", nodes_count]
+              variable: nodes_count
+            - value_selector: ["8000000003", errors]
+              variable: errors
+            - value_selector: ["8000000003", duration_seconds]
+              variable: duration_seconds
+          title: "END: PIPELINE INCOMPLETE"
+          type: end
+        id: "8000000007"
+        position: {x: 1050, y: 450}
+        type: end

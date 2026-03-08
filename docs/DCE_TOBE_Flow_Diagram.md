@@ -235,7 +235,7 @@
     │                   │                  │                  │             │              │  │                         │       │
     │                   │                  │                  │             │              │  │ Pre-populated:          │       │
     │                   │                  │                  │             │              │  │  Entity: ABC Corp Ltd   │       │
-    │                   │                  │                  │             │              │  │  Account Name: DBS-CIN  │       │
+    │                   │                  │                  │             │              │  │  Account Name: ABS-CIN  │       │
     │                   │                  │                  │             │              │  │  Currency: USD          │       │
     │                   │                  │                  │             │              │  │  Platform: CQG          │       │
     │                   │                  │                  │             │              │  │                         │       │

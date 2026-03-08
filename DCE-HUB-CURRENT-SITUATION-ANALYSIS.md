@@ -1,5 +1,5 @@
 # DCE Hub — Current Situation Analysis
-## Derivatives Clearing & Execution | DBS Bank, Singapore
+## Derivatives Clearing & Execution | ABS Bank, Singapore
 
 **Document Type:** Business & Technology Discovery  
 **Audience:** DCE Head, GFM Leadership, CTO Office, Program Stakeholders  
@@ -11,7 +11,7 @@
 
 ## 1. Executive Summary
 
-The Derivatives Clearing & Execution (DCE) Hub within DBS Bank's Treasury & Markets / Global Financial Markets (GFM) division operates a 24-hour, globally connected derivatives clearing and execution business serving both institutional (IBG) and professional retail (CBG) clients across major global exchanges including SGX, CME, LME, MCX, and others.
+The Derivatives Clearing & Execution (DCE) Hub within ABS Bank's Treasury & Markets / Global Financial Markets (GFM) division operates a 24-hour, globally connected derivatives clearing and execution business serving both institutional (IBG) and professional retail (CBG) clients across major global exchanges including SGX, CME, LME, MCX, and others.
 
 DCE processes 15,000–25,000 trades daily, onboards 15–20 new accounts weekly, and coordinates approximately 60 personnel across 10 distinct operational personas spanning Front Office, Middle Office, Back Office, Credit, and supporting units.
 
@@ -19,16 +19,16 @@ Despite the sophistication of its core transaction systems — Murex MX.3 (front
 
 This creates a structural gap: world-class transaction infrastructure is undermined by pre-digital operational processes. The result is slow client onboarding (3–15 working days versus competitor benchmarks of 1–3 days), process slippage with no tracking visibility, elevated operational risk, and a competitive disadvantage against global FCM players (Goldman Sachs, JP Morgan, BNP Paribas) who have invested heavily in operational digitization.
 
-DBS has committed to a full transformation program to revolutionize DCE operations using an agentic AI architecture. This document establishes the comprehensive current-state baseline from which that transformation will be designed.
+ABS has committed to a full transformation program to revolutionize DCE operations using an agentic AI architecture. This document establishes the comprehensive current-state baseline from which that transformation will be designed.
 
 ---
 
 ## 2. Organizational Structure
 
-### 2.1 Positioning Within DBS
+### 2.1 Positioning Within ABS
 
 ```
-DBS Bank Ltd
+ABS Bank Ltd
   └── Global Financial Markets (GFM)
         └── Treasury & Markets (T&M)
               └── Derivatives Clearing & Execution (DCE)
@@ -68,9 +68,9 @@ Total headcount across all DCE-related functions: approximately **60 personnel**
 |---|---|---|
 | **Customers — Corporate (IBG)** | Institutional clients using derivatives for hedging, speculation, or portfolio management | Sales Dealers, RMs, Client Services |
 | **Customers — Professional Retail (CBG)** | Accredited individual investors and smaller professional firms | Sales Dealers, RMs, Client Services |
-| **SGX (Singapore Exchange Derivatives Trading)** | Primary local exchange; DBS is a clearing member | Direct connectivity via systems |
+| **SGX (Singapore Exchange Derivatives Trading)** | Primary local exchange; ABS is a clearing member | Direct connectivity via systems |
 | **CME Group** | Major global derivatives exchange (US) | CQG connectivity, clearing via correspondent |
-| **LME (London Metal Exchange)** | DBS is a Trading Member; offers LME Registered Client Contracts | Direct membership; requires Accredited Investor status for clients |
+| **LME (London Metal Exchange)** | ABS is a Trading Member; offers LME Registered Client Contracts | Direct membership; requires Accredited Investor status for clients |
 | **MCX and other exchanges** | Additional exchange connectivity for commodities | Exchange connectivity via CQG and direct feeds |
 | **Inter-Dealer Brokers (IDBs)** | Third-party brokers facilitating trade registration for clearing | Credit team enables IDB connectivity per client in CQG and other platforms |
 | **MAS (Monetary Authority of Singapore)** | Primary regulator | Compliance, reporting, licensing (Capital Markets Services licence under SFA) |
@@ -100,7 +100,7 @@ GTA Addendum      Account Create                       Static Data              
 **Supporting:** Relationship Managers (IBG/CBG)
 
 **Current Process:**
-The pipeline management process is the origin point for all new DCE business. Sales Dealers identify prospect customers through existing DBS relationships (cross-sell from IBG/CBG), industry events, referrals, and direct outreach.
+The pipeline management process is the origin point for all new DCE business. Sales Dealers identify prospect customers through existing ABS relationships (cross-sell from IBG/CBG), industry events, referrals, and direct outreach.
 
 Once a prospect is identified, Sales Dealers engage the customer to understand their specific DCE requirements: which products they want to trade (listed futures, options, OTC products, LME contracts, deliverable contracts), which exchanges they need access to, the commission structure to be charged, and whether any addendums to the General Trading Agreement (GTA) are required.
 
@@ -171,13 +171,13 @@ Step 1: APPLICATION INITIATION
   ├── Extract of Corporate Resolutions (original) or Full Corporate Resolutions (certified)
   ├── Letter of Appointment of Authorised Trader(s)
   ├── Specimen Signatures of Authorised Person(s)
-  └── All documents must be certified by: DBS staff, Advocate & Solicitor, 
+  └── All documents must be certified by: ABS staff, Advocate & Solicitor, 
       Notary Public, Commissioner for Oaths, Judiciary member, or Embassy
 
 Step 2: SUBMISSION
   Customer submits via:
-  ├── Email scan to T&M-BMS-DCECustomerSupport@dbs.com
-  └── Original hardcopy mailed to DBS Asia Central, Level 41, MBFC Tower 3
+  ├── Email scan to T&M-BMS-DCECustomerSupport@abs.com
+  └── Original hardcopy mailed to ABS Asia Central, Level 41, MBFC Tower 3
   NOTE: Scanned copies are processed first; originals still required physically
 
 Step 3: RM REVIEW (IBG/CBG)
@@ -226,7 +226,7 @@ Step 7: ACCOUNT ACTIVE
 | CQG | Login creation, IDB enablement | Credit |
 | ClearVision (CV) | Static data mapping | TMO Static |
 | SIC | Account configuration for risk monitoring | Credit |
-| Internal DBS systems | KYC/CDD/BCAP | RM |
+| Internal ABS systems | KYC/CDD/BCAP | RM |
 
 **Critical Pain Points:**
 - **31-page paper PDF** form with 8 mandatory schedules and 3 conditionally applicable schedules (7A, 8A, 9) that depend on the customer's product choices (exchange-listed, LME, deliverable contracts) and broker arrangements. Customers frequently submit incomplete forms — either missing mandatory schedules or incorrectly including/excluding conditional schedules — triggering back-and-forth emails that add days
@@ -394,12 +394,12 @@ OPERATIONAL COORDINATION LAYER (the gap)
 
 | System | Vendor | Purpose | Users | Data |
 |---|---|---|---|---|
-| **Murex MX.3** | Murex (Paris) | Front-to-back platform for OTC and exchange-traded derivatives. Trade capture, pricing, risk analytics, P&L, regulatory reporting. Adopted by DBS in 2014 for risk management operations. | Sales, Trading, Risk, Finance, Operations | Trade data, positions, P&L, risk metrics, counterparty data |
+| **Murex MX.3** | Murex (Paris) | Front-to-back platform for OTC and exchange-traded derivatives. Trade capture, pricing, risk analytics, P&L, regulatory reporting. Adopted by ABS in 2014 for risk management operations. | Sales, Trading, Risk, Finance, Operations | Trade data, positions, P&L, risk metrics, counterparty data |
 | **FIS UBIX** | FIS (Fidelity National Information Services) | Real-time back-office system for cleared derivatives. Global clearing for sell-side and buy-side. Time-zone-independent automated processing. SOA architecture using Java and Oracle DB. | TMO Static, TMO DCE Ops, Credit | Account master, trade clearing, margin, reconciliation, statements, static data |
 | **CQG** | CQG Inc. | Trading platform for execution. High-performance trade routing, global market data, advanced technical analysis. Consolidates 75+ data sources. Available as desktop, web (HTML5), and mobile. | Execution Dealers, Customers | Order flow, market data, execution records |
 | **FIS ClearVision (CV)** | FIS (part of Cleared Derivatives Suite) | Order entry system. Single platform for global trade processing. | Execution Dealers, TMO Static | Trade entry, registration, allocation |
 | **FIS SIC (Streaming Instant Control)** | FIS (part of Cleared Derivatives Suite) | Real-time, post-trade risk monitoring system. Intraday monitoring of accounts and portfolios. Margin calculation and monitoring. | Credit, COO Client Services | Real-time risk, margin levels, portfolio exposure |
-| **Internal DBS Systems** | DBS (proprietary) | KYC/CDD/BCAP, corporate banking systems, credit assessment | RM, Compliance | Customer identity, due diligence records, credit profiles |
+| **Internal ABS Systems** | ABS (proprietary) | KYC/CDD/BCAP, corporate banking systems, credit assessment | RM, Compliance | Customer identity, due diligence records, credit profiles |
 
 ### 4.3 The FIS Cleared Derivatives Suite
 
@@ -519,28 +519,28 @@ IMPACT        │          │          │ Delay    │
 
 ### 8.1 Competitive Position
 
-DBS DCE competes for derivatives clearing and execution business against both local Singapore banks and global FCM (Futures Commission Merchant) players:
+ABS DCE competes for derivatives clearing and execution business against both local Singapore banks and global FCM (Futures Commission Merchant) players:
 
 | Competitor Tier | Examples | Typical Onboarding Speed | Digital Maturity |
 |---|---|---|---|
 | **Global FCMs** | Goldman Sachs, JP Morgan, BNP Paribas, Morgan Stanley, Citigroup | 1–3 working days | High — digital onboarding, automated workflows, client portals, real-time margin dashboards |
 | **Regional Banks** | OCBC, UOB (Singapore); HSBC, Standard Chartered (regional) | 3–7 working days | Medium — partial digitization, some workflow automation |
-| **DBS DCE (Current)** | — | 3–15 working days | Low — core transaction systems are strong, but operational layer is pre-digital |
+| **ABS DCE (Current)** | — | 3–15 working days | Low — core transaction systems are strong, but operational layer is pre-digital |
 
-### 8.2 DBS Competitive Advantages (to protect and enhance)
+### 8.2 ABS Competitive Advantages (to protect and enhance)
 
-Despite the operational gaps, DBS DCE has significant competitive advantages:
+Despite the operational gaps, ABS DCE has significant competitive advantages:
 
-- **Strong brand and trust** — DBS is the largest bank in Southeast Asia; the brand carries weight with institutional and retail clients
+- **Strong brand and trust** — ABS is the largest bank in Southeast Asia; the brand carries weight with institutional and retail clients
 - **Multi-currency, single account** — customers access all banking and futures products on one multi-currency account
 - **24-hour service** — full voice and electronic execution across three time zones
-- **LME Trading Membership** — DBS is a direct Trading Member of LME, offering registered client contracts
+- **LME Trading Membership** — ABS is a direct Trading Member of LME, offering registered client contracts
 - **Local presence** — deep relationships with Singapore-based corporates and government-linked entities
-- **Integrated banking** — DCE customers can leverage DBS's full banking platform (cash management, trade finance, FX)
+- **Integrated banking** — DCE customers can leverage ABS's full banking platform (cash management, trade finance, FX)
 
 ### 8.3 Competitive Threat Assessment
 
-The primary competitive threat is not that DBS will lose existing clients (switching costs are high in derivatives clearing), but that DBS will fail to win new clients who compare the onboarding experience against global players. A corporate treasurer who can open a derivatives clearing account with Goldman in 2 days will not wait 15 days for DBS — regardless of DBS's other advantages.
+The primary competitive threat is not that ABS will lose existing clients (switching costs are high in derivatives clearing), but that ABS will fail to win new clients who compare the onboarding experience against global players. A corporate treasurer who can open a derivatives clearing account with Goldman in 2 days will not wait 15 days for ABS — regardless of ABS's other advantages.
 
 ---
 
@@ -555,7 +555,7 @@ The primary competitive threat is not that DBS will lose existing clients (switc
 | **Single Head of DCE** | Clear decision authority for process changes. No committee paralysis. |
 | **Compact team (~60)** | Change management is feasible with a team this size. Every persona can be directly engaged. |
 | **Fresh start** | No legacy automation to untangle. First-mover advantage in shaping the digital operating model. |
-| **DBS institutional AI capability** | DBS has broader AI/ML capability and infrastructure (Vikram's broader GFM context). The DCE transformation can leverage existing enterprise AI platforms. |
+| **ABS institutional AI capability** | ABS has broader AI/ML capability and infrastructure (Vikram's broader GFM context). The DCE transformation can leverage existing enterprise AI platforms. |
 
 ### 9.2 Risks and Constraints
 
@@ -613,7 +613,7 @@ The current Corporate/Institution Application Form (Version 02.20, last updated 
 | Schedule 1 — SFA Risk Disclosure | 4 | Form 13 (Reg 47E(1)), detailed risk disclosure for futures, options, OTCD, Spot LFX | All customers |
 | Schedule 2 — CTA Risk Disclosure | 1 | Commodity Trading Act (Chapter 48A) risk disclosure | All customers |
 | Schedule 3 — Execution Only Form | 1 | SIP acknowledgment, no advisory | All customers |
-| Schedule 4 — Consent to Take Other Side | 1 | Reg 47C compliance — formal consent to DBS as counterparty | All customers |
+| Schedule 4 — Consent to Take Other Side | 1 | Reg 47C compliance — formal consent to ABS as counterparty | All customers |
 | Schedule 5 — Auto Currency Conversion | 1 | Authorization for auto-conversion of controlled currencies | All customers |
 | Schedule 6 — (Intentionally Removed) | 1 | Blank placeholder | N/A |
 | Schedule 7A — Registration & Clearing | 4 | Registration & clearing services for exchange-listed contracts; includes IDB consent and ECP representation (US exchanges) | **Conditional** — Customers who wish to apply for registration and clearing services for transactions in exchange-listed contracts |
@@ -621,7 +621,7 @@ The current Corporate/Institution Application Form (Version 02.20, last updated 
 | Schedule 9 — Deliverable Contracts | 2 | Physical delivery terms, indemnities, compliance with exchange delivery rules | **Conditional** — Customers who wish to trade in any Deliverable Contracts |
 | Schedule 10 — Electronic Statements | 2 | Consent for encrypted email statements | All customers |
 | Schedule 11A — Electronic Instructions | 2 | Authorization for receiving instructions by fax/email | All customers |
-| Schedule 12 — Fund Withdrawal Accounts | 3 | Registered bank accounts for fund withdrawal (DBS/POSB + 3rd party, max 3 each) | All customers |
+| Schedule 12 — Fund Withdrawal Accounts | 3 | Registered bank accounts for fund withdrawal (ABS/POSB + 3rd party, max 3 each) | All customers |
 
 **Key observations:**
 - Of the 11 active schedules, **8 are mandatory for all customers** and **3 are conditionally applicable** (7A, 8A, 9) based on specific product choices. The PDF's Application Checklist and each schedule's header page explicitly state these applicability rules.
@@ -635,7 +635,7 @@ The current Corporate/Institution Application Form (Version 02.20, last updated 
 
 | Term | Definition |
 |---|---|
-| **BCAP** | Business Conduct and Accountability Programme — DBS internal customer assessment |
+| **BCAP** | Business Conduct and Accountability Programme — ABS internal customer assessment |
 | **CBG** | Consumer Banking Group — retail banking division |
 | **CDD** | Customer Due Diligence — KYC verification process |
 | **CV (ClearVision)** | FIS order entry and trade processing system |
@@ -644,8 +644,8 @@ The current Corporate/Institution Application Form (Version 02.20, last updated 
 | **EFRP** | Exchange for Related Position |
 | **ETD** | Exchange-Traded Derivatives |
 | **FCM** | Futures Commission Merchant |
-| **GFM** | Global Financial Markets (DBS division) |
-| **GTA** | General Trading Agreement — master agreement between DBS and DCE customers |
+| **GFM** | Global Financial Markets (ABS division) |
+| **GTA** | General Trading Agreement — master agreement between ABS and DCE customers |
 | **IBG** | Institutional Banking Group |
 | **IDB** | Inter-Dealer Broker |
 | **KYC** | Know Your Customer |

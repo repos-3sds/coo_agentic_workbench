@@ -274,7 +274,7 @@ SA-1 is the **entry point** for every account opening request. It receives raw s
   "submission_source": "EMAIL",
   "raw_payload": {
     "email_message_id": "AAMkAGE2NDYXMS00ZTK3...",
-    "sender_email": "rm.john@dbs.com",
+    "sender_email": "rm.john@abs.com",
     "subject": "New DCE Account Opening - ABC Trading Pte Ltd",
     "body_text": "Dear DCE Team, Please initiate AO for ABC Trading...",
     "attachments": [
@@ -371,7 +371,7 @@ class N0Output(BaseModel):
   "products_requested": ["FUTURES", "OPTIONS"],
   "next_node": "N-1",
   "confidence": 0.94,
-  "intake_notes": "Platinum client with existing DBS relationship. 2 documents pre-staged."
+  "intake_notes": "Platinum client with existing ABS relationship. 2 documents pre-staged."
 }
 ```
 

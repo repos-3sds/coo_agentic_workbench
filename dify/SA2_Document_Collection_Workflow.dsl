@@ -1019,7 +1019,7 @@ workflow:
             - id: sa2-sys-completeness
               role: system
               text: >-
-                You are SA-2, the DCE Document Collection & Completeness Agent at DBS Bank.
+                You are SA-2, the DCE Document Collection & Completeness Agent at ABS Bank.
                 Assess whether submitted documents satisfy mandatory and optional requirements for this account opening case.
 
                 ASSESSMENT RULES:
@@ -1289,7 +1289,7 @@ workflow:
             - id: sa2-sys-rejection
               role: system
               text: >-
-                You are the Document Rejection Reasoner for SA-2 at DBS Bank.
+                You are the Document Rejection Reasoner for SA-2 at ABS Bank.
                 For each rejected or requires-resubmission document, generate a concise, actionable message for the Relationship Manager.
 
                 REQUIREMENTS per rejection entry:
@@ -1597,7 +1597,7 @@ workflow:
             - id: sa2-sys-decision
               role: system
               text: >-
-                You are the Routing Decision Maker for SA-2 at DBS Bank.
+                You are the Routing Decision Maker for SA-2 at ABS Bank.
                 Make the final routing decision for this account opening case based on document completeness.
 
                 DECISION RULES (apply in strict priority order):
@@ -1755,7 +1755,7 @@ workflow:
             - id: sa2-sys-chase
               role: system
               text: >-
-                You are the RM Chase Notification Composer for SA-2 at DBS Bank.
+                You are the RM Chase Notification Composer for SA-2 at ABS Bank.
                 Compose a professional, actionable notification for the Relationship Manager requesting missing or corrected documents.
 
                 MESSAGE REQUIREMENTS:

@@ -700,7 +700,7 @@ workflow:
         prompt_template:
         - id: sa1-sys-classify
           role: system
-          text: 'You are SA-1, the DCE Account Opening Intake & Triage Agent at DBS
+          text: 'You are SA-1, the DCE Account Opening Intake & Triage Agent at ABS
             Bank. Classify the incoming submission into the correct account type.
 
             ACCOUNT TYPES: - INSTITUTIONAL_FUTURES: Corporate/FI entities requesting
@@ -838,7 +838,7 @@ workflow:
         prompt_template:
         - id: sa1-sys-priority
           role: system
-          text: 'You are the Priority Assessment module of SA-1 at DBS Bank.
+          text: 'You are the Priority Assessment module of SA-1 at ABS Bank.
 
             PRIORITY RULES: - URGENT: Platinum/Diamond client, RM-flagged urgency,
             regulatory deadline within 48h, FI counterparty - STANDARD: Normal processing

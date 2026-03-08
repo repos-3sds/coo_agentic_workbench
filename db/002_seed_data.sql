@@ -21,7 +21,7 @@ INSERT INTO dce_ao_node_checkpoint
     (checkpoint_id, case_id, node_id, attempt_number, status, input_snapshot, output_json, context_block_hash, started_at, completed_at, duration_seconds, next_node, failure_reason, retry_count, agent_model, token_usage)
 VALUES
     (1, 'AO-2026-000101', 'N-0', 1, 'COMPLETE',
-     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.john@dbs.com","subject":"New DCE AO - ABC Trading"}}',
+     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.john@abs.com","subject":"New DCE AO - ABC Trading"}}',
      '{"case_id":"AO-2026-000101","account_type":"INSTITUTIONAL_FUTURES","priority":"URGENT","client_name":"ABC Trading Pte Ltd","jurisdiction":"SGP","confidence":0.94}',
      'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2',
      '2026-03-02 09:30:00', '2026-03-02 09:32:15', 135.200, 'N-1', NULL, 0, 'claude-sonnet-4-6',
@@ -34,7 +34,7 @@ VALUES
      '2026-03-02 14:00:00', NULL, NULL, NULL, NULL, 0, 'claude-sonnet-4-6', NULL),
 
     (3, 'AO-2026-000103', 'N-0', 1, 'FAILED',
-     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"unknown@dbs.com"}}',
+     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"unknown@abs.com"}}',
      NULL,
      'c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4',
      '2026-03-02 10:00:00', '2026-03-02 10:05:30', 330.000, NULL,
@@ -48,7 +48,7 @@ INSERT INTO dce_ao_event_log
     (event_id, case_id, event_type, from_state, to_state, event_payload, triggered_by, triggered_at, kafka_offset)
 VALUES
     (1, 'AO-2026-000101', 'SUBMISSION_RECEIVED', NULL, 'N-0:IN_PROGRESS',
-     '{"source":"EMAIL","sender":"rm.john@dbs.com","attachments_count":2}',
+     '{"source":"EMAIL","sender":"rm.john@abs.com","attachments_count":2}',
      'AGENT', '2026-03-02 09:30:00', 10001),
 
     (2, 'AO-2026-000101', 'CASE_CLASSIFIED', 'N-0:IN_PROGRESS', 'N-0:IN_PROGRESS',
@@ -75,7 +75,7 @@ INSERT INTO dce_ao_submission_raw
 VALUES
     (1, 'AO-2026-000101', 'EMAIL',
      'AAMkAGE2NDI0ZTk3LTg5MjctNGRhNy1hMzk1LWY0YTRlZGRmYjQ3Mg',
-     'rm.john@dbs.com',
+     'rm.john@abs.com',
      'New DCE Account Opening - ABC Trading Pte Ltd',
      'Dear DCE Team, Please initiate AO for ABC Trading Pte Ltd. Institutional futures account. Key contacts attached. Regards, John Tan',
      NULL, NULL, 'RM-0042',
@@ -92,7 +92,7 @@ VALUES
 
     (3, NULL, 'EMAIL',
      'BBNkBHF3YzI1ZDk4LTk4MzItNGViOC1iNDU2LWM1ZDZlZmRmYjU4Mw',
-     'unknown@dbs.com',
+     'unknown@abs.com',
      'AO Request - Tan Wei Ming',
      'Please open retail futures account for Tan Wei Ming. Individual client, Singapore resident.',
      NULL, NULL, 'RM-9999',
@@ -163,13 +163,13 @@ VALUES
 INSERT INTO dce_ao_rm_hierarchy
     (assignment_id, case_id, rm_id, rm_name, rm_email, rm_branch, rm_desk, rm_manager_id, rm_manager_name, rm_manager_email, resolution_source, resolved_at)
 VALUES
-    (1, 'AO-2026-000101', 'RM-0042', 'John Tan', 'rm.john@dbs.com',
+    (1, 'AO-2026-000101', 'RM-0042', 'John Tan', 'rm.john@abs.com',
      'Marina Bay Financial Centre', 'DCE Sales Desk SGP',
-     'MGR-0012', 'Sarah Lim', 'sarah.lim@dbs.com', 'HR_SYSTEM', '2026-03-02 09:31:25'),
+     'MGR-0012', 'Sarah Lim', 'sarah.lim@abs.com', 'HR_SYSTEM', '2026-03-02 09:31:25'),
 
-    (2, 'AO-2026-000102', 'RM-0118', 'David Wong', 'david.wong@dbs.com',
+    (2, 'AO-2026-000102', 'RM-0118', 'David Wong', 'david.wong@abs.com',
      'Central HK Branch', 'DCE Sales Desk HKG',
-     'MGR-0045', 'Michael Chan', 'michael.chan@dbs.com', 'PORTAL_PROVIDED', '2026-03-02 14:01:10');
+     'MGR-0045', 'Michael Chan', 'michael.chan@abs.com', 'PORTAL_PROVIDED', '2026-03-02 14:01:10');
 
 -- ============================================
 -- 8. dce_ao_notification_log (4 rows)
@@ -177,12 +177,12 @@ VALUES
 INSERT INTO dce_ao_notification_log
     (notification_id, case_id, node_id, notification_type, channel, recipient_id, recipient_email, recipient_role, subject, body_summary, template_id, delivery_status, failure_reason, retry_count, sent_at, delivered_at, created_at)
 VALUES
-    (1, 'AO-2026-000101', 'N-0', 'CASE_CREATED', 'EMAIL', 'RM-0042', 'rm.john@dbs.com', 'RM',
+    (1, 'AO-2026-000101', 'N-0', 'CASE_CREATED', 'EMAIL', 'RM-0042', 'rm.john@abs.com', 'RM',
      '[AO-2026-000101] Case Created -- ABC Trading Pte Ltd',
      'Your DCE Account Opening case has been created. Case ID: AO-2026-000101. Priority: URGENT. SLA Deadline: 2026-03-02 11:30 SGT. View in Workbench...',
      'TPL-INTAKE-01', 'DELIVERED', NULL, 0, '2026-03-02 09:32:10', '2026-03-02 09:32:12', '2026-03-02 09:32:08'),
 
-    (2, 'AO-2026-000101', 'N-0', 'CASE_CREATED', 'EMAIL', 'MGR-0012', 'sarah.lim@dbs.com', 'RM_MANAGER',
+    (2, 'AO-2026-000101', 'N-0', 'CASE_CREATED', 'EMAIL', 'MGR-0012', 'sarah.lim@abs.com', 'RM_MANAGER',
      '[AO-2026-000101] New AO Case -- ABC Trading Pte Ltd (URGENT)',
      'A new URGENT DCE Account Opening case has been created by RM John Tan. Case ID: AO-2026-000101. Client: ABC Trading Pte Ltd...',
      'TPL-INTAKE-02', 'DELIVERED', NULL, 0, '2026-03-02 09:32:10', '2026-03-02 09:32:14', '2026-03-02 09:32:08'),

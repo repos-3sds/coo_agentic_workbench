@@ -3,7 +3,7 @@
 -- ============================================================================
 -- Version : 1.1.0
 -- Date    : 2026-03-02
--- Database: MariaDB (DBS OpenShift)
+-- Database: MariaDB (ABS OpenShift)
 -- Scope   : 10 test cases covering all account types, entity types,
 --            jurisdictions, priorities, submission sources, and edge cases
 -- Depends : DCE_AO_Table_Schemas.md (DDL must be executed first)
@@ -156,7 +156,7 @@ VALUES
     -- CASE 1: EMAIL | INSTITUTIONAL_FUTURES | CORP | SGP
     (1, 'AO-2026-000101', 'EMAIL',
      'AAMkAGE2NDYXMS00ZTK3LTQ3NTUtOWZhMy01YzEwMWIxZDhhNjI=',
-     'rm.john@dbs.com',
+     'rm.john@abs.com',
      'New DCE Account Opening - ABC Trading Pte Ltd',
      'Dear DCE Team,\n\nPlease initiate Account Opening for ABC Trading Pte Ltd.\nInstitutional futures account required.\n\nProducts: Futures, Options\nJurisdiction: Singapore\nClient Type: Corporate\nIncorporation: Singapore, 2010\nUEN: 201012345A\n\nAttached:\n1. AO_Form_Signed.pdf\n2. Corporate_Profile.pdf\n\nRegards,\nJohn Tan\nRM-0042',
      NULL, NULL,
@@ -180,7 +180,7 @@ VALUES
     -- CASE 3: EMAIL | RETAIL_FUTURES | INDIVIDUAL | SGP | FAILED
     (3, NULL, 'EMAIL',
      'BBNkBHF3QWRXMS0xWTI4LTQ4NTUtOTNhNy02YzEyMzRlNWY3OGI=',
-     'unknown@dbs.com',
+     'unknown@abs.com',
      'AO Request - Tan Wei Ming',
      'Dear DCE Team,\n\nPlease open a retail futures account for Tan Wei Ming.\nIndividual client, Singapore resident.\nNRIC: S8812345A\n\nProduct: Futures\n\nRegards,\nRM-9999',
      NULL, NULL,
@@ -193,7 +193,7 @@ VALUES
     -- CASE 4: EMAIL | COMMODITIES_PHYSICAL | CORP | CHN
     (4, 'AO-2026-000104', 'EMAIL',
      'CCPkCIF4RWSYMT0yWjM5LTU5NjYtOURiOC03ZDEzNDVmNmc5OGM=',
-     'rm.liu@dbs.com',
+     'rm.liu@abs.com',
      'Urgent AO - Shanghai Metals Import Export Co Ltd - Commodities',
      'Dear DCE Team,\n\nURGENT: Please initiate AO for Shanghai Metals Import Export Co Ltd.\nCorporate entity registered in China (PRC).\nPrimary business: Physical commodities trading — base metals and precious metals.\n\nProducts: Commodities Physical, Futures (hedging)\nJurisdiction: China (booking via SGP branch)\nClient Tier: Gold\n\nAttached:\n1. AO_Form_CN.pdf\n2. Business_License_CN.pdf\n3. Financial_Statements_2024_CN.pdf\n4. Authorized_Signatory_List.pdf\n\nNote: All documents have certified English translations attached.\n\nRegards,\nLiu Wei\nRM-0067',
      NULL, NULL,
@@ -228,7 +228,7 @@ VALUES
     -- CASE 7: EMAIL | OTC_DERIVATIVES | SPV | SGP | LOW CONFIDENCE
     (7, 'AO-2026-000107', 'EMAIL',
      'DDQkDJG5TXTYNT0zYUQ0LTY1NzctOUViOS04ZTI0NTZnN2g5OER=',
-     'rm.kumar@dbs.com',
+     'rm.kumar@abs.com',
      'AO Request - Pinnacle Structured Products SPV',
      'Hi DCE Team,\n\nNew account opening request for a structured products SPV.\nEntity: Pinnacle Structured Products SPV-1 Pte Ltd\nThis is a special purpose vehicle for structured OTC derivatives.\nNot entirely sure which account type applies — possibly OTC Derivatives?\n\nThe SPV was recently incorporated and documentation is still being finalised.\n\nAttached: Draft AO form (incomplete)\n\nRegards,\nKumar Patel\nRM-0033',
      NULL, NULL,
@@ -252,7 +252,7 @@ VALUES
     -- CASE 9: EMAIL | COMMODITIES_PHYSICAL | CORP | OTHER (AUS) | IN PROGRESS
     (9, 'AO-2026-000109', 'EMAIL',
      'EERkEKH6UYUZOU0zYkU1LTc2ODgtOUZjMC05ZjM1NjdoOGk5OEU=',
-     'rm.anderson@dbs.com',
+     'rm.anderson@abs.com',
      'New AO - BHP Commodities Trading - Australia',
      'Dear DCE Team,\n\nPlease initiate account opening for BHP Commodities Trading Pty Ltd.\nAustralian corporate entity.\nPrimary business: Physical commodities — iron ore, coal, copper.\n\nProducts: Commodities Physical\nJurisdiction: Australia (booking via SGP)\nABN: 49 004 028 077\n\nNote: Client is subsidiary of BHP Group Limited (ASX-listed).\nWill need to check if OTHER jurisdiction requires additional regulatory steps.\n\nAttached:\n1. AO_Form_AUS.pdf\n2. ASIC_Certificate.pdf\n3. Annual_Report_2025.pdf\n\nRegards,\nMark Anderson\nRM-0078',
      NULL, NULL,
@@ -266,7 +266,7 @@ VALUES
     (10, 'AO-2026-000110', 'PORTAL',
      NULL, NULL, NULL, NULL,
      'PF-20260302-019',
-     '{"client_name":"ABC Trading Pte Ltd","entity_type":"CORP","jurisdiction":"SGP","products":["FUTURES","OPTIONS","OTC_DERIVATIVES"],"contact_person":"John Tan","contact_email":"rm.john@dbs.com"}',
+     '{"client_name":"ABC Trading Pte Ltd","entity_type":"CORP","jurisdiction":"SGP","products":["FUTURES","OPTIONS","OTC_DERIVATIVES"],"contact_person":"John Tan","contact_email":"rm.john@abs.com"}',
      'RM-0042',
      '2026-03-02 10:30:00', '2026-03-02 10:30:45', 'FAILED',
      'Duplicate submission detected — client name + RM ID matches active case AO-2026-000101. SHA256 content similarity exceeds 85% threshold.',
@@ -293,7 +293,7 @@ VALUES
      'ABC Trading Pte Ltd', 'CORP', 'SGP',
      '["FUTURES","OPTIONS"]',
      'URGENT',
-     'Client tier: Platinum (existing DBS relationship). RM flagged urgency in email. Regulatory deadline for MAS reporting approaching end of quarter.',
+     'Client tier: Platinum (existing ABS relationship). RM flagged urgency in email. Regulatory deadline for MAS reporting approaching end of quarter.',
      '2026-03-02 11:30:00',
      'claude-sonnet-4-6', 'claude-haiku-4-5',
      '{"KB-1":["chunk-14","chunk-22"],"KB-9":["chunk-03"]}',
@@ -397,7 +397,7 @@ VALUES
      'BHP Commodities Trading Pty Ltd', 'CORP', 'OTHER',
      '["COMMODITIES_PHYSICAL"]',
      'STANDARD',
-     'Large corporate but new DBS relationship. No urgency flags. OTHER jurisdiction adds complexity but not urgency.',
+     'Large corporate but new ABS relationship. No urgency flags. OTHER jurisdiction adds complexity but not urgency.',
      '2026-03-04 12:20:00',
      'claude-sonnet-4-6', 'claude-haiku-4-5',
      '{"KB-1":["chunk-19","chunk-45"],"KB-9":["chunk-01","chunk-09"]}',
@@ -428,67 +428,67 @@ INSERT INTO dce_ao_rm_hierarchy
 VALUES
     -- CASE 1: SGP RM — HR resolved
     (1, 'AO-2026-000101',
-     'RM-0042', 'John Tan', 'rm.john@dbs.com',
+     'RM-0042', 'John Tan', 'rm.john@abs.com',
      'Marina Bay Financial Centre', 'DCE Sales Desk SGP',
-     'MGR-0012', 'Sarah Lim', 'sarah.lim@dbs.com',
+     'MGR-0012', 'Sarah Lim', 'sarah.lim@abs.com',
      'HR_SYSTEM', '2026-03-02 09:31:25'),
 
     -- CASE 2: HKG RM — Portal provided
     (2, 'AO-2026-000102',
-     'RM-0118', 'David Wong', 'david.wong@dbs.com',
+     'RM-0118', 'David Wong', 'david.wong@abs.com',
      'Central HK Branch', 'DCE Sales Desk HKG',
-     'MGR-0045', 'Michael Chan', 'michael.chan@dbs.com',
+     'MGR-0045', 'Michael Chan', 'michael.chan@abs.com',
      'PORTAL_PROVIDED', '2026-03-02 14:01:10'),
 
     -- CASE 3: No record — RM-9999 not found
 
     -- CASE 4: CHN coverage RM — HR resolved
     (3, 'AO-2026-000104',
-     'RM-0067', 'Liu Wei', 'rm.liu@dbs.com',
-     'DBS Shanghai Representative Office', 'DCE Sales Desk CHN',
-     'MGR-0023', 'Chen Xiaoming', 'chen.xiaoming@dbs.com',
+     'RM-0067', 'Liu Wei', 'rm.liu@abs.com',
+     'ABS Shanghai Representative Office', 'DCE Sales Desk CHN',
+     'MGR-0023', 'Chen Xiaoming', 'chen.xiaoming@abs.com',
      'HR_SYSTEM', '2026-03-02 11:01:15'),
 
     -- CASE 5: Fund coverage RM — Portal provided
     (4, 'AO-2026-000105',
-     'RM-0091', 'Rachel Ng', 'rachel.ng@dbs.com',
+     'RM-0091', 'Rachel Ng', 'rachel.ng@abs.com',
      'Marina Bay Financial Centre', 'DCE Institutional Desk SGP',
-     'MGR-0012', 'Sarah Lim', 'sarah.lim@dbs.com',
+     'MGR-0012', 'Sarah Lim', 'sarah.lim@abs.com',
      'PORTAL_PROVIDED', '2026-03-02 09:15:50'),
 
     -- CASE 6: FI coverage RM — HR resolved (API submission)
     (5, 'AO-2026-000106',
-     'RM-0155', 'James Leung', 'james.leung@dbs.com',
+     'RM-0155', 'James Leung', 'james.leung@abs.com',
      'Central HK Branch', 'DCE FI Desk HKG',
-     'MGR-0045', 'Michael Chan', 'michael.chan@dbs.com',
+     'MGR-0045', 'Michael Chan', 'michael.chan@abs.com',
      'HR_SYSTEM', '2026-03-02 15:00:30'),
 
     -- CASE 7: SPV coverage RM — HR resolved
     (6, 'AO-2026-000107',
-     'RM-0033', 'Kumar Patel', 'rm.kumar@dbs.com',
+     'RM-0033', 'Kumar Patel', 'rm.kumar@abs.com',
      'Marina Bay Financial Centre', 'DCE Structured Products Desk SGP',
-     'MGR-0018', 'Priya Sharma', 'priya.sharma@dbs.com',
+     'MGR-0018', 'Priya Sharma', 'priya.sharma@abs.com',
      'HR_SYSTEM', '2026-03-02 16:31:00'),
 
     -- CASE 8: HKG individual RM — Portal provided
     (7, 'AO-2026-000108',
-     'RM-0201', 'Annie Cheung', 'annie.cheung@dbs.com',
+     'RM-0201', 'Annie Cheung', 'annie.cheung@abs.com',
      'Tsim Sha Tsui Branch', 'DCE Retail Desk HKG',
-     'MGR-0052', 'Peter Ho', 'peter.ho@dbs.com',
+     'MGR-0052', 'Peter Ho', 'peter.ho@abs.com',
      'PORTAL_PROVIDED', '2026-03-02 08:45:40'),
 
     -- CASE 9: AUS coverage RM — HR resolved
     (8, 'AO-2026-000109',
-     'RM-0078', 'Mark Anderson', 'rm.anderson@dbs.com',
+     'RM-0078', 'Mark Anderson', 'rm.anderson@abs.com',
      'Marina Bay Financial Centre', 'DCE International Desk SGP',
-     'MGR-0023', 'Chen Xiaoming', 'chen.xiaoming@dbs.com',
+     'MGR-0023', 'Chen Xiaoming', 'chen.xiaoming@abs.com',
      'HR_SYSTEM', '2026-03-02 12:20:45'),
 
     -- CASE 10: Same RM as Case 1 (duplicate submission)
     (9, 'AO-2026-000110',
-     'RM-0042', 'John Tan', 'rm.john@dbs.com',
+     'RM-0042', 'John Tan', 'rm.john@abs.com',
      'Marina Bay Financial Centre', 'DCE Sales Desk SGP',
-     'MGR-0012', 'Sarah Lim', 'sarah.lim@dbs.com',
+     'MGR-0012', 'Sarah Lim', 'sarah.lim@abs.com',
      'HR_SYSTEM', '2026-03-02 10:30:20');
 
 
@@ -722,7 +722,7 @@ INSERT INTO dce_ao_node_checkpoint
 VALUES
     -- CASE 1: N-0 COMPLETE
     (1, 'AO-2026-000101', 'N-0', 1, 'COMPLETE',
-     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.john@dbs.com","subject":"New DCE Account Opening - ABC Trading Pte Ltd","attachments":["AO_Form_Signed.pdf","Corporate_Profile.pdf"]},"received_at":"2026-03-02T09:30:00+08:00","rm_employee_id":"RM-0042"}',
+     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.john@abs.com","subject":"New DCE Account Opening - ABC Trading Pte Ltd","attachments":["AO_Form_Signed.pdf","Corporate_Profile.pdf"]},"received_at":"2026-03-02T09:30:00+08:00","rm_employee_id":"RM-0042"}',
      '{"case_id":"AO-2026-000101","account_type":"INSTITUTIONAL_FUTURES","priority":"URGENT","client_name":"ABC Trading Pte Ltd","client_entity_type":"CORP","jurisdiction":"SGP","rm_id":"RM-0042","rm_manager_id":"MGR-0012","products_requested":["FUTURES","OPTIONS"],"next_node":"N-1","confidence":0.94}',
      'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6',
      '2026-03-02 09:30:00', '2026-03-02 09:32:15', 135.200,
@@ -739,7 +739,7 @@ VALUES
 
     -- CASE 3: N-0 FAILED (RM not found)
     (3, 'AO-2026-000103', 'N-0', 1, 'FAILED',
-     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"unknown@dbs.com","subject":"AO Request - Tan Wei Ming"},"received_at":"2026-03-02T10:00:00+08:00","rm_employee_id":"RM-9999"}',
+     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"unknown@abs.com","subject":"AO Request - Tan Wei Ming"},"received_at":"2026-03-02T10:00:00+08:00","rm_employee_id":"RM-9999"}',
      NULL,
      'c3d4e5f6a1b2c9d0e1f2a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8',
      '2026-03-02 10:00:00', '2026-03-02 10:05:30', 330.000,
@@ -748,7 +748,7 @@ VALUES
 
     -- CASE 4: N-0 COMPLETE (CHN corporate)
     (4, 'AO-2026-000104', 'N-0', 1, 'COMPLETE',
-     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.liu@dbs.com","subject":"Urgent AO - Shanghai Metals Import Export Co Ltd"},"received_at":"2026-03-02T11:00:00+08:00","rm_employee_id":"RM-0067"}',
+     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.liu@abs.com","subject":"Urgent AO - Shanghai Metals Import Export Co Ltd"},"received_at":"2026-03-02T11:00:00+08:00","rm_employee_id":"RM-0067"}',
      '{"case_id":"AO-2026-000104","account_type":"COMMODITIES_PHYSICAL","priority":"URGENT","client_name":"Shanghai Metals Import Export Co Ltd","client_entity_type":"CORP","jurisdiction":"CHN","rm_id":"RM-0067","rm_manager_id":"MGR-0023","products_requested":["COMMODITIES_PHYSICAL","FUTURES"],"next_node":"N-1","confidence":0.91}',
      'd4e5f6a7b8c9d0e1f2a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8a9',
      '2026-03-02 11:00:00', '2026-03-02 11:03:40', 220.000,
@@ -775,7 +775,7 @@ VALUES
 
     -- CASE 7: N-0 FAILED (low confidence — SPV)
     (7, 'AO-2026-000107', 'N-0', 1, 'FAILED',
-     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.kumar@dbs.com","subject":"AO Request - Pinnacle Structured Products SPV"},"received_at":"2026-03-02T16:30:00+08:00","rm_employee_id":"RM-0033"}',
+     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.kumar@abs.com","subject":"AO Request - Pinnacle Structured Products SPV"},"received_at":"2026-03-02T16:30:00+08:00","rm_employee_id":"RM-0033"}',
      NULL,
      'a7b8c9d0e1f2a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8a9b0c1d2',
      '2026-03-02 16:30:00', '2026-03-02 16:34:10', 250.000,
@@ -793,7 +793,7 @@ VALUES
 
     -- CASE 9: N-0 IN_PROGRESS (AUS corporate)
     (9, 'AO-2026-000109', 'N-0', 1, 'IN_PROGRESS',
-     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.anderson@dbs.com","subject":"New AO - BHP Commodities Trading - Australia"},"received_at":"2026-03-02T12:20:00+08:00","rm_employee_id":"RM-0078"}',
+     '{"submission_source":"EMAIL","raw_payload":{"sender_email":"rm.anderson@abs.com","subject":"New AO - BHP Commodities Trading - Australia"},"received_at":"2026-03-02T12:20:00+08:00","rm_employee_id":"RM-0078"}',
      NULL,
      'c9d0e1f2a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8a9b0c1d2e3f4',
      '2026-03-02 12:20:00', NULL, NULL,
@@ -820,7 +820,7 @@ VALUES
     -- CASE 1: Full N-0 lifecycle (4 events)
     (1, 'AO-2026-000101', 'SUBMISSION_RECEIVED',
      NULL, 'N-0:IN_PROGRESS',
-     '{"source":"EMAIL","sender":"rm.john@dbs.com","subject":"New DCE Account Opening - ABC Trading Pte Ltd","attachments_count":2}',
+     '{"source":"EMAIL","sender":"rm.john@abs.com","subject":"New DCE Account Opening - ABC Trading Pte Ltd","attachments_count":2}',
      'AGENT', '2026-03-02 09:30:00', 10001),
     (2, 'AO-2026-000101', 'CASE_CLASSIFIED',
      'N-0:IN_PROGRESS', 'N-0:IN_PROGRESS',
@@ -844,7 +844,7 @@ VALUES
     -- CASE 3: Submission + failure
     (6, 'AO-2026-000103', 'SUBMISSION_RECEIVED',
      NULL, 'N-0:IN_PROGRESS',
-     '{"source":"EMAIL","sender":"unknown@dbs.com","attachments_count":1}',
+     '{"source":"EMAIL","sender":"unknown@abs.com","attachments_count":1}',
      'AGENT', '2026-03-02 10:00:00', 10006),
     (7, 'AO-2026-000103', 'NODE_FAILED',
      'N-0:IN_PROGRESS', 'N-0:FAILED',
@@ -854,7 +854,7 @@ VALUES
     -- CASE 4: CHN corporate — full N-0 lifecycle
     (8, 'AO-2026-000104', 'SUBMISSION_RECEIVED',
      NULL, 'N-0:IN_PROGRESS',
-     '{"source":"EMAIL","sender":"rm.liu@dbs.com","attachments_count":4}',
+     '{"source":"EMAIL","sender":"rm.liu@abs.com","attachments_count":4}',
      'AGENT', '2026-03-02 11:00:00', 10008),
     (9, 'AO-2026-000104', 'CASE_CLASSIFIED',
      'N-0:IN_PROGRESS', 'N-0:IN_PROGRESS',
@@ -908,7 +908,7 @@ VALUES
     -- CASE 7: SPV — submission + classification failure
     (20, 'AO-2026-000107', 'SUBMISSION_RECEIVED',
      NULL, 'N-0:IN_PROGRESS',
-     '{"source":"EMAIL","sender":"rm.kumar@dbs.com","attachments_count":1}',
+     '{"source":"EMAIL","sender":"rm.kumar@abs.com","attachments_count":1}',
      'AGENT', '2026-03-02 16:30:00', 10020),
     (21, 'AO-2026-000107', 'CASE_CLASSIFIED',
      'N-0:IN_PROGRESS', 'N-0:IN_PROGRESS',
@@ -940,7 +940,7 @@ VALUES
     -- CASE 9: AUS corporate — submission received only
     (27, 'AO-2026-000109', 'SUBMISSION_RECEIVED',
      NULL, 'N-0:IN_PROGRESS',
-     '{"source":"EMAIL","sender":"rm.anderson@dbs.com","attachments_count":3}',
+     '{"source":"EMAIL","sender":"rm.anderson@abs.com","attachments_count":3}',
      'AGENT', '2026-03-02 12:20:00', 10027),
 
     -- CASE 10: Duplicate — submission + failure
@@ -967,14 +967,14 @@ INSERT INTO dce_ao_notification_log
 VALUES
     -- CASE 1: 4 notifications (EMAIL RM, EMAIL MGR, TOAST, KAFKA)
     (1, 'AO-2026-000101', 'N-0', 'CASE_CREATED', 'EMAIL',
-     'RM-0042', 'rm.john@dbs.com', 'RM',
+     'RM-0042', 'rm.john@abs.com', 'RM',
      '[AO-2026-000101] Case Created - ABC Trading Pte Ltd',
      'Your DCE Account Opening case has been created. Case ID: AO-2026-000101. Priority: URGENT. SLA Deadline: 2026-03-02 11:30 SGT.',
      'TPL-INTAKE-01', 'DELIVERED', NULL, 0,
      '2026-03-02 09:32:10', '2026-03-02 09:32:12', '2026-03-02 09:32:08'),
 
     (2, 'AO-2026-000101', 'N-0', 'CASE_CREATED', 'EMAIL',
-     'MGR-0012', 'sarah.lim@dbs.com', 'RM_MANAGER',
+     'MGR-0012', 'sarah.lim@abs.com', 'RM_MANAGER',
      '[AO-2026-000101] New AO Case - ABC Trading Pte Ltd (URGENT)',
      'A new URGENT DCE Account Opening case has been created by RM John Tan (RM-0042). Client: ABC Trading Pte Ltd.',
      'TPL-INTAKE-02', 'DELIVERED', NULL, 0,
@@ -996,14 +996,14 @@ VALUES
 
     -- CASE 4: 4 notifications (CHN corporate)
     (5, 'AO-2026-000104', 'N-0', 'CASE_CREATED', 'EMAIL',
-     'RM-0067', 'rm.liu@dbs.com', 'RM',
+     'RM-0067', 'rm.liu@abs.com', 'RM',
      '[AO-2026-000104] Case Created - Shanghai Metals Import Export Co Ltd',
      'Your DCE Account Opening case has been created. Case ID: AO-2026-000104. Priority: URGENT. SLA Deadline: 2026-03-02 13:00 SGT.',
      'TPL-INTAKE-01', 'DELIVERED', NULL, 0,
      '2026-03-02 11:03:35', '2026-03-02 11:03:37', '2026-03-02 11:03:30'),
 
     (6, 'AO-2026-000104', 'N-0', 'CASE_CREATED', 'EMAIL',
-     'MGR-0023', 'chen.xiaoming@dbs.com', 'RM_MANAGER',
+     'MGR-0023', 'chen.xiaoming@abs.com', 'RM_MANAGER',
      '[AO-2026-000104] New AO Case - Shanghai Metals (URGENT, CHN)',
      'A new URGENT DCE Account Opening case for CHN jurisdiction. RM Liu Wei (RM-0067). Client: Shanghai Metals Import Export Co Ltd.',
      'TPL-INTAKE-02', 'DELIVERED', NULL, 0,
@@ -1025,14 +1025,14 @@ VALUES
 
     -- CASE 5: 4 notifications (Fund)
     (9, 'AO-2026-000105', 'N-0', 'CASE_CREATED', 'EMAIL',
-     'RM-0091', 'rachel.ng@dbs.com', 'RM',
+     'RM-0091', 'rachel.ng@abs.com', 'RM',
      '[AO-2026-000105] Case Created - Temasek Alpha Fund III',
      'Your DCE Account Opening case has been created. Case ID: AO-2026-000105. Priority: STANDARD. Multi-Product account. SLA Deadline: 2026-03-04 09:15 SGT.',
      'TPL-INTAKE-01', 'DELIVERED', NULL, 0,
      '2026-03-02 09:18:18', '2026-03-02 09:18:20', '2026-03-02 09:18:15'),
 
     (10, 'AO-2026-000105', 'N-0', 'CASE_CREATED', 'EMAIL',
-     'MGR-0012', 'sarah.lim@dbs.com', 'RM_MANAGER',
+     'MGR-0012', 'sarah.lim@abs.com', 'RM_MANAGER',
      '[AO-2026-000105] New AO Case - Temasek Alpha Fund III (FUND)',
      'New DCE Account Opening case for Fund entity. RM Rachel Ng (RM-0091). Client: Temasek Alpha Fund III. Multi-Product.',
      'TPL-INTAKE-02', 'DELIVERED', NULL, 0,
@@ -1054,14 +1054,14 @@ VALUES
 
     -- CASE 6: 4 notifications (FI via API)
     (13, 'AO-2026-000106', 'N-0', 'CASE_CREATED', 'EMAIL',
-     'RM-0155', 'james.leung@dbs.com', 'RM',
+     'RM-0155', 'james.leung@abs.com', 'RM',
      '[AO-2026-000106] Case Created - HSBC Securities Services (Asia) Ltd',
      'Your DCE Account Opening case has been created. Case ID: AO-2026-000106. Priority: URGENT. FI client. SLA Deadline: 2026-03-02 17:00 SGT.',
      'TPL-INTAKE-01', 'DELIVERED', NULL, 0,
      '2026-03-02 15:01:50', '2026-03-02 15:01:52', '2026-03-02 15:01:48'),
 
     (14, 'AO-2026-000106', 'N-0', 'CASE_CREATED', 'EMAIL',
-     'MGR-0045', 'michael.chan@dbs.com', 'RM_MANAGER',
+     'MGR-0045', 'michael.chan@abs.com', 'RM_MANAGER',
      '[AO-2026-000106] New AO Case - HSBC Securities (URGENT, FI)',
      'New URGENT DCE Account Opening case for Financial Institution. RM James Leung (RM-0155). Client: HSBC Securities Services (Asia) Ltd.',
      'TPL-INTAKE-02', 'DELIVERED', NULL, 0,
@@ -1083,14 +1083,14 @@ VALUES
 
     -- CASE 8: 4 notifications (HKG individual retail)
     (17, 'AO-2026-000108', 'N-0', 'CASE_CREATED', 'EMAIL',
-     'RM-0201', 'annie.cheung@dbs.com', 'RM',
+     'RM-0201', 'annie.cheung@abs.com', 'RM',
      '[AO-2026-000108] Case Created - Li Mei Ling',
      'Your DCE Account Opening case has been created. Case ID: AO-2026-000108. Priority: DEFERRED. Retail Futures. SLA Deadline: 2026-03-09 08:45 SGT.',
      'TPL-INTAKE-01', 'DELIVERED', NULL, 0,
      '2026-03-02 08:48:25', '2026-03-02 08:48:27', '2026-03-02 08:48:22'),
 
     (18, 'AO-2026-000108', 'N-0', 'CASE_CREATED', 'EMAIL',
-     'MGR-0052', 'peter.ho@dbs.com', 'RM_MANAGER',
+     'MGR-0052', 'peter.ho@abs.com', 'RM_MANAGER',
      '[AO-2026-000108] New AO Case - Li Mei Ling (DEFERRED)',
      'New DCE Account Opening case for individual retail client. RM Annie Cheung (RM-0201). Client: Li Mei Ling. HKG jurisdiction.',
      'TPL-INTAKE-02', 'DELIVERED', NULL, 0,

@@ -1,6 +1,6 @@
 # Account Opening — Hybrid Agent Architecture
 
-## DCE Hub, DBS Bank Singapore
+## DCE Hub, ABS Bank Singapore
 
 **Document Type:** Module-Specific Agentic Architecture Design
 **Audience:** DCE Head, GFM Leadership, CTO Office, Enterprise Architecture
@@ -23,9 +23,9 @@ Account Opening is the highest-impact, highest-pain process in DCE:
 | **Competitor benchmark** | 1-3 working days (Goldman, JPM, BNP) |
 | **Volume** | 15-20 new accounts per month |
 | **Personas involved** | 7 of 10 (highest coordination complexity) |
-| **Systems touched** | 8 (UBIX, CQG, CLS, SIC, CV, IDB Platforms, SharePoint, DBS KYC/CDD). Murex MX.3: TBC -- not confirmed for Account Opening scope. |
+| **Systems touched** | 8 (UBIX, CQG, CLS, SIC, CV, IDB Platforms, SharePoint, ABS KYC/CDD). Murex MX.3: TBC -- not confirmed for Account Opening scope. |
 | **Revenue impact** | Delayed onboarding = delayed trading = delayed commission |
-| **Competitive risk** | A corporate treasurer who can open with Goldman in 2 days will not wait 15 days for DBS |
+| **Competitive risk** | A corporate treasurer who can open with Goldman in 2 days will not wait 15 days for ABS |
 | **Coordination model** | No workflow system exists today. Entire process is email-driven. COO Desk Support is the single human orchestrator tracking all streams manually via Excel and SharePoint. |
 | **Pipeline boundary** | Pipeline Management's LAST STEP produces Document Checklist. Account Opening begins immediately after. Future state: auto-generated checklist from customer requirements data. |
 
@@ -130,7 +130,7 @@ TRUST PLANE (Continuous Security Envelope -- wraps everything below)
   CORE SYSTEMS (via MCP Tools)
   +---------------------------------------------------------------------+
   | +------+ +------+ +------+ +--------+ +-----+ +-------+ +--------+ |
-  | | UBIX | |  CQG | |  CLS | |Clear-  | | SIC | |  DBS  | | Share- | |
+  | | UBIX | |  CQG | |  CLS | |Clear-  | | SIC | |  ABS  | | Share- | |
   | |      | |      | |      | | Vision | |     | |KYC/CDD| | Point  | |
   | |Acct  | |Login+| |Limit | |Static  | |Risk | |Due    | |Doc     | |
   | |Create| | IDB  | |Update| |Data Map| |Cfg  | |Diligce| |Storage | |
@@ -171,7 +171,7 @@ graph TD
         S3[("CQG\nLogin + IDB")]
         S4[("ClearVision\nStatic Data Mapping")]
         S5[("SIC\nRisk Config")]
-        S6[("DBS KYC/CDD\nDue Diligence")]
+        S6[("ABS KYC/CDD\nDue Diligence")]
         S7[("Notification Service\nEmail + Teams")]
         S8[("CLS\nCentral Limit System")]
         S9[("SharePoint\nDoc Storage + Signatures")]
@@ -523,7 +523,7 @@ PROCESSING:
        - Corporate Resolutions (original or certified)? (Y/N)
        - Letter of Appointment of Authorised Traders? (Y/N)
        - Specimen Signatures? (Y/N)
-       - Certification valid? (DBS staff, solicitor, notary, etc.)
+       - Certification valid? (ABS staff, solicitor, notary, etc.)
 
   3. SIGNATURE EXTRACTION & VERIFICATION (NEW in v2.0)
      - Extract signature images from all signed documents
@@ -571,7 +571,7 @@ PROCESSING:
   6. DATA QUALITY CHECKS
      - Tax residence country valid?
      - Registration number format valid?
-     - Schedule 12 bank accounts: max 3 DBS/POSB + max 3 third-party
+     - Schedule 12 bank accounts: max 3 ABS/POSB + max 3 third-party
      - Schedule 8A LEI format valid? (if LME)
      - No contradictions between sections
 
@@ -626,7 +626,7 @@ OUTPUT: Structured extraction result
 |---|---|
 | **Model** | Sonnet-class |
 | **Autonomy level** | Level 4 (deterministic checks with LLM for edge cases) |
-| **System access** | DBS KYC/CDD systems (read + write verification results) |
+| **System access** | ABS KYC/CDD systems (read + write verification results) |
 | **Trust level** | High (compliance decisions, access to sensitive identity data) |
 | **HITL** | Auto-clear standard cases; escalate edge cases to compliance officer |
 
@@ -642,7 +642,7 @@ INPUT:  Extracted customer data from Document Intelligence Agent
 
 PROCESSING:
   1. KYC VERIFICATION
-     - Customer identity verification against DBS internal records
+     - Customer identity verification against ABS internal records
      - Corporate registration verification
      - Beneficial ownership identification (10%+ shareholders per form Section 2)
      - PEP (Politically Exposed Person) screening
@@ -653,7 +653,7 @@ PROCESSING:
      - Nature of business verification
 
   3. BCAP (Business Conduct and Accountability Programme)
-     - DBS internal customer assessment
+     - ABS internal customer assessment
      - Existing relationship check
 
   4. SANCTIONS SCREENING
@@ -1098,7 +1098,7 @@ TRACE: Account Opening for Client X
   |     Total Duration: 90s (parallel provisioning)
   |     |
   |     +-- STREAM 4A (Credit Team):
-  |     |     CQG: Login created (login_id: CQG-DBS-1234) - 15s
+  |     |     CQG: Login created (login_id: CQG-ABS-1234) - 15s
   |     |     IDB: Enabled (platforms: [Tradition, Tullett]) - 20s
   |     |
   |     +-- STREAM 4B (TMO Static):
@@ -1190,7 +1190,7 @@ This version corrects **6 critical errors** identified in v1.0 after cross-refer
 | **3** | **Workflow sequence was WRONG** | v1.0 had a linear 10-state machine (INITIATED -> DOCUMENT_PROCESSING -> PENDING_CUSTOMER -> COMPLIANCE_CHECK -> CREDIT_ASSESSMENT -> CREDIT_APPROVAL_PENDING -> SYSTEM_PROVISIONING -> PROVISIONING_FAILED -> COMPLETED -> REJECTED). No parallel execution. | **5-step workflow with FORK/JOIN pattern.** Steps 4A (Credit team: CQG + IDB) and 4B (TMO Static: UBIX + CV + SIC) run in PARALLEL. New PARALLEL_PROVISIONING (fork) and WELCOME_KIT (join) states. Added SIGNATURE_REVIEW state for HITL. | Sequential provisioning would take 2x as long as necessary. Missing the real-world parallel execution model. |
 | **4** | **Document Intelligence Agent scope was WRONG** | v1.0 had DI Agent performing "Dynamic Schedule Determination" -- determining which schedules (7A, 8A, 9) are needed based on customer selections. | **Schedule determination is the Sales Dealer's manual job in current state.** DI Agent now validates completeness AGAINST already-determined schedules, does not determine them. Added: signature extraction + verification with confidence scoring (HITL mandatory), physical/digital dual-status tracking, mandate letter OCR for Authorised Traders, additional non-schedule document tracking. | Would have automated a step that belongs to Sales Dealer, creating incorrect division of responsibility. Would have missed signature verification (critical compliance function). |
 | **5** | **RM's role scope was WRONG** | RM was positioned as initiator and primary driver. Architecture diagram: RM Copilot -> "Initiation, KYC track, Status queries." Authorization matrix: RM Copilot -> "Initiate, Query Status." | **RM appears only at Step 3.** KYC, CDD clearance, BCAP clearance, recommends Credit Assessment Approach (IRB or SA), recommends DCE Limit / DCE-PCE Limit. RM Copilot authorization: "Step 3 Tasks, Query Status" only. Cannot initiate. | Would have given RM capabilities and UI designed for initiation when they only perform mid-process compliance tasks. |
-| **6** | **Systems list was incomplete** | v1.0 listed: UBIX, Murex MX.3, CQG, ClearVision, SIC, DBS KYC/CDD. Missing critical systems. | **Complete systems list:** UBIX, CQG, CLS (Central Limit System -- NEW), SIC, CV (ClearVision), IDB Platforms (NEW), SharePoint (NEW), DBS KYC/CDD. **Murex MX.3: TBC -- not confirmed for Account Opening scope** (demoted from confirmed to TBC). CLS is where Credit team updates DCE Limit + DCE-PCE Limit. SharePoint stores soft copies and signatures. | Missing CLS means credit limit workflow is incomplete. Missing SharePoint means document/signature storage has no target system. Including Murex without confirmation is speculative. |
+| **6** | **Systems list was incomplete** | v1.0 listed: UBIX, Murex MX.3, CQG, ClearVision, SIC, ABS KYC/CDD. Missing critical systems. | **Complete systems list:** UBIX, CQG, CLS (Central Limit System -- NEW), SIC, CV (ClearVision), IDB Platforms (NEW), SharePoint (NEW), ABS KYC/CDD. **Murex MX.3: TBC -- not confirmed for Account Opening scope** (demoted from confirmed to TBC). CLS is where Credit team updates DCE Limit + DCE-PCE Limit. SharePoint stores soft copies and signatures. | Missing CLS means credit limit workflow is incomplete. Missing SharePoint means document/signature storage has no target system. Including Murex without confirmation is speculative. |
 
 ### Additional v2.0 Enhancements (beyond error corrections)
 

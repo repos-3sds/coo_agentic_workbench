@@ -20,7 +20,7 @@ CORP
 - HKEX
 
 ### rule_text
-Document checklist requirements for INSTITUTIONAL_FUTURES account opening in SGP jurisdiction for CORP entity type. Mandatory core set: AO form, Board Resolution, Certificate of Incorporation/ACRA profile, Constitution (or M&A), UBO declaration, authorised signatory list, directors IDs (minimum two signatories or approved signing matrix), GTA master, Risk Disclosure, FATCA/CRS self-certification, and bank account registration for settlement. Regulatory references include MAS SFA, MAS AML/CFT notices, and DBS internal market access controls. Any mismatch between AO form legal name and incorporation records is a hard-stop exception.
+Document checklist requirements for INSTITUTIONAL_FUTURES account opening in SGP jurisdiction for CORP entity type. Mandatory core set: AO form, Board Resolution, Certificate of Incorporation/ACRA profile, Constitution (or M&A), UBO declaration, authorised signatory list, directors IDs (minimum two signatories or approved signing matrix), GTA master, Risk Disclosure, FATCA/CRS self-certification, and bank account registration for settlement. Regulatory references include MAS SFA, MAS AML/CFT notices, and ABS internal market access controls. Any mismatch between AO form legal name and incorporation records is a hard-stop exception.
 
 ### mandatory_documents
 - AO_FORM
@@ -44,7 +44,7 @@ Document checklist requirements for INSTITUTIONAL_FUTURES account opening in SGP
 All mandatory docs present, signed, and valid. Conditional docs required only if trigger condition met.
 
 ### regulatory_basis
-MAS SFA; MAS AML/CFT; DBS T&M Account Opening Standards
+MAS SFA; MAS AML/CFT; ABS T&M Account Opening Standards
 
 ### risk_notes
 If UBO chain has unresolved ownership >25%, set retry_recommended=true and route HITL_RM.
@@ -135,7 +135,7 @@ OTC Derivatives onboarding for FI entities in Singapore. Mandatory controls prio
 Legal framework docs must be internally consistent across GTA/ISDA/Board resolution.
 
 ### regulatory_basis
-MAS OTC derivatives framework; MAS AML/CFT; DBS legal policy
+MAS OTC derivatives framework; MAS AML/CFT; ABS legal policy
 
 ### risk_notes
 LEI missing for reportable OTC trades is a hard fail with escalation to RM manager on retry 2.
@@ -177,7 +177,7 @@ Institutional futures onboarding for Hong Kong FI entities. Requires corporate l
 All mandatory docs accepted; no rejected mandatory doc outstanding.
 
 ### regulatory_basis
-HKMA SPM; SFC Code of Conduct; DBS cross-border policy
+HKMA SPM; SFC Code of Conduct; ABS cross-border policy
 
 ### risk_notes
 If jurisdictional addendum is missing while cross-border flag=true, keep next_node=HITL_RM.
@@ -257,7 +257,7 @@ Physical commodities onboarding for PRC-domiciled corporates. Requires commodity
 Mandatory commodity controls and enforceability docs must pass before N-2.
 
 ### regulatory_basis
-DBS commodities risk policy; MAS AML/CFT cross-border controls
+ABS commodities risk policy; MAS AML/CFT cross-border controls
 
 ### risk_notes
 If translation quality is uncertain, set flagged_for_review=true and route HITL escalation.
@@ -298,7 +298,7 @@ SPV onboarding outside primary jurisdictions requires enhanced beneficial owners
 UBO and sponsor accountability controls are mandatory regardless of product mix.
 
 ### regulatory_basis
-MAS AML/CFT risk-based approach; DBS jurisdictional risk framework
+MAS AML/CFT risk-based approach; ABS jurisdictional risk framework
 
 ### risk_notes
 Any unresolved nominee ownership structure requires manual review.
@@ -335,7 +335,7 @@ Retail futures onboarding in Singapore requires strong suitability and identity 
 All mandatory docs accepted and suitability control satisfied.
 
 ### regulatory_basis
-MAS SFA SIP/CKA obligations; DBS retail derivatives control standard
+MAS SFA SIP/CKA obligations; ABS retail derivatives control standard
 
 ### risk_notes
 Suitability uncertainty requires HITL_RM, not auto-accept.
