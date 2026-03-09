@@ -1,0 +1,79 @@
+<!-- Backdrop -->
+<div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 transition-opacity duration-300"
+    [class.opacity-0]="!isOpen" [class.pointer-events-none]="!isOpen" (click)="onClose()">
+</div>
+
+<!-- Slide-over panel -->
+<div class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col"
+    [class.translate-x-full]="!isOpen">
+
+    <!-- Header -->
+    <div
+        class="px-6 py-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/80 backdrop-blur">
+        <div>
+            <h2 class="text-lg font-bold text-slate-900">Connected Knowledge Bases</h2>
+            <p class="text-sm text-slate-500 mt-1">Found {{ kbSets?.length || 0 }} live data sources</p>
+        </div>
+        <button (click)="onClose()"
+            class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
+            <lucide-icon name="x" class="w-5 h-5"></lucide-icon>
+        </button>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-3">
+
+        <!-- Empty State -->
+        <div *ngIf="!kbSets || kbSets.length === 0"
+            class="flex flex-col items-center justify-center h-48 text-center px-6">
+            <div class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 mb-3">
+                <lucide-icon name="database" class="w-6 h-6"></lucide-icon>
+            </div>
+            <p class="text-sm font-medium text-slate-900">No Knowledge Bases Found</p>
+            <p class="text-xs text-slate-500 mt-1">Connect your first Dify dataset to begin.</p>
+        </div>
+
+        <!-- Data List -->
+        <div *ngFor="let kb of kbSets"
+            class="bg-white border border-slate-200 rounded-xl p-4 flex items-start gap-4 hover:border-indigo-200 hover:shadow-sm transition-all group">
+            <div
+                class="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
+                <lucide-icon name="database" class="w-5 h-5"></lucide-icon>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2 mb-1">
+                    <h4 class="text-sm font-bold text-slate-900 truncate" [title]="kb?.name">{{ kb?.name || 'Unnamed
+                        Dataset' }}</h4>
+                    <span
+                        class="shrink-0 px-2 py-0.5 mt-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 uppercase tracking-wide">
+                        Synced
+                    </span>
+                </div>
+                <p class="text-xs text-slate-500 mb-2 line-clamp-2 mt-0.5">{{ kb?.description || 'No description
+                    provided.' }}</p>
+
+                <div class="flex items-center gap-4 text-xs text-slate-500 font-medium">
+                    <div class="flex items-center gap-1.5">
+                        <lucide-icon name="file-text" class="w-3.5 h-3.5 text-slate-400"></lucide-icon>
+                        {{ kb?.document_count || kb?.total_documents || 0 | number }} documents
+                    </div>
+                    <div class="flex items-center gap-1.5 border-l border-slate-200 pl-4">
+                        <lucide-icon name="server" class="w-3.5 h-3.5 text-slate-400"></lucide-icon>
+                        {{ kb?.provider || 'Dify' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="p-6 border-t border-slate-100 bg-slate-50 shrink-0">
+        <button (click)="onManageInDify()"
+            class="w-full py-2.5 px-4 bg-white border border-slate-300 text-slate-700 font-semibold rounded-lg text-sm hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm flex items-center justify-center gap-2">
+            <lucide-icon name="external-link" class="w-4 h-4 text-slate-400"></lucide-icon>
+            Manage in Dify
+        </button>
+        <p class="text-[10px] text-center text-slate-400 mt-3 font-medium">Dataset modifications are mirrored directly
+            from your Dify Workspace.</p>
+    </div>
+</div>

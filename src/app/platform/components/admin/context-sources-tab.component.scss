@@ -1,0 +1,23 @@
+.context-sources-container {
+    .tier-group {
+        .tier-header {
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table {
+            th {
+                font-weight: 600;
+                color: #495057;
+            }
+
+            td {
+                vertical-align: middle;
+            }
+
+            .badge.border {
+                border-color: #dee2e6 !important;
+            }
+        }
+    }
+}

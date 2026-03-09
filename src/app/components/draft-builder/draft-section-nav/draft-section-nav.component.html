@@ -1,0 +1,44 @@
+<!-- Draft Section Navigation — Left sidebar of the draft builder -->
+<nav class="flex flex-col h-full bg-slate-50/50">
+  <div class="flex-1 overflow-y-auto py-2 scroll-region">
+    <ng-container *ngFor="let sec of sections; let i = index">
+
+      <!-- Appendix divider -->
+      <div *ngIf="isAppendixBoundary(i)" class="mx-3 my-1.5 pt-2 border-t border-slate-200">
+        <p class="text-[9px] font-semibold text-slate-400 uppercase tracking-widest px-1 mb-1">Appendices</p>
+      </div>
+
+      <button (click)="onSelect(i)"
+        class="w-full px-3 py-2 flex items-center gap-2.5 text-left rounded-lg mx-1.5 transition-all"
+        [style.width]="'calc(100% - 12px)'"
+        [ngClass]="activeSectionIndex === i
+          ? 'bg-white shadow-sm border border-slate-200'
+          : 'hover:bg-white/60'">
+
+        <!-- Progress dot -->
+        <span class="w-2 h-2 rounded-full flex-none border transition-colors"
+          [ngClass]="{
+            'bg-emerald-500 border-emerald-500': getProgressPercent(sec) === 100 && getSectionProgress(sec).total > 0,
+            'bg-blue-500 border-blue-500': getProgressPercent(sec) > 0 && getProgressPercent(sec) < 100,
+            'border-slate-300 bg-white': getProgressPercent(sec) === 0
+          }"></span>
+
+        <div class="flex-1 min-w-0">
+          <p class="text-[11px] font-medium truncate"
+            [ngClass]="activeSectionIndex === i ? 'text-slate-900' : 'text-slate-600'">
+            {{ sec.label }}
+          </p>
+          <p class="text-[10px] text-slate-400 mt-px">
+            {{ getSectionProgress(sec).filled }}/{{ getSectionProgress(sec).total }}
+          </p>
+        </div>
+
+        <!-- Missing required badge -->
+        <span *ngIf="getSectionProgress(sec).missingRequired > 0"
+          class="w-4 h-4 flex items-center justify-center rounded-full bg-red-100 text-red-600 text-[9px] font-bold flex-none">
+          {{ getSectionProgress(sec).missingRequired }}
+        </span>
+      </button>
+    </ng-container>
+  </div>
+</nav>

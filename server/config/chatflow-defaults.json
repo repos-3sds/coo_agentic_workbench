@@ -1,0 +1,16 @@
+{
+    "_comment": "Default input variables for Chatflow agents — prevents Dify 400 errors on required fields",
+    "MASTER_COO": {
+        "variable": "", "session_id": "", "current_project_id": "",
+        "current_stage": "", "user_role": "analyst", "last_action": ""
+    },
+    "NPA_ORCHESTRATOR": {
+        "variable": "", "session_id": "", "current_project_id": "",
+        "current_stage": "ideation", "user_role": "analyst",
+        "ideation_conversation_id": "", "last_action": "",
+        "user_id": "", "user_message": ""
+    },
+    "IDEATION": {
+        "orchestrator_message": ""
+    }
+}

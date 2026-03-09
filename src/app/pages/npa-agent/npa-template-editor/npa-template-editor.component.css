@@ -1,0 +1,255 @@
+:host { display: contents; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Smooth whitespace for narrative fields */
+.whitespace-pre-wrap { white-space: pre-wrap; word-break: break-word; }
+
+/* ===== Confluence-style NPA Document Layout ===== */
+.npa-doc-body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+  color: #172b4d;
+}
+
+/* Section heading — clean left border */
+.npa-doc-section-head {
+  padding: 14px 40px 12px;
+  margin-top: 8px;
+  border-left: 3px solid #94a3b8;
+  background: #fafbfc;
+}
+
+/* Field container */
+.npa-doc-fields {
+  padding: 8px 40px 16px 52px;
+}
+
+/* Individual field — compact like a document line */
+.npa-doc-field {
+  padding: 6px 0;
+  border-bottom: 1px solid #f1f3f5;
+}
+.npa-doc-field:last-child { border-bottom: none; }
+.npa-doc-field:hover { background: #fafbfc; }
+
+/* Sub-section header */
+.npa-doc-subheader {
+  padding: 14px 0 6px;
+  margin-top: 4px;
+  border-bottom: 1px solid #dfe1e6;
+}
+
+/* Field label row — numbered like Confluence */
+.npa-doc-field-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+.npa-doc-field-num {
+  font-size: 13px;
+  font-weight: 600;
+  color: #626f86;
+  min-width: 20px;
+}
+.npa-doc-field-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #44546f;
+}
+
+/* Field value — clean document text */
+.npa-doc-field-value {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #172b4d;
+  padding: 2px 0 2px 24px;
+  word-break: break-word;
+}
+.npa-doc-empty .npa-doc-field-value,
+.npa-doc-field-value.npa-doc-empty {
+  color: #b3bac5;
+  font-style: italic;
+}
+
+/* ===== Part Header (Part C / Appendices) ===== */
+.npa-doc-part-head {
+  padding: 16px 40px 10px;
+  margin-top: 12px;
+  border-bottom: 1px solid #d1d5db;
+  background: #f9fafb;
+}
+
+/* ===== Topic heading (numbered 1, 2, 3) ===== */
+.npa-doc-topic-head {
+  padding: 14px 0 4px;
+  margin-top: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* ===== Sub-question heading (lettered a, b, c) ===== */
+.npa-doc-subq-head {
+  padding: 10px 0 2px;
+  margin-top: 4px;
+  padding-left: 12px;
+  border-left: 2px solid #e2e8f0;
+}
+
+/* ===== Detail heading (1.1, 1.2) ===== */
+.npa-doc-detail-head {
+  padding: 6px 0 2px;
+  padding-left: 24px;
+}
+
+/* ===== Guidance / instructional text ===== */
+.npa-doc-guidance {
+  background: #f8fafc;
+  border-left: 3px solid #cbd5e1;
+  padding: 8px 14px;
+  margin: 6px 0 10px;
+  border-radius: 0 4px 4px 0;
+}
+.npa-doc-guidance p {
+  font-size: 13px;
+  font-style: italic;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0;
+}
+.npa-doc-guidance-sub {
+  margin-left: 12px;
+}
+
+/* ===== Table styling (risk matrix, entity table) ===== */
+.npa-doc-table-wrap {
+  margin: 10px 0 16px;
+  overflow-x: auto;
+}
+.npa-doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.npa-doc-table th {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 700;
+  color: #334155;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.npa-doc-table td {
+  border: 1px solid #e2e8f0;
+  padding: 6px 12px;
+  color: #1e293b;
+}
+.npa-doc-table tr:hover td {
+  background: #f8fafc;
+}
+
+/* Document content styling — lists, paragraphs, markdown */
+.doc-content ul, .doc-content ol { padding-left: 1.25rem; margin: 4px 0; }
+.doc-content ul { list-style-type: disc; }
+.doc-content ol { list-style-type: decimal; }
+.doc-content li { margin-bottom: 2px; line-height: 1.65; font-size: 14px; }
+.doc-content p { margin-bottom: 4px; line-height: 1.65; }
+.doc-content p:last-child { margin-bottom: 0; }
+.doc-content strong { font-weight: 700; color: #1e293b; }
+.doc-content table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 13px; }
+.doc-content table th { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 6px 10px; text-align: left; font-weight: 700; }
+.doc-content table td { border: 1px solid #e2e8f0; padding: 5px 10px; }
+
+/* ===== Form View — Template Tree Layout ===== */
+.npa-form-body {
+  margin: 0;
+  padding: 0 0 40px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+}
+.npa-form-part-head {
+  padding: 14px 32px 10px;
+  margin-top: 8px;
+  border-bottom: 1px solid #d1d5db;
+  background: #f9fafb;
+}
+.npa-form-section {
+  margin: 8px 12px 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+.npa-form-section-head {
+  padding: 14px 24px 12px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  border-left: 3px solid #94a3b8;
+}
+.npa-form-section-body {
+  padding: 12px 24px 20px;
+}
+.npa-form-topic {
+  margin-top: 12px;
+  padding-bottom: 4px;
+}
+.npa-form-topic-head {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  padding: 10px 0 4px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 8px;
+}
+.npa-form-subq {
+  margin-top: 8px;
+  padding-left: 10px;
+  border-left: 2px solid #e2e8f0;
+}
+.npa-form-subq-head {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  padding: 6px 0 2px;
+}
+.npa-form-detail {
+  padding: 4px 0 2px 16px;
+}
+.npa-form-guidance {
+  background: #f8fafc;
+  border-left: 3px solid #cbd5e1;
+  padding: 6px 12px;
+  margin: 4px 0 8px;
+  border-radius: 0 4px 4px 0;
+}
+.npa-form-guidance p {
+  font-size: 12px;
+  font-style: italic;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+.npa-form-guidance-sm {
+  margin-left: 10px;
+}
+
+/* Field grid — 2 col for short fields, full width for textareas */
+.npa-form-field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+.npa-form-field {
+  min-width: 0;
+}
+.npa-form-field-wide {
+  grid-column: 1 / -1;
+}

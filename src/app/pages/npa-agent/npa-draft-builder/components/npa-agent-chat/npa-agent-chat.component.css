@@ -1,0 +1,51 @@
+/* Custom scrollbar */
+.npa-scrollbar {
+   scrollbar-width: thin;
+   scrollbar-color: #cbd5e1 transparent;
+}
+
+.npa-scrollbar::-webkit-scrollbar {
+   width: 4px;
+}
+
+.npa-scrollbar::-webkit-scrollbar-track {
+   background: transparent;
+}
+
+.npa-scrollbar::-webkit-scrollbar-thumb {
+   background-color: #cbd5e1;
+   border-radius: 4px;
+}
+
+.npa-scrollbar::-webkit-scrollbar-thumb:hover {
+   background-color: #94a3b8;
+}
+
+/* Horizontal scrollbar for agent tabs */
+.npa-scrollbar-x {
+   scrollbar-width: thin;
+   scrollbar-color: #cbd5e1 transparent;
+}
+
+.npa-scrollbar-x::-webkit-scrollbar {
+   height: 3px;
+}
+
+.npa-scrollbar-x::-webkit-scrollbar-track {
+   background: transparent;
+}
+
+.npa-scrollbar-x::-webkit-scrollbar-thumb {
+   background-color: #e2e8f0;
+   border-radius: 3px;
+}
+
+/* Agent chat typing indicator */
+@keyframes typingBounce {
+   0%, 100% { transform: translateY(0); }
+   50% { transform: translateY(-3px); }
+}
+
+.typing-dot {
+   animation: typingBounce 0.6s ease-in-out infinite;
+}

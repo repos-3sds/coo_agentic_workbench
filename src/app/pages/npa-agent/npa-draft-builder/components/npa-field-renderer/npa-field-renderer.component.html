@@ -1,0 +1,471 @@
+<!-- FIELD HEADER -->
+<div class="flex items-center justify-between mb-2">
+   <div class="flex items-center gap-2 flex-1 min-w-0">
+      <label class="text-xs font-semibold text-slate-700">{{ field.label }}</label>
+      <span *ngIf="field.required" class="text-red-400 text-[10px] font-bold">*</span>
+      <!-- Field-level tooltip with Citations -->
+      <span *ngIf="field.tooltip || field.lineageMetadata?.citations?.length" class="group/tip relative mt-0.5">
+         <lucide-icon name="info" class="w-3 h-3 text-slate-300 hover:text-blue-400 cursor-help"></lucide-icon>
+         <div class="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-64 p-3 bg-slate-800 text-white rounded-lg shadow-xl opacity-0 group-hover/tip:opacity-100 transition-opacity pointer-events-auto cursor-default pointer-events-none group-hover/tip:pointer-events-auto">
+            
+            <!-- Standard Tooltip/Rationale -->
+            <p *ngIf="field.tooltip" class="text-[11px] leading-relaxed mb-2 pb-2 border-b border-slate-700/50">
+               {{ field.tooltip }}
+            </p>
+            
+            <!-- KB Citations Section -->
+            <div *ngIf="field.lineageMetadata?.citations?.length">
+               <div class="flex items-center gap-1.5 mb-1.5 text-blue-300">
+                  <lucide-icon name="book-open" class="w-3.5 h-3.5"></lucide-icon>
+                  <span class="text-[10px] font-bold uppercase tracking-wider">Sources & Evidence</span>
+               </div>
+               <div class="flex flex-col gap-1.5">
+                  <button *ngFor="let citation of field.lineageMetadata!.citations"
+                          (click)="onCitationClick(citation)"
+                          class="flex items-start text-left gap-2 p-1.5 -mx-1.5 rounded bg-slate-700/30 hover:bg-slate-700/80 transition-colors group/cit">
+                     <lucide-icon name="file-text" class="w-3 h-3 text-slate-400 mt-0.5 group-hover/cit:text-blue-300 flex-none"></lucide-icon>
+                     <div class="flex flex-col min-w-0">
+                        <span class="text-[10px] font-medium text-slate-200 truncate group-hover/cit:text-blue-200">
+                           {{ citation.sourceName }}
+                        </span>
+                        <span *ngIf="citation.snippet" class="text-[9px] text-slate-400 line-clamp-2 leading-tight mt-0.5 italic">
+                           "{{ citation.snippet }}"
+                        </span>
+                     </div>
+                  </button>
+               </div>
+            </div>
+         </div>
+      </span>
+   </div>
+   <div class="flex items-center gap-1.5 flex-none">
+      <app-npa-strategy-badge [strategy]="field.strategy"></app-npa-strategy-badge>
+      <app-npa-lineage-badge *ngIf="field.value" [lineage]="field.lineage"></app-npa-lineage-badge>
+      <span *ngIf="field.confidence" class="text-[9px] font-mono text-slate-400">
+         {{ (field.confidence * 100).toFixed(0) }}%
+      </span>
+      <!-- Comments (available in all modes/personas) -->
+      <button (click)="onCommentClick()"
+              type="button"
+              title="Comments"
+              class="ml-1 inline-flex items-center justify-center w-7 h-7 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-700 transition-colors">
+         <lucide-icon name="message-square" class="w-3.5 h-3.5"></lucide-icon>
+      </button>
+   </div>
+</div>
+
+<!-- ═══ HEADER (display-only section header) ═══ -->
+<div *ngIf="field.type === 'header'"
+     class="py-1 border-b border-slate-200">
+   <p *ngIf="field.placeholder" class="text-[11px] text-slate-500 italic">{{ field.placeholder }}</p>
+</div>
+
+<!-- FIELD INPUT — Type-specific rendering -->
+<div class="relative">
+
+   <!-- ═══ READ ONLY MODE (no input boxes/borders) ═══ -->
+   <ng-container *ngIf="readOnly">
+      <!-- Reference links remain clickable -->
+      <div *ngIf="field.type === 'reference_link'"
+           class="flex items-center gap-2 px-3 py-2 bg-blue-50/50 rounded-lg border border-blue-100">
+         <lucide-icon name="external-link" class="w-3.5 h-3.5 text-blue-500"></lucide-icon>
+         <a *ngIf="field.referenceUrl; else refNoLinkRO"
+            [href]="field.referenceUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-xs text-blue-700 font-medium hover:underline cursor-pointer">
+            {{ field.placeholder || field.referenceUrl || 'Reference document' }}
+         </a>
+         <ng-template #refNoLinkRO>
+            <span class="text-xs text-blue-700 font-medium">{{ field.placeholder || 'Reference document' }}</span>
+         </ng-template>
+         <span class="text-[9px] text-blue-500 italic ml-auto">Read-only reference</span>
+      </div>
+
+      <div *ngIf="field.type !== 'header' && field.type !== 'reference_link'" class="py-0.5">
+         <p *ngIf="field.value && field.value.trim(); else emptyValueRO"
+            class="text-[13px] leading-relaxed text-slate-900 whitespace-pre-wrap">
+            {{ field.value }}
+         </p>
+         <ng-template #emptyValueRO>
+            <p class="text-[12px] text-slate-400 italic">No value provided.</p>
+         </ng-template>
+
+         <!-- Source attribution -->
+         <div *ngIf="field.source" class="mt-2 flex items-center gap-1">
+            <lucide-icon name="quote" class="w-2.5 h-2.5 text-slate-300"></lucide-icon>
+            <p class="text-[10px] text-slate-400 italic truncate">{{ field.source }}</p>
+         </div>
+
+         <!-- Versioning placeholder (future) -->
+         <div class="mt-2 text-[10px] text-slate-400 font-medium flex items-center gap-1.5">
+            <lucide-icon name="history" class="w-3 h-3"></lucide-icon>
+            Versions: placeholder (diff/restore later)
+         </div>
+      </div>
+   </ng-container>
+
+   <!-- ═══ EDIT MODE (existing behavior) ═══ -->
+   <ng-container *ngIf="!readOnly">
+   <!-- ═══ TEXT INPUT ═══ -->
+   <input *ngIf="field.type === 'text'"
+          type="text"
+          [(ngModel)]="field.value"
+          (ngModelChange)="fieldEdited.emit(field)"
+          (focus)="startEditing()"
+          (blur)="finishEditing()"
+          [placeholder]="field.placeholder || ''"
+          class="w-full px-3 py-2 text-sm rounded-lg border transition-all outline-none"
+          [class.border-slate-200]="!field.isEditing && !field.value && !field.required"
+          [class.border-red-300]="!field.value && field.required && !field.isEditing"
+          [class.border-blue-300]="field.isEditing"
+          [class.ring-2]="field.isEditing"
+          [class.ring-blue-500/20]="field.isEditing"
+          [class.bg-slate-50]="!field.value && !field.isEditing"
+          [class.bg-white]="field.value || field.isEditing"
+          [class.border-emerald-200]="field.value && field.lineage === 'AUTO'"
+          [class.border-amber-200]="field.value && field.lineage === 'ADAPTED'"
+          [class.text-slate-900]="field.value"
+          [class.text-slate-400]="!field.value">
+
+   <!-- ═══ TEXTAREA ═══ -->
+	   <textarea *ngIf="field.type === 'textarea' || field.type === 'flowchart'"
+	             #autosize
+	             [(ngModel)]="field.value"
+	             (ngModelChange)="fieldEdited.emit(field)"
+	             (focus)="startEditing()"
+	             (blur)="finishEditing()"
+	             (input)="autoResize($event)"
+	             [placeholder]="field.placeholder || ''"
+	             rows="4"
+	             class="w-full min-h-[104px] px-3 py-2 text-sm rounded-lg border transition-all outline-none resize-none overflow-hidden"
+             [class.border-slate-200]="!field.isEditing && !field.value"
+             [class.border-blue-300]="field.isEditing"
+             [class.ring-2]="field.isEditing"
+             [class.ring-blue-500/20]="field.isEditing"
+             [class.bg-slate-50]="!field.value && !field.isEditing"
+             [class.bg-white]="field.value || field.isEditing"
+             [class.border-emerald-200]="field.value && field.lineage === 'AUTO'"
+             [class.border-amber-200]="field.value && field.lineage === 'ADAPTED'"
+             [class.text-slate-900]="field.value"
+             [class.text-slate-400]="!field.value">
+   </textarea>
+
+   <!-- ═══ DATE PICKER ═══ -->
+   <input *ngIf="field.type === 'date'"
+          type="date"
+          [(ngModel)]="field.value"
+          (ngModelChange)="fieldEdited.emit(field)"
+          (change)="finishEditing()"
+          class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 bg-white outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-500/20"
+          [class.text-slate-900]="field.value"
+          [class.text-slate-400]="!field.value">
+
+   <!-- ═══ CURRENCY ═══ -->
+   <div *ngIf="field.type === 'currency'" class="relative">
+      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 uppercase">{{ field.currencyCode || 'SGD' }}</span>
+      <input type="number"
+             [(ngModel)]="field.value"
+             (ngModelChange)="fieldEdited.emit(field)"
+             (focus)="startEditing()"
+             (blur)="finishEditing()"
+             [placeholder]="field.placeholder || '0.00'"
+             class="w-full pl-10 pr-3 py-2 text-sm rounded-lg border border-slate-200 bg-white outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-500/20"
+             [class.text-slate-900]="field.value"
+             [class.text-slate-400]="!field.value">
+   </div>
+
+   <!-- ═══ DROPDOWN (Single Select) ═══ -->
+   <select *ngIf="field.type === 'dropdown'"
+           [(ngModel)]="field.value"
+           (change)="finishEditing()"
+           class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 bg-white outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
+           [class.text-slate-900]="field.value"
+           [class.text-slate-400]="!field.value">
+      <option value="">Select...</option>
+      <option *ngFor="let opt of (field.options || ['Yes','No','N/A'])" [value]="opt">{{ opt }}</option>
+   </select>
+
+   <!-- ═══ MULTISELECT (Tag Input) ═══ -->
+   <div *ngIf="field.type === 'multiselect'" class="space-y-2">
+      <div class="flex flex-wrap gap-1.5 min-h-[36px] px-3 py-2 rounded-lg border border-slate-200 bg-white">
+         <span *ngFor="let opt of (field.selectedOptions || [])"
+               class="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 border border-blue-200 rounded-full text-[10px] font-semibold text-blue-700">
+            {{ opt }}
+            <button (click)="toggleMultiSelectOption(opt)" class="hover:text-red-500">
+               <lucide-icon name="x" class="w-2.5 h-2.5"></lucide-icon>
+            </button>
+         </span>
+         <span *ngIf="!(field.selectedOptions?.length)" class="text-xs text-slate-400">Click options below...</span>
+      </div>
+      <div class="flex flex-wrap gap-1">
+         <button *ngFor="let opt of (field.options || [])"
+                 (click)="toggleMultiSelectOption(opt)"
+                 class="px-2 py-1 rounded text-[10px] font-medium transition-colors border"
+                 [class.bg-blue-100]="isOptionSelected(opt)"
+                 [class.border-blue-300]="isOptionSelected(opt)"
+                 [class.text-blue-700]="isOptionSelected(opt)"
+                 [class.bg-slate-50]="!isOptionSelected(opt)"
+                 [class.border-slate-200]="!isOptionSelected(opt)"
+                 [class.text-slate-600]="!isOptionSelected(opt)"
+                 [class.hover:bg-blue-50]="!isOptionSelected(opt)">
+            {{ opt }}
+         </button>
+      </div>
+   </div>
+
+   <!-- ═══ YES/NO RADIO ═══ -->
+   <div *ngIf="field.type === 'yesno'" class="space-y-2">
+      <div class="flex items-center gap-3">
+         <button (click)="setYesNo(true)"
+                 class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border"
+                 [class.bg-emerald-50]="field.yesNoValue === true"
+                 [class.border-emerald-300]="field.yesNoValue === true"
+                 [class.text-emerald-700]="field.yesNoValue === true"
+                 [class.bg-white]="field.yesNoValue !== true"
+                 [class.border-slate-200]="field.yesNoValue !== true"
+                 [class.text-slate-600]="field.yesNoValue !== true"
+                 [class.hover:bg-emerald-50]="field.yesNoValue !== true">
+            <div class="w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center"
+                 [class.border-emerald-500]="field.yesNoValue === true"
+                 [class.border-slate-300]="field.yesNoValue !== true">
+               <div *ngIf="field.yesNoValue === true" class="w-2 h-2 rounded-full bg-emerald-500"></div>
+            </div>
+            Yes
+         </button>
+         <button (click)="setYesNo(false)"
+                 class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border"
+                 [class.bg-red-50]="field.yesNoValue === false"
+                 [class.border-red-300]="field.yesNoValue === false"
+                 [class.text-red-700]="field.yesNoValue === false"
+                 [class.bg-white]="field.yesNoValue !== false"
+                 [class.border-slate-200]="field.yesNoValue !== false"
+                 [class.text-slate-600]="field.yesNoValue !== false"
+                 [class.hover:bg-red-50]="field.yesNoValue !== false">
+            <div class="w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center"
+                 [class.border-red-500]="field.yesNoValue === false"
+                 [class.border-slate-300]="field.yesNoValue !== false">
+               <div *ngIf="field.yesNoValue === false" class="w-2 h-2 rounded-full bg-red-500"></div>
+            </div>
+            No
+         </button>
+      </div>
+      <!-- Conditional detail text for Yes answers -->
+	      <textarea *ngIf="field.yesNoValue === true"
+	                #autosize
+	                [(ngModel)]="field.conditionalText"
+	                (blur)="updateConditionalText(field.conditionalText || '')"
+	                (input)="autoResize($event)"
+	                placeholder="If Yes, please provide details..."
+	                rows="4"
+	                class="w-full min-h-[104px] px-3 py-2 text-sm rounded-lg border border-amber-200 bg-amber-50/30 outline-none focus:border-amber-300 focus:ring-2 focus:ring-amber-500/20 resize-none">
+	      </textarea>
+   </div>
+
+   <!-- ═══ CHECKBOX GROUP ═══ -->
+   <div *ngIf="field.type === 'checkbox_group'" class="space-y-1.5">
+      <label *ngFor="let opt of (field.options || [])"
+             class="flex items-start gap-2 px-3 py-2 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors">
+         <input type="checkbox"
+                [checked]="isOptionSelected(opt)"
+                (change)="toggleCheckboxOption(opt)"
+                class="mt-0.5 w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500/20">
+         <span class="text-xs text-slate-700">{{ opt }}</span>
+      </label>
+   </div>
+
+   <!-- ═══ DYNAMIC BULLET LIST ═══ -->
+   <div *ngIf="field.type === 'bullet_list'" class="space-y-2">
+      <div *ngFor="let item of (field.bulletItems || []); let i = index; trackBy: trackByIndex"
+           class="flex items-center gap-2">
+         <span class="text-slate-400 text-xs font-mono w-5 text-right">{{ i + 1 }}.</span>
+         <input type="text"
+                [ngModel]="item"
+                (ngModelChange)="updateBulletItem(i, $event)"
+                placeholder="Enter item..."
+                class="flex-1 px-3 py-1.5 text-sm rounded-lg border border-slate-200 bg-white outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-500/20">
+         <button (click)="removeBulletItem(i)"
+                 class="p-1 rounded hover:bg-red-50 text-slate-300 hover:text-red-500 transition-colors">
+            <lucide-icon name="minus-circle" class="w-3.5 h-3.5"></lucide-icon>
+         </button>
+      </div>
+      <button (click)="addBulletItem()"
+              class="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-dashed border-blue-200">
+         <lucide-icon name="plus-circle" class="w-3.5 h-3.5"></lucide-icon>
+         Add Item
+      </button>
+   </div>
+
+   <!-- ═══ FILE UPLOAD ═══ -->
+   <div *ngIf="field.type === 'file_upload'" class="space-y-2">
+      <div *ngFor="let file of (field.attachedFiles || []); let i = index"
+           class="flex items-center justify-between px-3 py-2 bg-slate-50 rounded-lg border border-slate-200">
+         <div class="flex items-center gap-2">
+            <lucide-icon name="file" class="w-3.5 h-3.5 text-slate-400"></lucide-icon>
+            <span class="text-xs text-slate-700 truncate">{{ file }}</span>
+         </div>
+         <button (click)="removeFile(i)"
+                 class="p-1 rounded hover:bg-red-50 text-slate-300 hover:text-red-500">
+            <lucide-icon name="x" class="w-3 h-3"></lucide-icon>
+         </button>
+      </div>
+      <label class="flex flex-col items-center justify-center px-4 py-4 border-2 border-dashed border-slate-200 rounded-lg hover:border-blue-300 hover:bg-blue-50/30 cursor-pointer transition-all">
+         <lucide-icon name="upload-cloud" class="w-6 h-6 text-slate-300 mb-1"></lucide-icon>
+         <span class="text-[11px] font-medium text-slate-500">Click to upload or drag & drop</span>
+         <span class="text-[9px] text-slate-400 mt-0.5">PDF, DOC, XLS up to 10MB</span>
+         <input type="file" multiple class="hidden" (change)="onFileSelect($event)">
+      </label>
+   </div>
+
+   <!-- ═══ TABLE GRID ═══ -->
+   <div *ngIf="field.type === 'table_grid'" class="overflow-x-auto">
+      <table *ngIf="field.tableColumns && field.tableColumns.length > 0"
+             class="w-full border-collapse text-sm table-grid">
+         <thead>
+            <tr>
+               <th *ngFor="let col of field.tableColumns"
+                   class="px-2 py-1.5 bg-slate-50 border border-slate-200 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                  {{ col }}
+               </th>
+               <th class="w-8 border border-slate-200 bg-slate-50"></th>
+            </tr>
+         </thead>
+         <tbody>
+            <tr *ngFor="let row of tableRows; let ri = index">
+               <td *ngFor="let cell of row; let ci = index" class="border border-slate-200 p-0">
+                  <input type="text"
+                         [ngModel]="cell"
+                         (ngModelChange)="updateTableCell(ri, ci, $event)"
+                         class="w-full px-2 py-1.5 text-xs border-0 outline-none bg-transparent focus:bg-blue-50/30"
+                         placeholder="—">
+               </td>
+               <td class="border border-slate-200 text-center">
+                  <button (click)="removeTableRow(ri)"
+                          class="p-0.5 rounded hover:bg-red-50 text-slate-300 hover:text-red-500 transition-colors"
+                          [disabled]="tableRows.length <= 1">
+                     <lucide-icon name="minus-circle" class="w-3 h-3"></lucide-icon>
+                  </button>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <button (click)="addTableRow()"
+              class="mt-1.5 flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-dashed border-blue-200">
+         <lucide-icon name="plus-circle" class="w-3.5 h-3.5"></lucide-icon>
+         Add Row
+      </button>
+      <!-- Fallback for table_grid without columns defined -->
+	      <textarea *ngIf="!field.tableColumns || field.tableColumns.length === 0"
+	                #autosize
+	                [(ngModel)]="field.value"
+	                (ngModelChange)="fieldEdited.emit(field)"
+	                (focus)="startEditing()"
+	                (blur)="finishEditing()"
+	                (input)="autoResize($event)"
+	                placeholder="Enter table data..."
+	                rows="4"
+	                class="w-full min-h-[104px] px-3 py-2 text-sm rounded-lg border border-slate-200 bg-white outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-500/20 resize-y font-mono">
+	      </textarea>
+   </div>
+
+   <!-- ═══ REFERENCE LINK ═══ -->
+   <div *ngIf="field.type === 'reference_link'"
+        class="flex items-center gap-2 px-3 py-2 bg-blue-50/50 rounded-lg border border-blue-100">
+      <lucide-icon name="external-link" class="w-3.5 h-3.5 text-blue-500"></lucide-icon>
+      <a *ngIf="field.referenceUrl; else refNoLink"
+         [href]="field.referenceUrl"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="text-xs text-blue-700 font-medium hover:underline cursor-pointer">
+         {{ field.placeholder || field.referenceUrl || 'Reference document' }}
+      </a>
+      <ng-template #refNoLink>
+         <span class="text-xs text-blue-700 font-medium">{{ field.placeholder || 'Reference document' }}</span>
+      </ng-template>
+      <span class="text-[9px] text-blue-500 italic ml-auto">Read-only reference</span>
+   </div>
+
+   <!-- ═══ REPEATABLE SECTION ═══ -->
+	   <div *ngIf="field.type === 'repeatable'" class="space-y-2">
+	      <textarea #autosize [(ngModel)]="field.value"
+	                (ngModelChange)="fieldEdited.emit(field)"
+	                (focus)="startEditing()"
+	                (blur)="finishEditing()"
+	                (input)="autoResize($event)"
+	                [placeholder]="field.placeholder || 'Enter details for each item...'"
+	                rows="4"
+	                class="w-full min-h-[104px] px-3 py-2 text-sm rounded-lg border border-slate-200 bg-white outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-500/20 resize-y">
+	      </textarea>
+      <div class="flex items-center gap-1.5 text-[10px] text-slate-400">
+         <lucide-icon name="copy-plus" class="w-3 h-3"></lucide-icon>
+         Repeatable section — add multiple entries separated by lines
+      </div>
+   </div>
+
+   <!-- ═══ CONDITIONAL ═══ -->
+	   <textarea *ngIf="field.type === 'conditional'"
+	             #autosize
+	             [(ngModel)]="field.value"
+	             (ngModelChange)="fieldEdited.emit(field)"
+	             (focus)="startEditing()"
+	             (blur)="finishEditing()"
+	             (input)="autoResize($event)"
+	             [placeholder]="field.placeholder || 'Provide details...'"
+	             rows="4"
+	             class="w-full min-h-[104px] px-3 py-2 text-sm rounded-lg border border-amber-200 bg-amber-50/20 outline-none focus:border-amber-300 focus:ring-2 focus:ring-amber-500/20 resize-none">
+	   </textarea>
+
+   <!-- Streaming overlay -->
+   <div *ngIf="field.isStreaming"
+        class="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg">
+      <div class="flex items-center gap-1.5 text-blue-600">
+         <lucide-icon name="loader-2" class="w-3.5 h-3.5 animate-spin"></lucide-icon>
+         <span class="text-[10px] font-semibold">Generating...</span>
+      </div>
+   </div>
+
+   <!-- Field Actions (hover) -->
+   <div *ngIf="field.type !== 'reference_link' && field.type !== 'file_upload'"
+        class="absolute right-1.5 top-1.5 flex items-center gap-0.5 opacity-0 group-hover/field:opacity-100 transition-opacity">
+      <button *ngIf="field.value"
+              (click)="clearField()"
+              class="p-1 rounded hover:bg-red-50 text-slate-300 hover:text-red-500 transition-colors"
+              title="Clear field">
+         <lucide-icon name="x" class="w-3 h-3"></lucide-icon>
+      </button>
+      <button (click)="onAskAgent()"
+              class="p-1 rounded hover:bg-blue-50 text-slate-300 hover:text-blue-500 transition-colors"
+              title="Ask agent about this field">
+         <lucide-icon name="sparkles" class="w-3 h-3"></lucide-icon>
+      </button>
+   </div>
+   </ng-container>
+</div>
+
+<!-- File attachment for attachable fields -->
+<div *ngIf="!readOnly && field.attachable && field.type !== 'file_upload'" class="mt-2">
+   <label class="inline-flex items-center gap-1.5 px-2 py-1 text-[10px] font-medium text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded cursor-pointer transition-colors">
+      <lucide-icon name="paperclip" class="w-3 h-3"></lucide-icon>
+      Attach file
+      <input type="file" class="hidden" (change)="onFileSelect($event)">
+   </label>
+   <span *ngFor="let f of (field.attachedFiles || [])"
+         class="inline-flex items-center gap-1 ml-2 text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+      <lucide-icon name="file" class="w-2.5 h-2.5"></lucide-icon>
+      {{ f }}
+   </span>
+</div>
+
+<!-- Validation error inline -->
+<div *ngIf="!readOnly && field.validationError" class="mt-1.5 flex items-center gap-1.5 px-2 py-1 bg-red-50 border border-red-200 rounded-md">
+   <lucide-icon name="alert-circle" class="w-3 h-3 text-red-500 flex-none"></lucide-icon>
+   <p class="text-[10px] text-red-600 font-medium">{{ field.validationError }}</p>
+</div>
+
+   <!-- Source attribution -->
+   <div *ngIf="!readOnly && field.source" class="mt-1.5 flex items-center gap-1">
+      <lucide-icon name="quote" class="w-2.5 h-2.5 text-slate-300"></lucide-icon>
+      <p class="text-[10px] text-slate-400 italic truncate">{{ field.source }}</p>
+   </div>
+
+   <!-- Keep versioning placeholder in comments drawer (not per-field) to avoid clutter -->

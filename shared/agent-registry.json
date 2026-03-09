@@ -1,0 +1,203 @@
+[
+  {
+    "id": "MASTER_COO",
+    "name": "Master COO Orchestrator",
+    "tier": 1,
+    "icon": "brain-circuit",
+    "color": "bg-violet-50 text-violet-600",
+    "difyType": "chat",
+    "difyApp": "CF_COO_Orchestrator",
+    "envKey": "DIFY_KEY_MASTER_COO",
+    "description": "Routes all user requests to appropriate domain orchestrators"
+  },
+  {
+    "id": "NPA_ORCHESTRATOR",
+    "name": "NPA Domain Orchestrator",
+    "tier": 2,
+    "icon": "target",
+    "color": "bg-orange-50 text-orange-600",
+    "difyType": "chat",
+    "difyApp": "CF_NPA_Orchestrator",
+    "envKey": "DIFY_KEY_NPA_ORCHESTRATOR",
+    "description": "Decomposes NPA tasks into ordered sub-agent calls"
+  },
+  {
+    "id": "IDEATION",
+    "name": "Ideation Agent",
+    "tier": 3,
+    "icon": "lightbulb",
+    "color": "bg-indigo-50 text-indigo-600",
+    "difyType": "chat",
+    "difyApp": "CF_NPA_Ideation",
+    "envKey": "DIFY_KEY_IDEATION",
+    "description": "Product concept development and NPA creation"
+  },
+  {
+    "id": "CLASSIFIER",
+    "name": "Classification Agent",
+    "tier": 3,
+    "icon": "git-branch",
+    "color": "bg-purple-50 text-purple-600",
+    "difyType": "workflow",
+    "difyApp": "WF_NPA_Classify_Predict",
+    "aliases": ["WF_NPA_Classifier"],
+    "envKey": "DIFY_KEY_CLASSIFIER",
+    "description": "NTG/Variation/Existing classification and approval track assignment"
+  },
+  {
+    "id": "AUTOFILL",
+    "name": "Template AutoFill Agent",
+    "tier": 3,
+    "icon": "file-edit",
+    "color": "bg-blue-50 text-blue-600",
+    "difyType": "workflow",
+    "difyApp": "WF_NPA_Autofill",
+    "aliases": ["WF_NPA_Template_Autofill"],
+    "envKey": "DIFY_KEY_AUTOFILL",
+    "description": "Template field autofill + persistence"
+  },
+  {
+    "id": "ML_PREDICT",
+    "name": "ML Prediction Agent",
+    "tier": 3,
+    "icon": "trending-up",
+    "color": "bg-amber-50 text-amber-600",
+    "difyType": "workflow",
+    "difyApp": "WF_NPA_Classify_Predict",
+    "envKey": "DIFY_KEY_CLASSIFIER",
+    "description": "Approval likelihood, timeline, and bottleneck prediction"
+  },
+  {
+    "id": "RISK",
+    "name": "Risk Agent",
+    "tier": 3,
+    "icon": "shield-alert",
+    "color": "bg-red-50 text-red-600",
+    "difyType": "workflow",
+    "difyApp": "WF_NPA_Risk",
+    "envKey": "DIFY_KEY_RISK",
+    "description": "5-layer risk cascade + 7-domain assessment"
+  },
+  {
+    "id": "GOVERNANCE",
+    "name": "Governance Agent",
+    "tier": 3,
+    "icon": "workflow",
+    "color": "bg-slate-50 text-slate-600",
+    "difyType": "workflow",
+    "difyApp": "WF_NPA_Governance",
+    "envKey": "DIFY_KEY_GOVERNANCE",
+    "description": "Sign-off routing, SLA monitoring, loop-back, circuit breaker"
+  },
+  {
+    "id": "DILIGENCE",
+    "name": "Conversational Diligence Agent",
+    "tier": 3,
+    "icon": "message-square",
+    "color": "bg-cyan-50 text-cyan-600",
+    "difyType": "chat",
+    "difyApp": "CF_NPA_Query_Assistant",
+    "envKey": "DIFY_KEY_DILIGENCE",
+    "description": "Q&A with KB citations and regulatory context"
+  },
+  {
+    "id": "DOC_LIFECYCLE",
+    "name": "Document Lifecycle Agent",
+    "tier": 3,
+    "icon": "scan-search",
+    "color": "bg-teal-50 text-teal-600",
+    "difyType": "workflow",
+    "difyApp": "WF_NPA_Doc_Lifecycle",
+    "envKey": "DIFY_KEY_DOC_LIFECYCLE",
+    "description": "Document validation, completeness, expiry tracking"
+  },
+  {
+    "id": "MONITORING",
+    "name": "Post-Launch Monitoring Agent",
+    "tier": 3,
+    "icon": "activity",
+    "color": "bg-emerald-50 text-emerald-600",
+    "difyType": "workflow",
+    "difyApp": "WF_NPA_Monitoring",
+    "aliases": ["WF_NPA_Post_Launch"],
+    "envKey": "DIFY_KEY_MONITORING",
+    "description": "Performance metrics, breach detection, PIR scheduling"
+  },
+  {
+    "id": "KB_SEARCH",
+    "name": "KB Search Agent",
+    "tier": 4,
+    "icon": "search",
+    "color": "bg-fuchsia-50 text-fuchsia-600",
+    "difyType": "chat",
+    "difyApp": "CF_NPA_Query_Assistant",
+    "envKey": "DIFY_KEY_DILIGENCE",
+    "description": "Semantic/hybrid search over knowledge base"
+  },
+  {
+    "id": "NOTIFICATION",
+    "name": "Notification Agent",
+    "tier": 4,
+    "icon": "bell",
+    "color": "bg-pink-50 text-pink-600",
+    "difyType": "workflow",
+    "difyApp": "WF_NPA_Notification",
+    "envKey": "DIFY_KEY_NOTIFICATION",
+    "description": "Alert aggregation, deduplication, and multi-channel delivery"
+  },
+  {
+    "id": "AG_NPA_BIZ",
+    "name": "NPA Business Agent",
+    "tier": 3,
+    "icon": "briefcase",
+    "color": "bg-blue-50 text-blue-600",
+    "difyType": "chat",
+    "difyApp": "CF_NPA_BIZ",
+    "envKey": "DIFY_KEY_AG_NPA_BIZ",
+    "description": "Section I (Product Specs) + VII (Trading) guidance"
+  },
+  {
+    "id": "AG_NPA_TECH_OPS",
+    "name": "NPA Tech & Ops Agent",
+    "tier": 3,
+    "icon": "settings",
+    "color": "bg-indigo-50 text-indigo-600",
+    "difyType": "chat",
+    "difyApp": "CF_NPA_TECH_OPS",
+    "envKey": "DIFY_KEY_AG_NPA_TECH_OPS",
+    "description": "Section II (Operational & Technology) guidance"
+  },
+  {
+    "id": "AG_NPA_FINANCE",
+    "name": "NPA Finance Agent",
+    "tier": 3,
+    "icon": "calculator",
+    "color": "bg-emerald-50 text-emerald-600",
+    "difyType": "chat",
+    "difyApp": "CF_NPA_FINANCE",
+    "envKey": "DIFY_KEY_AG_NPA_FINANCE",
+    "description": "Section III (Pricing) + V (Data Management) guidance"
+  },
+  {
+    "id": "AG_NPA_RMG",
+    "name": "NPA Risk Management Agent",
+    "tier": 3,
+    "icon": "shield-alert",
+    "color": "bg-red-50 text-red-600",
+    "difyType": "chat",
+    "difyApp": "CF_NPA_RMG",
+    "envKey": "DIFY_KEY_AG_NPA_RMG",
+    "description": "Section IV (Risk Analysis) + VI (Other Risks) guidance"
+  },
+  {
+    "id": "AG_NPA_LCS",
+    "name": "NPA Legal & Compliance Agent",
+    "tier": 3,
+    "icon": "scale",
+    "color": "bg-amber-50 text-amber-600",
+    "difyType": "chat",
+    "difyApp": "CF_NPA_LCS",
+    "envKey": "DIFY_KEY_AG_NPA_LCS",
+    "description": "Appendix 1–6 legal/compliance guidance"
+  }
+]

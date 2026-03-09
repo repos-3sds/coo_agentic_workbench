@@ -1,0 +1,8 @@
+{
+    "_comment": "NPA Lite Sub-Type Signoff Party Configuration (GAP-014)",
+    "_description": "Maps NPA Lite sub-types (B1-B4) to required sign-off parties. B1=Minor, B2=Moderate, B3=Significant, B4=Complex (full set).",
+    "B1": ["Compliance", "Finance"],
+    "B2": ["Compliance", "Finance", "Credit Risk"],
+    "B3": ["Compliance", "Finance", "Credit Risk", "Technology Architecture"],
+    "B4": null
+}

@@ -1,0 +1,491 @@
+<!-- NPA DRAFT BUILDER — 3-Column Layout -->
+<div class="fixed inset-0 z-[110] flex flex-col h-screen w-screen bg-slate-50 overscroll-none font-sans">
+
+   <!-- ═══════════════════════════════════════════════════════════ -->
+   <!-- HEADER                                                     -->
+   <!-- ═══════════════════════════════════════════════════════════ -->
+   <div class="flex-none bg-white border-b border-slate-200 px-4 py-2 flex items-center justify-between z-20">
+      <div class="flex items-center gap-3 min-w-0">
+         <button (click)="close.emit()"
+            class="flex items-center justify-center w-9 h-9 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-900 transition-all">
+            <lucide-icon name="arrow-left" class="w-5 h-5 stroke-[1.5]"></lucide-icon>
+         </button>
+         <div class="min-w-0">
+            <div class="flex items-center gap-2">
+               <h1 class="text-sm font-bold text-slate-900 leading-tight truncate">NPA Draft Builder</h1>
+               <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border"
+                  [class]="isReadOnly ? 'bg-slate-50 text-slate-600 border-slate-200' : 'bg-blue-50 text-blue-700 border-blue-200'">
+                  {{ isReadOnly ? 'Read Only' : 'Edit Mode · Maker/Checker' }}
+               </span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-medium truncate">
+               {{ (inputData?.npaId || inputData?.projectId || '') ? ((inputData?.npaId || inputData?.projectId) + ' · ') : '' }}{{ inputData?.title || 'New Product Approval' }}
+            </p>
+         </div>
+      </div>
+
+      <div class="flex items-center gap-4 flex-none">
+         <!-- Required completion -->
+         <div class="hidden md:flex items-center gap-2">
+            <div class="w-44 h-2 bg-slate-100 rounded-full overflow-hidden">
+               <div class="h-full bg-emerald-500 rounded-full transition-all"
+                  [style.width.%]="requiredProgressPercent()"></div>
+            </div>
+            <span class="text-xs font-bold tabular-nums text-slate-700">{{ requiredProgressPercent() }}%</span>
+            <span class="text-[10px] text-slate-400 font-mono">req {{ requiredFilled }}/{{ requiredTotal }}</span>
+         </div>
+
+         <!-- Overall completion -->
+         <div class="flex items-center gap-2">
+            <div class="w-40 h-2 bg-slate-100 rounded-full overflow-hidden">
+               <div class="h-full rounded-full transition-all"
+                  [class]="overallProgress >= 80 ? 'bg-emerald-500' : overallProgress >= 40 ? 'bg-amber-500' : 'bg-blue-500'"
+                  [style.width.%]="overallProgress"></div>
+            </div>
+            <span class="text-xs font-bold tabular-nums text-slate-700">{{ overallProgress }}%</span>
+            <span class="text-[10px] text-slate-400 font-mono">{{ filledFields }}/{{ totalFields }}</span>
+         </div>
+
+         <button (click)="openCommentsForDraft()"
+            class="px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 rounded-lg transition-colors border border-slate-200 flex items-center gap-1.5">
+            <lucide-icon name="message-square" class="w-3.5 h-3.5"></lucide-icon>
+            Comments
+            <span *ngIf="draftCommentCount() > 0"
+               class="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">
+               {{ draftCommentCount() }}
+            </span>
+         </button>
+
+         <div *ngIf="draftSaveError"
+            class="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg border border-rose-200 bg-rose-50 text-rose-700 text-xs font-semibold max-w-[320px]">
+            <lucide-icon name="alert-circle" class="w-4 h-4 flex-none"></lucide-icon>
+            <span class="truncate">{{ draftSaveError }}</span>
+         </div>
+
+         <button (click)="saveDraft()"
+            [disabled]="isReadOnly || isSavingDraft"
+            class="px-3.5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:hover:bg-blue-600 disabled:cursor-not-allowed">
+            {{ isSavingDraft ? 'Saving…' : 'Save Draft' }}
+         </button>
+      </div>
+   </div>
+
+   <!-- ═══════════════════════════════════════════════════════════ -->
+   <!-- MAIN 3-COLUMN LAYOUT                                       -->
+   <!-- ═══════════════════════════════════════════════════════════ -->
+   <div class="flex-1 overflow-hidden flex gap-4 p-4">
+
+      <!-- ─────────────────────────────────────────────────────── -->
+      <!-- LEFT COLUMN: Section Stepper (w-60)                     -->
+      <!-- ─────────────────────────────────────────────────────── -->
+      <div class="w-72 flex-none bg-white border border-slate-200 rounded-xl flex flex-col overflow-hidden">
+         <app-npa-section-stepper
+            [sections]="stepperSections"
+            [activeSectionId]="activeSectionId"
+            [filledFields]="filledFields"
+            [totalFields]="totalFields"
+            [overallProgress]="overallProgress"
+            [requiredMissingBySection]="requiredMissingBySection"
+            (sectionSelected)="selectSection($event)">
+         </app-npa-section-stepper>
+      </div>
+
+      <!-- ─────────────────────────────────────────────────────── -->
+      <!-- CENTER COLUMN: Section Form Renderer (flex-1)           -->
+      <!-- ─────────────────────────────────────────────────────── -->
+      <div class="flex-1 flex flex-col overflow-hidden bg-white border border-slate-200 rounded-xl">
+
+         <!-- Section Header -->
+         <div *ngIf="getActiveSection() as section"
+            class="flex-none px-6 py-4 bg-white border-b border-slate-200 flex items-center justify-between rounded-t-xl">
+            <div class="flex items-center gap-3">
+               <div class="p-2 rounded-lg border"
+                  [class]="getGroupForSection(section.id).bgClass + ' border ' + getGroupForSection(section.id).borderClass">
+                  <lucide-icon [name]="section.icon" class="w-5 h-5"
+                     [class]="getGroupForSection(section.id).textClass"></lucide-icon>
+               </div>
+               <div>
+                  <div class="flex items-center gap-2">
+                     <span class="text-xs font-bold text-slate-400 font-mono">Section {{ section.numbering }}</span>
+                     <span
+                        class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider"
+                        [class]="getGroupForSection(section.id).bgClass + ' ' + getGroupForSection(section.id).textClass">
+                        <lucide-icon [name]="getGroupForSection(section.id).icon" class="w-2.5 h-2.5"></lucide-icon>
+                        {{ getGroupForSection(section.id).label }}
+                     </span>
+                     <span *ngIf="requiredMissingBySection[section.id]"
+                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 text-[10px] font-bold">
+                        {{ requiredMissingBySection[section.id] }} required missing
+                     </span>
+                  </div>
+                  <h2 class="text-base font-bold text-slate-900 mt-0.5">{{ section.label }}</h2>
+                  <p class="text-[11px] text-slate-500 mt-0.5">Agents propose values; you decide + save.</p>
+               </div>
+            </div>
+
+            <!-- Section Nav -->
+            <div class="flex items-center gap-2">
+               <button (click)="goToNextMissingRequired()"
+                  class="hidden md:inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors disabled:opacity-40"
+                  [disabled]="validationErrors.length === 0">
+                  Next missing required
+               </button>
+               <button (click)="openIssuesPanel()"
+                  class="hidden md:inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors">
+                  Show Issues
+                  <span *ngIf="requiredMissing > 0" class="ml-1 px-1.5 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 text-[10px] font-bold">
+                     {{ requiredMissing }}
+                  </span>
+               </button>
+               <span class="text-xs text-slate-400 font-mono ml-2">
+                  {{ section.filledCount }}/{{ section.fieldCount }} fields
+               </span>
+               <button (click)="navigatePrev()"
+                  class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors disabled:opacity-30"
+                  [disabled]="stepperSections[0]?.id === activeSectionId">
+                  <lucide-icon name="chevron-left" class="w-4 h-4"></lucide-icon>
+               </button>
+               <button (click)="navigateNext()"
+                  class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors disabled:opacity-30"
+                  [disabled]="stepperSections[stepperSections.length - 1]?.id === activeSectionId">
+                  <lucide-icon name="chevron-right" class="w-4 h-4"></lucide-icon>
+               </button>
+            </div>
+         </div>
+
+         <!-- Fields Content -->
+         <div class="flex-1 overflow-y-auto px-6 py-5 npa-scrollbar">
+            <div class="max-w-4xl 2xl:max-w-5xl mx-auto space-y-6">
+
+               <!-- No groups fallback -->
+               <div *ngIf="getActiveSectionGroups().length === 0" class="text-center py-16">
+                  <div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                     <lucide-icon name="inbox" class="w-7 h-7 text-slate-300"></lucide-icon>
+                  </div>
+                  <p class="text-sm font-medium text-slate-500">No fields in this section</p>
+                  <p class="text-xs text-slate-400 mt-1">This section may not require field input</p>
+               </div>
+
+               <!-- Field Groups (Topics) -->
+	               <div *ngFor="let group of getActiveSectionGroups(); trackBy: trackByGroupTopic"
+	                  class="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
+
+                  <!-- Topic Header -->
+	                  <div class="px-5 py-3 bg-slate-50/70 border-b border-slate-100 flex items-center justify-between">
+	                     <div class="flex items-center gap-2">
+	                        <span class="text-xs font-bold text-slate-400 font-mono w-5">{{ group.numbering }}</span>
+	                        <h3 class="text-sm font-semibold text-slate-800">{{ group.topic }}</h3>
+	                     </div>
+	                     <span class="text-[10px] font-mono text-slate-400">
+	                        {{ group.fields.length }} field{{ group.fields.length !== 1 ? 's' : '' }}
+	                     </span>
+	                  </div>
+
+                  <!-- Guidance -->
+                  <div *ngIf="group.guidance" class="px-5 py-2.5 bg-blue-50/50 border-b border-blue-100/50">
+                     <p class="text-[11px] text-blue-700/80 italic leading-relaxed flex items-start gap-1.5">
+                        <lucide-icon name="info" class="w-3 h-3 mt-0.5 flex-none text-blue-500/60"></lucide-icon>
+                        {{ group.guidance }}
+                     </p>
+                  </div>
+
+                  <!-- Fields — delegated to NpaFieldRendererComponent -->
+                  <div class="divide-y divide-slate-100">
+	                     <ng-container *ngFor="let field of group.fields; trackBy: trackByFieldKey">
+	                        <div *ngIf="shouldShowField(field)"
+	                           class="px-5 py-4 hover:bg-slate-50/50 transition-colors group/field"
+	                           [id]="'field_' + field.key">
+	                           <app-npa-field-renderer [field]="field" (fieldEdited)="onFieldEdited($event)"
+	                              (fieldCleared)="onFieldCleared($event)" (askAgent)="askAgentAboutField($event)"
+	                              (citationClick)="onCitationClick($event)"
+	                              [readOnly]="isReadOnly"
+	                              (commentClicked)="openCommentsForField($event)">
+	                           </app-npa-field-renderer>
+	                        </div>
+	                     </ng-container>
+	                  </div>
+	               </div>
+
+               <!-- Navigation Buttons -->
+               <div class="flex items-center justify-between pt-4 pb-8">
+                  <button (click)="navigatePrev()"
+                     class="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-slate-700 hover:bg-white rounded-lg border border-slate-200 transition-colors flex items-center gap-1.5 disabled:opacity-30"
+                     [disabled]="stepperSections[0]?.id === activeSectionId">
+                     <lucide-icon name="arrow-left" class="w-3.5 h-3.5"></lucide-icon>
+                     Previous Section
+                  </button>
+                  <button (click)="navigateNext()"
+                     class="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors flex items-center gap-1.5 disabled:opacity-30"
+                     [disabled]="stepperSections[stepperSections.length - 1]?.id === activeSectionId">
+                     Next Section
+                     <lucide-icon name="arrow-right" class="w-3.5 h-3.5"></lucide-icon>
+                  </button>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <!-- ─────────────────────────────────────────────────────── -->
+      <!-- RIGHT COLUMN: Agent Chat / Knowledge Panel (w-80)       -->
+      <!-- ─────────────────────────────────────────────────────── -->
+      <div
+         class="flex-none bg-white border border-slate-200 rounded-xl flex flex-col overflow-hidden transition-[width] duration-200"
+         [class.w-96]="!rightPanelCollapsed"
+         [class.w-12]="rightPanelCollapsed">
+
+         <div class="flex-none flex items-center justify-between px-2 py-2 border-b border-slate-200 bg-slate-50/50">
+            <button (click)="rightPanelCollapsed = !rightPanelCollapsed"
+               class="p-2 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
+               [title]="rightPanelCollapsed ? 'Expand panel' : 'Collapse panel'">
+               <lucide-icon name="menu" class="w-4 h-4"></lucide-icon>
+            </button>
+            <div *ngIf="!rightPanelCollapsed" class="text-[11px] font-bold text-slate-700">Assistant Panel</div>
+            <div *ngIf="!rightPanelCollapsed" class="w-8"></div>
+         </div>
+
+         <!-- Tabbed Header for Right Panel -->
+         <div *ngIf="!rightPanelCollapsed" class="flex-none flex items-center p-1.5 bg-slate-50 border-b border-slate-200">
+            <button (click)="agentPanelTab = 'CHAT'"
+               class="flex-1 flex items-center justify-center gap-2 py-1.5 px-3 rounded-md text-xs font-semibold transition-colors"
+               [class.bg-white]="agentPanelTab === 'CHAT'" [class.shadow-sm]="agentPanelTab === 'CHAT'"
+               [class.text-slate-800]="agentPanelTab === 'CHAT'" [class.text-slate-400]="agentPanelTab !== 'CHAT'"
+               [class.hover:text-slate-600]="agentPanelTab !== 'CHAT'">
+               <lucide-icon name="message-square" class="w-3.5 h-3.5"></lucide-icon>
+               Chat
+            </button>
+            <button (click)="agentPanelTab = 'KNOWLEDGE'"
+               class="flex-1 flex items-center justify-center gap-2 py-1.5 px-3 rounded-md text-xs font-semibold transition-colors"
+               [class.bg-white]="agentPanelTab === 'KNOWLEDGE'" [class.shadow-sm]="agentPanelTab === 'KNOWLEDGE'"
+               [class.text-blue-700]="agentPanelTab === 'KNOWLEDGE'" [class.border]="agentPanelTab === 'KNOWLEDGE'"
+               [class.border-blue-100]="agentPanelTab === 'KNOWLEDGE'"
+               [class.text-slate-400]="agentPanelTab !== 'KNOWLEDGE'"
+               [class.hover:text-slate-600]="agentPanelTab !== 'KNOWLEDGE'">
+               <lucide-icon name="book-open" class="w-3.5 h-3.5"></lucide-icon>
+               Knowledge
+            </button>
+            <button (click)="agentPanelTab = 'ISSUES'"
+               class="flex-1 flex items-center justify-center gap-2 py-1.5 px-3 rounded-md text-xs font-semibold transition-colors"
+               [class.bg-white]="agentPanelTab === 'ISSUES'" [class.shadow-sm]="agentPanelTab === 'ISSUES'"
+               [class.text-rose-700]="agentPanelTab === 'ISSUES'" [class.border]="agentPanelTab === 'ISSUES'"
+               [class.border-rose-100]="agentPanelTab === 'ISSUES'"
+               [class.text-slate-400]="agentPanelTab !== 'ISSUES'"
+               [class.hover:text-slate-600]="agentPanelTab !== 'ISSUES'">
+               <lucide-icon name="alert-circle" class="w-3.5 h-3.5"></lucide-icon>
+               Issues
+               <span *ngIf="requiredMissing > 0"
+                  class="ml-1 px-1.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold">
+                  {{ requiredMissing }}
+               </span>
+            </button>
+         </div>
+
+         <!-- VIEW 1: Agent Chat -->
+         <app-npa-agent-chat #agentChat *ngIf="!rightPanelCollapsed && agentPanelTab === 'CHAT'" [signOffGroups]="signOffGroups"
+            [activeAgentId]="activeAgentId" [agentChats]="agentChats" [sectionFieldGroups]="sectionFieldGroups"
+            [inputData]="inputData"
+            (agentSelected)="selectAgent($event)" (validateRequested)="validateDraft()"
+            (applySuggestion)="onApplyFieldSuggestion($event)" class="flex-1 flex flex-col min-h-0">
+         </app-npa-agent-chat>
+
+         <!-- VIEW 2: Knowledge Base & Evidence Panel -->
+         <div *ngIf="!rightPanelCollapsed && agentPanelTab === 'KNOWLEDGE'" class="flex-1 flex flex-col min-h-0 bg-slate-50/30 relative">
+
+            <!-- Citation Details -->
+            <div *ngIf="selectedCitation" class="flex-1 flex flex-col min-h-0">
+               <div class="px-4 py-3 bg-blue-50/80 border-b border-blue-100/50 flex items-start gap-3 flex-none">
+                  <div
+                     class="p-1.5 bg-blue-100 text-blue-600 rounded mt-0.5 border border-blue-200 shadow-sm flex-none">
+                     <lucide-icon name="book-open" class="w-4 h-4"></lucide-icon>
+                  </div>
+                  <div>
+                     <h3 class="text-xs font-bold text-slate-800 mb-0.5 leading-tight">{{ selectedCitation.sourceName }}
+                     </h3>
+                     <span
+                        class="text-[9px] font-mono text-slate-400 bg-white border border-slate-200 px-1.5 py-0.5 rounded uppercase tracking-wide">
+                        {{ selectedCitation.sourceId }}
+                     </span>
+                  </div>
+               </div>
+
+               <div class="flex-1 overflow-y-auto p-4 space-y-4">
+
+                  <div class="px-3 py-2 bg-white rounded-lg border border-slate-200 shadow-sm">
+                     <div
+                        class="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-2 flex items-center gap-1.5">
+                        <lucide-icon name="align-left" class="w-3 h-3"></lucide-icon>
+                        Cited Passage
+                     </div>
+                     <!-- Render Markdown snippet safely (Assuming a pipe or standard rendering, using a blockquote here for now) -->
+                     <blockquote
+                        class="text-[11px] leading-relaxed text-slate-700 italic border-l-2 border-amber-300 pl-3 py-0.5 my-1">
+                        {{ selectedCitation.snippet }}
+                     </blockquote>
+                  </div>
+
+                  <div *ngIf="selectedCitation.url"
+                     class="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-between">
+                     <span class="text-[11px] font-medium text-slate-600">Full Origin Document</span>
+                     <a [href]="selectedCitation.url" target="_blank" rel="noopener noreferrer"
+                        class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 hover:bg-blue-50 text-blue-600 text-[10px] font-bold rounded transition-colors group">
+                        Open
+                        <lucide-icon name="external-link" class="w-3 h-3 group-hover:text-blue-700"></lucide-icon>
+                     </a>
+                  </div>
+
+               </div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!selectedCitation"
+               class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+               <div
+                  class="w-12 h-12 bg-white border border-slate-200 rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                  <lucide-icon name="library" class="w-6 h-6 text-slate-300"></lucide-icon>
+               </div>
+               <h4 class="text-[11px] font-bold text-slate-700 mb-1">No Evidence Selected</h4>
+               <p class="text-[10px] text-slate-400 leading-relaxed max-w-[200px]">Click on the "Sources & Evidence"
+                  links in the field tooltips to view the exact policy or historical document used by the agent.</p>
+            </div>
+         </div>
+
+         <!-- VIEW 3: Issues -->
+         <div *ngIf="!rightPanelCollapsed && agentPanelTab === 'ISSUES'" class="flex-1 flex flex-col min-h-0 bg-white">
+            <div class="px-4 py-3 border-b border-slate-200 bg-slate-50/50">
+               <div class="text-xs font-bold text-slate-800">Issues</div>
+               <div class="mt-1 text-[11px] text-slate-500">
+                  Missing required fields and validation blockers.
+               </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 space-y-3 npa-scrollbar">
+               <div class="grid grid-cols-2 gap-2">
+                  <div class="p-3 rounded-lg border border-slate-200 bg-white">
+                     <div class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Required missing</div>
+                     <div class="text-xl font-bold text-rose-600 mt-1">{{ requiredMissing }}</div>
+                  </div>
+                  <div class="p-3 rounded-lg border border-slate-200 bg-white">
+                     <div class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Required total</div>
+                     <div class="text-xl font-bold text-slate-800 mt-1">{{ requiredTotal }}</div>
+                  </div>
+               </div>
+
+               <div *ngIf="validationErrors.length === 0" class="p-3 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 text-[11px] font-semibold">
+                  No blocking issues detected.
+               </div>
+
+               <div *ngFor="let e of validationErrors" class="p-3 rounded-lg border border-rose-200 bg-rose-50">
+                  <div class="flex items-center justify-between gap-2">
+                     <div class="min-w-0">
+                        <div class="text-[11px] font-bold text-rose-800 truncate">Missing required: {{ e.label }}</div>
+                        <div class="text-[10px] text-rose-700 font-mono">{{ e.field }}</div>
+                     </div>
+                     <button (click)="jumpToField(e.field, e.section)"
+                        class="px-3 py-1.5 rounded-lg bg-white border border-rose-200 text-rose-700 text-[11px] font-bold hover:bg-rose-100 transition-colors">
+                        Jump
+                     </button>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+      </div>
+   </div>
+
+   <!-- Comments Drawer (overlay) -->
+   <div *ngIf="commentsDrawerOpen" class="fixed inset-0 z-[220]">
+      <div class="absolute inset-0 bg-slate-900/40" (click)="closeCommentsDrawer()"></div>
+      <div class="absolute right-0 top-0 h-full w-full max-w-xl bg-white border-l border-slate-200 shadow-2xl flex flex-col">
+         <div class="px-5 py-4 border-b border-slate-100 flex items-start justify-between gap-3">
+            <div class="min-w-0">
+               <div class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Comments</div>
+               <div class="text-sm font-bold text-slate-900 truncate">
+                  {{ commentsDrawerTitle }}
+               </div>
+               <div *ngIf="commentsDrawerRef" class="mt-1 text-[10px] text-slate-400 font-mono truncate">
+                  {{ commentsDrawerRef }}
+               </div>
+            </div>
+            <button (click)="closeCommentsDrawer()"
+               class="p-2 rounded-lg hover:bg-slate-100 text-slate-600 flex-none">
+               <lucide-icon name="x" class="w-5 h-5"></lucide-icon>
+            </button>
+         </div>
+
+         <div class="flex-1 min-h-0 overflow-y-auto p-5 space-y-3 npa-scrollbar">
+            <div *ngIf="commentsLoading" class="px-3 py-2 text-[11px] text-slate-500 bg-slate-50 border border-slate-200 rounded-lg">
+               Loading comments…
+            </div>
+            <div *ngIf="commentsError" class="px-3 py-2 text-[11px] text-rose-700 bg-rose-50 border border-rose-200 rounded-lg">
+               {{ commentsError }}
+            </div>
+            <div *ngFor="let c of (activeThread?.comments || []); trackBy: trackByCommentId"
+               class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm">
+               <div class="flex items-center justify-between gap-3">
+                  <div class="text-xs font-semibold text-slate-800 truncate">{{ c.author }}</div>
+                  <div class="text-[10px] text-slate-400 font-mono">{{ c.when }}</div>
+               </div>
+               <div class="mt-2 text-[12px] text-slate-700 leading-relaxed whitespace-pre-wrap">
+                  {{ c.text }}
+               </div>
+
+               <div *ngIf="c.replies?.length" class="mt-3 space-y-2">
+                  <div *ngFor="let r of c.replies; trackBy: trackByReplyId" class="pl-3 border-l border-slate-200">
+                     <div class="flex items-center justify-between gap-3">
+                        <div class="text-[11px] font-semibold text-slate-700 truncate">{{ r.author }}</div>
+                        <div class="text-[10px] text-slate-400 font-mono">{{ r.when }}</div>
+                     </div>
+                     <div class="mt-1 text-[12px] text-slate-700 leading-relaxed whitespace-pre-wrap">
+                        {{ r.text }}
+                     </div>
+                  </div>
+               </div>
+
+               <div class="mt-3 flex items-center justify-end gap-2">
+                  <button (click)="startReply(c.id)"
+                     class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors">
+                     Reply
+                  </button>
+               </div>
+
+               <div *ngIf="replyToCommentId === c.id" class="mt-3">
+                  <textarea [(ngModel)]="replyDraft"
+                     rows="2"
+                     placeholder="Write a reply…"
+                     class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 bg-white outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-500/20 resize-none"></textarea>
+                  <div class="mt-2 flex items-center justify-end gap-2">
+                     <button (click)="cancelReply()"
+                        class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors">
+                        Cancel
+                     </button>
+                     <button (click)="postReply()"
+                        [disabled]="commentsLoading"
+                        class="px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors">
+                        Post Reply
+                     </button>
+                  </div>
+               </div>
+            </div>
+
+            <div class="px-4 py-3 bg-slate-50 border border-dashed border-slate-200 rounded-lg text-[11px] text-slate-500">
+               Versions placeholder: each field change will create a version entry (diff/restore) later.
+            </div>
+         </div>
+
+         <div class="px-5 py-4 border-t border-slate-100 bg-white">
+            <label class="block text-xs font-semibold text-slate-600 mb-2">Add a comment</label>
+            <textarea [(ngModel)]="commentDraft"
+               rows="2"
+               placeholder="Write a comment…"
+               class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 bg-white outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-500/20 resize-none"></textarea>
+            <div class="mt-3 flex items-center justify-end gap-2">
+               <button (click)="postComment()"
+                  [disabled]="commentsLoading"
+                  class="px-3.5 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors flex items-center gap-1.5">
+                  <lucide-icon name="send" class="w-3.5 h-3.5"></lucide-icon>
+                  Post
+               </button>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>

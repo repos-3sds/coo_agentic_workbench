@@ -1,0 +1,22 @@
+.context-traces-container {
+    .trace-row {
+        cursor: pointer;
+
+        &:hover {
+            background: rgba(13, 110, 253, 0.04);
+        }
+    }
+
+    .expanded-row {
+        background: rgba(108, 117, 125, 0.06);
+        padding: 0;
+    }
+
+    .expanded-content {
+        padding: 0.9rem 1rem;
+    }
+
+    th {
+        white-space: nowrap;
+    }
+}

@@ -1,0 +1,42 @@
+{
+  "description": "Seed context sources for E2E proof-of-life. Provides realistic NPA domain data so the 7-stage pipeline produces meaningful output even without live KB access.",
+  "npa_seed_sources": [
+    {
+      "source_id": "npa_project_api:NPA-001",
+      "source_type": "system_of_record",
+      "authority_tier": 1,
+      "content": "NPA Project NPA-001: Digital Asset Custody Platform. Status: draft_builder. Product type: NTG (New-to-Group). Jurisdiction: SG. Notional: SGD 50M. Initiated: 2026-01-15. Sponsor: Treasury & Markets. Risk tier: HIGH. Requires Full Track approval with 7-domain risk assessment.",
+      "domain": "NPA",
+      "entity_id": "NPA-001",
+      "entity_type": "project",
+      "data_classification": "INTERNAL",
+      "fetched_at": "2026-03-01T00:00:00Z",
+      "ttl_seconds": 3600
+    },
+    {
+      "source_id": "bank_sops:gfm_sop_v3.2:section_4.2",
+      "source_type": "bank_sop",
+      "authority_tier": 2,
+      "content": "GFM SOP Section 4.2 — NPA Classification & Approval Tracks: All New-to-Group (NTG) products require Full Track approval with mandatory 7-domain risk assessment. Sign-off required from: Risk Management Group (RMG), Legal & Compliance (LCS), Finance, Business (BIZ), and Technology & Operations (TECH_OPS). Variation products follow Expedited Track with 3-domain assessment. Classification decision must be documented with rationale.",
+      "domain": "NPA",
+      "data_classification": "INTERNAL",
+      "version": "3.2",
+      "effective_date": "2025-06-01",
+      "fetched_at": "2026-03-01T00:00:00Z",
+      "ttl_seconds": 7200
+    },
+    {
+      "source_id": "industry_standards:mas_notice_758:section_11.2",
+      "source_type": "industry_standard",
+      "authority_tier": 3,
+      "content": "MAS Notice 758 — Technology Risk Management, Section 11.2: Financial institutions offering digital asset custody services must conduct thorough technology risk assessments covering key management systems, cold/hot wallet architecture, smart contract risks, and operational resilience. Independent validation required before launch. Quarterly reporting to MAS on custody volumes and incident metrics.",
+      "domain": "NPA",
+      "jurisdiction": "SG",
+      "data_classification": "INTERNAL",
+      "version": "2024-rev",
+      "effective_date": "2024-03-01",
+      "fetched_at": "2026-03-01T00:00:00Z",
+      "ttl_seconds": 86400
+    }
+  ]
+}

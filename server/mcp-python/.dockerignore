@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.example
+*.sh
+*.service
+*.md
+.git/
+.claude/
+db_dump.sql
+test files/
+openshift/
+Jenkinsfile
+railway.toml

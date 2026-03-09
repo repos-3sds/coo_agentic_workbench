@@ -1,0 +1,19 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: npa-mcp-server
+  labels:
+    app: npa-mcp-server
+    part-of: npa-workbench
+spec:
+  # The route hostname will be auto-assigned if left empty
+  # Or set explicitly: host: npa-mcp-server.apps.your-cluster.com
+  to:
+    kind: Service
+    name: npa-mcp-server
+    weight: 100
+  port:
+    targetPort: 3002
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

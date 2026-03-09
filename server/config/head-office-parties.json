@@ -1,0 +1,7 @@
+{
+    "_comment": "Head Office sign-off parties — required for NTG from overseas jurisdictions",
+    "parties": [
+        { "party_name": "Legal", "department": "Legal, Compliance & Secretariat", "sla_hours": 48 },
+        { "party_name": "Compliance", "department": "Legal, Compliance & Secretariat", "sla_hours": 48 }
+    ]
+}

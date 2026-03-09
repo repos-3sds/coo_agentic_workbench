@@ -1,0 +1,130 @@
+<!-- Draft Agent Panel — Right sidebar with Chat, Sources, Issues tabs -->
+<div class="flex flex-col h-full border-l border-slate-100 bg-white overflow-hidden transition-all duration-200"
+  [style.width.px]="isOpen ? 320 : 40">
+
+  <!-- Collapsed -->
+  <div *ngIf="!isOpen" class="flex flex-col items-center pt-3 gap-2">
+    <button (click)="onToggle()" class="p-2 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+      <lucide-icon name="panel-left" class="w-4 h-4"></lucide-icon>
+    </button>
+  </div>
+
+  <!-- Expanded -->
+  <div *ngIf="isOpen" class="flex flex-col h-full">
+
+    <!-- Header -->
+    <div class="flex-none h-10 px-3 border-b border-slate-100 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span class="text-xs font-medium text-slate-700">Agent</span>
+      </div>
+      <button (click)="onToggle()" class="p-1 rounded hover:bg-slate-100 text-slate-400">
+        <lucide-icon name="panel-right" class="w-3.5 h-3.5"></lucide-icon>
+      </button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex-none flex border-b border-slate-100">
+      <button (click)="activeTab = 'chat'"
+        class="flex-1 py-2 text-[11px] font-medium text-center transition-colors"
+        [ngClass]="activeTab === 'chat' ? 'text-slate-900 border-b-2 border-slate-900' : 'text-slate-400 hover:text-slate-600'">
+        Chat
+      </button>
+      <button (click)="activeTab = 'knowledge'"
+        class="flex-1 py-2 text-[11px] font-medium text-center transition-colors"
+        [ngClass]="activeTab === 'knowledge' ? 'text-slate-900 border-b-2 border-slate-900' : 'text-slate-400 hover:text-slate-600'">
+        Sources
+      </button>
+      <button (click)="activeTab = 'issues'"
+        class="flex-1 py-2 text-[11px] font-medium text-center transition-colors relative"
+        [ngClass]="activeTab === 'issues' ? 'text-slate-900 border-b-2 border-slate-900' : 'text-slate-400 hover:text-slate-600'">
+        Issues
+        <span *ngIf="issues.length" class="ml-1 text-[9px] font-bold text-red-500">{{ issues.length }}</span>
+      </button>
+    </div>
+
+    <!-- ── Chat Tab ─────────────────────────────────────────── -->
+    <div *ngIf="activeTab === 'chat'" class="flex-1 flex flex-col overflow-hidden">
+      <div class="flex-1 overflow-y-auto scroll-region p-3 space-y-3">
+        <div *ngFor="let msg of messages"
+          class="flex" [ngClass]="msg.role === 'user' ? 'justify-end' : 'justify-start'">
+          <div class="max-w-[88%]">
+            <div *ngIf="msg.role === 'agent' && msg.agentTeam"
+              class="text-[9px] font-semibold text-slate-500 mb-0.5 ml-1">{{ msg.agentTeam }}</div>
+            <div class="px-3 py-2 text-xs leading-relaxed"
+              [ngClass]="msg.role === 'user'
+                ? 'bg-slate-900 text-white rounded-2xl rounded-br-md'
+                : 'bg-slate-100 text-slate-800 rounded-2xl rounded-bl-md'">
+              {{ msg.text }}
+            </div>
+            <div *ngIf="msg.citations?.length" class="mt-1 ml-1 flex flex-wrap gap-1">
+              <span *ngFor="let cite of msg.citations"
+                class="text-[8px] px-1.5 py-0.5 rounded bg-slate-50 text-slate-400 border border-slate-100">
+                {{ cite }}
+              </span>
+            </div>
+            <p class="text-[9px] text-slate-300 mt-0.5"
+              [ngClass]="msg.role === 'user' ? 'text-right mr-1' : 'ml-1'">{{ msg.timestamp }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat input -->
+      <div class="flex-none p-3 border-t border-slate-100">
+        <div class="flex items-center gap-2">
+          <input type="text" [(ngModel)]="chatInput" (keyup.enter)="onSendMessage()"
+            placeholder="Ask about this section..."
+            class="flex-1 px-3 py-2 text-xs rounded-lg border border-slate-200 focus:border-slate-400 bg-white outline-none transition-colors" />
+          <button (click)="onSendMessage()"
+            class="p-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition-colors disabled:opacity-30"
+            [disabled]="!chatInput.trim()">
+            <lucide-icon name="arrow-up" class="w-3.5 h-3.5"></lucide-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sources Tab ──────────────────────────────────────── -->
+    <div *ngIf="activeTab === 'knowledge'" class="flex-1 overflow-y-auto scroll-region p-3 space-y-2">
+      <div class="rounded-lg border border-slate-200 p-3 hover:bg-slate-50 transition-colors cursor-pointer">
+        <p class="text-xs font-medium text-slate-800">NPA Policy Manual v4.2</p>
+        <p class="text-[10px] text-slate-400 mt-0.5">Section 3.1 &mdash; NTG product requirements</p>
+      </div>
+      <div class="rounded-lg border border-slate-200 p-3 hover:bg-slate-50 transition-colors cursor-pointer">
+        <p class="text-xs font-medium text-slate-800">Trade Finance Ops Manual</p>
+        <p class="text-[10px] text-slate-400 mt-0.5">Section 7.3 &mdash; Commodity pledge structures</p>
+      </div>
+      <div class="rounded-lg border border-slate-200 p-3 hover:bg-slate-50 transition-colors cursor-pointer">
+        <p class="text-xs font-medium text-slate-800">Risk Appetite Statement Q1 2026</p>
+        <p class="text-[10px] text-slate-400 mt-0.5">Commodity trade finance sector limit</p>
+      </div>
+      <div class="rounded-lg border border-slate-200 p-3 hover:bg-slate-50 transition-colors cursor-pointer">
+        <p class="text-xs font-medium text-slate-800">MAS Notice 757</p>
+        <p class="text-[10px] text-slate-400 mt-0.5">Capital adequacy &mdash; commodity finance</p>
+      </div>
+      <div *ngIf="selectedRefNPA" class="rounded-lg border border-slate-200 p-3 bg-blue-50/30">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-medium text-slate-800">{{ selectedRefNPA.displayId || selectedRefNPA.id }}</p>
+          <span class="text-[9px] text-blue-600 font-semibold">{{ selectedRefNPA.similarity }}% match</span>
+        </div>
+        <p class="text-[10px] text-slate-400 mt-0.5">Reference NPA &mdash; {{ selectedRefNPA.fieldsCopied }} fields copied</p>
+      </div>
+    </div>
+
+    <!-- ── Issues Tab ───────────────────────────────────────── -->
+    <div *ngIf="activeTab === 'issues'" class="flex-1 overflow-y-auto scroll-region p-3 space-y-1.5">
+      <div *ngFor="let issue of issues"
+        class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-50/50 transition-colors cursor-pointer group"
+        (click)="onJumpToField(issue.key)">
+        <span class="w-1.5 h-1.5 rounded-full bg-red-400 flex-none"></span>
+        <span class="text-xs text-slate-700 flex-1 truncate">{{ issue.label }}</span>
+        <lucide-icon name="arrow-right"
+          class="w-3 h-3 text-slate-300 group-hover:text-blue-500 flex-none transition-colors"></lucide-icon>
+      </div>
+      <div *ngIf="issues.length === 0" class="text-center py-8">
+        <lucide-icon name="check-circle" class="w-8 h-8 text-emerald-300 mx-auto mb-2"></lucide-icon>
+        <p class="text-xs text-slate-400">All required fields complete</p>
+      </div>
+    </div>
+  </div>
+</div>

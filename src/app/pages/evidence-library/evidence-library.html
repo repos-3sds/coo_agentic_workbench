@@ -1,0 +1,200 @@
+<div class="h-full flex flex-col bg-slate-50 relative overflow-hidden">
+    <!-- Header Area -->
+    <header class="flex-none bg-white border-b border-slate-200 px-6 py-5 flex items-center justify-between z-10">
+        <div>
+            <div class="flex items-center gap-2 text-sm text-slate-500 mb-1">
+                <lucide-icon name="book-open" class="w-4 h-4"></lucide-icon>
+                <span class="font-medium">Knowledge & Evidence</span>
+                <lucide-icon name="chevron-right" class="w-3 h-3"></lucide-icon>
+                <span class="text-slate-800 font-semibold">Evidence Library</span>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Precedents & Patterns</h1>
+            <p class="text-sm text-slate-500 mt-1 max-w-2xl">
+                Historical records of product approvals, exceptions granted, and audit logs used by the intelligent
+                workbench to construct precedent-based reasoning.
+            </p>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <div class="relative group">
+                <lucide-icon name="filter"
+                    class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></lucide-icon>
+                <input type="text" placeholder="Filter records by ID or underlying..."
+                    class="pl-9 pr-4 py-2 w-72 bg-slate-100 hover:bg-slate-200/60 focus:bg-white border border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 text-sm rounded-lg transition-all outline-none">
+            </div>
+            <button
+                class="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold rounded-lg shadow-sm shadow-slate-900/10 transition-all">
+                <lucide-icon name="download" class="w-4 h-4"></lucide-icon>
+                Export Log
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 overflow-y-auto p-6 scrollbar-hide">
+        <div class="max-w-7xl mx-auto space-y-6">
+
+            <!-- Category Tabs -->
+            <div class="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 inline-flex shadow-sm">
+                <button (click)="activeCategory = 'ALL'"
+                    class="px-5 py-2 text-sm font-semibold rounded-lg transition-all"
+                    [class.bg-slate-900]="activeCategory === 'ALL'" [class.text-white]="activeCategory === 'ALL'"
+                    [class.shadow]="activeCategory === 'ALL'" [class.text-slate-500]="activeCategory !== 'ALL'"
+                    [class.hover:text-slate-800]="activeCategory !== 'ALL'"
+                    [class.hover:bg-slate-100]="activeCategory !== 'ALL'">
+                    All Records
+                </button>
+                <button (click)="activeCategory = 'PRECEDENTS'"
+                    class="px-5 py-2 text-sm font-semibold rounded-lg transition-all"
+                    [class.bg-slate-900]="activeCategory === 'PRECEDENTS'"
+                    [class.text-white]="activeCategory === 'PRECEDENTS'"
+                    [class.shadow]="activeCategory === 'PRECEDENTS'"
+                    [class.text-slate-500]="activeCategory !== 'PRECEDENTS'"
+                    [class.hover:text-slate-800]="activeCategory !== 'PRECEDENTS'"
+                    [class.hover:bg-slate-100]="activeCategory !== 'PRECEDENTS'">
+                    Historical Precedents
+                </button>
+                <button (click)="activeCategory = 'PATTERNS'"
+                    class="px-5 py-2 text-sm font-semibold rounded-lg transition-all"
+                    [class.bg-slate-900]="activeCategory === 'PATTERNS'" [class.text-white]="activeCategory === 'PATTERNS'"
+                    [class.shadow]="activeCategory === 'PATTERNS'" [class.text-slate-500]="activeCategory !== 'PATTERNS'"
+                    [class.hover:text-slate-800]="activeCategory !== 'PATTERNS'"
+                    [class.hover:bg-slate-100]="activeCategory !== 'PATTERNS'">
+                    Patterns
+                </button>
+                <button (click)="activeCategory = 'AUDITS'"
+                    class="px-5 py-2 text-sm font-semibold rounded-lg transition-all"
+                    [class.bg-slate-900]="activeCategory === 'AUDITS'" [class.text-white]="activeCategory === 'AUDITS'"
+                    [class.shadow]="activeCategory === 'AUDITS'" [class.text-slate-500]="activeCategory !== 'AUDITS'"
+                    [class.hover:text-slate-800]="activeCategory !== 'AUDITS'"
+                    [class.hover:bg-slate-100]="activeCategory !== 'AUDITS'">
+                    Sealed Audits
+                </button>
+                <button (click)="activeCategory = 'EXCEPTIONS'"
+                    class="px-5 py-2 text-sm font-semibold rounded-lg transition-all"
+                    [class.bg-slate-900]="activeCategory === 'EXCEPTIONS'"
+                    [class.text-white]="activeCategory === 'EXCEPTIONS'"
+                    [class.shadow]="activeCategory === 'EXCEPTIONS'"
+                    [class.text-slate-500]="activeCategory !== 'EXCEPTIONS'"
+                    [class.hover:text-slate-800]="activeCategory !== 'EXCEPTIONS'"
+                    [class.hover:bg-slate-100]="activeCategory !== 'EXCEPTIONS'">
+                    Granted Exceptions
+                </button>
+            </div>
+
+            <!-- Patterns View -->
+            <div *ngIf="activeCategory === 'PATTERNS'"
+                class="grid grid-cols-1 md:grid-cols-3 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                <div *ngFor="let p of precedentPatterns"
+                    class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 hover:shadow-md transition-shadow">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <div class="p-2 rounded-lg bg-slate-100 text-slate-700">
+                                <lucide-icon [name]="p.icon" class="w-4 h-4"></lucide-icon>
+                            </div>
+                            <div>
+                                <div class="font-bold text-slate-900 leading-tight">{{ p.title }}</div>
+                                <div class="text-xs text-slate-500 font-mono mt-0.5">{{ p.id }}</div>
+                            </div>
+                        </div>
+                        <div class="text-sm font-bold text-slate-900">{{ p.metric }}</div>
+                    </div>
+                    <div class="text-sm text-slate-600 mt-3 leading-relaxed">
+                        {{ p.desc }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evidence Table -->
+            <div *ngIf="activeCategory !== 'PATTERNS'"
+                class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr
+                            class="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                            <th class="px-6 py-4">Record ID</th>
+                            <th class="px-6 py-4">Title & Context</th>
+                            <th class="px-6 py-4">Evidence Type</th>
+                            <th class="px-6 py-4">Status</th>
+                            <th class="px-6 py-4">Relevance</th>
+                            <th class="px-6 py-4 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr *ngFor="let item of filteredItems"
+                            class="hover:bg-slate-50/80 transition-colors group cursor-pointer">
+                            <!-- ID -->
+                            <td class="px-6 py-4 font-mono font-bold text-slate-700 text-sm">
+                                {{ item.id }}
+                            </td>
+
+                            <!-- Title & Context -->
+                            <td class="px-6 py-4">
+                                <div
+                                    class="font-bold text-slate-900 mb-0.5 group-hover:text-blue-600 transition-colors">
+                                    {{ item.title }}</div>
+                                <div class="text-xs text-slate-500 truncate max-w-md">{{ item.desc }}</div>
+                            </td>
+
+                            <!-- Type -->
+                            <td class="px-6 py-4">
+                                <div
+                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 text-slate-600 text-[11px] font-bold tracking-wider">
+                                    <lucide-icon [name]="item.icon" class="w-3.5 h-3.5"></lucide-icon>
+                                    {{ item.type }}
+                                </div>
+                            </td>
+
+                            <!-- Status -->
+                            <td class="px-6 py-4">
+                                <span *ngIf="item.status === 'APPROVED'"
+                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-100 text-emerald-700 text-xs font-bold w-fit">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Approved
+                                </span>
+                                <span *ngIf="item.status === 'REJECTED'"
+                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-rose-100 text-rose-700 text-xs font-bold w-fit">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-rose-500"></div> Rejected
+                                </span>
+                                <span *ngIf="item.status === 'SEALED'"
+                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-slate-100 text-slate-700 text-xs font-bold w-fit border border-slate-200">
+                                    <lucide-icon name="lock" class="w-3 h-3"></lucide-icon> Sealed
+                                </span>
+                                <span *ngIf="item.status === 'GRANTED'"
+                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-amber-100 text-amber-700 text-xs font-bold w-fit">
+                                    <lucide-icon name="alert-triangle" class="w-3 h-3"></lucide-icon> Granted
+                                </span>
+                            </td>
+
+                            <!-- Relevance Match Score -->
+                            <td class="px-6 py-4">
+                                <div *ngIf="item.score !== null; else noScore" class="flex items-center gap-2">
+                                    <div class="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full rounded-full" [class.bg-emerald-500]="item.score >= 90"
+                                            [class.bg-amber-500]="item.score >= 70 && item.score < 90"
+                                            [style.width.%]="item.score"></div>
+                                    </div>
+                                    <span class="text-xs font-bold" [class.text-emerald-700]="item.score >= 90"
+                                        [class.text-amber-700]="item.score >= 70 && item.score < 90">
+                                        {{ item.score }}%
+                                    </span>
+                                </div>
+                                <ng-template #noScore>
+                                    <span class="text-slate-400 text-xs truncate">Database Entry</span>
+                                </ng-template>
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="px-6 py-4 text-right">
+                                <button
+                                    class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2">
+                                    <lucide-icon name="arrow-right" class="w-4 h-4"></lucide-icon>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>

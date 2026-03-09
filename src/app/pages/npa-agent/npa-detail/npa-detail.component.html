@@ -1,0 +1,654 @@
+<app-npa-draft-builder *ngIf="showDraftBuilder" (close)="onDraftBuilderClosed()" (onSave)="onSaveDraft()"
+   [inputData]="npaContext"></app-npa-draft-builder>
+
+<!-- FULL SCREEN OVERLAY -->
+<div class="fixed inset-0 z-[100] flex flex-col h-screen w-screen bg-slate-50 overscroll-none font-sans">
+
+   <!-- HEADER -->
+   <div class="flex-none bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shadow-sm z-20">
+      <div class="flex items-center gap-4">
+         <!-- Back Button -->
+         <button (click)="onBack.emit()"
+            class="group flex items-center justify-center p-2 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-900 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <lucide-icon name="arrow-left"
+               class="w-6 h-6 stroke-[1.5] group-hover:-translate-x-0.5 transition-transform"></lucide-icon>
+         </button>
+
+         <div>
+            <div class="flex items-center gap-3 text-xs text-slate-500 mb-2">
+               <span class="font-medium text-slate-400">NPA Pipeline</span>
+               <lucide-icon name="chevron-right" class="w-3 h-3 text-slate-300"></lucide-icon>
+               <span class="font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded">{{ projectData?.display_id || projectData?.id || projectId
+                  }}</span>
+               <span class="flex items-center gap-1.5 ml-2">
+                  <lucide-icon name="user" class="w-3 h-3"></lucide-icon>
+                  <span class="font-medium text-slate-700">{{ projectData?.submitted_by || projectData?.product_manager
+                     || 'Unknown' }}</span>
+               </span>
+               <span class="text-slate-300">|</span>
+               <span class="text-slate-400">Sub: {{ formatSubmittedDate(projectData?.created_at) }}</span>
+            </div>
+
+            <div class="flex items-center gap-3">
+               <h1 class="text-lg font-bold text-slate-900 tracking-tight">
+                  {{ projectData?.title || 'Loading Project...' }}
+               </h1>
+               <span
+                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-200">
+                  {{ approvalTrack }}
+               </span>
+               <span *ngIf="isCrossBorder"
+                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
+                  <lucide-icon name="globe" class="w-3 h-3 mr-1"></lucide-icon>
+                  Cross-Border
+               </span>
+               <span *ngIf="isNtg" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border"
+                  [ngClass]="{
+                  'bg-green-50 text-green-700 border-green-200': pacStatus === 'Approved',
+                  'bg-amber-50 text-amber-700 border-amber-200': pacStatus === 'Pending' || pacStatus === 'N/A',
+                  'bg-red-50 text-red-700 border-red-200': pacStatus === 'Rejected'
+                }">
+                  <lucide-icon name="shield-check" class="w-3 h-3 mr-1"></lucide-icon>
+                  PAC: {{ pacStatus }}
+               </span>
+            </div>
+         </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+         <button (click)="refreshAgentAnalysis()"
+            class="px-3 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors border border-indigo-200 hover:border-indigo-300 flex items-center gap-2"
+            title="Run AI agents for missing analysis or refresh with live Dify analysis">
+            <lucide-icon name="refresh-cw" class="w-4 h-4"></lucide-icon>
+            Refresh Analysis
+         </button>
+         <button (click)="onHelpClick()"
+            class="px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg transition-colors border border-slate-200 hover:border-slate-300 flex items-center gap-2">
+            <lucide-icon name="help-circle" class="w-4 h-4"></lucide-icon>
+            Help
+         </button>
+         <button (click)="onSaveDraft()"
+            class="px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg transition-colors border border-slate-200 hover:border-slate-300 flex items-center gap-2">
+            <lucide-icon name="save" class="w-4 h-4"></lucide-icon>
+            Save Draft
+         </button>
+         <div class="h-6 w-px bg-slate-300 mx-1"></div>
+         <button (click)="onReject()"
+            class="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100/50">
+            Reject
+         </button>
+         <button (click)="onApprove()"
+            class="px-4 py-2 text-sm font-semibold text-white bg-mbs-primary hover:bg-mbs-primary-hover rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 shadow-blue-200">
+            Approve &amp; Sign-Off
+         </button>
+      </div>
+   </div>
+
+   <!-- MAIN CONTENT GRID -->
+   <div class="flex-1 overflow-hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 h-full">
+
+         <!-- LEFT COLUMN: Document Preview (4 cols) — only on Proposal & Docs tabs -->
+         <div *ngIf="showDocumentPreview" class="lg:col-span-4 flex flex-col h-full border-r border-slate-200 bg-white p-0 overflow-hidden">
+
+            <!-- Preview Header -->
+            <div class="flex-none p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+               <h3 class="font-semibold text-sm flex items-center gap-2 text-slate-900">
+                  <div class="p-1.5 bg-white border border-slate-200 rounded-md shadow-sm text-red-500">
+                     <lucide-icon name="file-text" class="w-4 h-4"></lucide-icon>
+                  </div>
+                  Document Preview
+               </h3>
+               <button (click)="onUploadDocument()"
+                  class="p-1.5 hover:bg-blue-50 text-blue-600 rounded transition-colors" title="Upload document">
+                  <lucide-icon name="upload-cloud" class="w-4 h-4"></lucide-icon>
+               </button>
+            </div>
+
+            <!-- Document Viewer — Honest Empty State -->
+            <div class="flex-1 bg-slate-50 relative flex flex-col items-center justify-center p-8">
+               <div *ngIf="!uploadedDocuments.length" class="text-center">
+                  <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                     <lucide-icon name="file-x" class="w-8 h-8 text-slate-300"></lucide-icon>
+                  </div>
+                  <p class="text-sm font-medium text-slate-500 mb-1">No documents uploaded</p>
+                  <p class="text-xs text-slate-400 mb-4">Upload term sheets, risk assessments, and supporting documents
+                  </p>
+                  <button (click)="onUploadDocument()"
+                     class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200">
+                     <lucide-icon name="upload-cloud" class="w-4 h-4 inline mr-1.5"></lucide-icon>
+                     Upload Document
+                  </button>
+               </div>
+               <div *ngIf="uploadedDocuments.length" class="w-full h-full flex flex-col">
+                  <div class="flex-1 flex items-center justify-center">
+                     <div class="text-center">
+                        <lucide-icon name="file-text" class="w-12 h-12 text-slate-300 mx-auto mb-2"></lucide-icon>
+                        <p class="text-sm font-medium text-slate-500">{{ uploadedDocuments[0]?.document_name ||
+                           'Document' }}</p>
+                        <p class="text-xs text-slate-400 mt-1">PDF viewer coming soon</p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+
+            <!-- File List -->
+            <div class="flex-none bg-white border-t border-slate-200 h-1/3 flex flex-col">
+               <div class="px-4 py-3 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                  <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                     Attachments ({{ uploadedDocuments.length }})
+                  </h4>
+                  <button (click)="onUploadDocument()" class="p-1 hover:bg-blue-50 text-blue-600 rounded">
+                     <lucide-icon name="upload-cloud" class="w-4 h-4"></lucide-icon>
+                  </button>
+               </div>
+               <div class="overflow-y-auto p-2 space-y-1">
+                  <!-- Real document items from DB -->
+                  <div *ngFor="let doc of uploadedDocuments"
+                     class="flex items-center p-2 rounded-lg hover:bg-slate-50 cursor-pointer group transition-colors border border-transparent hover:border-slate-200">
+                     <div class="w-8 h-8 rounded flex items-center justify-center mr-3 border" [ngClass]="{
+                         'bg-red-50 text-red-500 border-red-100': doc.document_name?.endsWith('.pdf'),
+                         'bg-blue-50 text-blue-500 border-blue-100': doc.document_name?.endsWith('.docx') || doc.document_name?.endsWith('.doc'),
+                         'bg-green-50 text-green-600 border-green-100': doc.document_name?.endsWith('.xlsx') || doc.document_name?.endsWith('.xls'),
+                         'bg-slate-50 text-slate-500 border-slate-100': !doc.document_name?.endsWith('.pdf') && !doc.document_name?.endsWith('.docx') && !doc.document_name?.endsWith('.xlsx')
+                       }">
+                        <lucide-icon name="file-text" class="w-4 h-4"></lucide-icon>
+                     </div>
+                     <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                           <p class="text-sm font-medium text-slate-900 truncate">{{ doc.document_name }}</p>
+                           <lucide-icon *ngIf="doc.validation_status === 'VALID'" name="check-circle-2"
+                              class="w-3.5 h-3.5 text-green-500"></lucide-icon>
+                           <lucide-icon
+                              *ngIf="doc.validation_status === 'WARNING' || doc.validation_status === 'PENDING'"
+                              name="alert-triangle" class="w-3.5 h-3.5 text-amber-500"></lucide-icon>
+                        </div>
+                        <p class="text-xs text-slate-500 flex items-center gap-2">
+                           <span>{{ doc.document_type || 'Document' }}</span>
+                        </p>
+                     </div>
+                  </div>
+
+                  <!-- Empty state when no documents -->
+                  <div *ngIf="!uploadedDocuments.length" class="py-6 text-center text-slate-400">
+                     <p class="text-xs">No documents uploaded yet</p>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <!-- RIGHT COLUMN: Enriched Functional Tabs (8 cols when doc preview visible, full 12 otherwise) -->
+         <div class="flex flex-col h-full bg-slate-50/50 overflow-hidden relative"
+              [ngClass]="showDocumentPreview ? 'lg:col-span-8' : 'lg:col-span-12'">
+
+            <!-- Tabs Header -->
+            <div
+               class="flex-none flex items-center px-3 border-b border-slate-200 bg-white w-full shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+               <button *ngFor="let tab of tabs" (click)="activeTab = tab.id" [class]="activeTab === tab.id ?
+                'border-blue-600 text-blue-700 font-semibold' :
+                'border-transparent text-slate-500 hover:text-slate-800 font-medium hover:bg-slate-50'"
+                  class="flex-1 justify-center flex items-center gap-1.5 py-3 border-b-2 text-xs transition-all whitespace-nowrap px-2 rounded-t">
+                  <lucide-icon [name]="tab.icon" [class]="activeTab === tab.id ? 'text-blue-600' : 'text-slate-400'"
+                     class="w-3.5 h-3.5"></lucide-icon>
+                  {{ tab.label }}
+                  <span *ngIf="tab.badge" [class]="getBadgeColor(tab.id)"
+                     class="ml-0.5 px-1.5 py-0.5 rounded-full text-[9px] bg-slate-100 text-slate-600 font-bold border border-slate-200/50">
+                     {{ tab.badge }}
+                  </span>
+               </button>
+            </div>
+
+            <!-- Tab Content Area -->
+            <div class="flex-1 overflow-y-auto p-8 scroll-smooth">
+
+               <!-- Prospect / Ideation Banner -->
+               <div *ngIf="isIdeationStage()"
+                  class="mb-6 max-w-4xl mx-auto bg-amber-50 border border-amber-100 rounded-lg p-4 flex items-start gap-3">
+                  <lucide-icon name="lightbulb" class="w-5 h-5 text-amber-700 mt-0.5"></lucide-icon>
+                  <div class="min-w-0">
+                     <h3 class="text-sm font-bold text-amber-900">Prospect NPA — Ideation in progress</h3>
+                     <p class="text-sm text-amber-800 mt-1">
+                        Run the Ideation readiness checklist in Chat before drafting. Once readiness passes, proceed to
+                        Draft Builder.
+                     </p>
+                     <div class="mt-3 flex flex-wrap gap-2">
+                        <button (click)="continueIdeation()"
+                           class="px-3 py-2 text-xs font-bold text-white bg-amber-700 hover:bg-amber-800 rounded-lg shadow-sm transition-colors flex items-center gap-2">
+                           <lucide-icon name="message-square" class="w-4 h-4"></lucide-icon>
+                           Continue Ideation
+                        </button>
+                        <button (click)="openDraftBuilderFromIdeation()"
+                           class="px-3 py-2 text-xs font-semibold text-amber-800 bg-white hover:bg-amber-100 rounded-lg transition-colors border border-amber-200 flex items-center gap-2">
+                           <lucide-icon name="layout-list" class="w-4 h-4"></lucide-icon>
+                           Open Draft Builder (override)
+                        </button>
+                     </div>
+                  </div>
+               </div>
+
+               <!-- 1. NPA PROPOSAL (Executive Summary) -->
+               <div *ngIf="activeTab === 'PRODUCT_SPECS'"
+                  class="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-4xl mx-auto">
+
+                  <!-- Validation Badge -->
+                  <div *ngIf="strategicAssessment"
+                     class="bg-blue-50 border border-blue-100 rounded-lg p-4 flex items-start gap-3">
+                     <lucide-icon name="info" class="w-5 h-5 text-blue-600 mt-0.5"></lucide-icon>
+                     <div>
+                        <h3 class="text-sm font-bold text-blue-900">Strategic Alignment Verified</h3>
+                        <p class="text-sm text-blue-800 mt-1">{{ parseFindings(strategicAssessment.findings) }}</p>
+                     </div>
+                     <div class="ml-auto">
+                        <span
+                           class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                           Score: {{ strategicAssessment.score }}/100
+                        </span>
+                     </div>
+                  </div>
+
+                  <!-- Quick Summary Card -->
+                  <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                     <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-bold text-slate-900">Product Attributes</h2>
+                        <div class="flex items-center gap-2">
+                           <span
+                              class="text-xs font-medium text-green-700 bg-green-50 px-2.5 py-1 rounded-full border border-green-100">
+                              Auto-Filled
+                           </span>
+                        </div>
+                     </div>
+
+                     <div class="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-8">
+                        <div *ngFor="let attr of productAttributes" class="group">
+                           <p
+                              class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                              {{ attr.label }}
+                              <lucide-icon *ngIf="attr.confidence > 90" name="sparkles"
+                                 class="w-3 h-3 text-amber-400 opacity-60"></lucide-icon>
+                           </p>
+                           <div class="flex items-center gap-2">
+                              <p class="text-base font-semibold text-slate-900">{{ attr.value }}</p>
+                              <div
+                                 class="opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded font-mono">
+                                 {{ attr.confidence }}%
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Unified Draft Builder Entrance -->
+                  <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                     <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                           <lucide-icon name="file-edit" class="w-4 h-4 text-blue-500"></lucide-icon>
+                           NPA Draft Builder
+                        </h3>
+                        <span
+                           class="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded border border-slate-100">
+                           Ideation-Driven
+                        </span>
+                     </div>
+
+                     <div class="flex items-start gap-6">
+                        <div class="flex-1">
+                           <p class="text-xs text-slate-600 leading-relaxed mb-6">
+                              Complete the full NPA template using the collaborative Draft Builder. Guided by 5
+                              specialized agents to ensure compliance across all domains.
+                           </p>
+                           <div class="flex gap-3">
+                              <button (click)="openDraftBuilderFromIdeation()"
+                                 class="px-5 py-2.5 bg-blue-600 text-white rounded-lg shadow-sm hover:shadow-md hover:bg-blue-700 transition-all text-xs font-bold flex items-center gap-2">
+                                 <lucide-icon name="layout-list" class="w-4 h-4"></lucide-icon>
+                                 Open Draft Builder
+                              </button>
+                           </div>
+                        </div>
+
+                        <div
+                           class="w-32 h-32 flex-none bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center relative overflow-hidden group">
+                           <lucide-icon name="sparkles"
+                              class="w-12 h-12 text-blue-200 group-hover:scale-110 transition-transform"></lucide-icon>
+                           <div
+                              class="absolute inset-0 bg-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity">
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Classification Agent Result -->
+                  <div *ngIf="classificationResult" class="mt-8 pt-8 border-t border-slate-200">
+                     <h4
+                        class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <lucide-icon name="git-branch" class="w-4 h-4 text-purple-500"></lucide-icon>
+                        Classification Agent
+                     </h4>
+                     <app-classification-result [result]="classificationResult"></app-classification-result>
+                  </div>
+                  <div *ngIf="!classificationResult" class="mt-8 pt-8 border-t border-slate-200">
+                     <h4
+                        class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <lucide-icon name="git-branch" class="w-4 h-4 text-purple-500"></lucide-icon>
+                        Classification Agent
+                     </h4>
+                     <div class="bg-slate-50 rounded-xl border border-slate-200 p-8 text-center">
+                        <ng-container *ngIf="agentLoading['CLASSIFIER']">
+                           <lucide-icon name="loader-2"
+                              class="w-6 h-6 mx-auto mb-2 text-indigo-400 animate-spin"></lucide-icon>
+                           <p class="text-sm font-medium text-slate-500">Classification agent analyzing product type...
+                           </p>
+                        </ng-container>
+                        <ng-container *ngIf="!agentLoading['CLASSIFIER']">
+                           <lucide-icon name="bot" class="w-8 h-8 mx-auto mb-3 text-slate-300"></lucide-icon>
+                           <p class="text-sm font-medium text-slate-500">Classification analysis not yet available.</p>
+                           <p class="text-xs text-slate-400 mt-1">Click <strong>Refresh Analysis</strong> above to run
+                              the agent.</p>
+                        </ng-container>
+                     </div>
+                  </div>
+               </div>
+
+               <!-- 1.5 DOCUMENTS (MATRIX + Doc Lifecycle Agent) -->
+               <div *ngIf="activeTab === 'DOCUMENTS'"
+                  class="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-4xl mx-auto">
+                  <app-document-dependency-matrix [npaContext]="npaContext"></app-document-dependency-matrix>
+
+                  <!-- Document Lifecycle Agent Results -->
+                  <div class="mt-8 pt-6 border-t border-slate-200">
+                     <h4
+                        class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <lucide-icon name="scan-search" class="w-4 h-4 text-teal-500"></lucide-icon>
+                        Document Lifecycle Agent
+                     </h4>
+                     <app-doc-completeness *ngIf="docCompleteness" [result]="docCompleteness"></app-doc-completeness>
+                     <div *ngIf="!docCompleteness"
+                        class="bg-slate-50 rounded-xl border border-slate-200 p-8 text-center text-slate-500">
+                        <ng-container *ngIf="agentLoading['DOC_LIFECYCLE']">
+                           <lucide-icon name="loader-2"
+                              class="w-6 h-6 mx-auto mb-2 text-teal-400 animate-spin"></lucide-icon>
+                           <p class="text-sm font-medium">Document completeness analysis in progress...</p>
+                        </ng-container>
+                        <ng-container *ngIf="!agentLoading['DOC_LIFECYCLE']">
+                           <lucide-icon name="bot" class="w-8 h-8 mx-auto mb-3 text-slate-300"></lucide-icon>
+                           <p class="text-sm font-medium">Document completeness analysis not yet available.</p>
+                           <p class="text-xs text-slate-400 mt-1">Click <strong>Refresh Analysis</strong> to run the
+                              agent.</p>
+                        </ng-container>
+                     </div>
+                  </div>
+               </div>
+
+               <!-- 2. ANALYSIS (Detailed Risk & Ops) -->
+               <div *ngIf="activeTab === 'ANALYSIS'"
+                  class="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-4xl mx-auto">
+
+                  <!-- RISK ANALYSIS SECTION -->
+                  <div>
+                     <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <lucide-icon name="shield-alert" class="w-5 h-5 text-slate-500"></lucide-icon>
+                        Risk Analysis
+                     </h3>
+                     <div *ngIf="riskAssessments.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div *ngFor="let assessment of riskAssessments" class="rounded-xl border p-4 transition-all"
+                           [ngClass]="getAssessmentColor(assessment.status)">
+                           <div class="flex items-center justify-between mb-2">
+                              <div class="flex items-center gap-2">
+                                 <span class="text-xs font-bold px-2 py-0.5 rounded bg-white/50 border border-black/5">
+                                    {{ assessment.domain }}
+                                 </span>
+                                 <span class="text-[10px] font-bold uppercase tracking-wide opacity-80">
+                                    {{ assessment.status }}
+                                 </span>
+                              </div>
+                              <span class="text-xl font-bold opacity-40">{{ assessment.score }}</span>
+                           </div>
+                           <p class="text-sm font-medium leading-relaxed">
+                              {{ parseFindings(assessment.findings) }}
+                           </p>
+                        </div>
+                     </div>
+                     <div *ngIf="riskAssessments.length === 0"
+                        class="bg-slate-50 rounded-xl border border-slate-200 p-8 text-center text-slate-500">
+                        <ng-container *ngIf="agentLoading['RISK']">
+                           <lucide-icon name="loader-2"
+                              class="w-6 h-6 mx-auto mb-2 text-slate-400 animate-spin"></lucide-icon>
+                           <p class="text-sm font-medium">Risk agent analyzing proposition...</p>
+                        </ng-container>
+                        <ng-container *ngIf="!agentLoading['RISK']">
+                           <lucide-icon name="shield-alert" class="w-8 h-8 mx-auto mb-3 text-slate-300"></lucide-icon>
+                           <p class="text-sm font-medium">Risk analysis data not yet available.</p>
+                           <p class="text-xs text-slate-400 mt-1">Click <strong>Refresh Analysis</strong> to populate
+                              this section.</p>
+                        </ng-container>
+                     </div>
+                  </div>
+
+                  <!-- OPERATIONAL READINESS SECTION -->
+                  <div>
+                     <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <lucide-icon name="settings" class="w-5 h-5 text-slate-500"></lucide-icon>
+                        Operational Readiness
+                     </h3>
+                     <div *ngIf="opsAssessments.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div *ngFor="let assessment of opsAssessments" class="rounded-xl border p-4 transition-all"
+                           [ngClass]="getAssessmentColor(assessment.status)">
+                           <div class="flex items-center justify-between mb-2">
+                              <div class="flex items-center gap-2">
+                                 <span class="text-xs font-bold px-2 py-0.5 rounded bg-white/50 border border-black/5">
+                                    {{ assessment.domain }}
+                                 </span>
+                                 <span class="text-[10px] font-bold uppercase tracking-wide opacity-80">
+                                    {{ assessment.status }}
+                                 </span>
+                              </div>
+                              <span class="text-xl font-bold opacity-40">{{ assessment.score }}</span>
+                           </div>
+                           <p class="text-sm font-medium leading-relaxed">
+                              {{ parseFindings(assessment.findings) }}
+                           </p>
+                        </div>
+                     </div>
+                     <div *ngIf="opsAssessments.length === 0"
+                        class="bg-slate-50 rounded-xl border border-slate-200 p-8 text-center text-slate-500">
+                        <lucide-icon name="settings" class="w-8 h-8 mx-auto mb-3 text-slate-300"></lucide-icon>
+                        <p class="text-sm font-medium">Operational readiness data not yet available.</p>
+                        <p class="text-xs text-slate-400 mt-1">This section populates from intake assessments.</p>
+                     </div>
+                  </div>
+
+                  <!-- AI PREDICTION (Agent-Driven) -->
+                  <div class="mt-8 pt-8 border-t border-slate-200">
+                     <h4
+                        class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <lucide-icon name="trending-up" class="w-4 h-4 text-amber-500"></lucide-icon>
+                        ML Prediction Agent
+                     </h4>
+                     <app-ml-prediction-result *ngIf="mlPrediction" [result]="mlPrediction"></app-ml-prediction-result>
+                     <div *ngIf="!mlPrediction"
+                        class="bg-slate-50 rounded-xl border border-slate-200 p-8 text-center text-slate-500">
+                        <ng-container *ngIf="agentLoading['ML_PREDICT']">
+                           <lucide-icon name="loader-2"
+                              class="w-6 h-6 mx-auto mb-2 text-amber-500 animate-spin"></lucide-icon>
+                           <p class="text-sm font-medium">ML Prediction analyzing historical trends...</p>
+                        </ng-container>
+                        <ng-container *ngIf="!agentLoading['ML_PREDICT']">
+                           <lucide-icon name="bot" class="w-8 h-8 mx-auto mb-3 text-slate-300"></lucide-icon>
+                           <p class="text-sm font-medium">ML Prediction results not yet available.</p>
+                           <p class="text-xs text-slate-400 mt-1">Click <strong>Refresh Analysis</strong> to run the
+                              agent.</p>
+                        </ng-container>
+                     </div>
+                  </div>
+
+                  <!-- Risk Agent (4-Layer Cascade) -->
+                  <div class="mt-8 pt-8 border-t border-slate-200">
+                     <h4
+                        class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <lucide-icon name="shield-alert" class="w-4 h-4 text-red-500"></lucide-icon>
+                        Risk Agent — 4-Layer Cascade
+                     </h4>
+                     <app-risk-assessment-result *ngIf="riskAssessmentResult"
+                        [result]="riskAssessmentResult"></app-risk-assessment-result>
+                     <div *ngIf="!riskAssessmentResult"
+                        class="bg-slate-50 rounded-xl border border-slate-200 p-8 text-center text-slate-500">
+                        <p class="text-sm font-medium">Risk assessment will appear here once the agent runs.</p>
+                     </div>
+                  </div>
+               </div>
+
+               <!-- 3. APPROVALS (Agent-Driven) -->
+               <div *ngIf="activeTab === 'APPROVALS'"
+                  class="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-4xl mx-auto">
+
+                  <!-- Governance Agent Results -->
+                  <div *ngIf="governanceState">
+                     <h4
+                        class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <lucide-icon name="workflow" class="w-4 h-4 text-slate-500"></lucide-icon>
+                        Governance Agent — Sign-Off Status
+                     </h4>
+                     <app-governance-status [result]="governanceState" (onNudge)="onNudgeSignoff($event)"
+                        (onAssign)="onAssignSignoff($event)">
+                     </app-governance-status>
+                  </div>
+
+                  <!-- Loading State -->
+                  <div *ngIf="!governanceState && agentLoading['GOVERNANCE']"
+                     class="bg-slate-50 rounded-xl border border-slate-200 p-12 text-center">
+                     <lucide-icon name="loader-2"
+                        class="w-8 h-8 mx-auto mb-3 text-slate-400 animate-spin"></lucide-icon>
+                     <p class="text-sm font-medium text-slate-500">Governance agent is analyzing sign-off
+                        requirements...</p>
+                     <p class="text-xs text-slate-400 mt-1">This may take 30-60 seconds</p>
+                  </div>
+
+                  <!-- Error State -->
+                  <div *ngIf="!governanceState && !agentLoading['GOVERNANCE'] && agentErrors['GOVERNANCE']"
+                     class="bg-red-50 rounded-xl border border-red-200 p-8 text-center">
+                     <lucide-icon name="alert-circle" class="w-8 h-8 mx-auto mb-3 text-red-400"></lucide-icon>
+                     <p class="text-sm font-medium text-red-600">Governance agent encountered an error</p>
+                     <p class="text-xs text-red-500 mt-1">{{ agentErrors['GOVERNANCE'] }}</p>
+                     <button (click)="retryAgent('GOVERNANCE')"
+                        class="mt-3 px-4 py-2 text-sm font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition-colors">
+                        Retry
+                     </button>
+                  </div>
+
+                  <!-- Fallback: Not yet run -->
+                  <div *ngIf="!governanceState && !agentLoading['GOVERNANCE'] && !agentErrors['GOVERNANCE']"
+                     class="bg-slate-50 rounded-xl border border-slate-200 p-12 text-center text-slate-500">
+                     <lucide-icon name="workflow" class="w-8 h-8 mx-auto mb-3 text-slate-300"></lucide-icon>
+                     <p class="text-sm font-medium">Governance analysis has not yet run for this NPA.</p>
+                  </div>
+               </div>
+
+               <!-- 4. WORKFLOW (Enriched) -->
+               <div *ngIf="activeTab === 'WORKFLOW'"
+                  class="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-4xl mx-auto">
+
+                  <div class="my-6">
+                     <app-npa-workflow-visualizer [stages]="workflowStages"
+                        [targetCompletion]="workflowTargetCompletion" [projectId]="projectId || ''">
+                     </app-npa-workflow-visualizer>
+                  </div>
+               </div>
+
+               <!-- 5. MONITORING (Agent-Driven) -->
+               <div *ngIf="activeTab === 'MONITORING'"
+                  class="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-4xl mx-auto">
+
+                  <!-- Monitoring Agent Results (takes priority) -->
+                  <div *ngIf="monitoringResult">
+                     <h4
+                        class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <lucide-icon name="activity" class="w-4 h-4 text-emerald-500"></lucide-icon>
+                        Post-Launch Monitoring Agent
+                     </h4>
+                     <app-monitoring-alerts [result]="monitoringResult"></app-monitoring-alerts>
+                  </div>
+
+                  <!-- Loading State -->
+                  <div *ngIf="!monitoringResult && agentLoading['MONITORING']"
+                     class="bg-slate-50 rounded-xl border border-slate-200 p-12 text-center">
+                     <lucide-icon name="loader-2"
+                        class="w-8 h-8 mx-auto mb-3 text-slate-400 animate-spin"></lucide-icon>
+                     <p class="text-sm font-medium text-slate-500">Monitoring agent analyzing post-launch metrics...</p>
+                  </div>
+
+                  <!-- Error State -->
+                  <div *ngIf="!monitoringResult && !agentLoading['MONITORING'] && agentErrors['MONITORING']"
+                     class="bg-red-50 rounded-xl border border-red-200 p-8 text-center">
+                     <lucide-icon name="alert-circle" class="w-8 h-8 mx-auto mb-3 text-red-400"></lucide-icon>
+                     <p class="text-sm font-medium text-red-600">{{ agentErrors['MONITORING'] }}</p>
+                     <button (click)="retryAgent('MONITORING')"
+                        class="mt-3 px-4 py-2 text-sm font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200">Retry</button>
+                  </div>
+
+                  <!-- Fallback: Static metrics when agent hasn't returned -->
+                  <div *ngIf="!monitoringResult && !agentLoading['MONITORING'] && !agentErrors['MONITORING']">
+                     <div>
+                        <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                           <lucide-icon name="bar-chart-2" class="w-4 h-4 text-blue-500"></lucide-icon>
+                           Performance Metrics
+                        </h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                           <div *ngFor="let metric of monitoringMetrics"
+                              class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                              <div class="flex items-center justify-between mb-3">
+                                 <div class="p-1.5 rounded-lg"
+                                    [ngClass]="'bg-' + metric.color + '-50 text-' + metric.color + '-600'">
+                                    <lucide-icon [name]="metric.icon" class="w-4 h-4"></lucide-icon>
+                                 </div>
+                              </div>
+                              <div class="text-2xl font-bold text-slate-900 mb-1">{{ metric.value }}</div>
+                              <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{{ metric.label
+                                 }}</div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Conversational Analytics -->
+                  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                     <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <lucide-icon name="message-square" class="w-4 h-4 text-indigo-500"></lucide-icon>
+                        Ask the Monitoring Agent
+                     </h3>
+                     <p class="text-sm text-slate-500 mb-4">Query real-time monitoring data, ask about breaches, or
+                        request analytics.</p>
+                     <div class="relative">
+                        <input type="text" [(ngModel)]="monitoringQuery" (keydown.enter)="onSendMonitoringQuery()"
+                           placeholder="e.g. What caused the volume breach on Jan 15?"
+                           class="w-full pl-4 pr-12 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none text-sm bg-slate-50">
+                        <button (click)="onSendMonitoringQuery()"
+                           class="absolute right-2 top-2 p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg">
+                           <lucide-icon name="send" class="w-4 h-4"></lucide-icon>
+                        </button>
+                     </div>
+                     <!-- Monitoring response -->
+                     <div *ngIf="monitoringQueryResponse"
+                        class="mt-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                        <p class="text-sm text-slate-700 whitespace-pre-wrap">{{ monitoringQueryResponse }}</p>
+                     </div>
+                     <div *ngIf="monitoringQueryLoading" class="mt-4 flex items-center gap-2 text-sm text-slate-500">
+                        <lucide-icon name="loader-2" class="w-4 h-4 animate-spin"></lucide-icon>
+                        Analyzing...
+                     </div>
+                  </div>
+               </div>
+
+               <!-- 6. CHAT (Live Agent — continues from ideation conversation) -->
+               <div *ngIf="activeTab === 'CHAT'"
+                  class="h-[calc(100vh-280px)] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <app-orchestrator-chat [initialConversationId]="npaContext?.conversationId"
+                     [initialSessionId]="npaContext?.sessionId"
+                     [defaultAgent]="isIdeationStage() ? 'IDEATION' : 'NPA_ORCHESTRATOR'"
+                     [contextLabel]="'NPA: ' + (projectData?.title || npaContext?.title || 'Draft')" class="flex-1">
+                  </app-orchestrator-chat>
+               </div>
+
+            </div>
+         </div>
+      </div>
+   </div>
+</div>

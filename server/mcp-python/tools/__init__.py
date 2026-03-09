@@ -1,0 +1,21 @@
+"""Import all tool modules so they self-register on import."""
+from tools import session  # noqa: F401
+from tools import ideation  # noqa: F401
+from tools import classification  # noqa: F401
+from tools import autofill  # noqa: F401
+from tools import risk  # noqa: F401
+from tools import governance  # noqa: F401
+from tools import audit  # noqa: F401
+from tools import npa_data  # noqa: F401
+from tools import workflow  # noqa: F401
+from tools import monitoring  # noqa: F401
+from tools import documents  # noqa: F401
+from tools import governance_ext  # noqa: F401
+from tools import risk_ext  # noqa: F401
+from tools import kb_search  # noqa: F401
+from tools import prospects  # noqa: F401
+from tools import dashboard  # noqa: F401
+from tools import notifications  # noqa: F401
+from tools import jurisdiction  # noqa: F401
+from tools import bundling  # noqa: F401
+from tools import evergreen  # noqa: F401

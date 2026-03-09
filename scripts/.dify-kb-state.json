@@ -1,0 +1,59 @@
+{
+  "datasets": {
+    "KB_Master_COO_Orchestrator": {
+      "datasetId": "e773dc02-b12f-4568-b985-b20991c55968",
+      "name": "KB_Master_COO_Orchestrator",
+      "sourceFile": "Context/Dify_Agent_KBs/KB_Master_COO_Orchestrator.md",
+      "createdAt": "2026-02-15T13:38:24.956Z"
+    },
+    "KB_Domain_Orchestrator_NPA": {
+      "datasetId": "9e4358ab-458c-4584-926e-be7e22ac8c4a",
+      "name": "KB_Domain_Orchestrator_NPA",
+      "sourceFile": "Context/Dify_Agent_KBs/KB_Domain_Orchestrator_NPA.md",
+      "createdAt": "2026-02-15T13:38:27.127Z"
+    },
+    "KB_NPA_Policies": {
+      "datasetId": "dcf19eea-7e46-4438-b1f7-6d24089014af",
+      "name": "KB_NPA_Policies",
+      "sourceFile": "docs/knowledge-base/KB_NPA_Policies.md",
+      "updatedAt": "2026-02-15T17:02:16.178Z"
+    },
+    "KB_NPA_Classification_Rules": {
+      "datasetId": "1d70b72d-2309-4961-85ad-b31e4f8c1288",
+      "name": "KB_NPA_Classification_Rules",
+      "sourceFile": "docs/knowledge-base/KB_NPA_Classification_Rules.md",
+      "createdAt": "2026-02-15T13:38:31.978Z"
+    },
+    "KB_Ideation_Agent": {
+      "datasetId": "9635f0a4-7d16-461c-b196-c8ba81f27d9b",
+      "name": "KB_Ideation_Agent",
+      "sourceFile": "Context/Dify_Agent_KBs/KB_Ideation_Agent.md",
+      "createdAt": "2026-02-15T17:02:13.618Z"
+    },
+    "KB_NPA_Templates": {
+      "datasetId": "32f94152-1033-4bb4-8561-d234328d79f2",
+      "name": "KB_NPA_Templates",
+      "sourceFile": "docs/knowledge-base/KB_NPA_Templates.md",
+      "createdAt": "2026-02-15T17:02:18.692Z"
+    },
+    "KB_Classification_Criteria": {
+      "datasetId": "9fc843f2-8ec6-42dd-a347-f81a33e6a914",
+      "name": "KB_Classification_Criteria",
+      "sourceFile": "Context/Dify_KB_Docs/KB_Classification_Criteria.md",
+      "createdAt": "2026-02-16T06:26:24.000Z"
+    },
+    "KB_Prohibited_Items": {
+      "datasetId": "9fc843f2-8ec6-42dd-a347-f81a33e6a914",
+      "name": "KB_Prohibited_Items",
+      "sourceFile": "Context/Dify_KB_Docs/KB_Prohibited_Items.md",
+      "createdAt": "2026-02-16T06:26:28.000Z"
+    },
+    "KB_Product_Taxonomy": {
+      "datasetId": "9fc843f2-8ec6-42dd-a347-f81a33e6a914",
+      "name": "KB_Product_Taxonomy",
+      "sourceFile": "Context/Dify_KB_Docs/KB_Product_Taxonomy.md",
+      "createdAt": "2026-02-16T06:26:30.000Z"
+    }
+  },
+  "lastUpdated": "2026-02-16T06:26:30.000Z"
+}

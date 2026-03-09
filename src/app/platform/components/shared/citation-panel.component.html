@@ -1,0 +1,43 @@
+<div class="citation-panel mt-2" *ngIf="citations && citations.length > 0">
+    <div class="citation-header d-flex align-items-center mb-1 user-select-none" (click)="toggleExpand()"
+        style="cursor: pointer; opacity: 0.9;">
+        <span class="badge bg-secondary text-light">
+            <i class="bi bi-journal-text me-1"></i> {{ citations.length }} Sources
+        </span>
+        <span class="ms-2 small text-muted">
+            {{ isExpanded ? 'Hide citations' : 'Show citations' }}
+        </span>
+        <i class="ms-auto" [ngClass]="isExpanded ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+    </div>
+
+    <div class="citation-content mt-2" *ngIf="isExpanded" style="animation: fadeIn 0.3s ease-in-out;">
+        <div class="card mb-2 shadow-sm border-1" *ngFor="let citation of citations" style="border-radius: 4px;">
+            <div class="card-body p-2 px-3 small">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong class="text-dark">
+                        <i class="me-1" [ngClass]="getTierIcon(citation.authority_tier)"></i>
+                        {{ citation.source_id || 'Unknown Source' }}
+                    </strong>
+                    <span class="badge bg-light text-dark border">
+                        {{ getTierName(citation.authority_tier) }}
+                    </span>
+                </div>
+
+                <div class="row g-1 text-muted mt-1" style="font-size: 0.85rem;">
+                    <div class="col-6" *ngIf="citation.source_type">
+                        <i class="bi bi-tag"></i> {{ citation.source_type }}
+                    </div>
+                    <div class="col-6 text-end" *ngIf="citation.version">
+                        <i class="bi bi-hash"></i> v{{ citation.version }}
+                    </div>
+                    <div class="col-6" *ngIf="citation.effective_date">
+                        <i class="bi bi-calendar-check"></i> {{ citation.effective_date | date:'shortDate' }}
+                    </div>
+                    <div class="col-6 text-end" *ngIf="citation.doc_section">
+                        <i class="bi bi-list-nested"></i> {{ citation.doc_section }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

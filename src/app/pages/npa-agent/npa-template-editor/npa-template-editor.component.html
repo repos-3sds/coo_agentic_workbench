@@ -1,0 +1,748 @@
+<!-- FULL-SCREEN EDITOR CONTAINER -->
+<div class="fixed inset-0 z-[200] bg-white flex flex-col font-sans animate-in fade-in duration-200">
+
+   <!-- TOP BAR -->
+   <div class="bg-slate-900 flex items-center justify-between px-4 z-20 flex-none" style="height:80px">
+      <div class="flex items-center gap-3">
+         <button (click)="closeEditor()"
+            class="flex items-center justify-center w-8 h-8 rounded-md hover:bg-white/10 text-slate-400 hover:text-white transition-all">
+            <lucide-icon name="arrow-left" class="w-4 h-4"></lucide-icon>
+         </button>
+         <div class="h-5 w-px bg-slate-700"></div>
+         <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded bg-mbs-primary flex items-center justify-center">
+               <lucide-icon name="file-text" class="w-4 h-4 text-white"></lucide-icon>
+            </div>
+            <div>
+               <h1 class="text-sm font-semibold text-white leading-none">{{ getDocTitle() }}</h1>
+               <p class="text-xs text-slate-400 mt-0.5">Full NPA &middot; Draft &middot; v1.0</p>
+            </div>
+         </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+         <!-- View toggle: Live | Doc | Form -->
+         <div class="flex items-center bg-slate-800 rounded p-0.5">
+            <button (click)="viewMode = 'document'" [class.bg-slate-600]="viewMode === 'document'"
+               [class.text-white]="viewMode === 'document'"
+               class="px-3 py-1.5 text-xs font-medium rounded transition-all text-slate-400 hover:text-slate-200">Doc</button>
+            <button (click)="viewMode = 'form'" [class.bg-slate-600]="viewMode === 'form'"
+               [class.text-white]="viewMode === 'form'"
+               class="px-3 py-1.5 text-xs font-medium rounded transition-all text-slate-400 hover:text-slate-200">Form</button>
+         </div>
+
+         <!-- Lineage legend — colored dots -->
+         <div
+            class="hidden lg:flex items-center gap-3 text-[11px] font-medium border-l border-slate-700 pl-3 ml-1 text-slate-400">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400"></span>Auto</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-400"></span>Adapted</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-400"></span>Manual</span>
+            <span class="flex items-center gap-1"><span
+                  class="w-2 h-2 rounded-full bg-slate-500 ring-1 ring-slate-400"></span>Empty</span>
+         </div>
+
+         <div class="h-5 w-px bg-slate-700"></div>
+
+         <!-- Governance Check CTA -->
+         <button (click)="validateGovernance()" [disabled]="isRunningGovernance"
+            class="px-3 py-1.5 text-xs font-semibold rounded transition-colors flex items-center gap-1.5"
+            [ngClass]="isRunningGovernance ? 'bg-slate-700 text-slate-400 cursor-wait' : 'bg-emerald-600 hover:bg-emerald-700 text-white'">
+            <lucide-icon [name]="isRunningGovernance ? 'loader-2' : 'shield-check'" class="w-3.5 h-3.5"
+               [class.animate-spin]="isRunningGovernance"></lucide-icon>
+            {{ isRunningGovernance ? 'Running...' : 'Governance Check' }}
+         </button>
+
+         <button (click)="save()"
+            class="px-4 py-1.5 text-xs font-semibold text-white bg-mbs-primary hover:bg-mbs-primary-hover rounded-lg transition-colors flex items-center gap-1.5">
+            <lucide-icon name="save" class="w-3.5 h-3.5"></lucide-icon> Save &amp; Close
+         </button>
+      </div>
+   </div>
+
+   <!-- CONTENT — 3 column -->
+   <div class="flex-1 overflow-hidden flex min-h-0">
+
+      <!-- LEFT SIDEBAR — Navigation + Stats -->
+      <div class="w-64 bg-slate-50 border-r border-slate-200 overflow-y-auto hidden lg:flex flex-col flex-none">
+
+         <!-- Completion header -->
+         <div class="px-4 py-3 border-b border-slate-200 bg-white">
+            <div class="flex items-center justify-between mb-2">
+               <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Progress</span>
+               <span class="text-sm font-bold text-slate-700">{{ getOverallCompletion() }}%</span>
+            </div>
+            <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+               <div class="h-full rounded-full bg-blue-500 transition-all duration-500"
+                  [style.width.%]="getOverallCompletion()"></div>
+            </div>
+            <div class="flex items-center justify-between mt-2 text-[11px] text-slate-400">
+               <span>{{ getFilledFieldCount() }} / {{ getTotalFieldCount() }} fields</span>
+            </div>
+         </div>
+
+         <!-- Section nav — same template tree for both Doc and Form views -->
+         <nav class="flex-1 py-1 overflow-y-auto">
+            <a *ngFor="let navItem of templateNavSections; trackBy: trackByNavId" href="javascript:void(0)"
+               (click)="scrollToSection(navItem.id)"
+               class="group flex items-center gap-2 px-3 py-2 text-[12px] transition-all border-l-2 mx-1 rounded-r-sm"
+               [class.border-blue-500]="activeSection === navItem.id" [class.bg-blue-50]="activeSection === navItem.id"
+               [class.text-slate-900]="activeSection === navItem.id"
+               [class.font-semibold]="activeSection === navItem.id"
+               [class.border-transparent]="activeSection !== navItem.id"
+               [class.text-slate-500]="activeSection !== navItem.id"
+               [class.hover:bg-slate-50]="activeSection !== navItem.id"
+               [class.hover:text-slate-700]="activeSection !== navItem.id">
+               <span class="font-mono text-[10px] text-slate-400 w-7 text-right flex-none">{{ navItem.numbering
+                  }}</span>
+               <span class="flex-1 leading-snug truncate">{{ navItem.label }}</span>
+               <span class="text-[10px] font-mono text-slate-400 flex-none">{{ getNodeCompletion(navItem.id) }}%</span>
+            </a>
+         </nav>
+
+         <!-- Lineage summary footer -->
+         <div class="px-4 py-3 border-t border-slate-200 bg-white text-[11px] text-slate-500 space-y-1.5">
+            <div class="flex items-center justify-between"><span class="flex items-center gap-1.5"><span
+                     class="w-2 h-2 rounded-full bg-emerald-400"></span>Auto-filled (AI)</span><span
+                  class="font-bold text-slate-700">{{ getLineageCount('AUTO') }}</span></div>
+            <div class="flex items-center justify-between"><span class="flex items-center gap-1.5"><span
+                     class="w-2 h-2 rounded-full bg-amber-400"></span>Adapted</span><span
+                  class="font-bold text-slate-700">{{ getLineageCount('ADAPTED') }}</span></div>
+            <div class="flex items-center justify-between"><span class="flex items-center gap-1.5"><span
+                     class="w-2 h-2 rounded-full bg-blue-400"></span>Manual</span><span
+                  class="font-bold text-slate-700">{{ getLineageCount('MANUAL') }}</span></div>
+            <div class="flex items-center justify-between border-t border-slate-100 pt-1.5 mt-1"><span
+                  class="flex items-center gap-1.5"><span
+                     class="w-2 h-2 rounded-full bg-slate-300 ring-1 ring-slate-200"></span>Empty</span><span
+                  class="font-bold text-slate-400">{{ getTotalFieldCount() - getFilledFieldCount() }}</span></div>
+         </div>
+      </div>
+
+      <!-- CENTER CONTENT -->
+      <div class="flex-1 overflow-y-auto scroll-smooth relative min-h-0" id="form-container"
+         (scroll)="onScroll($event)">
+
+
+         <!-- ====== DOCUMENT VIEW (Template Tree) ====== -->
+         <ng-container *ngIf="viewMode === 'document'">
+
+            <!-- Part C — Template tree renderer -->
+            <div class="bg-white npa-doc-body">
+
+               <!-- Part C header -->
+               <div class="npa-doc-part-head">
+                  <h2 class="text-[15px] font-bold text-slate-800 uppercase tracking-wide">Part C: Product Information
+                     to be Completed by Proposing Unit</h2>
+               </div>
+
+               <!-- Render Part C sections -->
+               <ng-container *ngFor="let sectionNode of templateTree.children; trackBy: trackByNodeId">
+                  <ng-container
+                     *ngTemplateOutlet="nodeRenderer; context: { $implicit: sectionNode, depth: 0 }"></ng-container>
+               </ng-container>
+
+               <!-- Appendices header -->
+               <div class="npa-doc-part-head" style="margin-top:24px;">
+                  <h2 class="text-[15px] font-bold text-slate-800 uppercase tracking-wide">Appendices</h2>
+               </div>
+
+               <!-- Render Appendices -->
+               <ng-container *ngFor="let appNode of appendicesTree; trackBy: trackByNodeId">
+                  <ng-container
+                     *ngTemplateOutlet="nodeRenderer; context: { $implicit: appNode, depth: 0 }"></ng-container>
+               </ng-container>
+
+               <!-- Bottom padding -->
+               <div class="h-20"></div>
+            </div>
+
+            <!-- Recursive node renderer template -->
+            <ng-template #nodeRenderer let-node let-depth="depth">
+
+               <!-- SECTION type — Roman numeral heading (I, II, III) -->
+               <ng-container *ngIf="node.type === 'section' || node.type === 'appendix'">
+                  <!-- Scroll anchor wrapper (non-sticky, so scroll-to works) -->
+                  <div [id]="'sec-' + node.id">
+                     <div class="sticky top-0 z-10 bg-white border-b border-slate-200 npa-doc-section-head">
+                        <div class="flex items-center justify-between">
+                           <h2 class="text-[15px] font-bold text-slate-900 leading-snug">
+                              <span class="text-slate-400 mr-1.5">{{ node.numbering }}</span>
+                              <span *ngIf="node.numbering && !node.numbering.startsWith('Appendix')">.</span>
+                              {{ node.label }}
+                           </h2>
+                           <span class="text-[10px] font-medium text-slate-400">{{ getNodeCompletion(node.id) }}%</span>
+                        </div>
+                     </div>
+                     <div class="npa-doc-fields">
+                        <!-- Guidance text for section-level nodes -->
+                        <div *ngIf="node.guidance" class="npa-doc-guidance">
+                           <p>{{ node.guidance }}</p>
+                        </div>
+                        <!-- Render field values for section-level fieldKeys -->
+                        <ng-container *ngIf="node.fieldKeys?.length">
+                           <ng-container *ngFor="let fk of node.fieldKeys; trackBy: trackByFieldKey">
+                              <ng-container *ngIf="getFieldForKey(fk) as field">
+                                 <ng-container
+                                    *ngTemplateOutlet="fieldBlock; context: { $implicit: field }"></ng-container>
+                              </ng-container>
+                           </ng-container>
+                        </ng-container>
+                        <!-- Recurse into children -->
+                        <ng-container *ngFor="let child of node.children; trackBy: trackByNodeId">
+                           <ng-container
+                              *ngTemplateOutlet="nodeRenderer; context: { $implicit: child, depth: depth + 1 }"></ng-container>
+                        </ng-container>
+                     </div>
+                  </div><!-- close scroll anchor wrapper -->
+               </ng-container>
+
+               <!-- TOPIC type — Numbered heading (1, 2, 3) -->
+               <ng-container *ngIf="node.type === 'topic'">
+                  <div class="npa-doc-topic-head">
+                     <h3 class="text-[14px] font-semibold text-slate-800">
+                        <span class="text-slate-400 mr-1">{{ node.numbering }}.</span> {{ node.label }}
+                     </h3>
+                  </div>
+                  <!-- Guidance text -->
+                  <div *ngIf="node.guidance" class="npa-doc-guidance">
+                     <p>{{ node.guidance }}</p>
+                  </div>
+                  <!-- Field values -->
+                  <ng-container *ngIf="node.fieldKeys?.length">
+                     <ng-container *ngFor="let fk of node.fieldKeys; trackBy: trackByFieldKey">
+                        <ng-container *ngIf="getFieldForKey(fk) as field">
+                           <ng-container *ngTemplateOutlet="fieldBlock; context: { $implicit: field }"></ng-container>
+                        </ng-container>
+                     </ng-container>
+                  </ng-container>
+                  <!-- Recurse into children -->
+                  <ng-container *ngFor="let child of node.children; trackBy: trackByNodeId">
+                     <ng-container
+                        *ngTemplateOutlet="nodeRenderer; context: { $implicit: child, depth: depth + 1 }"></ng-container>
+                  </ng-container>
+               </ng-container>
+
+               <!-- SUB_QUESTION type — Lettered sub-heading (a, b, c) -->
+               <ng-container *ngIf="node.type === 'sub_question'">
+                  <div class="npa-doc-subq-head">
+                     <h4 class="text-[14px] font-semibold text-slate-800">
+                        <span class="text-slate-500 mr-1">{{ node.numbering }}</span> {{ node.label }}
+                     </h4>
+                  </div>
+                  <!-- Guidance text -->
+                  <div *ngIf="node.guidance" class="npa-doc-guidance npa-doc-guidance-sub">
+                     <p>{{ node.guidance }}</p>
+                  </div>
+                  <!-- Field values -->
+                  <ng-container *ngIf="node.fieldKeys?.length">
+                     <ng-container *ngFor="let fk of node.fieldKeys">
+                        <ng-container *ngIf="getFieldForKey(fk) as field">
+                           <ng-container *ngTemplateOutlet="fieldBlock; context: { $implicit: field }"></ng-container>
+                        </ng-container>
+                     </ng-container>
+                  </ng-container>
+                  <!-- Recurse into children -->
+                  <ng-container *ngFor="let child of node.children">
+                     <ng-container
+                        *ngTemplateOutlet="nodeRenderer; context: { $implicit: child, depth: depth + 1 }"></ng-container>
+                  </ng-container>
+               </ng-container>
+
+               <!-- DETAIL type — Numbered sub-detail (1.1, 1.2) -->
+               <ng-container *ngIf="node.type === 'detail'">
+                  <div class="npa-doc-detail-head">
+                     <span class="text-slate-500 text-[13px] font-medium mr-1">{{ node.numbering }}</span>
+                     <span class="text-[13px] font-medium text-slate-700">{{ node.label }}</span>
+                  </div>
+                  <ng-container *ngIf="node.fieldKeys?.length">
+                     <ng-container *ngFor="let fk of node.fieldKeys">
+                        <ng-container *ngIf="getFieldForKey(fk) as field">
+                           <ng-container *ngTemplateOutlet="fieldBlock; context: { $implicit: field }"></ng-container>
+                        </ng-container>
+                     </ng-container>
+                  </ng-container>
+               </ng-container>
+
+               <!-- TABLE type — Structured table (risk matrix, entity table) -->
+               <ng-container *ngIf="node.type === 'table'">
+                  <div class="npa-doc-table-wrap">
+                     <table class="npa-doc-table">
+                        <thead>
+                           <tr>
+                              <th *ngFor="let col of node.tableColumns">{{ col }}</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr *ngFor="let row of node.tableFieldMapping">
+                              <td class="font-medium">{{ row.rowLabel }}</td>
+                              <ng-container *ngIf="getFieldForKey(row.fieldKey) as field">
+                                 <!-- Split pipe-delimited values into cells -->
+                                 <td *ngFor="let cell of splitTableValue(field.value, (node.tableColumns?.length || 2) - 1)"
+                                    (click)="onFieldFocus(field)" class="cursor-pointer hover:bg-blue-50"
+                                    [class.text-slate-800]="cell === 'Yes'"
+                                    [class.text-slate-400]="cell === 'No' || cell === 'N/A'">
+                                    {{ cell }}
+                                 </td>
+                              </ng-container>
+                              <ng-container *ngIf="!getFieldForKey(row.fieldKey)">
+                                 <td *ngFor="let col of node.tableColumns?.slice(1)" class="text-slate-300 italic">
+                                    &mdash;</td>
+                              </ng-container>
+                           </tr>
+                        </tbody>
+                     </table>
+                  </div>
+               </ng-container>
+
+            </ng-template>
+
+            <!-- Field rendering block (shared by all node types) -->
+            <ng-template #fieldBlock let-field>
+               <div class="npa-doc-field transition-all duration-300" [id]="'field-' + field.key"
+                  (click)="onFieldFocus(field)">
+                  <div class="npa-doc-field-label">
+                     <span class="npa-doc-field-name">{{ field.label }}:</span>
+                     <span *ngIf="field.required" class="text-red-500 text-[11px]">*</span>
+                     <span class="w-2 h-2 rounded-full flex-none ml-1"
+                        [class.bg-emerald-400]="field.lineage === 'AUTO' && field.value"
+                        [class.bg-amber-400]="field.lineage === 'ADAPTED' && field.value"
+                        [class.bg-blue-400]="field.lineage === 'MANUAL' && field.value"
+                        [class.bg-slate-300]="!field.value" [class.ring-1]="!field.value"
+                        [class.ring-slate-200]="!field.value" [title]="field.value ? field.lineage : 'Empty'"></span>
+                  </div>
+                  <div *ngIf="editingField !== field.key" class="npa-doc-field-value doc-content cursor-text"
+                     [class.npa-doc-empty]="!field.value" (click)="startEditing(field)"
+                     [innerHTML]="formatDocContent(field.value) || getEmptyPlaceholder('Click to add content...')">
+                  </div>
+                  <textarea *ngIf="editingField === field.key" #editArea [(ngModel)]="field.value"
+                     (blur)="stopEditing()" (input)="autoSize($event)"
+                     class="w-full text-[14px] text-slate-800 leading-relaxed border border-blue-400 bg-blue-50/30 outline-none ring-1 ring-blue-200 resize-none px-3 py-2 rounded"
+                     rows="6"></textarea>
+               </div>
+            </ng-template>
+
+         </ng-container>
+
+         <!-- ====== FORM VIEW (Template Tree — same hierarchy as Doc View) ====== -->
+         <ng-container *ngIf="viewMode === 'form'">
+
+            <div class="npa-form-body">
+
+               <!-- Part C header -->
+               <div class="npa-form-part-head">
+                  <h2 class="text-[14px] font-bold text-slate-700 uppercase tracking-wide">Part C: Product Information
+                     to be Completed by Proposing Unit</h2>
+               </div>
+
+               <!-- Render Part C sections -->
+               <ng-container *ngFor="let sectionNode of templateTree.children">
+                  <ng-container
+                     *ngTemplateOutlet="formNodeRenderer; context: { $implicit: sectionNode, depth: 0 }"></ng-container>
+               </ng-container>
+
+               <!-- Appendices header -->
+               <div class="npa-form-part-head" style="margin-top:20px;">
+                  <h2 class="text-[14px] font-bold text-slate-700 uppercase tracking-wide">Appendices</h2>
+               </div>
+
+               <!-- Render Appendices -->
+               <ng-container *ngFor="let appNode of appendicesTree">
+                  <ng-container
+                     *ngTemplateOutlet="formNodeRenderer; context: { $implicit: appNode, depth: 0 }"></ng-container>
+               </ng-container>
+
+               <!-- Bottom padding -->
+               <div class="h-20"></div>
+            </div>
+
+            <!-- Form View recursive node renderer -->
+            <ng-template #formNodeRenderer let-node let-depth="depth">
+
+               <!-- SECTION / APPENDIX — card with header -->
+               <ng-container *ngIf="node.type === 'section' || node.type === 'appendix'">
+                  <div [id]="'sec-' + node.id" class="npa-form-section">
+                     <div class="npa-form-section-head">
+                        <div class="flex items-center justify-between">
+                           <h2 class="text-[15px] font-bold text-slate-900">
+                              <span class="text-slate-500 mr-1">{{ node.numbering }}</span>
+                              <span *ngIf="node.numbering && !node.numbering.startsWith('Appendix')">.</span>
+                              {{ node.label }}
+                           </h2>
+                           <span class="text-[10px] font-medium text-slate-400">{{ getNodeCompletion(node.id) }}%</span>
+                        </div>
+                        <p *ngIf="node.guidance" class="text-[12px] text-slate-500 mt-1 italic">{{ node.guidance }}</p>
+                     </div>
+                     <div class="npa-form-section-body">
+                        <!-- Section-level fields -->
+                        <ng-container *ngIf="node.fieldKeys?.length">
+                           <div class="npa-form-field-grid">
+                              <ng-container *ngFor="let fk of node.fieldKeys">
+                                 <ng-container *ngIf="getFieldForKey(fk) as field">
+                                    <ng-container
+                                       *ngTemplateOutlet="formFieldBlock; context: { $implicit: field }"></ng-container>
+                                 </ng-container>
+                              </ng-container>
+                           </div>
+                        </ng-container>
+                        <!-- Recurse into children -->
+                        <ng-container *ngFor="let child of node.children">
+                           <ng-container
+                              *ngTemplateOutlet="formNodeRenderer; context: { $implicit: child, depth: depth + 1 }"></ng-container>
+                        </ng-container>
+                     </div>
+                  </div>
+               </ng-container>
+
+               <!-- TOPIC — numbered heading (1, 2, 3) with grouped fields -->
+               <ng-container *ngIf="node.type === 'topic'">
+                  <div class="npa-form-topic">
+                     <h3 class="npa-form-topic-head">
+                        <span class="text-slate-400 mr-1">{{ node.numbering }}.</span> {{ node.label }}
+                     </h3>
+                     <div *ngIf="node.guidance" class="npa-form-guidance">
+                        <p>{{ node.guidance }}</p>
+                     </div>
+                     <ng-container *ngIf="node.fieldKeys?.length">
+                        <div class="npa-form-field-grid">
+                           <ng-container *ngFor="let fk of node.fieldKeys">
+                              <ng-container *ngIf="getFieldForKey(fk) as field">
+                                 <ng-container
+                                    *ngTemplateOutlet="formFieldBlock; context: { $implicit: field }"></ng-container>
+                              </ng-container>
+                           </ng-container>
+                        </div>
+                     </ng-container>
+                     <ng-container *ngFor="let child of node.children">
+                        <ng-container
+                           *ngTemplateOutlet="formNodeRenderer; context: { $implicit: child, depth: depth + 1 }"></ng-container>
+                     </ng-container>
+                  </div>
+               </ng-container>
+
+               <!-- SUB_QUESTION — lettered (a, b, c) -->
+               <ng-container *ngIf="node.type === 'sub_question'">
+                  <div class="npa-form-subq">
+                     <h4 class="npa-form-subq-head">
+                        <span class="text-slate-400 mr-1">{{ node.numbering }}</span> {{ node.label }}
+                     </h4>
+                     <div *ngIf="node.guidance" class="npa-form-guidance npa-form-guidance-sm">
+                        <p>{{ node.guidance }}</p>
+                     </div>
+                     <ng-container *ngIf="node.fieldKeys?.length">
+                        <div class="npa-form-field-grid">
+                           <ng-container *ngFor="let fk of node.fieldKeys">
+                              <ng-container *ngIf="getFieldForKey(fk) as field">
+                                 <ng-container
+                                    *ngTemplateOutlet="formFieldBlock; context: { $implicit: field }"></ng-container>
+                              </ng-container>
+                           </ng-container>
+                        </div>
+                     </ng-container>
+                     <ng-container *ngFor="let child of node.children">
+                        <ng-container
+                           *ngTemplateOutlet="formNodeRenderer; context: { $implicit: child, depth: depth + 1 }"></ng-container>
+                     </ng-container>
+                  </div>
+               </ng-container>
+
+               <!-- DETAIL — numbered sub-detail -->
+               <ng-container *ngIf="node.type === 'detail'">
+                  <div class="npa-form-detail">
+                     <span class="text-slate-400 text-[12px] font-medium mr-1">{{ node.numbering }}</span>
+                     <span class="text-[13px] font-medium text-slate-600">{{ node.label }}</span>
+                  </div>
+                  <ng-container *ngIf="node.fieldKeys?.length">
+                     <div class="npa-form-field-grid" style="padding-left:20px;">
+                        <ng-container *ngFor="let fk of node.fieldKeys">
+                           <ng-container *ngIf="getFieldForKey(fk) as field">
+                              <ng-container
+                                 *ngTemplateOutlet="formFieldBlock; context: { $implicit: field }"></ng-container>
+                           </ng-container>
+                        </ng-container>
+                     </div>
+                  </ng-container>
+               </ng-container>
+
+               <!-- TABLE — same as Doc View -->
+               <ng-container *ngIf="node.type === 'table'">
+                  <div class="npa-doc-table-wrap" style="margin: 8px 0 16px;">
+                     <table class="npa-doc-table">
+                        <thead>
+                           <tr>
+                              <th *ngFor="let col of node.tableColumns">{{ col }}</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr *ngFor="let row of node.tableFieldMapping">
+                              <td class="font-medium">{{ row.rowLabel }}</td>
+                              <ng-container *ngIf="getFieldForKey(row.fieldKey) as field">
+                                 <td *ngFor="let cell of splitTableValue(field.value, (node.tableColumns?.length || 2) - 1)"
+                                    (click)="onFieldFocus(field)" class="cursor-pointer hover:bg-blue-50"
+                                    [class.text-slate-800]="cell === 'Yes'"
+                                    [class.text-slate-400]="cell === 'No' || cell === 'N/A'">
+                                    {{ cell }}
+                                 </td>
+                              </ng-container>
+                              <ng-container *ngIf="!getFieldForKey(row.fieldKey)">
+                                 <td *ngFor="let col of node.tableColumns?.slice(1)" class="text-slate-300 italic">
+                                    &mdash;</td>
+                              </ng-container>
+                           </tr>
+                        </tbody>
+                     </table>
+                  </div>
+               </ng-container>
+
+            </ng-template>
+
+            <!-- Form View field input block -->
+            <ng-template #formFieldBlock let-field>
+               <div class="npa-form-field" [class.npa-form-field-wide]="field.type === 'textarea'"
+                  (click)="onFieldFocus(field)">
+                  <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                     {{ field.label }}
+                     <span *ngIf="field.required" class="text-red-500">*</span>
+                     <span class="inline-block w-2 h-2 rounded-full ml-1 -mt-px"
+                        [class.bg-emerald-400]="field.lineage === 'AUTO' && field.value"
+                        [class.bg-amber-400]="field.lineage === 'ADAPTED' && field.value"
+                        [class.bg-blue-400]="field.lineage === 'MANUAL' && field.value"
+                        [class.bg-slate-300]="!field.value" [title]="field.value ? field.lineage : 'Empty'"></span>
+                  </label>
+                  <select *ngIf="field.type === 'select'" [(ngModel)]="field.value"
+                     [ngClass]="getInputStyles(field.lineage, focusedField?.key === field.key)"
+                     class="w-full text-sm rounded-md px-3 py-2 outline-none transition-all appearance-none bg-white">
+                     <option value="" disabled>Select...</option>
+                     <option *ngFor="let opt of field.options" [value]="opt">{{ opt }}</option>
+                  </select>
+                  <input *ngIf="field.type === 'date'" [(ngModel)]="field.value" type="date"
+                     [ngClass]="getInputStyles(field.lineage, focusedField?.key === field.key)"
+                     class="w-full text-sm rounded-md px-3 py-2 outline-none transition-all">
+                  <input
+                     *ngIf="field.type !== 'textarea' && field.type !== 'file' && field.type !== 'select' && field.type !== 'date'"
+                     [(ngModel)]="field.value" [type]="field.type || 'text'"
+                     [placeholder]="field.tooltip || field.placeholder || ''"
+                     [ngClass]="getInputStyles(field.lineage, focusedField?.key === field.key)"
+                     class="w-full text-sm rounded-md px-3 py-2 outline-none transition-all">
+                  <textarea *ngIf="field.type === 'textarea'" [(ngModel)]="field.value"
+                     [rows]="getTextareaRows(field.value)" [placeholder]="field.tooltip || field.placeholder || ''"
+                     [ngClass]="getInputStyles(field.lineage, focusedField?.key === field.key)"
+                     class="w-full text-sm rounded-md px-3 py-2 outline-none transition-all resize-y"></textarea>
+               </div>
+            </ng-template>
+
+         </ng-container>
+
+      </div>
+
+      <!-- RIGHT SIDEBAR — Source Inspector + Similar NPAs -->
+      <div class="w-80 bg-white border-l border-slate-200 flex-none flex-col overflow-y-auto hidden lg:flex">
+
+         <!-- Source Inspector Header -->
+         <div class="h-11 border-b border-slate-100 flex items-center justify-between px-4 bg-slate-50 flex-none">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+               <lucide-icon name="eye" class="w-3.5 h-3.5"></lucide-icon> Source Inspector
+            </h3>
+            <button *ngIf="focusedField" (click)="focusedField = null" class="text-slate-400 hover:text-slate-600 p-1">
+               <lucide-icon name="x" class="w-4 h-4"></lucide-icon>
+            </button>
+         </div>
+
+         <div class="flex-1 overflow-y-auto">
+
+            <!-- Focused field detail -->
+            <ng-container *ngIf="focusedField">
+               <div class="p-4 space-y-4 border-b border-slate-100">
+                  <div>
+                     <p class="text-[11px] uppercase font-bold text-slate-400 mb-0.5">Field</p>
+                     <h2 class="text-sm font-bold text-slate-900">{{ focusedField.label }}</h2>
+                     <div class="mt-1.5 flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded text-[11px] font-bold uppercase flex items-center gap-1"
+                           [ngClass]="getLineageBadgeClass(focusedField.lineage, !!focusedField.value)">
+                           <span class="w-1.5 h-1.5 rounded-full"
+                              [class.bg-emerald-500]="focusedField.lineage === 'AUTO' && focusedField.value"
+                              [class.bg-amber-500]="focusedField.lineage === 'ADAPTED' && focusedField.value"
+                              [class.bg-blue-500]="focusedField.lineage === 'MANUAL' && focusedField.value"
+                              [class.bg-slate-400]="!focusedField.value"></span>
+                           {{ focusedField.value ? focusedField.lineage : 'EMPTY' }}
+                        </span>
+                        <span *ngIf="focusedField.lineageMetadata?.confidenceScore"
+                           class="text-[11px] font-medium text-slate-400">
+                           {{ focusedField.lineageMetadata?.confidenceScore }}% confidence
+                        </span>
+                     </div>
+                  </div>
+
+                  <!-- AUTO / ADAPTED — show source info -->
+                  <div *ngIf="focusedField.lineage !== 'MANUAL' && focusedField.value">
+                     <div *ngIf="focusedField.lineageMetadata?.adaptationLogic"
+                        class="bg-amber-50 rounded-md p-2.5 border border-amber-100 mb-3">
+                        <p class="text-[11px] font-bold text-amber-800 mb-0.5">Adaptation Logic</p>
+                        <p class="text-xs text-amber-700 leading-relaxed">{{
+                           focusedField.lineageMetadata?.adaptationLogic }}</p>
+                     </div>
+                     <div *ngIf="focusedField.lineageMetadata?.sourceSnippet">
+                        <p class="text-[11px] uppercase font-bold text-slate-400 mb-0.5">Source</p>
+                        <div
+                           class="bg-slate-50 rounded-md p-2.5 border border-slate-200 text-xs text-slate-600 leading-relaxed">
+                           "{{ focusedField.lineageMetadata?.sourceSnippet }}"
+                        </div>
+                     </div>
+                  </div>
+
+               </div>
+            </ng-container>
+
+            <!-- No field selected prompt -->
+            <div *ngIf="!focusedField" class="p-4 text-center text-slate-400 border-b border-slate-100">
+               <lucide-icon name="mouse-pointer-click" class="w-5 h-5 mx-auto mb-1.5 text-slate-300"></lucide-icon>
+               <p class="text-[11px]">Click any field to inspect its source and lineage</p>
+            </div>
+
+            <!-- Similar NPAs Reference Panel -->
+            <div class="p-4">
+               <div class="flex items-center justify-between mb-3">
+                  <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                     <lucide-icon name="git-compare" class="w-3.5 h-3.5"></lucide-icon> Similar NPA Drafts
+                  </h3>
+                  <button *ngIf="similarNpas.length === 0 && !isLoadingSimilar" (click)="loadSimilarNpas()"
+                     class="text-[10px] font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+                     Load
+                  </button>
+                  <button *ngIf="similarNpas.length > 0" (click)="loadSimilarNpas()"
+                     class="text-[10px] font-semibold text-slate-400 hover:text-slate-600 transition-colors">
+                     Refresh
+                  </button>
+               </div>
+
+               <!-- Loading state -->
+               <div *ngIf="isLoadingSimilar" class="text-center py-4">
+                  <lucide-icon name="loader-2" class="w-4 h-4 mx-auto text-blue-500 animate-spin mb-1"></lucide-icon>
+                  <p class="text-[11px] text-slate-400">Finding similar NPAs...</p>
+               </div>
+
+               <!-- Empty state -->
+               <div *ngIf="!isLoadingSimilar && similarNpas.length === 0"
+                  class="bg-slate-50 rounded-lg p-3 text-center border border-dashed border-slate-200">
+                  <lucide-icon name="file-search" class="w-5 h-5 mx-auto mb-1 text-slate-300"></lucide-icon>
+                  <p class="text-[11px] text-slate-400 mb-1">Find previously approved NPAs with similar product type or
+                     risk profile</p>
+                  <button (click)="loadSimilarNpas()"
+                     class="px-3 py-1.5 bg-white border border-slate-200 rounded text-[11px] font-semibold text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-colors">
+                     Find Similar NPAs
+                  </button>
+               </div>
+
+               <!-- Similar NPAs list -->
+               <div *ngIf="!isLoadingSimilar && similarNpas.length > 0" class="space-y-2">
+                  <div *ngFor="let npa of similarNpas"
+                     class="rounded-lg border border-slate-100 p-2.5 hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-pointer group"
+                     (click)="viewSimilarNpa(npa)">
+                     <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0 flex-1">
+                           <p class="text-[12px] font-semibold text-slate-800 truncate group-hover:text-blue-700">{{
+                              npa.title }}</p>
+                           <p class="text-[10px] text-slate-400 mt-0.5">{{ npa.npa_type }} &middot; {{
+                              npa.product_category || 'General' }}</p>
+                        </div>
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase flex-none"
+                           [ngClass]="npa.status === 'Approved' ? 'bg-emerald-50 text-emerald-700' : npa.status === 'Draft' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-500'">
+                           {{ npa.status }}
+                        </span>
+                     </div>
+                     <div class="flex items-center gap-2 mt-1.5 text-[10px] text-slate-400">
+                        <span class="flex items-center gap-0.5">
+                           <lucide-icon name="shield" class="w-3 h-3"></lucide-icon>
+                           {{ npa.risk_level || 'N/A' }}
+                        </span>
+                        <span>&middot;</span>
+                        <span>{{ npa.current_stage }}</span>
+                        <span
+                           class="ml-auto flex items-center gap-0.5 text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                           <lucide-icon name="external-link" class="w-3 h-3"></lucide-icon>
+                           View
+                        </span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+
+         </div>
+      </div>
+
+   </div>
+
+   <!-- VALIDATION OVERLAY -->
+   <div *ngIf="showValidationModal"
+      class="fixed inset-0 z-[300] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 lg:p-12 animate-in fade-in duration-200">
+      <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-full">
+         <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+               <div class="p-2 bg-white/10 rounded-lg">
+                  <lucide-icon name="shield-check" class="w-5 h-5 text-emerald-400"></lucide-icon>
+               </div>
+               <div>
+                  <h3 class="font-bold text-lg">Governance Check</h3>
+                  <p class="text-xs text-slate-400">Agent Assessment Results</p>
+               </div>
+            </div>
+            <button (click)="closeValidationModal()" class="text-slate-400 hover:text-white transition-colors">
+               <lucide-icon name="x" class="w-6 h-6"></lucide-icon>
+            </button>
+         </div>
+
+         <div class="p-6 overflow-y-auto" *ngIf="validationResult">
+            <div class="flex items-center justify-between mb-6 p-4 rounded-xl border"
+               [ngClass]="validationResult.isReady ? 'bg-emerald-50 border-emerald-100' : 'bg-red-50 border-red-100'">
+               <div>
+                  <h4 class="text-sm font-medium uppercase tracking-wider"
+                     [ngClass]="validationResult.isReady ? 'text-emerald-800' : 'text-red-800'">
+                     Readiness Score
+                  </h4>
+                  <div class="text-4xl font-bold mt-1"
+                     [ngClass]="validationResult.isReady ? 'text-emerald-700' : 'text-red-700'">
+                     {{ validationResult.score }}%
+                  </div>
+               </div>
+               <div class="text-right">
+                  <div
+                     class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide"
+                     [ngClass]="validationResult.isReady ? 'bg-emerald-200 text-emerald-800' : 'bg-red-200 text-red-800'">
+                     {{ validationResult.isReady ? 'Ready for Review' : 'Issues Found' }}
+                  </div>
+               </div>
+            </div>
+
+            <div class="space-y-4">
+               <h5 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">Domain Breakdown</h5>
+               <div *ngFor="let d of validationResult.domains"
+                  class="flex gap-4 p-3 rounded-lg hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                  <div class="mt-0.5">
+                     <lucide-icon *ngIf="d.status === 'PASS'" name="check-circle"
+                        class="w-5 h-5 text-emerald-500"></lucide-icon>
+                     <lucide-icon *ngIf="d.status === 'FAIL'" name="x-circle"
+                        class="w-5 h-5 text-red-500"></lucide-icon>
+                     <lucide-icon *ngIf="d.status === 'MISSING'" name="alert-circle"
+                        class="w-5 h-5 text-amber-500"></lucide-icon>
+                  </div>
+                  <div>
+                     <div class="flex items-center gap-2 mb-1">
+                        <span class="font-bold text-sm text-slate-900">{{ d.name }}</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded uppercase"
+                           [ngClass]="getDomainStatusClass(d.status)">
+                           {{ d.status }}
+                        </span>
+                     </div>
+                     <p class="text-xs text-slate-600 leading-relaxed">{{ d.observation }}</p>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex justify-end">
+            <button (click)="closeValidationModal()"
+               class="px-5 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-colors">
+               Close
+            </button>
+         </div>
+      </div>
+   </div>
+</div>

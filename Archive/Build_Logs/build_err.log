@@ -1,0 +1,8 @@
+Node.js version v25.2.1 detected.
+Odd numbered Node.js versions will not enter LTS status and should not be used for production. For more information, please see https://nodejs.org/en/about/previous-releases/.
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mbundle initial exceeded maximum budget. Budget 500.00 kB was not met by 321.53 kB with a total of 821.53 kB.[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1msrc/app/pages/npa-agent/npa-template-editor/npa-template-editor.component.css exceeded maximum budget. Budget 4.00 kB was not met by 182 bytes with a total of 4.18 kB.[0m
+
+[39m[22m

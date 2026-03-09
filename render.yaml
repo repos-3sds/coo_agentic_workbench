@@ -1,0 +1,110 @@
+# ─── Render.com Blueprint ───────────────────────────────────────────────────
+# Deploys 2 web services from this monorepo:
+#   1. npa-workbench  — Angular 20 SPA + Express 5 API (Node 22)
+#   2. mcp-tools      — Python 3.12 MCP Tools Server (71 tools, FastAPI)
+#
+# Database: Railway MySQL (external) — already running with 42 tables.
+# Render doesn't offer managed MySQL, so we keep Railway DB and connect via
+# public proxy. All DB env vars are set in Render dashboard (not in this file
+# for security — use Render's "Environment" tab or sync from .env).
+#
+# To deploy:  Connect this repo in Render Dashboard → "New Blueprint Instance"
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  # ── Service 1: Angular SPA + Express API ──────────────────────────────────
+  - type: web
+    name: npa-workbench
+    runtime: node
+    region: oregon
+    plan: free
+    # Build: install all deps (including devDeps for Angular CLI + TypeScript),
+    # then compile Angular SPA, then install server production deps.
+    # NOTE: Do NOT set NODE_ENV=production as an env var — Render reads it
+    # during `npm install` and skips devDependencies, causing `ng build` to
+    # fail with exit 127. Render automatically sets NODE_ENV=production at
+    # runtime without needing it in envVars.
+    buildCommand: npm install && npx ng build --configuration production && cd server && npm install --omit=dev
+    startCommand: cd server && node index.js
+    healthCheckPath: /health
+    envVars:
+      # Database (Railway MySQL — public proxy)
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      # Dify Cloud
+      - key: DIFY_BASE_URL
+        value: https://api.dify.ai/v1
+      - key: DIFY_KEY_MASTER_COO
+        sync: false
+      - key: DIFY_KEY_NPA_ORCHESTRATOR
+        sync: false
+      - key: DIFY_KEY_IDEATION
+        sync: false
+      - key: DIFY_KEY_CLASSIFIER
+        sync: false
+      - key: DIFY_KEY_AUTOFILL
+        sync: false
+      - key: DIFY_KEY_RISK
+        sync: false
+      - key: DIFY_KEY_GOVERNANCE
+        sync: false
+      - key: DIFY_KEY_DILIGENCE
+        sync: false
+      - key: DIFY_KEY_DOC_LIFECYCLE
+        sync: false
+      - key: DIFY_KEY_MONITORING
+        sync: false
+      - key: DIFY_KEY_NOTIFICATION
+        sync: false
+      # Draft Builder Sign-off Agents (5)
+      - key: DIFY_KEY_AG_NPA_BIZ
+        sync: false
+      - key: DIFY_KEY_AG_NPA_TECH_OPS
+        sync: false
+      - key: DIFY_KEY_AG_NPA_FINANCE
+        sync: false
+      - key: DIFY_KEY_AG_NPA_RMG
+        sync: false
+      - key: DIFY_KEY_AG_NPA_LCS
+        sync: false
+
+  # ── Service 2: MCP Tools Server (Python) ──────────────────────────────────
+  - type: web
+    name: mcp-tools
+    runtime: docker
+    region: oregon
+    plan: free
+    rootDir: server/mcp-python
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      # Database (same Railway MySQL)
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      # Server config — Render requires PORT=10000
+      - key: PORT
+        value: "10000"
+      - key: REST_PORT
+        value: "10000"
+      - key: MCP_PORT
+        value: "10000"
+      - key: ENV
+        value: production
+      - key: PUBLIC_URL
+        sync: false

@@ -1,0 +1,38 @@
+[33m❯[39m Building...
+[32m✔[39m Building...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m                             [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mchunk-4DFPIVX3.js[39m  [2m | [22m[2m-[22m                                 [2m | [22m[36m240.70 kB[39m[2m | [22m               [36m68.39 kB[39m
+[32mchunk-UL2QZ6MA.js[39m  [2m | [22m[2m-[22m                                 [2m | [22m[36m217.49 kB[39m[2m | [22m               [36m48.65 kB[39m
+[32mmain-BWZISMF6.js[39m   [2m | [22m[2mmain[22m                              [2m | [22m[36m143.64 kB[39m[2m | [22m               [36m36.33 kB[39m
+[32mchunk-27BFYMR3.js[39m  [2m | [22m[2m-[22m                                 [2m | [22m [36m92.36 kB[39m[2m | [22m               [36m23.27 kB[39m
+[32mstyles-JND5YV6B.css[39m[2m | [22m[2mstyles[22m                            [2m | [22m [36m87.57 kB[39m[2m | [22m               [36m11.03 kB[39m
+[32mchunk-UE5T53TF.js[39m  [2m | [22m[2m-[22m                                 [2m | [22m [36m27.18 kB[39m[2m | [22m                [36m6.03 kB[39m
+[32mchunk-7G4SBZNH.js[39m  [2m | [22m[2m-[22m                                 [2m | [22m  [36m5.45 kB[39m[2m | [22m                [36m2.36 kB[39m
+[32mchunk-PT2JM3JA.js[39m  [2m | [22m[2m-[22m                                 [2m | [22m  [36m3.91 kB[39m[2m | [22m                [36m1.03 kB[39m
+[32mchunk-ZY4QZWRF.js[39m  [2m | [22m[2m-[22m                                 [2m | [22m  [36m2.57 kB[39m[2m | [22m              [36m887 bytes[39m
+[32mchunk-RNDZVNF3.js[39m  [2m | [22m[2m-[22m                                 [2m | [22m[36m670 bytes[39m[2m | [22m              [36m670 bytes[39m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m                     [2m | [22m[1m[93m821.53 kB[39m[22m[2m | [22m              [1m198.65 kB[22m
+
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m                             [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mchunk-OA6S6347.js[39m  [2m | [22m[2mnpa-agent-component[22m               [2m | [22m[36m281.14 kB[39m[2m | [22m               [36m57.57 kB[39m
+[32mchunk-AZFZKZKL.js[39m  [2m | [22m[2mcoo-npa-dashboard-component[22m       [2m | [22m [36m46.23 kB[39m[2m | [22m               [36m10.26 kB[39m
+[32mchunk-IPK365UW.js[39m  [2m | [22m[2mapproval-dashboard-component[22m      [2m | [22m [36m24.11 kB[39m[2m | [22m                [36m5.76 kB[39m
+[32mchunk-4L45FJPL.js[39m  [2m | [22m[2mnpa-readiness-assessment-component[22m[2m | [22m [36m22.87 kB[39m[2m | [22m                [36m5.95 kB[39m
+[32mchunk-FMGXPOP5.js[39m  [2m | [22m[2m-[22m                                 [2m | [22m [36m12.89 kB[39m[2m | [22m                [36m3.57 kB[39m
+[32mchunk-TMU2D7U5.js[39m  [2m | [22m[2m-[22m                                 [2m | [22m [36m11.14 kB[39m[2m | [22m                [36m3.27 kB[39m
+[32mchunk-HAYHWFVI.js[39m  [2m | [22m[2mclassification-scorecard-component[22m[2m | [22m [36m10.97 kB[39m[2m | [22m                [36m3.34 kB[39m
+[32mchunk-DVGI34KT.js[39m  [2m | [22m[2m-[22m                                 [2m | [22m  [36m9.18 kB[39m[2m | [22m                [36m2.62 kB[39m
+[32mchunk-NJRI2RDM.js[39m  [2m | [22m[2m-[22m                                 [2m | [22m  [36m7.75 kB[39m[2m | [22m                [36m2.45 kB[39m
+[32mchunk-W7WQWLB2.js[39m  [2m | [22m[2m-[22m                                 [2m | [22m  [36m7.58 kB[39m[2m | [22m                [36m2.36 kB[39m
+[32mchunk-7CJC53KS.js[39m  [2m | [22m[2mlogin-component[22m                   [2m | [22m  [36m5.86 kB[39m[2m | [22m                [36m2.12 kB[39m
+[32mchunk-KS3OFMMP.js[39m  [2m | [22m[2m-[22m                                 [2m | [22m  [36m2.49 kB[39m[2m | [22m              [36m822 bytes[39m
+[32mchunk-KOSCD7OK.js[39m  [2m | [22m[2m-[22m                                 [2m | [22m  [36m2.31 kB[39m[2m | [22m              [36m842 bytes[39m
+[32mchunk-H32HULE4.js[39m  [2m | [22m[2mbundling-assessment-component[22m     [2m | [22m[36m161 bytes[39m[2m | [22m              [36m161 bytes[39m
+[32mchunk-MEICZN2Y.js[39m  [2m | [22m[2mdocument-manager-component[22m        [2m | [22m[36m158 bytes[39m[2m | [22m              [36m158 bytes[39m
+[2m...and 4 more lazy chunks files. Use "--verbose" to show all the files.[22m
+
+Application bundle generation complete. [16.046 seconds] - 2026-02-22T03:56:32.523Z
+
+Output location: C:\Users\vssvi\Documents\Git_Repo\coo_agentic_workbench\dist\agent-command-hub-angular
+

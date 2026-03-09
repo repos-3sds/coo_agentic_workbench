@@ -1,0 +1,39 @@
+/* NPA Draft Builder — Parent-level scrollbars (center column) */
+.npa-scrollbar {
+   scrollbar-width: thin;
+   scrollbar-color: #cbd5e1 transparent;
+}
+
+.npa-scrollbar::-webkit-scrollbar {
+   width: 4px;
+}
+
+.npa-scrollbar::-webkit-scrollbar-track {
+   background: transparent;
+}
+
+.npa-scrollbar::-webkit-scrollbar-thumb {
+   background-color: #cbd5e1;
+   border-radius: 4px;
+}
+
+.npa-scrollbar::-webkit-scrollbar-thumb:hover {
+   background-color: #94a3b8;
+}
+
+/* Table grid styles (used in center column topic groups) */
+.table-grid td,
+.table-grid th {
+   padding: 6px 8px;
+   font-size: 11px;
+   border: 1px solid #e2e8f0;
+}
+
+.table-grid th {
+   background: #f8fafc;
+   font-weight: 600;
+   text-transform: uppercase;
+   letter-spacing: 0.05em;
+   font-size: 9px;
+   color: #64748b;
+}

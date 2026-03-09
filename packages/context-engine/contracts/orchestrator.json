@@ -1,0 +1,90 @@
+{
+  "contract_id": "orchestrator",
+  "version": "1.0.0",
+  "archetype": "orchestrator",
+  "description": "Context contract for orchestrator agents (MASTER_COO, NPA_ORCHESTRATOR, and domain orchestrators).",
+  "required_context": [
+    {
+      "slot": "user_context",
+      "fields": [
+        "user_id",
+        "role",
+        "department",
+        "jurisdiction",
+        "session_id"
+      ],
+      "source": "platform",
+      "priority": "CRITICAL"
+    },
+    {
+      "slot": "intent",
+      "fields": [
+        "task_type",
+        "intent_label",
+        "confidence"
+      ],
+      "source": "intent_classifier",
+      "priority": "CRITICAL"
+    },
+    {
+      "slot": "routing_context",
+      "fields": [
+        "available_agents",
+        "domain",
+        "risk_level"
+      ],
+      "source": "orchestration_registry",
+      "priority": "HIGH"
+    },
+    {
+      "slot": "entity_summary",
+      "fields": [
+        "entity_id",
+        "current_stage",
+        "status"
+      ],
+      "source": "system_of_record",
+      "priority": "HIGH"
+    }
+  ],
+  "optional_context": [
+    {
+      "slot": "prior_worker_results",
+      "fields": [
+        "agent_id",
+        "structured_output",
+        "provenance"
+      ],
+      "source": "context_memory",
+      "priority": "MEDIUM"
+    },
+    {
+      "slot": "delegation_stack",
+      "fields": [
+        "agent_chain",
+        "depth",
+        "root_agent"
+      ],
+      "source": "orchestrator_runtime",
+      "priority": "MEDIUM"
+    },
+    {
+      "slot": "conversation_history",
+      "fields": [
+        "turn_id",
+        "role",
+        "content",
+        "timestamp"
+      ],
+      "max_turns": 4,
+      "source": "session_store",
+      "priority": "LOW"
+    }
+  ],
+  "excluded_context": [
+    "raw_kb_chunks",
+    "detailed_form_data",
+    "full_audit_trail"
+  ],
+  "budget_profile": "lightweight"
+}

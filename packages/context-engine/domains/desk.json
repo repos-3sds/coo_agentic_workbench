@@ -1,0 +1,69 @@
+{
+  "domain_id": "DESK",
+  "display_name": "Desk Support",
+  "primary_entity": "counterparty_id",
+  "context_sources": [
+    {
+      "source_id": "desk_onboarding_system",
+      "source_type": "system_of_record",
+      "authority_tier": 1,
+      "description": "Counterparty onboarding records and KYC lifecycle status."
+    },
+    {
+      "source_id": "desk_credit_system",
+      "source_type": "system_of_record",
+      "authority_tier": 1,
+      "description": "Credit limits, ratings, and exposure attributes from desk credit systems."
+    },
+    {
+      "source_id": "desk_documentation_system",
+      "source_type": "bank_sop",
+      "authority_tier": 2,
+      "description": "Operational desk documentation standards and procedural rules."
+    }
+  ],
+  "scoping_fields": [
+    "counterparty_id",
+    "business_unit",
+    "product"
+  ],
+  "untrusted_content": [
+    "user_free_text",
+    "retrieved_emails"
+  ],
+  "agents": [
+    {
+      "agent_id": "DESK_ORCH",
+      "archetype": "orchestrator",
+      "responsibility": "Coordinate desk-support workflows and route to specialist workers."
+    },
+    {
+      "agent_id": "DESK_TRIAGE",
+      "archetype": "worker",
+      "responsibility": "Classify requests and determine required processing path."
+    },
+    {
+      "agent_id": "DESK_RESOLVER",
+      "archetype": "worker",
+      "responsibility": "Resolve desk support tasks using scoped source data."
+    },
+    {
+      "agent_id": "DESK_ESCALATION",
+      "archetype": "reviewer",
+      "responsibility": "Review unresolved or high-risk outputs and escalate where required."
+    }
+  ],
+  "grounding_overrides": {
+    "required_claim_types": [
+      "governance_rule",
+      "sla_deadline",
+      "signoff_requirement"
+    ],
+    "min_authority_tier_overrides": {},
+    "citation_required_fields": [
+      "source_id",
+      "version",
+      "section"
+    ]
+  }
+}

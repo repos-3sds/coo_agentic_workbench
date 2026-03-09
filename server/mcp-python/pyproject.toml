@@ -1,0 +1,20 @@
+[project]
+name = "npa-mcp-server"
+version = "1.0.0"
+description = "NPA Workbench MCP Tools Server (Python port)"
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=1.0.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "aiomysql>=0.2.0",
+    "pydantic>=2.10.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+npa-mcp = "start:main"
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"

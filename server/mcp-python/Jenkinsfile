@@ -1,0 +1,119 @@
+pipeline {
+    agent any
+
+    environment {
+        APP_NAME       = 'npa-mcp-server'
+        OC_PROJECT     = 'npa-workbench'          // OpenShift project/namespace
+        REGISTRY       = ''                        // Set your registry (e.g., image-registry.openshift-image-registry.svc:5000)
+        IMAGE_TAG      = "${REGISTRY}/${OC_PROJECT}/${APP_NAME}:${BUILD_NUMBER}"
+        IMAGE_LATEST   = "${REGISTRY}/${OC_PROJECT}/${APP_NAME}:latest"
+        CONTEXT_DIR    = 'server/mcp-python'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                dir("${CONTEXT_DIR}") {
+                    script {
+                        sh """
+                            docker build -t ${IMAGE_TAG} -t ${IMAGE_LATEST} .
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                script {
+                    sh """
+                        docker push ${IMAGE_TAG}
+                        docker push ${IMAGE_LATEST}
+                    """
+                }
+            }
+        }
+
+        stage('Deploy to OpenShift') {
+            steps {
+                dir("${CONTEXT_DIR}") {
+                    script {
+                        // Apply ConfigMap and Secret (first time only or when changed)
+                        sh """
+                            oc project ${OC_PROJECT}
+
+                            // Apply manifests
+                            oc apply -f openshift/configmap.yaml
+                            oc apply -f openshift/secret.yaml
+                            oc apply -f openshift/service.yaml
+                            oc apply -f openshift/route.yaml
+
+                            // Apply deployment with actual image
+                            sed 's|IMAGE_PLACEHOLDER|${IMAGE_TAG}|g' openshift/deployment.yaml | oc apply -f -
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Verify Rollout') {
+            steps {
+                script {
+                    sh """
+                        oc rollout status deployment/${APP_NAME} -n ${OC_PROJECT} --timeout=120s
+                    """
+                }
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                script {
+                    def routeHost = sh(
+                        script: "oc get route ${APP_NAME} -n ${OC_PROJECT} -o jsonpath='{.spec.host}'",
+                        returnStdout: true
+                    ).trim()
+
+                    sh """
+                        echo "Route: https://${routeHost}"
+                        sleep 10
+                        curl -sf https://${routeHost}/health || (echo 'Health check failed!' && exit 1)
+                        echo ""
+                        echo "OpenAPI: https://${routeHost}/openapi.json"
+                        echo "Tools:   71"
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                def routeHost = sh(
+                    script: "oc get route ${APP_NAME} -n ${OC_PROJECT} -o jsonpath='{.spec.host}'",
+                    returnStdout: true
+                ).trim()
+                echo """
+                ═══════════════════════════════════════════
+                  NPA MCP Server deployed successfully!
+                  URL:     https://${routeHost}
+                  Health:  https://${routeHost}/health
+                  OpenAPI: https://${routeHost}/openapi.json
+                  Tools:   71 tools across 15 categories
+                ═══════════════════════════════════════════
+                """
+            }
+        }
+        failure {
+            echo 'Deployment failed! Check logs with: oc logs deployment/npa-mcp-server'
+        }
+    }
+}

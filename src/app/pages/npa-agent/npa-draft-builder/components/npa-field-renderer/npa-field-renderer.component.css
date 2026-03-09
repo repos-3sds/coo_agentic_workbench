@@ -1,0 +1,62 @@
+/* Textarea auto-resize */
+textarea.resize-y {
+   min-height: 60px;
+   max-height: 300px;
+}
+
+/* File upload drag zone */
+.file-drop-active {
+   border-color: #3b82f6 !important;
+   background-color: #eff6ff !important;
+}
+
+/* Tag enter animation */
+.tag-enter {
+   animation: fadeSlideIn 0.2s ease-out forwards;
+}
+
+/* Bullet item enter animation */
+.bullet-item-enter {
+   animation: fadeSlideIn 0.15s ease-out forwards;
+}
+
+@keyframes fadeSlideIn {
+   from {
+      opacity: 0;
+      transform: translateY(8px);
+   }
+   to {
+      opacity: 1;
+      transform: translateY(0);
+   }
+}
+
+/* Yes/No radio animation */
+@keyframes radioSelect {
+   0% { transform: scale(0); }
+   50% { transform: scale(1.2); }
+   100% { transform: scale(1); }
+}
+
+.yesno-dot {
+   animation: radioSelect 0.2s ease-out;
+}
+
+/* Conditional field slide-in */
+@keyframes slideDown {
+   from {
+      opacity: 0;
+      max-height: 0;
+      transform: translateY(-8px);
+   }
+   to {
+      opacity: 1;
+      max-height: 200px;
+      transform: translateY(0);
+   }
+}
+
+.conditional-field-enter {
+   animation: slideDown 0.3s ease-out forwards;
+   overflow: hidden;
+}

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: npa-mcp-config
+  labels:
+    app: npa-mcp-server
+    part-of: npa-workbench
+data:
+  REST_PORT: "3002"
+  ENV: "production"
+  # Public URL — update after Route is created
+  PUBLIC_URL: "http://npa-mcp-server.apps.your-cluster.com"
