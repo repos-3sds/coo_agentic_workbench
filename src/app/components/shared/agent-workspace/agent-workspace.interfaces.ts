@@ -30,10 +30,20 @@ export interface TemplateInput {
 export interface TemplateCategory {
     id: string;
     name: string;
+    domain?: string;            // Domain agent ID ('NPA' | 'DCE' | etc.)
+}
+
+export interface DomainAgent {
+    id: string;
+    name: string;
+    icon: string;
+    iconBg: string;
+    description: string;
+    categoryIds: string[];      // Sub-category IDs belonging to this domain
 }
 
 export interface WorkspaceConfig {
-    context: 'COMMAND_CENTER' | 'NPA_AGENT';
+    context: 'COMMAND_CENTER' | 'NPA_AGENT' | 'DCE_AGENT';
     showLanding: boolean;
     showSidebar: boolean;
     showTemplateForm: boolean;

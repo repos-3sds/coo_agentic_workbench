@@ -85,9 +85,9 @@ import { AuthService } from '../../../services/auth.service';
                     <lucide-icon name="file-stack" class="w-4 h-4 flex-none text-blue-500"></lucide-icon>
                     <span *ngIf="!isCollapsed()" class="truncate">Document Manager</span>
                 </a>
-                <a class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors" [class.justify-center]="isCollapsed()">
-                    <lucide-icon name="users" class="w-4 h-4 flex-none"></lucide-icon>
-                    <span *ngIf="!isCollapsed()" class="truncate">DCE Client Services</span>
+                <a routerLink="/functions/dce" routerLinkActive="bg-black/5 font-semibold text-black" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors" [class.justify-center]="isCollapsed()">
+                    <lucide-icon name="users" class="w-4 h-4 flex-none text-sky-600"></lucide-icon>
+                    <span *ngIf="!isCollapsed()" class="truncate">DCE Account Opening</span>
                 </a>
                 <a class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors" [class.justify-center]="isCollapsed()">
                     <lucide-icon name="shield-alert" class="w-4 h-4 flex-none"></lucide-icon>
@@ -120,8 +120,8 @@ import { AuthService } from '../../../services/auth.service';
                     <lucide-icon name="file-check" class="w-4 h-4 flex-none text-blue-500"></lucide-icon>
                     <span *ngIf="!isCollapsed()" class="truncate">NPA Agent</span>
                  </a>
-                 <a class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors" [class.justify-center]="isCollapsed()">
-                    <lucide-icon name="users" class="w-4 h-4 flex-none text-blue-500"></lucide-icon>
+                 <a routerLink="/agents/dce" routerLinkActive="bg-black/5 font-semibold text-black" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors" [class.justify-center]="isCollapsed()">
+                    <lucide-icon name="users" class="w-4 h-4 flex-none text-sky-600"></lucide-icon>
                     <span *ngIf="!isCollapsed()" class="truncate">DCE Agent</span>
                  </a>
                   <a class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors" [class.justify-center]="isCollapsed()">

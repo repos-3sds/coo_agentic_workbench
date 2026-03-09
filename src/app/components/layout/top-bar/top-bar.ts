@@ -74,11 +74,6 @@ import { AuthService } from '../../../services/auth.service';
 
           <!-- ═══ CHAT MODE: Right actions ═══ -->
           <div *ngIf="chatMode()" class="flex items-center gap-2">
-             <button (click)="chatMode()?.onNewChat?.()" title="New Conversation"
-                     class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 hover:text-blue-100 transition-all border border-blue-400/20 hover:border-blue-400/40 text-xs font-semibold">
-                 <lucide-icon name="plus" class="w-4 h-4"></lucide-icon>
-                 <span>New Chat</span>
-             </button>
              <button (click)="chatMode()?.onResetChat?.()" title="Reset current chat"
                      class="p-1.5 hover:bg-white/10 rounded transition-colors text-gray-400 hover:text-red-400">
                  <lucide-icon name="rotate-ccw" class="w-4 h-4"></lucide-icon>

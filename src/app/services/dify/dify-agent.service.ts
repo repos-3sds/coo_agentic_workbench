@@ -62,7 +62,16 @@ const COLOR_MAP: Record<string, string> = {
     'DOC_LIFECYCLE': 'teal',
     'MONITORING': 'emerald',
     'KB_SEARCH': 'fuchsia',
-    'NOTIFICATION': 'pink'
+    'NOTIFICATION': 'pink',
+    // DCE agents
+    'DCE_ORCHESTRATOR': 'blue',
+    'DCE_SA1': 'cyan',
+    'DCE_SA2': 'teal',
+    'DCE_SA3': 'indigo',
+    'DCE_SA4': 'emerald',
+    'DCE_SA5': 'amber',
+    'DCE_SA6': 'violet',
+    'DCE_SA7': 'pink'
 };
 
 // Mock stats per agent
@@ -78,7 +87,16 @@ const AGENT_STATS: Record<string, { label: string; value: string; actionLabel: s
     'DOC_LIFECYCLE': { label: 'Validated', value: '3,412', actionLabel: 'Check' },
     'MONITORING': { label: 'Products', value: '156', actionLabel: 'Monitor' },
     'KB_SEARCH': { label: 'Hit Rate', value: '94%', actionLabel: 'Search' },
-    'NOTIFICATION': { label: 'Sent', value: '8,923', actionLabel: 'View' }
+    'NOTIFICATION': { label: 'Sent', value: '8,923', actionLabel: 'View' },
+    // DCE agents
+    'DCE_ORCHESTRATOR': { label: 'Cases Routed', value: '340', actionLabel: 'Route' },
+    'DCE_SA1': { label: 'Intakes', value: '892', actionLabel: 'Triage' },
+    'DCE_SA2': { label: 'Doc Sets', value: '2.1k', actionLabel: 'Collect' },
+    'DCE_SA3': { label: 'Verified', value: '1.4k', actionLabel: 'Verify' },
+    'DCE_SA4': { label: 'KYC Briefs', value: '620', actionLabel: 'Prepare' },
+    'DCE_SA5': { label: 'Credit Briefs', value: '485', actionLabel: 'Assess' },
+    'DCE_SA6': { label: 'Configs', value: '310', actionLabel: 'Configure' },
+    'DCE_SA7': { label: 'Notifications', value: '1.8k', actionLabel: 'Send' }
 };
 
 @Injectable({
@@ -89,11 +107,13 @@ export class DifyAgentService {
     private http = inject(HttpClient);
 
     /**
-     * Get all 13 agent capabilities from the registry
+     * Get agent capabilities from the registry, optionally filtered by domain.
+     * @param domain — 'DCE', 'NPA', etc. If omitted, returns all agents.
      */
-    getCapabilities(): Observable<AgentCapability[]> {
+    getCapabilities(domain?: string): Observable<AgentCapability[]> {
+        const agents = domain ? AGENT_REGISTRY.filter(a => a.domain === domain) : AGENT_REGISTRY;
         return of(
-            AGENT_REGISTRY.map(agent => {
+            agents.map(agent => {
                 const stats = AGENT_STATS[agent.id] || { label: 'Tasks', value: '0', actionLabel: 'Run' };
                 return {
                     id: agent.id,
@@ -133,9 +153,17 @@ export class DifyAgentService {
     }
 
     /**
-     * Get active work items
+     * Get active work items, optionally filtered by domain.
      */
-    getActiveWorkItems(): Observable<AgentWorkItem[]> {
+    getActiveWorkItems(domain?: string): Observable<AgentWorkItem[]> {
+        if (domain === 'DCE') {
+            return of([
+                { id: 'DCE-101', agentName: 'SA-1 Intake', operation: 'Triaging: Horizon Capital Markets Pte Ltd', status: 'completed' as const, duration: '1.2s', color: 'cyan' as const },
+                { id: 'DCE-102', agentName: 'SA-2 Documents', operation: 'OCR extraction: Board Resolution', status: 'running' as const, duration: '3.4s', color: 'teal' as const },
+                { id: 'DCE-103', agentName: 'SA-3 Signatures', operation: 'Comparing mandate signatures', status: 'running' as const, duration: '5.1s', color: 'blue' as const },
+                { id: 'DCE-104', agentName: 'SA-4 KYC', operation: 'Screening 4 UBOs against sanctions', status: 'waiting' as const, duration: '—', color: 'green' as const }
+            ]).pipe(delay(300));
+        }
         return of([
             { id: 'JOB-991', agentName: 'Classification', operation: 'Classifying TSG2025-041', status: 'completed' as const, duration: '450ms', color: 'purple' as const },
             { id: 'JOB-990', agentName: 'Governance', operation: 'Creating sign-off requests', status: 'waiting' as const, duration: '12m', color: 'slate' as const },

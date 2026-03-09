@@ -199,5 +199,101 @@
     "difyApp": "CF_NPA_LCS",
     "envKey": "DIFY_KEY_AG_NPA_LCS",
     "description": "Appendix 1–6 legal/compliance guidance"
+  },
+  {
+    "id": "DCE_ORCHESTRATOR",
+    "name": "DCE Domain Orchestrator",
+    "tier": 2,
+    "icon": "target",
+    "color": "bg-sky-50 text-sky-600",
+    "difyType": "workflow",
+    "difyApp": "WF_DCE_Orchestrator",
+    "envKey": "DIFY_KEY_DCE_ORCHESTRATOR",
+    "domain": "DCE",
+    "description": "Routes account opening cases through N-0→N-6 pipeline"
+  },
+  {
+    "id": "DCE_SA1",
+    "name": "DCE Intake & Triage Agent",
+    "tier": 3,
+    "icon": "inbox",
+    "color": "bg-sky-50 text-sky-600",
+    "difyType": "workflow",
+    "difyApp": "WF_DCE_SA1_Intake_Triage",
+    "envKey": "DIFY_KEY_DCE_SA1",
+    "domain": "DCE",
+    "description": "Account opening intake: email ingestion, classification, priority, case creation, RM linking"
+  },
+  {
+    "id": "DCE_SA2",
+    "name": "DCE Document Collection Agent",
+    "tier": 3,
+    "icon": "file-check",
+    "color": "bg-sky-50 text-sky-700",
+    "difyType": "workflow",
+    "difyApp": "WF_DCE_SA2_Document_Collection",
+    "envKey": "DIFY_KEY_DCE_SA2",
+    "domain": "DCE",
+    "description": "Document checklist, OCR extraction, completeness assessment, GTA validation, RM chase"
+  },
+  {
+    "id": "DCE_SA3",
+    "name": "DCE Signature Verification Agent",
+    "tier": 3,
+    "icon": "pen-tool",
+    "color": "bg-sky-50 text-sky-700",
+    "difyType": "workflow",
+    "difyApp": "WF_DCE_SA3_Signature",
+    "envKey": "DIFY_KEY_DCE_SA3",
+    "domain": "DCE",
+    "description": "Signature extraction, AI comparison, confidence scoring, HITL Desk Support review"
+  },
+  {
+    "id": "DCE_SA4",
+    "name": "DCE KYC/CDD Preparation Agent",
+    "tier": 3,
+    "icon": "shield-check",
+    "color": "bg-sky-50 text-sky-700",
+    "difyType": "agent",
+    "difyApp": "AG_DCE_SA4_KYC",
+    "envKey": "DIFY_KEY_DCE_SA4",
+    "domain": "DCE",
+    "description": "Entity analysis, sanctions/PEP screening, KYC brief compilation, RM review facilitation"
+  },
+  {
+    "id": "DCE_SA5",
+    "name": "DCE Credit Preparation Agent",
+    "tier": 3,
+    "icon": "landmark",
+    "color": "bg-emerald-50 text-emerald-700",
+    "difyType": "workflow",
+    "difyApp": "WF_DCE_SA5_Credit",
+    "envKey": "DIFY_KEY_DCE_SA5",
+    "domain": "DCE",
+    "description": "Financial data extraction, credit ratios, credit brief compilation, Credit Team HITL review"
+  },
+  {
+    "id": "DCE_SA6",
+    "name": "DCE Static Configuration Agent",
+    "tier": 3,
+    "icon": "settings",
+    "color": "bg-violet-50 text-violet-700",
+    "difyType": "workflow",
+    "difyApp": "WF_DCE_SA6_Config",
+    "envKey": "DIFY_KEY_DCE_SA6",
+    "domain": "DCE",
+    "description": "UBIX/SIC/CreditView config spec, TMO instruction generation, system validation"
+  },
+  {
+    "id": "DCE_SA7",
+    "name": "DCE Notification Agent",
+    "tier": 3,
+    "icon": "send",
+    "color": "bg-rose-50 text-rose-700",
+    "difyType": "workflow",
+    "difyApp": "WF_DCE_SA7_Notify",
+    "envKey": "DIFY_KEY_DCE_SA7",
+    "domain": "DCE",
+    "description": "Welcome kit generation, CQG/IDB credentials, batch notifications, case completion"
   }
 ]

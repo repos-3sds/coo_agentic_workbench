@@ -16,8 +16,8 @@ import { GovernanceStatusComponent } from '../../npa/agent-results/governance-st
 import { DocCompletenessComponent } from '../../npa/agent-results/doc-completeness.component';
 import { MonitoringAlertsComponent } from '../../npa/agent-results/monitoring-alerts.component';
 import { Subscription } from 'rxjs';
-import { WorkspaceConfig, WorkspaceTemplate, TemplateCategory, TemplateInput } from './agent-workspace.interfaces';
-import { TEMPLATE_CATEGORIES, WORKSPACE_TEMPLATES } from './agent-workspace-templates';
+import { DomainAgent, WorkspaceConfig, WorkspaceTemplate, TemplateCategory, TemplateInput } from './agent-workspace.interfaces';
+import { DOMAIN_AGENTS, TEMPLATE_CATEGORIES, WORKSPACE_TEMPLATES } from './agent-workspace-templates';
 
 // ─── Local Interfaces ──────────────────────────────────────────
 
@@ -98,12 +98,12 @@ interface AgentIdentity {
                         </div>
                         <lucide-icon name="arrow-right" class="w-4 h-4 text-[#FF3E3E] opacity-0 -translate-x-2 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-300"></lucide-icon>
                     </div>
-                     <div class="border-t border-slate-100/50 flex items-center justify-between px-8 py-5 cursor-not-allowed opacity-40">
+                     <div class="border-t border-slate-100/50 flex items-center justify-between px-8 py-5 cursor-pointer hover:bg-red-50/30 transition-colors group/item" [routerLink]="['/agents/dce']">
                         <div class="flex items-center gap-3">
-                             <div class="w-2 h-2 rounded-full bg-slate-300"></div>
-                             <span class="text-sm font-semibold text-slate-700">Risk Control Agent</span>
+                             <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                             <span class="text-sm font-semibold text-slate-700">DCE Account Opening</span>
                         </div>
-                        <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-medium">Soon</span>
+                        <lucide-icon name="arrow-right" class="w-4 h-4 text-[#FF3E3E] opacity-0 -translate-x-2 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-300"></lucide-icon>
                     </div>
                 </div>
             </div>
@@ -124,9 +124,9 @@ interface AgentIdentity {
                          <span class="text-sm font-semibold text-slate-700">My Dashboard</span>
                          <lucide-icon name="arrow-right" class="w-4 h-4 text-slate-500 opacity-0 -translate-x-2 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-300"></lucide-icon>
                     </div>
-                    <div class="border-t border-slate-100/50 flex items-center justify-between px-8 py-5 cursor-not-allowed opacity-40">
-                         <span class="text-sm font-semibold text-slate-700">Exception Queue</span>
-                         <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-medium">Soon</span>
+                    <div class="border-t border-slate-100/50 flex items-center justify-between px-8 py-5 cursor-pointer hover:bg-slate-50/50 transition-colors group/item" [routerLink]="['/functions/dce']">
+                         <span class="text-sm font-semibold text-slate-700">DCE Cases</span>
+                         <lucide-icon name="arrow-right" class="w-4 h-4 text-slate-500 opacity-0 -translate-x-2 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-300"></lucide-icon>
                     </div>
                 </div>
             </div>
@@ -147,9 +147,9 @@ interface AgentIdentity {
                         <span class="text-sm font-semibold text-slate-700">Knowledge Base</span>
                         <lucide-icon name="arrow-right" class="w-4 h-4 text-orange-500 opacity-0 -translate-x-2 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-300"></lucide-icon>
                     </div>
-                     <div class="border-t border-slate-100/50 flex items-center justify-between px-8 py-5 cursor-not-allowed opacity-40">
-                        <span class="text-sm font-semibold text-slate-700">Audit Logs</span>
-                        <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-medium">Soon</span>
+                     <div class="border-t border-slate-100/50 flex items-center justify-between px-8 py-5 cursor-pointer hover:bg-orange-50/50 transition-colors group/item" [routerLink]="['/knowledge/base']">
+                        <span class="text-sm font-semibold text-slate-700">DCE Compliance Docs</span>
+                        <lucide-icon name="arrow-right" class="w-4 h-4 text-orange-500 opacity-0 -translate-x-2 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-300"></lucide-icon>
                     </div>
                 </div>
             </div>
@@ -174,12 +174,17 @@ interface AgentIdentity {
                       <lucide-icon name="send" class="w-4 h-4"></lucide-icon>
                   </button>
               </div>
-              <div class="flex items-center justify-center gap-4 mt-4">
+              <div class="flex items-center justify-center gap-3 mt-4">
                   <button *ngFor="let hint of quickHints" (click)="startChatFromHint(hint.prompt)"
                           class="text-[11px] text-slate-400 hover:text-violet-600 font-medium px-3 py-1.5 rounded-full border border-slate-100 hover:border-violet-200 hover:bg-violet-50/50 transition-all cursor-pointer">
                       {{ hint.label }}
                   </button>
               </div>
+              <button (click)="openTemplates()"
+                      class="mt-4 text-[11px] text-violet-500 hover:text-violet-700 font-semibold px-4 py-2 rounded-full border border-violet-200 hover:border-violet-300 bg-violet-50/50 hover:bg-violet-100/70 transition-all cursor-pointer flex items-center gap-1.5 mx-auto">
+                  <lucide-icon name="layout-template" class="w-3.5 h-3.5"></lucide-icon>
+                  Browse Templates
+              </button>
           </div>
 
           <!-- Footer Status -->
@@ -209,13 +214,35 @@ interface AgentIdentity {
                 </div>
                 <h3 class="text-lg font-bold text-slate-800 mb-1">Start a conversation</h3>
                 <p class="text-sm text-slate-400 mb-6 max-w-sm">{{ config.context === 'NPA_AGENT' ? 'Ask the NPA Agent about product approvals, risk, classification, or compliance.' : 'Ask the COO Agent about operations, risk, compliance, or knowledge base.' }}</p>
-                <div class="flex flex-wrap justify-center gap-2 max-w-lg">
-                    <button *ngFor="let chip of suggestionChips"
-                            (click)="handleChipClick(chip.prompt)"
-                            class="text-xs text-slate-500 hover:text-violet-700 font-medium px-3 py-2 rounded-lg border border-slate-200 hover:border-violet-300 hover:bg-violet-50/50 transition-all cursor-pointer flex items-center gap-1.5">
-                        <lucide-icon [name]="chip.icon" class="w-3.5 h-3.5 text-slate-400"></lucide-icon>
-                        {{ chip.label }}
-                    </button>
+                <div class="w-full max-w-xl space-y-3">
+                    <!-- NPA Quick Actions -->
+                    <div class="flex flex-wrap justify-center gap-2">
+                        <span class="text-[9px] font-bold text-blue-400 uppercase tracking-widest bg-blue-50 px-2 py-1 rounded flex items-center gap-1">
+                            <lucide-icon name="briefcase" class="w-2.5 h-2.5"></lucide-icon> NPA
+                        </span>
+                        <ng-container *ngFor="let chip of suggestionChips">
+                            <button *ngIf="chip.domain === 'NPA'"
+                                    (click)="handleChipClick(chip.prompt)"
+                                    class="text-xs text-slate-500 hover:text-blue-700 font-medium px-3 py-2 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 transition-all cursor-pointer flex items-center gap-1.5">
+                                <lucide-icon [name]="chip.icon" class="w-3.5 h-3.5 text-slate-400"></lucide-icon>
+                                {{ chip.label }}
+                            </button>
+                        </ng-container>
+                    </div>
+                    <!-- DCE Quick Actions -->
+                    <div *ngIf="config.context === 'COMMAND_CENTER'" class="flex flex-wrap justify-center gap-2">
+                        <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest bg-emerald-50 px-2 py-1 rounded flex items-center gap-1">
+                            <lucide-icon name="landmark" class="w-2.5 h-2.5"></lucide-icon> DCE
+                        </span>
+                        <ng-container *ngFor="let chip of suggestionChips">
+                            <button *ngIf="chip.domain === 'DCE'"
+                                    (click)="handleChipClick(chip.prompt)"
+                                    class="text-xs text-slate-500 hover:text-emerald-700 font-medium px-3 py-2 rounded-lg border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all cursor-pointer flex items-center gap-1.5">
+                                <lucide-icon [name]="chip.icon" class="w-3.5 h-3.5 text-slate-400"></lucide-icon>
+                                {{ chip.label }}
+                            </button>
+                        </ng-container>
+                    </div>
                 </div>
                 <p class="text-[10px] text-slate-300 mt-6 font-mono">Press Enter to send &middot; Shift+Enter for newline</p>
              </div>
@@ -439,56 +466,84 @@ interface AgentIdentity {
         <!-- ═══ TAB: TEMPLATES ═══ -->
         <div *ngIf="chatTab === 'TEMPLATES'" class="flex-1 flex flex-col h-full bg-slate-50 relative">
 
-          <!-- Category Filter -->
-          <div class="w-full bg-white border-b border-slate-200 px-6 py-3 flex items-center gap-3 overflow-x-auto scrollbar-hide flex-none relative category-bar">
+          <!-- Domain Agent Filter (horizontal) -->
+          <div class="w-full bg-white border-b border-slate-200 px-6 py-3 flex items-center gap-3 overflow-x-auto scrollbar-hide flex-none">
              <div class="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-wider mr-2 flex-none">
-                <lucide-icon name="filter" class="w-3.5 h-3.5"></lucide-icon> Categories:
+                <lucide-icon name="bot" class="w-3.5 h-3.5"></lucide-icon> Domain Agents:
              </div>
-             <button *ngFor="let cat of filteredCategories"
-                     (click)="selectedCategory = cat.id"
-                     class="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border flex-none"
-                     [ngClass]="selectedCategory === cat.id ? 'bg-violet-50 text-violet-700 border-violet-200 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'">
-                 {{ cat.name }}
+             <button *ngFor="let domain of domainAgents"
+                     (click)="selectDomain(domain.id)"
+                     class="px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all border flex items-center gap-2 flex-none"
+                     [ngClass]="selectedDomain === domain.id
+                         ? 'bg-violet-50 text-violet-700 border-violet-200 shadow-sm'
+                         : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'">
+                 <div class="w-5 h-5 rounded flex items-center justify-center" [ngClass]="domain.iconBg">
+                    <lucide-icon [name]="domain.icon" class="w-3 h-3"></lucide-icon>
+                 </div>
+                 {{ domain.name }}
+                 <span class="text-[10px] font-normal opacity-60">{{ domain.categoryIds.length }}</span>
              </button>
           </div>
 
-          <!-- Template Grid -->
-          <div class="flex-1 overflow-y-auto p-6 md:p-8">
-             <div class="max-w-5xl mx-auto space-y-6">
-                <div class="flex items-center justify-between mb-2">
-                    <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                        {{ getCategoryName(selectedCategory) }}
-                        <span class="text-slate-400 font-normal text-sm">({{ getTemplatesByCategory(selectedCategory).length }} templates)</span>
-                    </h3>
-                    <div class="relative w-64">
-                        <lucide-icon name="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></lucide-icon>
-                        <input type="text" [(ngModel)]="templateSearchQuery" placeholder="Filter templates..." class="w-full text-sm pl-9 pr-3 py-2 rounded-lg border border-slate-200 bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none shadow-sm">
-                    </div>
-                </div>
+          <!-- Sidebar + Template Grid -->
+          <div class="flex-1 flex overflow-hidden">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                   <div *ngFor="let t of getTemplatesByCategory(selectedCategory)"
-                        class="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md hover:border-violet-300 transition-all cursor-pointer group flex flex-col h-full"
-                        (click)="handleTemplateClick(t)">
-                      <div class="flex items-start justify-between mb-3">
-                         <div class="p-2 rounded-lg" [ngClass]="t.iconBg">
-                            <lucide-icon [name]="t.icon" class="w-5 h-5"></lucide-icon>
+             <!-- Vertical Sub-Category Sidebar -->
+             <div class="w-56 bg-white border-r border-slate-200 flex-none overflow-y-auto py-4 px-3">
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-3">Sub-categories</div>
+                <button *ngFor="let sub of getSubCategories()"
+                        (click)="selectedCategory = sub.id"
+                        class="w-full text-left px-3 py-2.5 rounded-lg text-xs font-medium transition-all mb-1 flex items-center justify-between"
+                        [ngClass]="selectedCategory === sub.id
+                            ? 'bg-violet-50 text-violet-700 font-bold'
+                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'">
+                    <span class="truncate">{{ sub.name }}</span>
+                    <span class="text-[10px] font-normal rounded-full px-1.5 py-0.5 flex-none"
+                          [ngClass]="selectedCategory === sub.id ? 'bg-violet-100 text-violet-600' : 'bg-slate-100 text-slate-400'">
+                        {{ getTemplatesByCategory(sub.id).length }}
+                    </span>
+                </button>
+             </div>
+
+             <!-- Template Grid (right panel) -->
+             <div class="flex-1 overflow-y-auto p-6 md:p-8">
+                <div class="max-w-5xl mx-auto space-y-6">
+                   <div class="flex items-center justify-between mb-2">
+                       <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                           {{ getCategoryName(selectedCategory) }}
+                           <span class="text-slate-400 font-normal text-sm">({{ getTemplatesByCategory(selectedCategory).length }} templates)</span>
+                       </h3>
+                       <div class="relative w-64">
+                           <lucide-icon name="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></lucide-icon>
+                           <input type="text" [(ngModel)]="templateSearchQuery" placeholder="Filter templates..." class="w-full text-sm pl-9 pr-3 py-2 rounded-lg border border-slate-200 bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none shadow-sm">
+                       </div>
+                   </div>
+
+                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div *ngFor="let t of getTemplatesByCategory(selectedCategory)"
+                           class="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md hover:border-violet-300 transition-all cursor-pointer group flex flex-col h-full"
+                           (click)="handleTemplateClick(t)">
+                         <div class="flex items-start justify-between mb-3">
+                            <div class="p-2 rounded-lg" [ngClass]="t.iconBg">
+                               <lucide-icon [name]="t.icon" class="w-5 h-5"></lucide-icon>
+                            </div>
+                            <lucide-icon name="arrow-right" class="w-4 h-4 text-slate-300 group-hover:text-violet-500 transition-colors"></lucide-icon>
                          </div>
-                         <lucide-icon name="arrow-right" class="w-4 h-4 text-slate-300 group-hover:text-violet-500 transition-colors"></lucide-icon>
-                      </div>
-                      <h4 class="text-sm font-bold text-slate-900 mb-1 group-hover:text-violet-700 transition-colors">{{ t.title }}</h4>
-                      <p class="text-xs text-slate-500 mb-4 line-clamp-2 flex-1">{{ t.description }}</p>
-                      <div *ngIf="t.successRate || t.avgTime" class="flex items-center gap-3 text-[10px] font-medium pt-3 border-t border-slate-100">
-                         <span *ngIf="t.avgTime" class="text-slate-600 flex items-center gap-1">
-                            <lucide-icon name="clock" class="w-3 h-3 text-slate-400"></lucide-icon> {{ t.avgTime }}
-                         </span>
-                         <span *ngIf="t.successRate" class="text-slate-600 flex items-center gap-1">
-                            <lucide-icon name="check-circle" class="w-3 h-3 text-green-500"></lucide-icon> {{ t.successRate }}% success
-                         </span>
+                         <h4 class="text-sm font-bold text-slate-900 mb-1 group-hover:text-violet-700 transition-colors">{{ t.title }}</h4>
+                         <p class="text-xs text-slate-500 mb-4 line-clamp-2 flex-1">{{ t.description }}</p>
+                         <div *ngIf="t.successRate || t.avgTime" class="flex items-center gap-3 text-[10px] font-medium pt-3 border-t border-slate-100">
+                            <span *ngIf="t.avgTime" class="text-slate-600 flex items-center gap-1">
+                               <lucide-icon name="clock" class="w-3 h-3 text-slate-400"></lucide-icon> {{ t.avgTime }}
+                            </span>
+                            <span *ngIf="t.successRate" class="text-slate-600 flex items-center gap-1">
+                               <lucide-icon name="check-circle" class="w-3 h-3 text-green-500"></lucide-icon> {{ t.successRate }}% success
+                            </span>
+                         </div>
                       </div>
                    </div>
                 </div>
              </div>
+
           </div>
 
           <!-- Right Panel: Template Form (Slide Over) — only in form mode -->
@@ -602,8 +657,8 @@ export class AgentWorkspaceComponent implements OnInit, AfterViewChecked, OnDest
     quickHints = [
         { label: 'Create an NPA', prompt: 'I want to create a new product approval for a structured note' },
         { label: 'Risk check', prompt: 'Run a risk assessment for a new FX derivative' },
-        { label: 'Search policies', prompt: 'Search the knowledge base for MAS guidelines on structured deposits' },
-        { label: 'My approvals', prompt: 'Show me my pending approvals and sign-off status' },
+        { label: 'Open DCE Account', prompt: 'I want to open a new DCE account for a corporate client' },
+        { label: 'KYC screening', prompt: 'Run KYC/CDD screening and name checks for a DCE account opening case' },
     ];
 
     // ─── Chat State ─────────────────────────────────────────────
@@ -630,29 +685,35 @@ export class AgentWorkspaceComponent implements OnInit, AfterViewChecked, OnDest
     get suggestionChips() {
         if (this.config.context === 'NPA_AGENT') {
             return [
-                { label: 'Create a new NPA', icon: 'file-plus', prompt: 'I want to create a new product approval for a structured note' },
-                { label: 'Run risk assessment', icon: 'shield-alert', prompt: 'Run a risk assessment for a new FX derivative' },
-                { label: 'Check compliance', icon: 'scale', prompt: 'Check MAS regulatory compliance for a structured deposit' },
-                { label: 'Product classification', icon: 'layers', prompt: 'Classify a new equity-linked structured product' },
+                { label: 'Create a new NPA', icon: 'file-plus', prompt: 'I want to create a new product approval for a structured note', domain: 'NPA' },
+                { label: 'Run risk assessment', icon: 'shield-alert', prompt: 'Run a risk assessment for a new FX derivative', domain: 'NPA' },
+                { label: 'Check compliance', icon: 'scale', prompt: 'Check MAS regulatory compliance for a structured deposit', domain: 'NPA' },
+                { label: 'Product classification', icon: 'layers', prompt: 'Classify a new equity-linked structured product', domain: 'NPA' },
             ];
         }
         return [
-            { label: 'Create an NPA', icon: 'file-plus', prompt: 'I want to create a new product approval for a structured note' },
-            { label: 'Risk check', icon: 'shield-alert', prompt: 'Run a risk assessment for a new FX derivative' },
-            { label: 'Search policies', icon: 'book-open', prompt: 'Search the knowledge base for MAS guidelines on structured deposits' },
-            { label: 'My approvals', icon: 'clipboard-check', prompt: 'Show me my pending approvals and sign-off status' },
+            { label: 'Create an NPA', icon: 'file-plus', prompt: 'I want to create a new product approval for a structured note', domain: 'NPA' },
+            { label: 'Risk check', icon: 'shield-alert', prompt: 'Run a risk assessment for a new FX derivative', domain: 'NPA' },
+            { label: 'Search policies', icon: 'book-open', prompt: 'Search the knowledge base for MAS guidelines on structured deposits', domain: 'NPA' },
+            { label: 'My approvals', icon: 'clipboard-check', prompt: 'Show me my pending approvals and sign-off status', domain: 'NPA' },
+            { label: 'Open DCE Account', icon: 'landmark', prompt: 'I want to open a new DCE account for a corporate client', domain: 'DCE' },
+            { label: 'KYC screening', icon: 'shield', prompt: 'Run KYC/CDD screening and name checks for a DCE account opening case', domain: 'DCE' },
+            { label: 'Pipeline status', icon: 'git-branch', prompt: 'Show me the full pipeline status for the current DCE account opening case', domain: 'DCE' },
+            { label: 'Document checklist', icon: 'file-check', prompt: 'Check the document collection status and identify any missing documents for the DCE case', domain: 'DCE' },
         ];
     }
 
     // ─── Template State ─────────────────────────────────────────
+    selectedDomain = '';
     selectedCategory = '';
     templateSearchQuery = '';
     activeTemplate: WorkspaceTemplate | null = null;
     templateFormValues: string[] = [];
 
-    // Filtered categories and templates based on config
+    // Filtered categories, templates, and domain agents based on config
     filteredCategories: TemplateCategory[] = [];
     filteredTemplates: WorkspaceTemplate[] = [];
+    domainAgents: DomainAgent[] = [];
 
     constructor() {
         for (const agent of AGENT_REGISTRY) {
@@ -676,7 +737,7 @@ export class AgentWorkspaceComponent implements OnInit, AfterViewChecked, OnDest
             this.filteredCategories = TEMPLATE_CATEGORIES;
             this.filteredTemplates = WORKSPACE_TEMPLATES;
         }
-        this.selectedCategory = this.filteredCategories[0]?.id || '';
+        this.initDomainAgents();
 
         // If no landing page, start directly in chat mode and register with layout
         if (!this.config.showLanding) {
@@ -732,6 +793,13 @@ export class AgentWorkspaceComponent implements OnInit, AfterViewChecked, OnDest
         this.enterChatMode();
         const combined = existing ? `${existing} — ${prompt}` : prompt;
         this.processMessage(combined);
+    }
+
+    openTemplates() {
+        this.viewMode = 'CHAT';
+        this.chatTab = 'TEMPLATES';
+        this.registerChatModeWithLayout();
+        this.layoutService.updateChatTab('TEMPLATES');
     }
 
     private enterChatMode() {
@@ -1486,7 +1554,26 @@ export class AgentWorkspaceComponent implements OnInit, AfterViewChecked, OnDest
         } as ClassificationResult;
     }
 
-    // ─── Template Logic ─────────────────────────────────────────
+    // ─── Domain & Template Logic ─────────────────────────────────
+
+    private initDomainAgents(): void {
+        const domainIds = new Set(this.filteredCategories.map(c => c.domain).filter(Boolean));
+        this.domainAgents = DOMAIN_AGENTS.filter(d => domainIds.has(d.id));
+        this.selectedDomain = this.domainAgents[0]?.id || '';
+        const subs = this.getSubCategories();
+        this.selectedCategory = subs[0]?.id || '';
+    }
+
+    getSubCategories(): TemplateCategory[] {
+        return this.filteredCategories.filter(c => c.domain === this.selectedDomain);
+    }
+
+    selectDomain(domainId: string): void {
+        this.selectedDomain = domainId;
+        const subs = this.getSubCategories();
+        this.selectedCategory = subs[0]?.id || '';
+        this.templateSearchQuery = '';
+    }
 
     getCategoryName(id: string): string {
         return this.filteredCategories.find(c => c.id === id)?.name || 'Templates';

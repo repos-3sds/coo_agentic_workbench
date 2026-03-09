@@ -1,0 +1,1267 @@
+<!-- ═══ AO FORM OVERLAY (NPA Draft Builder pattern) ═══ -->
+<div *ngIf="showAoForm" class="fixed inset-0 z-[200] flex flex-col bg-white">
+   <div class="flex-none bg-white border-b border-slate-200 px-6 py-3 flex items-center gap-4 shadow-sm">
+      <button (click)="closeAoForm()"
+         class="group flex items-center justify-center p-2 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-900 transition-all">
+         <lucide-icon name="arrow-left" class="w-5 h-5 stroke-[1.5] group-hover:-translate-x-0.5 transition-transform"></lucide-icon>
+      </button>
+      <div>
+         <h2 class="text-base font-bold text-slate-900">Digital Account Opening Form</h2>
+         <p class="text-xs text-slate-500">
+            {{ caseData?.client_name || 'Loading...' }} &middot; {{ caseData?.case_id || '' }}
+         </p>
+      </div>
+   </div>
+   <div class="flex-1 overflow-hidden">
+      <app-dce-ao-form
+         [caseData]="caseData"
+         [classification]="classification"
+         [kycBrief]="kycBrief"
+         [signatureData]="signatureData"
+         [creditResponse]="creditResponse"
+         [configResponse]="configResponse">
+      </app-dce-ao-form>
+   </div>
+</div>
+
+<!-- FULL SCREEN OVERLAY -->
+<div class="fixed inset-0 z-[100] flex flex-col h-screen w-screen bg-slate-50 overscroll-none font-sans">
+
+   <!-- HEADER -->
+   <div class="flex-none bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shadow-sm z-20">
+      <div class="flex items-center gap-4">
+         <!-- Back Button -->
+         <button (click)="onBack.emit()"
+            class="group flex items-center justify-center p-2 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-900 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500">
+            <lucide-icon name="arrow-left"
+               class="w-6 h-6 stroke-[1.5] group-hover:-translate-x-0.5 transition-transform"></lucide-icon>
+         </button>
+
+         <div>
+            <div class="flex items-center gap-3 text-xs text-slate-500 mb-2">
+               <span class="font-medium text-slate-400">DCE Pipeline</span>
+               <lucide-icon name="chevron-right" class="w-3 h-3 text-slate-300"></lucide-icon>
+               <span class="font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded">{{ caseData?.case_id || caseId || '—' }}</span>
+               <span class="flex items-center gap-1.5 ml-2">
+                  <lucide-icon name="user" class="w-3 h-3"></lucide-icon>
+                  <span class="font-medium text-slate-700">{{ rmHierarchy?.rm_name || 'Unassigned' }}</span>
+               </span>
+               <span class="text-slate-300">|</span>
+               <span class="text-slate-400">Created: {{ formatDate(caseData?.created_at) }}</span>
+            </div>
+
+            <div class="flex items-center gap-3">
+               <h1 class="text-lg font-bold text-slate-900 tracking-tight">
+                  {{ caseData?.client_name || 'Loading Case...' }}
+               </h1>
+               <span [ngClass]="getPriorityBadge(caseData?.priority)"
+                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border">
+                  {{ caseData?.priority || 'STANDARD' }}
+               </span>
+               <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-sky-50 text-sky-700 border border-sky-200">
+                  <lucide-icon name="git-branch" class="w-3 h-3 mr-1"></lucide-icon>
+                  {{ getNodeLabel(caseData?.current_node) }}
+               </span>
+               <span [ngClass]="getStatusBadge(caseData?.status)"
+                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border">
+                  {{ caseData?.status || 'ACTIVE' }}
+               </span>
+            </div>
+         </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+         <button (click)="onRefreshCase()"
+            class="px-3 py-2 text-sm font-medium text-sky-600 hover:bg-sky-50 rounded-lg transition-colors border border-sky-200 hover:border-sky-300 flex items-center gap-2"
+            title="Refresh case data from backend">
+            <lucide-icon name="refresh-cw" class="w-4 h-4"></lucide-icon>
+            Refresh
+         </button>
+      </div>
+   </div>
+
+   <!-- MAIN CONTENT GRID -->
+   <div class="flex-1 overflow-hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 h-full">
+
+         <!-- LEFT COLUMN: Document Preview (4 cols) — only on Overview & Docs tabs -->
+         <div *ngIf="showDocumentPreview" class="lg:col-span-4 flex flex-col h-full border-r border-slate-200 bg-white p-0 overflow-hidden">
+
+            <!-- Preview Header -->
+            <div class="flex-none p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+               <h3 class="font-semibold text-sm flex items-center gap-2 text-slate-900">
+                  <div class="p-1.5 bg-white border border-slate-200 rounded-md shadow-sm text-red-500">
+                     <lucide-icon name="file-text" class="w-4 h-4"></lucide-icon>
+                  </div>
+                  Staged Documents
+               </h3>
+               <button
+                  class="p-1.5 hover:bg-blue-50 text-blue-600 rounded transition-colors" title="Upload document">
+                  <lucide-icon name="upload-cloud" class="w-4 h-4"></lucide-icon>
+               </button>
+            </div>
+
+            <!-- Document Viewer -->
+            <div class="flex-1 bg-slate-50 relative flex flex-col items-center justify-center p-8">
+               <div *ngIf="!stagedDocuments.length" class="text-center">
+                  <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                     <lucide-icon name="file-x" class="w-8 h-8 text-slate-300"></lucide-icon>
+                  </div>
+                  <p class="text-sm font-medium text-slate-500 mb-1">No documents staged</p>
+                  <p class="text-xs text-slate-400 mb-4">Upload account opening forms, ID documents, and corporate filings</p>
+               </div>
+               <div *ngIf="stagedDocuments.length" class="w-full h-full flex flex-col">
+                  <div class="flex-1 flex items-center justify-center">
+                     <div class="text-center">
+                        <lucide-icon name="file-text" class="w-12 h-12 text-slate-300 mx-auto mb-2"></lucide-icon>
+                        <p class="text-sm font-medium text-slate-500">{{ stagedDocuments[0]?.filename || 'Document' }}</p>
+                        <p class="text-xs text-slate-400 mt-1">Document viewer</p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+
+            <!-- File List -->
+            <div class="flex-none bg-white border-t border-slate-200 h-1/3 flex flex-col">
+               <div class="px-4 py-3 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                  <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                     Staged Files ({{ stagedDocuments.length }})
+                  </h4>
+               </div>
+               <div class="overflow-y-auto p-2 space-y-1">
+                  <div *ngFor="let doc of stagedDocuments"
+                     class="flex items-center p-2 rounded-lg hover:bg-slate-50 cursor-pointer group transition-colors border border-transparent hover:border-slate-200">
+                     <div class="w-8 h-8 rounded flex items-center justify-center mr-3 border" [ngClass]="{
+                         'bg-red-50 text-red-500 border-red-100': doc.filename?.endsWith('.pdf'),
+                         'bg-blue-50 text-blue-500 border-blue-100': doc.filename?.endsWith('.docx') || doc.filename?.endsWith('.doc'),
+                         'bg-green-50 text-green-600 border-green-100': doc.filename?.endsWith('.xlsx') || doc.filename?.endsWith('.xls'),
+                         'bg-slate-50 text-slate-500 border-slate-100': !doc.filename?.endsWith('.pdf') && !doc.filename?.endsWith('.docx') && !doc.filename?.endsWith('.xlsx')
+                       }">
+                        <lucide-icon name="file-text" class="w-4 h-4"></lucide-icon>
+                     </div>
+                     <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                           <p class="text-sm font-medium text-slate-900 truncate">{{ doc.filename }}</p>
+                           <lucide-icon *ngIf="doc.upload_status === 'COMPLETED'" name="check-circle-2"
+                              class="w-3.5 h-3.5 text-green-500"></lucide-icon>
+                        </div>
+                        <p class="text-xs text-slate-500">
+                           <span>{{ doc.source || 'Upload' }}</span>
+                           <span *ngIf="doc.file_size_bytes" class="ml-2">{{ formatFileSize(doc.file_size_bytes) }}</span>
+                        </p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <!-- RIGHT COLUMN: Tabs (8 cols when doc preview visible, full 12 otherwise) -->
+         <div class="flex flex-col h-full bg-slate-50/50 overflow-hidden relative"
+              [ngClass]="showDocumentPreview ? 'lg:col-span-8' : 'lg:col-span-12'">
+
+            <!-- Tabs Header -->
+            <div class="flex-none flex items-center px-3 border-b border-slate-200 bg-white w-full shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+               <button *ngFor="let tab of tabs" (click)="activeTab = tab.id" [class]="activeTab === tab.id ?
+                'border-sky-600 text-sky-700 font-semibold' :
+                'border-transparent text-slate-500 hover:text-slate-800 font-medium hover:bg-slate-50'"
+                  class="flex-1 justify-center flex items-center gap-1.5 py-3 border-b-2 text-xs transition-all whitespace-nowrap px-2 rounded-t">
+                  <lucide-icon [name]="tab.icon" [class]="activeTab === tab.id ? 'text-sky-600' : 'text-slate-400'"
+                     class="w-3.5 h-3.5"></lucide-icon>
+                  {{ tab.label }}
+                  <span *ngIf="tab.badge"
+                     class="ml-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold border border-slate-200/50"
+                     [ngClass]="tab.badge === 'HITL' ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-slate-100 text-slate-600'">
+                     {{ tab.badge }}
+                  </span>
+               </button>
+            </div>
+
+            <!-- Tab Content Area -->
+            <div class="flex-1 overflow-y-auto p-8 scroll-smooth">
+
+               <!-- ====================== OVERVIEW TAB ====================== -->
+               <div *ngIf="activeTab === 'OVERVIEW'" class="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-5xl mx-auto">
+
+                  <!-- DAG Visualizer (compact) -->
+                  <div class="bg-white rounded-xl shadow-sm border border-slate-200 px-6 py-2">
+                     <app-dce-dag-visualizer [nodes]="dagNodes" [compact]="true" [showSwimLane]="false"></app-dce-dag-visualizer>
+                  </div>
+
+                  <!-- Active HITL Banner -->
+                  <div *ngIf="activeHitlTask && activeHitlTask.status === 'PENDING'"
+                       class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between">
+                     <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center">
+                           <lucide-icon name="clock" class="w-5 h-5 text-white"></lucide-icon>
+                        </div>
+                        <div>
+                           <p class="text-sm font-bold text-amber-900">Human Review Required</p>
+                           <p class="text-xs text-amber-700">
+                              {{ getNodeLabel(activeHitlTask.node_id) }} &middot;
+                              Assigned to {{ activeHitlTask.assigned_name || 'Unassigned' }}
+                           </p>
+                        </div>
+                     </div>
+                     <button (click)="activeTab = activeHitlTask.node_id === 'N-2' ? 'SIGNATURES' : activeHitlTask.node_id === 'N-3' ? 'KYC' : activeHitlTask.node_id === 'N-4' ? 'CREDIT' : 'CONFIG'"
+                        class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition-colors flex items-center gap-1.5">
+                        View
+                        <lucide-icon name="arrow-right" class="w-3.5 h-3.5"></lucide-icon>
+                     </button>
+                  </div>
+
+                  <!-- Case Summary Card -->
+                  <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                     <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-bold text-slate-900">Case Overview</h2>
+                        <span class="text-xs font-medium text-sky-700 bg-sky-50 px-2.5 py-1 rounded-full border border-sky-100">
+                           {{ getNodeLabel(caseData?.current_node) }}
+                        </span>
+                     </div>
+
+                     <div class="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-8">
+                        <div>
+                           <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Case ID</p>
+                           <p class="text-base font-semibold text-slate-900 font-mono">{{ caseData?.case_id || '—' }}</p>
+                        </div>
+                        <div>
+                           <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Status</p>
+                           <p class="text-base font-semibold text-slate-900">{{ caseData?.status || '—' }}</p>
+                        </div>
+                        <div>
+                           <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Priority</p>
+                           <p class="text-base font-semibold text-slate-900">{{ caseData?.priority || '—' }}</p>
+                        </div>
+                        <div>
+                           <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">SLA Deadline</p>
+                           <p class="text-base font-semibold text-slate-900">{{ formatDate(caseData?.sla_deadline) }}</p>
+                        </div>
+                        <div>
+                           <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Jurisdiction</p>
+                           <p class="text-base font-semibold text-slate-900">{{ caseData?.jurisdiction || '—' }}</p>
+                        </div>
+                        <div>
+                           <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Case Type</p>
+                           <p class="text-base font-semibold text-slate-900">{{ caseData?.case_type || '—' }}</p>
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Classification Card -->
+                  <div *ngIf="classification" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                     <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <lucide-icon name="scan-search" class="w-4 h-4 text-sky-500"></lucide-icon>
+                        SA-1 Classification
+                     </h3>
+                     <div class="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-8">
+                        <div>
+                           <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Account Type</p>
+                           <p class="text-sm font-semibold text-slate-900">{{ classification.account_type }}</p>
+                        </div>
+                        <div>
+                           <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Confidence</p>
+                           <p class="text-sm font-semibold text-slate-900">{{ (classification.account_type_confidence * 100).toFixed(0) }}%</p>
+                        </div>
+                        <div>
+                           <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Entity Type</p>
+                           <p class="text-sm font-semibold text-slate-900">{{ classification.client_entity_type }}</p>
+                        </div>
+                        <div>
+                           <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Products Requested</p>
+                           <p class="text-sm font-semibold text-slate-900">{{ classification.products_requested?.join(', ') || '—' }}</p>
+                        </div>
+                        <div>
+                           <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Priority Reason</p>
+                           <p class="text-sm text-slate-700">{{ classification.priority_reason || '—' }}</p>
+                        </div>
+                        <div *ngIf="classification.flagged_for_review">
+                           <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                              <lucide-icon name="alert-triangle" class="w-3 h-3 mr-1"></lucide-icon>
+                              Flagged for Review
+                           </span>
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- RM Assignment Card -->
+                  <div *ngIf="rmHierarchy" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                     <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <lucide-icon name="users" class="w-4 h-4 text-sky-500"></lucide-icon>
+                        RM Assignment
+                     </h3>
+                     <div class="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-8">
+                        <div>
+                           <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Relationship Manager</p>
+                           <p class="text-sm font-semibold text-slate-900">{{ rmHierarchy.rm_name }}</p>
+                        </div>
+                        <div>
+                           <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Email</p>
+                           <p class="text-sm text-slate-700">{{ rmHierarchy.rm_email }}</p>
+                        </div>
+                        <div>
+                           <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Branch / Desk</p>
+                           <p class="text-sm text-slate-700">{{ rmHierarchy.rm_branch }} / {{ rmHierarchy.rm_desk }}</p>
+                        </div>
+                        <div>
+                           <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Manager</p>
+                           <p class="text-sm text-slate-700">{{ rmHierarchy.rm_manager_name || '—' }}</p>
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Digital AO Form — Draft Card (NPA pattern) -->
+                  <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                     <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                           <lucide-icon name="file-text" class="w-4 h-4 text-blue-500"></lucide-icon>
+                           Digital Account Opening Form
+                        </h3>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded border border-slate-100">
+                           Agent-Populated
+                        </span>
+                     </div>
+
+                     <div class="flex items-start gap-6">
+                        <div class="flex-1">
+                           <!-- Progress summary -->
+                           <div class="flex items-center gap-4 mb-4">
+                              <app-ao-form-progress [percent]="aoFormProgress.percent" [size]="48"></app-ao-form-progress>
+                              <div>
+                                 <div class="text-sm font-semibold text-slate-800">{{ aoFormProgress.percent }}% Complete</div>
+                                 <div class="text-xs text-slate-500">
+                                    {{ aoFormProgress.filled }}/{{ aoFormProgress.total }} fields filled &middot; {{ aoFormSectionCount }} sections
+                                 </div>
+                              </div>
+                           </div>
+
+                           <!-- Active agent badges -->
+                           <div class="flex flex-wrap gap-1.5 mb-5">
+                              <span *ngFor="let agent of aoFormAgents"
+                                 [ngClass]="getAoAgentBadgeClass(agent)"
+                                 class="text-[10px] px-1.5 py-0.5 rounded font-medium">
+                                 {{ agent }}
+                              </span>
+                           </div>
+
+                           <!-- Description + Open button -->
+                           <p class="text-xs text-slate-600 leading-relaxed mb-5">
+                              31-page Corporate Account Opening Form rendered digitally. Fields are auto-populated by SA agents as the pipeline advances.
+                           </p>
+                           <button (click)="openAoForm()"
+                              class="px-5 py-2.5 bg-blue-600 text-white rounded-lg shadow-sm hover:shadow-md hover:bg-blue-700 transition-all text-xs font-bold flex items-center gap-2">
+                              <lucide-icon name="layout-list" class="w-4 h-4"></lucide-icon>
+                              Open AO Form
+                           </button>
+                        </div>
+
+                        <!-- Decorative icon -->
+                        <div class="w-32 h-32 flex-none bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center relative overflow-hidden group">
+                           <lucide-icon name="file-text" class="w-12 h-12 text-blue-200 group-hover:scale-110 transition-transform"></lucide-icon>
+                           <div class="absolute inset-0 bg-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+               <!-- ====================== DOCUMENTS TAB ====================== -->
+               <div *ngIf="activeTab === 'DOCUMENTS'" class="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-5xl mx-auto">
+
+                  <!-- Stats summary row -->
+                  <div class="grid grid-cols-4 gap-4">
+                     <div class="bg-white rounded-xl border border-slate-200 p-4 text-center">
+                        <p class="text-2xl font-bold text-slate-900">{{ checklistItems.length }}</p>
+                        <p class="text-xs text-slate-500 mt-1">Total Items</p>
+                     </div>
+                     <div class="bg-white rounded-xl border border-green-200 p-4 text-center">
+                        <p class="text-2xl font-bold text-green-600">{{ countByStatus('MATCHED') }}</p>
+                        <p class="text-xs text-slate-500 mt-1">Matched</p>
+                     </div>
+                     <div class="bg-white rounded-xl border border-red-200 p-4 text-center">
+                        <p class="text-2xl font-bold text-red-600">{{ countByStatus('REJECTED') }}</p>
+                        <p class="text-xs text-slate-500 mt-1">Rejected</p>
+                     </div>
+                     <div class="bg-white rounded-xl border border-amber-200 p-4 text-center">
+                        <p class="text-2xl font-bold text-amber-600">{{ countByStatus('UNMATCHED') }}</p>
+                        <p class="text-xs text-slate-500 mt-1">Unmatched</p>
+                     </div>
+                  </div>
+
+                  <!-- Completeness Assessment -->
+                  <div *ngIf="completeness" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                     <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                           <lucide-icon name="check-square" class="w-4 h-4 text-sky-500"></lucide-icon>
+                           Completeness Assessment
+                        </h3>
+                        <span [ngClass]="completeness.completeness_flag ? 'bg-green-50 text-green-700 border-green-200' : 'bg-amber-50 text-amber-700 border-amber-200'"
+                           class="px-2.5 py-0.5 rounded-full text-xs font-semibold border">
+                           {{ completeness.coverage_pct }}% Complete
+                        </span>
+                     </div>
+
+                     <!-- Coverage Bar -->
+                     <div class="w-full bg-slate-100 rounded-full h-2.5 mb-4">
+                        <div class="h-2.5 rounded-full transition-all duration-500"
+                             [ngClass]="completeness.coverage_pct >= 80 ? 'bg-green-500' : completeness.coverage_pct >= 50 ? 'bg-amber-500' : 'bg-red-500'"
+                             [style.width.%]="completeness.coverage_pct"></div>
+                     </div>
+
+                     <div class="grid grid-cols-4 gap-4 text-center text-xs mb-4">
+                        <div>
+                           <p class="font-bold text-slate-900 text-lg">{{ completeness.total_mandatory }}</p>
+                           <p class="text-slate-500">Mandatory</p>
+                        </div>
+                        <div>
+                           <p class="font-bold text-green-600 text-lg">{{ completeness.matched_mandatory }}</p>
+                           <p class="text-slate-500">Matched</p>
+                        </div>
+                        <div>
+                           <p class="font-bold text-slate-900 text-lg">{{ completeness.total_optional }}</p>
+                           <p class="text-slate-500">Optional</p>
+                        </div>
+                        <div>
+                           <p class="font-bold text-green-600 text-lg">{{ completeness.matched_optional }}</p>
+                           <p class="text-slate-500">Matched</p>
+                        </div>
+                     </div>
+
+                     <div *ngIf="completeness.missing_mandatory?.length" class="bg-red-50 border border-red-100 rounded-lg p-3 mt-4">
+                        <p class="text-xs font-bold text-red-800 mb-2">Missing Mandatory Documents:</p>
+                        <ul class="list-disc list-inside text-xs text-red-700 space-y-1">
+                           <li *ngFor="let doc of completeness.missing_mandatory">{{ doc }}</li>
+                        </ul>
+                     </div>
+
+                     <div *ngIf="completeness.rm_chase_message" class="bg-amber-50 border border-amber-100 rounded-lg p-3 mt-4">
+                        <div class="flex items-center gap-2 mb-1">
+                           <lucide-icon name="bell" class="w-3.5 h-3.5 text-amber-600"></lucide-icon>
+                           <p class="text-xs font-bold text-amber-800">RM Chase Message</p>
+                        </div>
+                        <p class="text-xs text-amber-700">{{ completeness.rm_chase_message }}</p>
+                     </div>
+
+                     <div *ngIf="completeness.decision_reasoning" class="mt-4 text-xs text-slate-600">
+                        <p class="font-semibold text-slate-500 mb-1">SA-2 Reasoning:</p>
+                        <p>{{ completeness.decision_reasoning }}</p>
+                     </div>
+                  </div>
+
+                  <!-- Document Checklist Table -->
+                  <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                     <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <lucide-icon name="list-checks" class="w-4 h-4 text-sky-500"></lucide-icon>
+                        Document Checklist
+                     </h3>
+                     <table class="w-full text-sm">
+                        <thead>
+                           <tr class="border-b text-left">
+                              <th class="pb-2 font-medium text-slate-500 text-xs">Document</th>
+                              <th class="pb-2 font-medium text-slate-500 text-xs">Requirement</th>
+                              <th class="pb-2 font-medium text-slate-500 text-xs">Status</th>
+                              <th class="pb-2 font-medium text-slate-500 text-xs">Confidence</th>
+                              <th class="pb-2 font-medium text-slate-500 text-xs">Regulatory Ref</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr *ngFor="let item of checklistItems" class="border-b border-slate-100 hover:bg-slate-50">
+                              <td class="py-2.5">
+                                 <p class="font-medium text-slate-900">{{ item.doc_type_name }}</p>
+                                 <p *ngIf="item.notes" class="text-[10px] text-slate-400 mt-0.5">{{ item.notes }}</p>
+                              </td>
+                              <td class="py-2.5">
+                                 <span [ngClass]="item.requirement === 'MANDATORY' ? 'bg-red-50 text-red-700' : 'bg-slate-50 text-slate-600'"
+                                    class="px-2 py-0.5 rounded text-xs font-semibold">{{ item.requirement }}</span>
+                              </td>
+                              <td class="py-2.5">
+                                 <span [ngClass]="{
+                                    'bg-green-50 text-green-700': item.match_status === 'MATCHED',
+                                    'bg-amber-50 text-amber-700': item.match_status === 'RESUBMISSION_REQUIRED',
+                                    'bg-red-50 text-red-700': item.match_status === 'REJECTED',
+                                    'bg-slate-50 text-slate-600': item.match_status === 'UNMATCHED'
+                                 }" class="px-2 py-0.5 rounded text-xs font-semibold">{{ item.match_status }}</span>
+                              </td>
+                              <td class="py-2.5 text-xs text-slate-600">
+                                 {{ item.match_confidence != null ? (item.match_confidence * 100).toFixed(0) + '%' : '—' }}
+                              </td>
+                              <td class="py-2.5 text-[10px] text-slate-400">{{ item.regulatory_ref || '—' }}</td>
+                           </tr>
+                           <tr *ngIf="!checklistItems.length">
+                              <td colspan="5" class="py-6 text-center text-slate-400 text-xs">No checklist items yet</td>
+                           </tr>
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+
+               <!-- ====================== SIGNATURES TAB ====================== -->
+               <div *ngIf="activeTab === 'SIGNATURES'" class="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-5xl mx-auto">
+
+                  <!-- HITL Review Panel -->
+                  <app-dce-hitl-review-panel
+                     *ngIf="getHitlTaskForNode('N-2')"
+                     [hitlTask]="getHitlTaskForNode('N-2')"
+                     [reviewType]="'SIGNATURE'"
+                     [decisionFields]="signatureDecisionFields"
+                     (onApprove)="onSignatureApprove($event)"
+                     (onReject)="onHitlReject($event)"
+                     (onClarify)="onHitlClarify($event)"
+                     (onEscalate)="onHitlEscalate($event)"
+                     (onNudge)="onHitlNudge($event)">
+                  </app-dce-hitl-review-panel>
+
+                  <!-- Verification Status Banner -->
+                  <div *ngIf="signatureData" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                     <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                           <lucide-icon name="pen-tool" class="w-4 h-4 text-sky-500"></lucide-icon>
+                           Signature Verification (SA-3)
+                        </h3>
+                        <span [ngClass]="{
+                              'bg-green-50 text-green-700 border-green-200': signatureData.verification_status === 'ALL_APPROVED',
+                              'bg-amber-50 text-amber-700 border-amber-200': signatureData.verification_status === 'PARTIAL_APPROVED' || signatureData.verification_status === 'CLARIFICATION_REQUIRED',
+                              'bg-red-50 text-red-700 border-red-200': signatureData.verification_status === 'HAS_REJECTIONS'
+                           }" class="px-2.5 py-0.5 rounded-full text-xs font-bold border">
+                           {{ formatSnakeCase(signatureData.verification_status) }}
+                        </span>
+                     </div>
+
+                     <!-- Summary stats -->
+                     <div class="grid grid-cols-4 gap-4 mb-5">
+                        <div class="text-center p-3 bg-slate-50 rounded-lg">
+                           <p class="text-xl font-bold text-slate-900">{{ signatureData.total_signatories }}</p>
+                           <p class="text-[10px] text-slate-500 uppercase font-semibold">Total</p>
+                        </div>
+                        <div class="text-center p-3 bg-green-50 rounded-lg">
+                           <p class="text-xl font-bold text-green-600">{{ signatureData.approved_count }}</p>
+                           <p class="text-[10px] text-green-600 uppercase font-semibold">Approved</p>
+                        </div>
+                        <div class="text-center p-3 bg-red-50 rounded-lg">
+                           <p class="text-xl font-bold text-red-600">{{ signatureData.rejected_count }}</p>
+                           <p class="text-[10px] text-red-600 uppercase font-semibold">Rejected</p>
+                        </div>
+                        <div class="text-center p-3 bg-amber-50 rounded-lg">
+                           <p class="text-xl font-bold text-amber-600">{{ signatureData.clarify_count }}</p>
+                           <p class="text-[10px] text-amber-600 uppercase font-semibold">Clarify</p>
+                        </div>
+                     </div>
+
+                     <!-- Signatory Table -->
+                     <table class="w-full text-sm">
+                        <thead>
+                           <tr class="border-b text-left">
+                              <th class="pb-2 font-medium text-slate-500 text-xs">Signatory</th>
+                              <th class="pb-2 font-medium text-slate-500 text-xs">Role</th>
+                              <th class="pb-2 font-medium text-slate-500 text-xs">Authority</th>
+                              <th class="pb-2 font-medium text-slate-500 text-xs">Confidence</th>
+                              <th class="pb-2 font-medium text-slate-500 text-xs">Decision</th>
+                              <th class="pb-2 font-medium text-slate-500 text-xs">Actions</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr *ngFor="let sig of signatureData.signatories" class="border-b border-slate-100 hover:bg-slate-50">
+                              <td class="py-3">
+                                 <p class="font-semibold text-slate-900">{{ sig.signatory_name }}</p>
+                                 <p class="text-[10px] text-slate-400 font-mono">{{ sig.signatory_id }}</p>
+                              </td>
+                              <td class="py-3 text-xs text-slate-700">{{ sig.role_in_mandate }}</td>
+                              <td class="py-3">
+                                 <span [ngClass]="{
+                                    'bg-green-50 text-green-700': sig.authority_status === 'AUTHORISED',
+                                    'bg-red-50 text-red-700': sig.authority_status === 'UNAUTHORISED',
+                                    'bg-amber-50 text-amber-700': sig.authority_status === 'NOT_IN_MANDATE'
+                                 }" class="px-2 py-0.5 rounded text-[10px] font-bold">{{ sig.authority_status }}</span>
+                              </td>
+                              <td class="py-3">
+                                 <div class="flex items-center gap-2">
+                                    <div class="w-16 bg-slate-100 rounded-full h-1.5">
+                                       <div class="h-1.5 rounded-full"
+                                            [ngClass]="sig.confidence_score >= 80 ? 'bg-green-500' : sig.confidence_score >= 60 ? 'bg-amber-500' : 'bg-red-500'"
+                                            [style.width.%]="sig.confidence_score"></div>
+                                    </div>
+                                    <span class="text-xs font-mono text-slate-600">{{ sig.confidence_score | number:'1.0-0' }}%</span>
+                                    <span [ngClass]="{
+                                       'bg-green-100 text-green-700': sig.confidence_tier === 'HIGH',
+                                       'bg-amber-100 text-amber-700': sig.confidence_tier === 'MEDIUM',
+                                       'bg-red-100 text-red-700': sig.confidence_tier === 'LOW'
+                                    }" class="px-1.5 py-0.5 rounded text-[9px] font-bold">{{ sig.confidence_tier }}</span>
+                                 </div>
+                              </td>
+                              <td class="py-3">
+                                 <span *ngIf="sig.outcome" [ngClass]="{
+                                    'bg-green-50 text-green-700 border-green-200': sig.outcome === 'APPROVED',
+                                    'bg-red-50 text-red-700 border-red-200': sig.outcome === 'REJECTED',
+                                    'bg-amber-50 text-amber-700 border-amber-200': sig.outcome === 'CLARIFY'
+                                 }" class="px-2 py-0.5 rounded text-xs font-bold border">{{ sig.outcome }}</span>
+                                 <span *ngIf="!sig.outcome" class="text-xs text-slate-400">Pending</span>
+                              </td>
+                              <td class="py-3">
+                                 <div *ngIf="!sig.outcome" class="flex gap-1">
+                                    <button (click)="onSignatoryAction(sig, 'APPROVED')"
+                                       class="p-1 rounded hover:bg-green-50 text-green-600" title="Approve">
+                                       <lucide-icon name="check" class="w-4 h-4"></lucide-icon>
+                                    </button>
+                                    <button (click)="onSignatoryAction(sig, 'REJECTED')"
+                                       class="p-1 rounded hover:bg-red-50 text-red-600" title="Reject">
+                                       <lucide-icon name="x" class="w-4 h-4"></lucide-icon>
+                                    </button>
+                                    <button (click)="onSignatoryAction(sig, 'CLARIFY')"
+                                       class="p-1 rounded hover:bg-amber-50 text-amber-600" title="Clarify">
+                                       <lucide-icon name="help-circle" class="w-4 h-4"></lucide-icon>
+                                    </button>
+                                 </div>
+                                 <div *ngIf="sig.outcome" class="text-[10px] text-slate-400">
+                                    {{ sig.reviewer }}
+                                 </div>
+                              </td>
+                           </tr>
+                        </tbody>
+                     </table>
+
+                     <!-- Notes -->
+                     <div *ngIf="signatureData.verification_notes" class="mt-4 text-xs text-slate-600 bg-slate-50 rounded-lg p-3">
+                        <span class="font-semibold text-slate-500">Notes:</span> {{ signatureData.verification_notes }}
+                     </div>
+                  </div>
+
+                  <!-- Empty state -->
+                  <div *ngIf="!signatureData" class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center">
+                     <lucide-icon name="pen-tool" class="w-8 h-8 mx-auto mb-2 text-slate-300"></lucide-icon>
+                     <p class="text-sm text-slate-500">Signature verification not yet started.</p>
+                     <p class="text-xs text-slate-400 mt-1">This step runs at Node N-2 of the pipeline.</p>
+                  </div>
+               </div>
+
+               <!-- ====================== KYC TAB ====================== -->
+               <div *ngIf="activeTab === 'KYC'" class="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-5xl mx-auto">
+
+                  <!-- HITL Review Panel -->
+                  <app-dce-hitl-review-panel
+                     *ngIf="getHitlTaskForNode('N-3')"
+                     [hitlTask]="getHitlTaskForNode('N-3')"
+                     [reviewType]="'KYC'"
+                     [decisionFields]="kycDecisionFields"
+                     (onApprove)="onKycApprove($event)"
+                     (onReject)="onHitlReject($event)"
+                     (onClarify)="onHitlClarify($event)"
+                     (onEscalate)="onHitlEscalate($event)"
+                     (onNudge)="onHitlNudge($event)">
+                  </app-dce-hitl-review-panel>
+
+                  <div *ngIf="kycBrief" class="space-y-6">
+                     <!-- Screening Summary Card -->
+                     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                        <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                           <lucide-icon name="shield-check" class="w-4 h-4 text-sky-500"></lucide-icon>
+                           Screening Summary
+                        </h3>
+                        <div class="grid grid-cols-4 gap-4">
+                           <div class="text-center p-3 bg-slate-50 rounded-lg">
+                              <p class="text-xl font-bold text-slate-900">{{ kycBrief.names_screened }}</p>
+                              <p class="text-[10px] text-slate-500 uppercase font-semibold">Names Screened</p>
+                           </div>
+                           <div class="text-center p-3 rounded-lg"
+                                [ngClass]="kycBrief.sanctions_status === 'CLEAR' ? 'bg-green-50' : 'bg-red-50'">
+                              <p class="text-sm font-bold" [ngClass]="kycBrief.sanctions_status === 'CLEAR' ? 'text-green-700' : 'text-red-700'">
+                                 {{ kycBrief.sanctions_status }}
+                              </p>
+                              <p class="text-[10px] text-slate-500 uppercase font-semibold">Sanctions</p>
+                           </div>
+                           <div class="text-center p-3 rounded-lg"
+                                [ngClass]="kycBrief.pep_flags_count === 0 ? 'bg-green-50' : 'bg-amber-50'">
+                              <p class="text-xl font-bold" [ngClass]="kycBrief.pep_flags_count === 0 ? 'text-green-700' : 'text-amber-700'">
+                                 {{ kycBrief.pep_flags_count }}
+                              </p>
+                              <p class="text-[10px] text-slate-500 uppercase font-semibold">PEP Flags</p>
+                           </div>
+                           <div class="text-center p-3 rounded-lg"
+                                [ngClass]="!kycBrief.adverse_media_found ? 'bg-green-50' : 'bg-red-50'">
+                              <p class="text-sm font-bold" [ngClass]="!kycBrief.adverse_media_found ? 'text-green-700' : 'text-red-700'">
+                                 {{ kycBrief.adverse_media_found ? 'FOUND' : 'CLEAR' }}
+                              </p>
+                              <p class="text-[10px] text-slate-500 uppercase font-semibold">Adverse Media</p>
+                           </div>
+                        </div>
+                     </div>
+
+                     <!-- 11-section KYC Brief Accordion -->
+                     <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-5 py-3 border-b border-slate-200 flex items-center justify-between">
+                           <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                              <lucide-icon name="file-text" class="w-4 h-4 text-sky-500"></lucide-icon>
+                              KYC/CDD Brief
+                           </h3>
+                           <span class="text-[10px] text-slate-400 font-mono">{{ kycBrief.brief_id }}</span>
+                        </div>
+
+                        <div *ngFor="let section of getKycSectionKeys(); let i = index"
+                             class="border-b border-slate-100 last:border-0">
+                           <button (click)="toggleKycSection(i)"
+                              class="w-full px-5 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors text-left">
+                              <span class="text-xs font-bold text-slate-700">{{ section.label }}</span>
+                              <lucide-icon [name]="isKycSectionExpanded(i) ? 'chevron-up' : 'chevron-down'"
+                                 class="w-4 h-4 text-slate-400"></lucide-icon>
+                           </button>
+                           <div *ngIf="isKycSectionExpanded(i)" class="px-5 pb-4">
+                              <p class="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">{{ getKycFieldValue(section.key) || 'Not yet assessed' }}</p>
+                           </div>
+                        </div>
+                     </div>
+
+                     <!-- Screening Results Table -->
+                     <div *ngIf="kycBrief.screening_results?.length" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                        <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                           <lucide-icon name="search" class="w-4 h-4 text-sky-500"></lucide-icon>
+                           Screening Results
+                        </h3>
+                        <table class="w-full text-sm">
+                           <thead>
+                              <tr class="border-b text-left">
+                                 <th class="pb-2 font-medium text-slate-500 text-xs">Name Screened</th>
+                                 <th class="pb-2 font-medium text-slate-500 text-xs">Role</th>
+                                 <th class="pb-2 font-medium text-slate-500 text-xs">Sanctions</th>
+                                 <th class="pb-2 font-medium text-slate-500 text-xs">PEP</th>
+                                 <th class="pb-2 font-medium text-slate-500 text-xs">Adverse Media</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              <tr *ngFor="let sr of kycBrief.screening_results" class="border-b border-slate-100 hover:bg-slate-50">
+                                 <td class="py-2.5 font-medium text-slate-900">{{ sr.name_screened }}</td>
+                                 <td class="py-2.5 text-xs text-slate-600">{{ sr.role }}</td>
+                                 <td class="py-2.5">
+                                    <span [ngClass]="sr.sanctions_status === 'CLEAR' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'"
+                                       class="px-2 py-0.5 rounded text-[10px] font-bold">{{ sr.sanctions_status }}</span>
+                                 </td>
+                                 <td class="py-2.5">
+                                    <span [ngClass]="sr.pep_flags_count === 0 ? 'text-green-600' : 'text-amber-600'"
+                                       class="text-xs font-bold">{{ sr.pep_flags_count }}</span>
+                                 </td>
+                                 <td class="py-2.5">
+                                    <span [ngClass]="sr.adverse_media_count === 0 ? 'text-green-600' : 'text-red-600'"
+                                       class="text-xs font-bold">{{ sr.adverse_media_count }}</span>
+                                 </td>
+                              </tr>
+                           </tbody>
+                        </table>
+                     </div>
+
+                     <!-- RM Decision Card -->
+                     <div *ngIf="kycBrief.rm_decisions" class="bg-sky-50 rounded-xl border border-sky-200 p-5">
+                        <h3 class="text-sm font-bold text-sky-900 mb-4 flex items-center gap-2">
+                           <lucide-icon name="check-circle" class="w-4 h-4 text-sky-600"></lucide-icon>
+                           RM Decision
+                        </h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                           <div>
+                              <p class="text-sky-600 mb-1">Risk Rating</p>
+                              <p class="font-bold text-sky-900">{{ kycBrief.rm_decisions.kyc_risk_rating }}</p>
+                           </div>
+                           <div>
+                              <p class="text-sky-600 mb-1">CDD Clearance</p>
+                              <p class="font-bold text-sky-900">{{ kycBrief.rm_decisions.cdd_clearance }}</p>
+                           </div>
+                           <div>
+                              <p class="text-sky-600 mb-1">BCAP Clearance</p>
+                              <p class="font-bold text-sky-900">{{ kycBrief.rm_decisions.bcap_clearance ? 'Yes' : 'No' }}</p>
+                           </div>
+                           <div>
+                              <p class="text-sky-600 mb-1">CAA Approach</p>
+                              <p class="font-bold text-sky-900">{{ kycBrief.rm_decisions.caa_approach }}</p>
+                           </div>
+                           <div>
+                              <p class="text-sky-600 mb-1">DCE Limit (SGD)</p>
+                              <p class="font-bold text-sky-900">{{ kycBrief.rm_decisions.recommended_dce_limit_sgd | number }}</p>
+                           </div>
+                           <div>
+                              <p class="text-sky-600 mb-1">PCE Limit (SGD)</p>
+                              <p class="font-bold text-sky-900">{{ kycBrief.rm_decisions.recommended_dce_pce_limit_sgd | number }}</p>
+                           </div>
+                           <div>
+                              <p class="text-sky-600 mb-1">OSCA Case</p>
+                              <p class="font-bold text-sky-900">{{ kycBrief.rm_decisions.osca_case_number }}</p>
+                           </div>
+                           <div>
+                              <p class="text-sky-600 mb-1">Decided</p>
+                              <p class="font-bold text-sky-900">{{ formatDate(kycBrief.rm_decisions.decided_at) }}</p>
+                           </div>
+                        </div>
+                     </div>
+
+                     <!-- No RM decision yet -->
+                     <div *ngIf="!kycBrief.rm_decisions" class="bg-amber-50 rounded-xl border border-amber-200 p-4 text-center">
+                        <lucide-icon name="clock" class="w-6 h-6 text-amber-500 mx-auto mb-2"></lucide-icon>
+                        <p class="text-sm font-semibold text-amber-800">Awaiting RM Decision</p>
+                        <p class="text-xs text-amber-600 mt-1">The RM has not yet submitted their KYC/CDD review decision.</p>
+                     </div>
+                  </div>
+
+                  <!-- Empty state -->
+                  <div *ngIf="!kycBrief" class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center">
+                     <lucide-icon name="shield-check" class="w-8 h-8 mx-auto mb-2 text-slate-300"></lucide-icon>
+                     <p class="text-sm text-slate-500">KYC/CDD assessment not yet started.</p>
+                     <p class="text-xs text-slate-400 mt-1">This step runs at Node N-3 of the pipeline.</p>
+                  </div>
+               </div>
+
+               <!-- ====================== CREDIT TAB ====================== -->
+               <div *ngIf="activeTab === 'CREDIT'" class="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-5xl mx-auto">
+
+                  <!-- HITL Review Panel -->
+                  <app-dce-hitl-review-panel
+                     *ngIf="getHitlTaskForNode('N-4')"
+                     [hitlTask]="getHitlTaskForNode('N-4')"
+                     [reviewType]="'CREDIT'"
+                     [decisionFields]="creditDecisionFields"
+                     (onApprove)="onCreditApprove($event)"
+                     (onReject)="onHitlReject($event)"
+                     (onClarify)="onHitlClarify($event)"
+                     (onEscalate)="onHitlEscalate($event)"
+                     (onNudge)="onHitlNudge($event)">
+                  </app-dce-hitl-review-panel>
+
+                  <div *ngIf="creditBrief" class="space-y-6">
+                     <!-- Financial Health Dashboard -->
+                     <div class="grid grid-cols-3 gap-4">
+                        <div class="bg-white rounded-xl border border-slate-200 p-5 text-center">
+                           <p class="text-xs text-slate-500 uppercase font-semibold mb-2">Leverage Ratio</p>
+                           <p class="text-3xl font-bold" [ngClass]="creditBrief.leverage_ratio < 3 ? 'text-green-600' : creditBrief.leverage_ratio < 5 ? 'text-amber-600' : 'text-red-600'">
+                              {{ creditBrief.leverage_ratio | number:'1.1-1' }}x
+                           </p>
+                        </div>
+                        <div class="bg-white rounded-xl border border-slate-200 p-5 text-center">
+                           <p class="text-xs text-slate-500 uppercase font-semibold mb-2">Liquidity Ratio</p>
+                           <p class="text-3xl font-bold" [ngClass]="creditBrief.liquidity_ratio > 1.5 ? 'text-green-600' : creditBrief.liquidity_ratio > 1 ? 'text-amber-600' : 'text-red-600'">
+                              {{ creditBrief.liquidity_ratio | number:'1.1-1' }}x
+                           </p>
+                        </div>
+                        <div class="bg-white rounded-xl border border-slate-200 p-5 text-center">
+                           <p class="text-xs text-slate-500 uppercase font-semibold mb-2">Revenue Trend</p>
+                           <p class="text-3xl font-bold" [ngClass]="creditBrief.revenue_trend_pct > 0 ? 'text-green-600' : 'text-red-600'">
+                              <lucide-icon [name]="creditBrief.revenue_trend_pct > 0 ? 'trending-up' : 'trending-down'"
+                                 class="w-6 h-6 inline mr-1"></lucide-icon>
+                              {{ creditBrief.revenue_trend_pct | number:'1.0-1' }}%
+                           </p>
+                        </div>
+                     </div>
+
+                     <!-- Credit Brief Narrative -->
+                     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                        <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                           <lucide-icon name="landmark" class="w-4 h-4 text-sky-500"></lucide-icon>
+                           Credit Brief (SA-5)
+                        </h3>
+                        <div class="space-y-4">
+                           <div *ngIf="creditBrief.entity_summary">
+                              <h4 class="text-xs font-bold text-slate-600 uppercase mb-1">Entity Summary</h4>
+                              <p class="text-sm text-slate-700 whitespace-pre-wrap">{{ creditBrief.entity_summary }}</p>
+                           </div>
+                           <div *ngIf="creditBrief.financial_analysis">
+                              <h4 class="text-xs font-bold text-slate-600 uppercase mb-1">Financial Analysis</h4>
+                              <p class="text-sm text-slate-700 whitespace-pre-wrap">{{ creditBrief.financial_analysis }}</p>
+                           </div>
+                           <div *ngIf="creditBrief.product_risk_profile">
+                              <h4 class="text-xs font-bold text-slate-600 uppercase mb-1">Product Risk Profile</h4>
+                              <p class="text-sm text-slate-700 whitespace-pre-wrap">{{ creditBrief.product_risk_profile }}</p>
+                           </div>
+                           <div *ngIf="creditBrief.rm_recommendations">
+                              <h4 class="text-xs font-bold text-slate-600 uppercase mb-1">RM Recommendations</h4>
+                              <p class="text-sm text-slate-700 whitespace-pre-wrap">{{ creditBrief.rm_recommendations }}</p>
+                           </div>
+                        </div>
+                     </div>
+
+                     <!-- Financial Extracts Table -->
+                     <div *ngIf="financialExtracts.length" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                        <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                           <lucide-icon name="bar-chart-3" class="w-4 h-4 text-sky-500"></lucide-icon>
+                           Financial Extracts
+                        </h3>
+                        <table class="w-full text-sm">
+                           <thead>
+                              <tr class="border-b text-left">
+                                 <th class="pb-2 font-medium text-slate-500 text-xs">Metric</th>
+                                 <th class="pb-2 font-medium text-slate-500 text-xs">Value</th>
+                                 <th class="pb-2 font-medium text-slate-500 text-xs">Period</th>
+                                 <th class="pb-2 font-medium text-slate-500 text-xs">Source</th>
+                                 <th class="pb-2 font-medium text-slate-500 text-xs">YoY Change</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              <tr *ngFor="let fe of financialExtracts" class="border-b border-slate-100 hover:bg-slate-50">
+                                 <td class="py-2.5 font-medium text-slate-900">{{ fe.metric_name }}</td>
+                                 <td class="py-2.5 text-slate-700 font-mono">{{ fe.value }}</td>
+                                 <td class="py-2.5 text-xs text-slate-600">{{ fe.period }}</td>
+                                 <td class="py-2.5 text-xs text-slate-500">{{ fe.source_doc }}</td>
+                                 <td class="py-2.5">
+                                    <span *ngIf="fe.yoy_change_pct != null" class="text-xs font-semibold"
+                                       [ngClass]="fe.yoy_change_pct >= 0 ? 'text-green-600' : 'text-red-600'">
+                                       {{ fe.yoy_change_pct >= 0 ? '+' : '' }}{{ fe.yoy_change_pct | number:'1.1-1' }}%
+                                    </span>
+                                    <span *ngIf="fe.yoy_change_pct == null" class="text-xs text-slate-400">—</span>
+                                 </td>
+                              </tr>
+                           </tbody>
+                        </table>
+                     </div>
+                  </div>
+
+                  <!-- Credit Decision Card -->
+                  <div *ngIf="creditDecision" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                     <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <lucide-icon name="check-circle" class="w-4 h-4 text-sky-500"></lucide-icon>
+                        Credit Team Decision
+                     </h3>
+                     <div class="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-8">
+                        <div>
+                           <p class="text-xs text-slate-400 uppercase mb-1">Outcome</p>
+                           <p class="text-sm font-bold" [ngClass]="{
+                              'text-green-700': creditDecision.credit_outcome === 'APPROVED',
+                              'text-red-700': creditDecision.credit_outcome === 'DECLINED',
+                              'text-amber-700': creditDecision.credit_outcome === 'APPROVED_WITH_CONDITIONS'
+                           }">{{ creditDecision.credit_outcome }}</p>
+                        </div>
+                        <div>
+                           <p class="text-xs text-slate-400 uppercase mb-1">DCE Limit (SGD)</p>
+                           <p class="text-sm font-semibold text-slate-900">{{ creditDecision.approved_dce_limit_sgd | number }}</p>
+                        </div>
+                        <div>
+                           <p class="text-xs text-slate-400 uppercase mb-1">PCE Limit (SGD)</p>
+                           <p class="text-sm font-semibold text-slate-900">{{ creditDecision.approved_dce_pce_limit_sgd | number }}</p>
+                        </div>
+                        <div>
+                           <p class="text-xs text-slate-400 uppercase mb-1">CAA Approach</p>
+                           <p class="text-sm font-semibold text-slate-900">{{ creditDecision.confirmed_caa_approach }}</p>
+                        </div>
+                        <div>
+                           <p class="text-xs text-slate-400 uppercase mb-1">Credit Team</p>
+                           <p class="text-sm font-semibold text-slate-900">{{ creditDecision.credit_team_name }}</p>
+                        </div>
+                        <div>
+                           <p class="text-xs text-slate-400 uppercase mb-1">Decided</p>
+                           <p class="text-sm text-slate-700">{{ formatDate(creditDecision.decided_at) }}</p>
+                        </div>
+                     </div>
+                     <div *ngIf="creditDecision.conditions?.length" class="mt-4 bg-amber-50 border border-amber-100 rounded-lg p-3">
+                        <p class="text-xs font-bold text-amber-800 mb-1">Conditions:</p>
+                        <ul class="list-disc list-inside text-xs text-amber-700 space-y-1">
+                           <li *ngFor="let c of creditDecision.conditions">{{ c }}</li>
+                        </ul>
+                     </div>
+                  </div>
+
+                  <!-- Empty state for credit -->
+                  <div *ngIf="!creditBrief && !creditDecision" class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center">
+                     <lucide-icon name="landmark" class="w-8 h-8 mx-auto mb-2 text-slate-300"></lucide-icon>
+                     <p class="text-sm text-slate-500">Credit assessment not yet started.</p>
+                     <p class="text-xs text-slate-400 mt-1">This step runs at Node N-4 of the pipeline.</p>
+                  </div>
+               </div>
+
+               <!-- ====================== CONFIG TAB ====================== -->
+               <div *ngIf="activeTab === 'CONFIG'" class="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-5xl mx-auto">
+
+                  <!-- HITL Review Panel -->
+                  <app-dce-hitl-review-panel
+                     *ngIf="getHitlTaskForNode('N-5')"
+                     [hitlTask]="getHitlTaskForNode('N-5')"
+                     [reviewType]="'CONFIG'"
+                     [decisionFields]="configDecisionFields"
+                     (onApprove)="onConfigApprove($event)"
+                     (onReject)="onHitlReject($event)"
+                     (onClarify)="onHitlClarify($event)"
+                     (onEscalate)="onHitlEscalate($event)"
+                     (onNudge)="onHitlNudge($event)">
+                  </app-dce-hitl-review-panel>
+
+                  <div *ngIf="configSpec" class="space-y-6">
+                     <!-- 3-System Validation Dashboard -->
+                     <div *ngIf="systemValidations.length" class="grid grid-cols-3 gap-4">
+                        <div *ngFor="let sv of systemValidations" class="bg-white rounded-xl border p-5"
+                             [ngClass]="sv.result === 'PASS' ? 'border-green-200' : 'border-red-200'">
+                           <div class="flex items-center justify-between mb-3">
+                              <span class="text-sm font-bold text-slate-900">{{ sv.system }}</span>
+                              <span [ngClass]="sv.result === 'PASS' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'"
+                                 class="px-2 py-0.5 rounded text-xs font-bold">{{ sv.result }}</span>
+                           </div>
+                           <p class="text-xs text-slate-500 mb-2">{{ sv.fields_passed }}/{{ sv.fields_checked }} fields passed</p>
+                           <div class="w-full bg-slate-100 rounded-full h-1.5">
+                              <div class="h-1.5 rounded-full"
+                                   [ngClass]="sv.result === 'PASS' ? 'bg-green-500' : 'bg-red-500'"
+                                   [style.width.%]="sv.fields_checked > 0 ? (sv.fields_passed / sv.fields_checked * 100) : 0"></div>
+                           </div>
+                           <div *ngIf="sv.discrepancies?.length" class="mt-3 space-y-1">
+                              <p class="text-[10px] font-bold text-red-600 uppercase">Discrepancies:</p>
+                              <div *ngFor="let d of sv.discrepancies" class="text-[10px] text-red-700 bg-red-50 rounded px-2 py-1">
+                                 {{ d.field }}: expected <span class="font-mono">{{ d.expected }}</span>, got <span class="font-mono">{{ d.actual }}</span>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+
+                     <!-- Config Spec Summary -->
+                     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                        <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                           <lucide-icon name="settings" class="w-4 h-4 text-sky-500"></lucide-icon>
+                           Configuration Spec (SA-6)
+                        </h3>
+                        <div class="space-y-4">
+                           <!-- UBIX Config -->
+                           <div class="border border-slate-200 rounded-lg p-4">
+                              <h4 class="text-xs font-bold text-slate-700 uppercase mb-3">UBIX Configuration</h4>
+                              <div class="grid grid-cols-2 gap-3 text-xs">
+                                 <div>
+                                    <p class="text-slate-400">Entity Name</p>
+                                    <p class="font-semibold text-slate-900">{{ configSpec.ubix_config?.entity_name || '—' }}</p>
+                                 </div>
+                                 <div>
+                                    <p class="text-slate-400">Jurisdiction</p>
+                                    <p class="font-semibold text-slate-900">{{ configSpec.ubix_config?.jurisdiction || '—' }}</p>
+                                 </div>
+                                 <div>
+                                    <p class="text-slate-400">LEI</p>
+                                    <p class="font-semibold text-slate-900 font-mono">{{ configSpec.ubix_config?.lei || '—' }}</p>
+                                 </div>
+                                 <div>
+                                    <p class="text-slate-400">Product Permissions</p>
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                       <span *ngFor="let p of configSpec.ubix_config?.product_permissions"
+                                          class="px-1.5 py-0.5 bg-sky-50 text-sky-700 rounded text-[10px] font-semibold">{{ p }}</span>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+
+                           <!-- SIC Config -->
+                           <div class="border border-slate-200 rounded-lg p-4">
+                              <h4 class="text-xs font-bold text-slate-700 uppercase mb-3">SIC Configuration</h4>
+                              <div class="grid grid-cols-2 gap-3 text-xs">
+                                 <div>
+                                    <p class="text-slate-400">Account Mapping</p>
+                                    <p class="font-semibold text-slate-900 font-mono">{{ configSpec.sic_config?.account_mapping || '—' }}</p>
+                                 </div>
+                              </div>
+                           </div>
+
+                           <!-- CreditView Config -->
+                           <div class="border border-slate-200 rounded-lg p-4">
+                              <h4 class="text-xs font-bold text-slate-700 uppercase mb-3">CreditView Configuration</h4>
+                              <div class="grid grid-cols-2 gap-3 text-xs">
+                                 <div>
+                                    <p class="text-slate-400">Contract Mapping</p>
+                                    <p class="font-semibold text-slate-900 font-mono">{{ configSpec.cv_config?.contract_mapping || '—' }}</p>
+                                 </div>
+                                 <div>
+                                    <p class="text-slate-400">Settlement Types</p>
+                                    <p class="font-semibold text-slate-900">{{ configSpec.cv_config?.settlement_types?.join(', ') || '—' }}</p>
+                                 </div>
+                              </div>
+                           </div>
+
+                           <!-- Authorised Traders -->
+                           <div *ngIf="configSpec.authorised_traders?.length" class="border border-slate-200 rounded-lg p-4">
+                              <h4 class="text-xs font-bold text-slate-700 uppercase mb-3">Authorised Traders</h4>
+                              <table class="w-full text-xs">
+                                 <thead>
+                                    <tr class="border-b">
+                                       <th class="pb-1 text-left text-slate-500">Name</th>
+                                       <th class="pb-1 text-left text-slate-500">CQG Access</th>
+                                       <th class="pb-1 text-left text-slate-500">Permissions</th>
+                                    </tr>
+                                 </thead>
+                                 <tbody>
+                                    <tr *ngFor="let trader of configSpec.authorised_traders" class="border-b border-slate-100">
+                                       <td class="py-1.5 font-medium text-slate-900">{{ trader.name }}</td>
+                                       <td class="py-1.5">
+                                          <span [ngClass]="trader.cqg_access ? 'text-green-600' : 'text-slate-400'">
+                                             {{ trader.cqg_access ? 'Yes' : 'No' }}
+                                          </span>
+                                       </td>
+                                       <td class="py-1.5 text-slate-600">{{ trader.trading_permissions?.join(', ') }}</td>
+                                    </tr>
+                                 </tbody>
+                              </table>
+                           </div>
+                        </div>
+                     </div>
+
+                     <!-- TMO Instructions -->
+                     <div *ngIf="tmoInstructions" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                        <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                           <lucide-icon name="list-checks" class="w-4 h-4 text-sky-500"></lucide-icon>
+                           TMO Setup Instructions
+                        </h3>
+                        <div class="space-y-4">
+                           <div *ngIf="tmoInstructions.ubix_steps?.length">
+                              <h4 class="text-xs font-bold text-slate-600 uppercase mb-2">UBIX Steps</h4>
+                              <ol class="list-decimal list-inside text-xs text-slate-700 space-y-1">
+                                 <li *ngFor="let step of tmoInstructions.ubix_steps">{{ step }}</li>
+                              </ol>
+                           </div>
+                           <div *ngIf="tmoInstructions.sic_steps?.length">
+                              <h4 class="text-xs font-bold text-slate-600 uppercase mb-2">SIC Steps</h4>
+                              <ol class="list-decimal list-inside text-xs text-slate-700 space-y-1">
+                                 <li *ngFor="let step of tmoInstructions.sic_steps">{{ step }}</li>
+                              </ol>
+                           </div>
+                           <div *ngIf="tmoInstructions.cv_steps?.length">
+                              <h4 class="text-xs font-bold text-slate-600 uppercase mb-2">CreditView Steps</h4>
+                              <ol class="list-decimal list-inside text-xs text-slate-700 space-y-1">
+                                 <li *ngFor="let step of tmoInstructions.cv_steps">{{ step }}</li>
+                              </ol>
+                           </div>
+                           <div *ngIf="tmoInstructions.validation_checklist?.length">
+                              <h4 class="text-xs font-bold text-slate-600 uppercase mb-2">Validation Checklist</h4>
+                              <table class="w-full text-xs">
+                                 <thead>
+                                    <tr class="border-b">
+                                       <th class="pb-1 text-left text-slate-500">System</th>
+                                       <th class="pb-1 text-left text-slate-500">Field</th>
+                                       <th class="pb-1 text-left text-slate-500">Expected Value</th>
+                                    </tr>
+                                 </thead>
+                                 <tbody>
+                                    <tr *ngFor="let item of tmoInstructions.validation_checklist" class="border-b border-slate-100">
+                                       <td class="py-1.5 font-medium text-slate-900">{{ item.system }}</td>
+                                       <td class="py-1.5 text-slate-700">{{ item.field }}</td>
+                                       <td class="py-1.5 text-slate-600 font-mono">{{ item.expected_value }}</td>
+                                    </tr>
+                                 </tbody>
+                              </table>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Empty state -->
+                  <div *ngIf="!configSpec" class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center">
+                     <lucide-icon name="settings" class="w-8 h-8 mx-auto mb-2 text-slate-300"></lucide-icon>
+                     <p class="text-sm text-slate-500">Account configuration not yet started.</p>
+                     <p class="text-xs text-slate-400 mt-1">This step runs at Node N-5 of the pipeline.</p>
+                  </div>
+               </div>
+
+               <!-- ====================== PIPELINE TAB ====================== -->
+               <div *ngIf="activeTab === 'PIPELINE'" class="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-5xl mx-auto">
+
+                  <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                     <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <lucide-icon name="git-branch" class="w-4 h-4 text-sky-500"></lucide-icon>
+                        DAG Pipeline — N-0 through N-6
+                     </h3>
+
+                     <!-- Full DAG Visualizer with swimlane -->
+                     <app-dce-dag-visualizer [nodes]="dagNodes" [compact]="false" [showSwimLane]="true"></app-dce-dag-visualizer>
+                  </div>
+
+                  <!-- Checkpoint Details -->
+                  <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                     <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <lucide-icon name="list-checks" class="w-4 h-4 text-sky-500"></lucide-icon>
+                        Checkpoint Timeline
+                     </h3>
+                     <div class="space-y-3">
+                        <div *ngFor="let cp of checkpoints" class="border border-slate-200 rounded-lg p-4 hover:bg-slate-50 transition-colors">
+                           <div class="flex items-center justify-between">
+                              <div class="flex items-center gap-3">
+                                 <span class="font-mono text-xs bg-slate-100 px-2 py-0.5 rounded font-semibold">{{ cp.node_id }}</span>
+                                 <span class="text-sm font-medium text-slate-900">{{ getNodeLabel(cp.node_id) }}</span>
+                              </div>
+                              <div class="flex items-center gap-3">
+                                 <span [ngClass]="{
+                                    'bg-green-50 text-green-700': cp.status === 'COMPLETED',
+                                    'bg-sky-50 text-sky-700': cp.status === 'IN_PROGRESS',
+                                    'bg-amber-50 text-amber-700': cp.status === 'HITL_PENDING',
+                                    'bg-red-50 text-red-700': cp.status === 'FAILED'
+                                 }" class="px-2 py-0.5 rounded text-xs font-semibold">{{ cp.status }}</span>
+                                 <span *ngIf="cp.duration_seconds" class="text-xs text-slate-500">{{ cp.duration_seconds }}s</span>
+                                 <span *ngIf="cp.agent_model" class="text-[10px] text-slate-400 font-mono">{{ cp.agent_model }}</span>
+                              </div>
+                           </div>
+                           <div *ngIf="cp.failure_reason" class="mt-2 text-xs text-red-600 bg-red-50 rounded p-2">
+                              {{ cp.failure_reason }}
+                           </div>
+                           <div class="flex items-center gap-4 mt-2 text-[10px] text-slate-400">
+                              <span>Started: {{ formatDateTime(cp.started_at) }}</span>
+                              <span>Completed: {{ formatDateTime(cp.completed_at) }}</span>
+                           </div>
+                        </div>
+
+                        <div *ngIf="!checkpoints.length" class="py-6 text-center text-slate-400 text-sm">
+                           No checkpoints recorded yet
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+               <!-- ====================== EVENTS TAB ====================== -->
+               <div *ngIf="activeTab === 'EVENTS'" class="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-5xl mx-auto">
+
+                  <!-- Event Log -->
+                  <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                     <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <lucide-icon name="activity" class="w-4 h-4 text-sky-500"></lucide-icon>
+                        Event Log ({{ events.length }})
+                     </h3>
+                     <div class="space-y-1">
+                        <div *ngFor="let ev of events" class="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors">
+                           <div class="w-8 h-8 rounded-full flex items-center justify-center flex-none mt-0.5"
+                                [ngClass]="getEventIconColor(ev.event_type)">
+                              <lucide-icon [name]="getEventIcon(ev.event_type)" class="w-4 h-4"></lucide-icon>
+                           </div>
+                           <div class="flex-1 min-w-0">
+                              <p class="text-sm font-medium text-slate-900">{{ formatSnakeCase(ev.event_type) }}</p>
+                              <p class="text-xs text-slate-500 mt-0.5">
+                                 <span *ngIf="ev.from_state">{{ ev.from_state }}</span>
+                                 <span *ngIf="ev.from_state && ev.to_state"> &rarr; </span>
+                                 <span *ngIf="ev.to_state">{{ ev.to_state }}</span>
+                                 <span class="ml-2 text-slate-400">by {{ ev.triggered_by }}</span>
+                              </p>
+                           </div>
+                           <span class="text-xs text-slate-400 whitespace-nowrap">{{ formatDateTime(ev.triggered_at) }}</span>
+                        </div>
+                        <div *ngIf="!events.length" class="py-6 text-center text-slate-400 text-sm">
+                           No events recorded yet
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Notifications -->
+                  <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                     <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <lucide-icon name="bell" class="w-4 h-4 text-sky-500"></lucide-icon>
+                        Notification History ({{ notifications.length }})
+                     </h3>
+                     <div class="space-y-2">
+                        <div *ngFor="let n of notifications" class="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:bg-slate-50">
+                           <div class="flex items-center gap-3">
+                              <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase"
+                                 [ngClass]="n.channel === 'EMAIL' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'">
+                                 {{ n.channel }}
+                              </span>
+                              <span class="text-sm text-slate-900">{{ n.subject }}</span>
+                           </div>
+                           <div class="flex items-center gap-3">
+                              <span class="text-xs text-slate-500">{{ n.recipient_email }}</span>
+                              <span [ngClass]="n.delivery_status === 'DELIVERED' ? 'text-green-600' : 'text-amber-600'"
+                                 class="text-xs font-semibold">{{ n.delivery_status }}</span>
+                           </div>
+                        </div>
+                        <div *ngIf="!notifications.length" class="py-6 text-center text-slate-400 text-sm">
+                           No notifications sent yet
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+               <!-- ====================== CHAT TAB ====================== -->
+               <div *ngIf="activeTab === 'CHAT'" class="h-full -m-8">
+                  <app-orchestrator-chat
+                     [defaultAgent]="'DCE_ORCHESTRATOR'"
+                     [contextLabel]="'DCE Case: ' + (caseId || '')"
+                     class="h-full">
+                  </app-orchestrator-chat>
+               </div>
+
+            </div>
+         </div>
+      </div>
+   </div>
+</div>

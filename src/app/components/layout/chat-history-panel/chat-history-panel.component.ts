@@ -13,22 +13,17 @@ import { ChatSessionService, ChatSession } from '../../../services/chat-session.
     <div class="flex flex-col h-full bg-[#f9f9f9] overflow-hidden">
 
         <!-- Header -->
-        <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200/60">
-            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200/60 gap-2">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2 whitespace-nowrap flex-none">
                 <lucide-icon name="message-square" class="w-4 h-4 text-violet-600"></lucide-icon>
                 Chat History
             </h3>
-            <div class="flex items-center gap-1">
+            <div class="flex items-center gap-1 flex-none">
                 <button (click)="onNewChat.emit()"
-                        class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-violet-50 hover:bg-violet-100 text-violet-600 hover:text-violet-700 transition-all border border-violet-200 hover:border-violet-300 text-xs font-semibold"
+                        class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-violet-50 hover:bg-violet-100 text-violet-600 hover:text-violet-700 transition-all border border-violet-200 hover:border-violet-300 text-xs font-semibold whitespace-nowrap"
                         title="New Chat">
                     <lucide-icon name="plus" class="w-3.5 h-3.5"></lucide-icon>
                     <span>New Chat</span>
-                </button>
-                <button (click)="onClose.emit()"
-                        class="p-1.5 rounded-md hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors"
-                        title="Close panel">
-                    <lucide-icon name="panel-left" class="w-4 h-4"></lucide-icon>
                 </button>
             </div>
         </div>

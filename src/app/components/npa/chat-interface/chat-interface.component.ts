@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { AgentWorkspaceComponent } from '../../shared/agent-workspace/agent-workspace.component';
 import { WorkspaceConfig } from '../../shared/agent-workspace/agent-workspace.interfaces';
 
@@ -15,7 +15,8 @@ import { WorkspaceConfig } from '../../shared/agent-workspace/agent-workspace.in
     `,
     styles: [`:host { display: block; height: 100%; }`]
 })
-export class ChatInterfaceComponent {
+export class ChatInterfaceComponent implements OnInit {
+    @Input() workspaceOverride: Partial<WorkspaceConfig> | null = null;
     @Output() onBack = new EventEmitter<void>();
     @Output() onComplete = new EventEmitter<any>();
 
@@ -28,6 +29,12 @@ export class ChatInterfaceComponent {
         title: 'NPA Agent',
         subtitle: 'Product Approval Assistant'
     };
+
+    ngOnInit() {
+        if (this.workspaceOverride) {
+            this.workspaceConfig = { ...this.workspaceConfig, ...this.workspaceOverride };
+        }
+    }
 
     goBack() {
         this.onBack.emit();

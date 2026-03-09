@@ -14,6 +14,7 @@ export interface AgentDefinition {
     color: string;
     difyType: 'chat' | 'workflow';
     description: string;
+    domain?: string;
 }
 
 import AGENT_REGISTRY_JSON from '../../../shared/agent-registry.json';
@@ -26,6 +27,7 @@ export const AGENT_REGISTRY: AgentDefinition[] = (AGENT_REGISTRY_JSON as any[]).
     color: String(a.color),
     difyType: a.difyType as 'chat' | 'workflow',
     description: String(a.description || ''),
+    domain: a.domain ? String(a.domain) : undefined,
 }));
 
 // ─── Agent Activity ──────────────────────────────────────────────
